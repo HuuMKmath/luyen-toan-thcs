@@ -753,6 +753,8 @@ const RECAP=[
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60}; // giây
 const SHEET_URL='https://script.google.com/macros/s/AKfycbymfKnTorrA9GSsgjJddmICBqaEzffOWhY1Ubm-CWFxbqrXSVWC9flu3tWYoyt3L2w/exec'; // địa chỉ Google Apps Script (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+const SHEET_TAB='7 - Tam giác bằng nhau'; // tên trang tính của bài này trong Google Sheet chung
+const SHEET_TOPICS=['Tổng quan tam giác','Cạnh-cạnh-cạnh','Cạnh-góc-cạnh','Góc-cạnh-góc']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
 let tick=null;
 function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
@@ -1125,7 +1127,7 @@ function sendResult(){
   if(!SHEET_URL||!state.result)return;
   const code=makeCode(state.result);
   setSent('Đang gửi kết quả cho giáo viên...');
-  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code})};
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
   const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
   const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
   fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
