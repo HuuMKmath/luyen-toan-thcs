@@ -38,6 +38,10 @@ a.lesson p{margin:0;font-size:.92rem;color:var(--muted)}
 .note{margin-top:34px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:.92rem;color:var(--muted)}
 .note b{color:var(--ink)}
 .chip{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--paper)}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}
+.jump a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font-weight:600;font-size:.95rem;text-decoration:none}
+.jump a:hover{border-color:var(--accent);color:var(--accent)}
+section[id]{scroll-margin-top:12px}
 </style>
 </head>
 <body>
@@ -45,28 +49,46 @@ a.lesson p{margin:0;font-size:.92rem;color:var(--muted)}
   <h1>Luyện toán <em>THCS</em></h1>
   <p class="lead">Chọn bài để luyện tập hoặc làm bài kiểm tra. Mỗi bài chấm tự động ngay trên trình duyệt, phân tích phần kiến thức còn yếu và có mã kết quả để gửi giáo viên.</p>
 
-  <h2>Lớp 6 · Toán 6 Kết nối tri thức</h2>
-  <div class="list">
-    <a class="lesson" href="../boi-chung-nho-nhat/">
-      <h3>Bội chung, bội chung nhỏ nhất</h3>
-      <p>Bội chung, tìm BCNN bằng phân tích ra thừa số nguyên tố, suy ra bội chung, bài toán thực tế.</p>
-      <span><span class="chip">Mã kết quả BC6-</span></span>
-      <span class="go">Mở bài →</span>
-    </a>
-  </div>
+  <nav class="jump" aria-label="Chọn lớp">
+    <a href="#lop-6">Lớp 6</a>
+    <a href="#lop-7">Lớp 7</a>
+    <a href="#lop-8">Lớp 8</a>
+    <a href="#lop-9">Lớp 9</a>
+  </nav>
 
-  <h2>Lớp 7 · Toán 7 Kết nối tri thức</h2>
-  <div class="list">
-    <a class="lesson" href="../">
-      <h3>Tam giác bằng nhau</h3>
-      <p>Hai tam giác bằng nhau và ba trường hợp bằng nhau: c.c.c, c.g.c, g.c.g.</p>
-      <span><span class="chip">Mã kết quả TG7-</span></span>
-      <span class="go">Mở bài →</span>
-    </a>
-  </div>
+  <section id="lop-6" aria-labelledby="h-lop-6">
+    <h2 id="h-lop-6">Lớp 6 · Toán 6 Kết nối tri thức</h2>
+    <div class="list">
+      <a class="lesson" href="../boi-chung-nho-nhat/">
+        <h3>Bội chung, bội chung nhỏ nhất</h3>
+        <p>Bội chung, tìm BCNN bằng phân tích ra thừa số nguyên tố, suy ra bội chung, bài toán thực tế.</p>
+        <span><span class="chip">Mã kết quả BC6-</span></span>
+        <span class="go">Mở bài →</span>
+      </a>
+    </div>
+  </section>
 
-  <h2>Sắp có</h2>
-  <div class="soon">Các bài của lớp 6, 7, 8, 9 sẽ được thêm dần vào trang này.</div>
+  <section id="lop-7" aria-labelledby="h-lop-7">
+    <h2 id="h-lop-7">Lớp 7 · Toán 7 Kết nối tri thức</h2>
+    <div class="list">
+      <a class="lesson" href="../">
+        <h3>Tam giác bằng nhau</h3>
+        <p>Hai tam giác bằng nhau và ba trường hợp bằng nhau: c.c.c, c.g.c, g.c.g.</p>
+        <span><span class="chip">Mã kết quả TG7-</span></span>
+        <span class="go">Mở bài →</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="lop-8" aria-labelledby="h-lop-8">
+    <h2 id="h-lop-8">Lớp 8 · Toán 8 Kết nối tri thức</h2>
+    <div class="soon">Chưa có bài. Các bài của lớp 8 sẽ được thêm dần.</div>
+  </section>
+
+  <section id="lop-9" aria-labelledby="h-lop-9">
+    <h2 id="h-lop-9">Lớp 9 · Toán 9 Kết nối tri thức</h2>
+    <div class="soon">Chưa có bài. Các bài của lớp 9 sẽ được thêm dần.</div>
+  </section>
 
   <div class="note"><b>Dành cho giáo viên:</b> mỗi bài có mã kết quả riêng (BC6-, TG7-). Học sinh gửi mã sau khi nộp bài kiểm tra; thầy cô mở mục Giáo viên của đúng bài rồi dán mã vào để xem bảng tổng hợp.</div>
 </div>
