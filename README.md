@@ -25,4 +25,4 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 ## Thêm một bài mới
 
-Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `boi-chung-nho-nhat/index.html`), đặt tiền tố mã riêng, rồi thêm một thẻ vào `cac-bai/index.html` và một dòng vào bảng trên.
+Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `boi-chung-nho-nhat/index.html`), đặt tiền tố mã riêng, rồi thêm một thẻ vào đúng section lớp (`lop-6` đến `lop-9`) trong `cac-bai/index.html` và một dòng vào bảng trên. Section lớp chưa có bài hiện dòng "Chưa có bài"; khi thêm thẻ đầu tiên thì thay dòng đó bằng khối `<div class="list">` như các lớp khác.
