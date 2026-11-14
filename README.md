@@ -19,9 +19,18 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 ## Cách dùng cho giáo viên
 
-- Học sinh làm bài kiểm tra (nhập họ tên, lớp, mã đề nếu có) rồi gửi mã kết quả.
+- Học sinh nhập mã học sinh, làm bài kiểm tra (nhập mã đề nếu có); kết quả tự gửi về Google Sheet của bài.
 - Giáo viên mở mục **Giáo viên** của đúng bài (thêm `#giao-vien` vào cuối địa chỉ), dán các mã vào để xem bảng tổng hợp.
 - Mỗi bài có tiền tố mã riêng nên không dán lẫn giữa các bài.
+
+## Mã học sinh
+
+Mỗi học sinh có một mã 6 chữ số do giáo viên phát. Học sinh nhập mã một lần trên máy của mình, sau đó luyện tập và làm bài kiểm tra ở mọi bài. Kết quả kiểm tra chỉ được ghi khi mã có trong danh sách.
+
+- Danh sách nằm ở một Google Sheet riêng ("Danh sách học sinh"): cột A = Lớp, B = Họ tên, C = Mã HS. Script `danh-sach-hoc-sinh/google-sheet.gs` thêm menu **Học sinh > Tạo mã cho học sinh chưa có mã**.
+- Script của từng bài (`google-sheet.gs`, `boi-chung-nho-nhat/google-sheet.gs`) đọc danh sách đó: dán link của Sheet danh sách vào dòng `DANH_SACH`, chạy hàm `kiemTra` một lần để cấp quyền, rồi triển khai lại **phiên bản mới của bản triển khai cũ** (để địa chỉ `/exec` không đổi).
+- Họ tên và lớp trong bảng điểm lấy từ danh sách, không lấy từ máy học sinh. Bảng điểm có thêm cột **Mã HS** ở cuối.
+- Không dán link của Sheet danh sách vào kho này (kho công khai); chỉ dán trong Apps Script.
 
 ## Thêm một bài mới
 
