@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phép cộng và phép trừ số nguyên – Toán 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Worksheet on graph paper. Blue ink for text, red pencil for the marked points. */
+:root{
+  --paper:#f2f6fc; --card:#ffffff; --ink:#13203a; --muted:#54627f; --line:#cdd7e9;
+  --grid:rgba(52,96,170,.08); --accent:#1f4fd8; --accent-ink:#ffffff; --mark:#d9342b; --tri:#eaf0fc;
+  --good:#17754a; --good-bg:#e4f4ea; --warn:#9a5b00; --warn-bg:#fff0d4; --bad:#b3261e; --bad-bg:#fde8e6;
+  --display:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1730; --card:#142245; --ink:#e8eefc; --muted:#9fb0d4; --line:#2b3c6b;
+    --grid:rgba(140,170,255,.07); --accent:#8aa9ff; --accent-ink:#0d1730; --mark:#ff7f72; --tri:#1a2b57;
+    --good:#58d19a; --good-bg:#12372d; --warn:#f3b955; --warn-bg:#3b2d10; --bad:#ff8a80; --bad-bg:#40191b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1730; --card:#142245; --ink:#e8eefc; --muted:#9fb0d4; --line:#2b3c6b;
+  --grid:rgba(140,170,255,.07); --accent:#8aa9ff; --accent-ink:#0d1730; --mark:#ff7f72; --tri:#1a2b57;
+  --good:#58d19a; --good-bg:#12372d; --warn:#f3b955; --warn-bg:#3b2d10; --bad:#ff8a80; --bad-bg:#40191b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink); font:16px/1.65 var(--body); -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 72px}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+sup{font-size:.72em;line-height:0}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;font-size:.82rem;color:var(--muted);flex-wrap:wrap}
+.top b{color:var(--ink);font-weight:600;letter-spacing:.02em}
+.top nav{display:flex;gap:16px;flex-wrap:wrap}
+.top nav a{color:var(--muted);text-decoration:none;border-bottom:1.5px solid transparent;padding-bottom:1px}
+.top nav a[aria-current="page"]{color:var(--ink);border-color:var(--mark)}
+
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.3rem,8vw,3.9rem);font-weight:700;letter-spacing:-.01em}
+h1 em{color:var(--accent);font-weight:600}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.15rem;font-weight:700}
+.lead{font-size:1.08rem;color:var(--muted);max-width:56ch;margin:14px 0 0}
+
+.hero{padding:12px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+
+.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;padding:12px 22px;border-radius:10px;cursor:pointer;min-height:46px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{padding:8px 14px;min-height:38px;font-size:.9rem}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:140px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+
+.figbox{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;max-width:400px;margin:10px 0}
+.figbox.ms{max-width:none}
+.figbox p{margin:2px 0}
+.ms{display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.ms .r{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.ms .r b{min-width:54px;font-family:var(--display)}
+.ms i{font-style:normal;min-width:30px;text-align:center;padding:2px 4px;border-radius:6px;border:1px solid var(--line);background:var(--card);font-variant-numeric:tabular-nums}
+.ms i.c{border-color:var(--mark);color:var(--mark);font-weight:700}
+
+.grp{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark);margin:18px 0 8px}
+.grp:first-of-type{margin-top:6px}
+.pack{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.pk{appearance:none;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:68px}
+.pk:hover{border-color:var(--accent)}
+.pk b{font-family:var(--display);font-size:1.02rem}
+.pk span{font-size:.84rem;color:var(--muted);line-height:1.4}
+.pk[disabled]{opacity:.55;cursor:not-allowed}
+.pk[disabled]:hover{border-color:var(--line)}
+.recap{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.recap{grid-template-columns:1fr 1fr}}
+.recap .card{display:flex;flex-direction:column;gap:6px}
+.recap h3{font-size:1.02rem}
+.recap p{margin:0;font-size:.93rem}
+.chip{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--paper);white-space:nowrap}
+
+.bar-sticky{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:10px 16px}
+.timer{font-variant-numeric:tabular-nums;font-size:.95rem}
+.timer.low{color:var(--bad)}
+.prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.part{margin:28px 0 12px}
+.part .kicker{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark)}
+.part p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.q{margin-bottom:14px}
+.qh{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}
+.qn{font-weight:700;font-family:var(--display);font-size:1.08rem}
+.stem{margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.opt{position:relative;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;background:var(--card)}
+.opt:hover{border-color:var(--accent)}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opt .ol{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:600;font-size:.85rem}
+.opt:has(input:checked){border-color:var(--accent);background:var(--tri)}
+.opt:has(input:checked) .ol{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.opt:has(input:disabled){cursor:default}
+.opt:has(input:disabled):hover{border-color:var(--line)}
+.opt.is-right,.opt.is-right:hover{border-color:var(--good);background:var(--good-bg)}
+.opt.is-right .ol{background:var(--good);color:var(--paper);border-color:var(--good)}
+.opt.is-wrong,.opt.is-wrong:hover{border-color:var(--bad);background:var(--bad-bg)}
+.opt.is-wrong .ol{background:var(--bad);color:var(--paper);border-color:var(--bad)}
+.tf{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.tfr{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 0;border-top:1px dashed var(--line)}
+.tfr .tx{flex:1 1 260px}
+.tfr .tx b{font-family:var(--display);margin-right:6px}
+.tfr .exp{flex-basis:100%;margin-top:0}
+.tfb{display:flex;gap:8px}
+.tfb .opt{padding:7px 16px;border-radius:99px;font-weight:600;font-size:.92rem}
+.sa{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.sa input{max-width:180px}
+.warnbar{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:12px 14px;margin-top:16px}
+.feed{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:.94rem}
+.feed.ok{background:var(--good-bg);color:var(--good)}
+.feed.bad{background:var(--bad-bg);color:var(--bad)}
+.feed.info{background:var(--warn-bg);color:var(--warn)}
+.exp{background:var(--paper);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:.94rem}
+
+.score{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.big{font-family:var(--display);font-weight:700;font-size:clamp(3rem,14vw,4.6rem);line-height:1;letter-spacing:-.02em}
+.big small{font-size:.4em;color:var(--muted);font-weight:600}
+.parts{display:flex;gap:8px;flex-wrap:wrap}
+.parts .chip{font-size:.85rem;padding:5px 12px}
+.topic{padding:14px 0;border-top:1px solid var(--line)}
+.topic:first-child{border-top:0;padding-top:0}
+.trow{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.track{height:12px;border-radius:99px;background:var(--line);margin:8px 0 6px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px}
+.st{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.st.good{background:var(--good-bg);color:var(--good)}
+.st.warn{background:var(--warn-bg);color:var(--warn)}
+.st.bad{background:var(--bad-bg);color:var(--bad)}
+.fill-good{background:var(--good)} .fill-warn{background:var(--warn)} .fill-bad{background:var(--bad)}
+.advice{border-left:4px solid var(--mark);padding:2px 0 2px 14px;margin:10px 0}
+.advice p{margin:4px 0}
+ul.plain{margin:6px 0 0;padding-left:20px}
+ul.plain li{margin:3px 0}
+details.rv{border:1px solid var(--line);border-radius:10px;background:var(--card);margin-bottom:8px}
+details.rv summary{cursor:pointer;padding:11px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;list-style:none}
+details.rv summary::-webkit-details-marker{display:none}
+details.rv .body{padding:0 14px 14px;border-top:1px dashed var(--line)}
+.mark-ok{color:var(--good);font-weight:700} .mark-no{color:var(--bad);font-weight:700}
+.ans-line{margin:6px 0;font-size:.94rem}
+.codebox{display:flex;flex-direction:column;gap:8px}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.cell{font-weight:600;text-align:center}
+td.cell.good{color:var(--good)} td.cell.warn{color:var(--warn)} td.cell.bad{color:var(--bad)}
+.tablewrap{overflow-x:auto}
+[hidden]{display:none!important}
+footer{margin-top:40px;color:var(--muted);font-size:.8rem}
+.ax{stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.ah{fill:var(--ink)}
+.tl{fill:var(--ink);font-size:15px;font-family:var(--body);font-variant-numeric:tabular-nums}
+.ol0{fill:var(--muted);font:italic 600 15px var(--display)}
+.pt{fill:var(--mark)}
+.pl{fill:var(--mark);font:italic 700 17px var(--display)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <b>Toán 6 · Kết nối tri thức · Bài 14. Phép cộng và phép trừ số nguyên</b>
+    <nav aria-label="Chọn chế độ">
+      <a href="../cac-bai/" id="nav-hub">Tất cả các bài</a>
+      <a href="#" id="nav-hs" aria-current="page">Học sinh</a>
+      <a href="#giao-vien" id="nav-gv">Giáo viên</a>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+
+  <footer>Bài luyện chấm tự động ngay trên trình duyệt. Kết quả không được lưu trên máy chủ; học sinh gửi mã kết quả của bài kiểm tra cho giáo viên để tổng hợp.</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ============ Số nguyên: cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;          // viết số nguyên, số âm dùng dấu trừ "−"
+const L=a=>a.map(N).join('; ');
+const P=x=>x<0?'('+N(x)+')':N(x);       // số âm đặt trong ngoặc khi đứng sau dấu phép tính
+const nb=s=>s.replace(/ /g,' ');   // khoảng trắng không ngắt dòng, để phép tính không bị tách đôi
+const ADD=(a,b)=>nb(N(a)+' + '+P(b));
+const SUB=(a,b)=>nb(N(a)+' − '+P(b));
+const SUMX=v=>nb(v.map((x,i)=>i===0?N(x):'+ '+P(x)).join(' '));   // 3 + (−5) + 7
+function EX(v0,ops){let s=N(v0),val=v0;for(const [g,v] of ops){s+=(g>0?' + ':' − ')+P(v);val+=g*v;}return {txt:nb(s),val};}
+const sum=v=>v.reduce((s,x)=>s+x,0);
+const sgn=()=>RNG()<.5?-1:1;
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const asc=a=>a.slice().sort((x,y)=>x-y);
+
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const C=(t,err)=>({t,err});
+const mk=(stem,good,cands,exp)=>({stem,opts:[{t:good}].concat(pickOpts(good,cands)),ans:0,exp});
+const FB_MC=()=>({stem:`Kết quả của phép tính ${ADD(-6,-4)} là bao nhiêu?`,opts:[{t:'−10'},{t:'10',err:'Tổng của hai số nguyên âm là số nguyên âm, không thể là số dương.'},{t:'−2',err:'Bạn đã lấy hiệu hai số. Hai số cùng dấu thì ta cộng phần số tự nhiên của chúng.'},{t:'2',err:'Bạn đã trừ hai số thay vì cộng, và sai cả dấu.'}],ans:0,exp:'Hai số cùng dấu âm: cộng hai số tự nhiên 6 + 4 = 10, rồi đặt dấu "−" trước kết quả: −10.'});
+function tryGen(f){
+  for(let n=0;n<100;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>o.t)).size===4)return r;}
+  return FB_MC();
+}
+
+/* ============ Bộ sinh câu nhiều lựa chọn ============ */
+/* --- Cộng hai số nguyên --- */
+function genAddNeg(){return tryGen(()=>{
+  const [a,b]=sample(2,2,60);
+  return mk(`Kết quả của phép tính ${ADD(-a,-b)} là bao nhiêu?`,N(-(a+b)),[
+    C(N(a+b),'Tổng của hai số nguyên âm là số nguyên âm, không thể là số dương.'),
+    C(N(-Math.abs(a-b)),'Bạn đã lấy hiệu hai số. Hai số cùng dấu thì ta cộng phần số tự nhiên của chúng.'),
+    C(N(Math.abs(a-b)),'Bạn đã trừ hai số thay vì cộng, và sai cả dấu.')],
+    `Hai số cùng dấu âm: cộng hai số tự nhiên ${a} + ${b} = ${a+b}, rồi đặt dấu "−" trước kết quả: ${N(-(a+b))}.`);
+});}
+function genAddDiff(){return tryGen(()=>{
+  const [x,y]=sample(2,2,60),neg1=RNG()<.5;
+  const a=neg1?-x:x,b=neg1?y:-y,s=a+b,big=Math.max(x,y),small=Math.min(x,y);
+  return mk(`Tính ${ADD(a,b)}.`,N(s),[
+    C(N(-s),'Dấu của kết quả phải là dấu của số có giá trị tuyệt đối lớn hơn.'),
+    C(N(x+y),'Hai số khác dấu thì ta lấy hiệu hai giá trị tuyệt đối chứ không cộng chúng.'),
+    C(N(-(x+y)),'Hai số khác dấu thì ta lấy hiệu hai giá trị tuyệt đối chứ không cộng chúng.')],
+    `Hai số khác dấu: lấy ${big} − ${small} = ${big-small}. Số có giá trị tuyệt đối lớn hơn là ${N(big===x?a:b)} nên kết quả mang dấu ${s<0?'"−"':'"+"'}: ${N(s)}.`);
+});}
+function genSum4(){return tryGen(()=>{
+  const v=[sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30)],s=sum(v);
+  if(s===0||v.every(x=>x>0)||v.every(x=>x<0))return null;
+  return mk(`Tính ${SUMX(v)}.`,N(s),[
+    C(N(-s),'Kết quả có dấu ngược lại. Hãy cộng từng bước và để ý dấu của số có giá trị tuyệt đối lớn hơn.'),
+    C(N(s-2*v[3]),`Bạn đã đổi dấu số hạng cuối ${N(v[3])}.`),
+    C(N(s-2*v[0]),`Bạn đã đổi dấu số hạng đầu ${N(v[0])}.`)],
+    `Cộng lần lượt: ${N(v[0])} + ${P(v[1])} = ${N(v[0]+v[1])}; ${N(v[0]+v[1])} + ${P(v[2])} = ${N(v[0]+v[1]+v[2])}; ${N(v[0]+v[1]+v[2])} + ${P(v[3])} = ${N(s)}.`);
+});}
+function rangeSum(a,b){return (b*(b+1)-a*(a+1))/2;}   // tổng các số nguyên từ −a đến b
+function genRangeSum(){return tryGen(()=>{
+  const [a,b]=sample(2,2,9),s=rangeSum(a,b);
+  const drop=b>a?s-b:s+a;
+  return mk(`Tổng tất cả các số nguyên x thỏa mãn ${nb(N(-a)+' ≤ x ≤ '+b)} là bao nhiêu?`,N(s),[
+    C('0','Các cặp số đối nhau triệt tiêu, nhưng khi hai đầu mút không đối nhau thì vẫn còn các số ở một phía.'),
+    C(N(-s),'Dấu của kết quả bị ngược: phần còn lại là các số ở phía có giá trị tuyệt đối lớn hơn.'),
+    C(N(drop),'Bạn đã bỏ sót một đầu mút của khoảng. Dấu "≤" cho phép lấy cả hai đầu mút.')],
+    `Các cặp số đối nhau có tổng bằng 0. ${b>a?`Còn lại các số từ ${a+1} đến ${b}`:`Còn lại các số từ ${N(-a)} đến ${N(-(b+1))}`}. Tổng của chúng là ${N(s)}.`);
+});}
+/* --- Tính chất phép cộng --- */
+const FORM={'Giao hoán':'a + b = b + a','Kết hợp':'(a + b) + c = a + (b + c)','Cộng với số 0':'a + 0 = a','Cộng với số đối':'a + (−a) = 0'};
+function genProp(){return tryGen(()=>{
+  const [a0,b0,c0]=sample(3,2,30),a=sgn()*a0,b=sgn()*b0,c=sgn()*c0,k=ri(0,3);
+  const names=Object.keys(FORM);
+  const eq=[
+    `${ADD(a,b)} = ${ADD(b,a)}`,
+    nb(`(${N(a)} + ${P(b)}) + ${P(c)} = ${N(a)} + (${N(b)} + ${P(c)})`),
+    nb(`${N(a)} + 0 = ${N(a)}`),
+    `${ADD(a,-a)} = 0`][k];
+  return mk(`Đẳng thức ${eq} thể hiện tính chất nào của phép cộng?`,names[k],
+    shuffle(names.filter((_,i)=>i!==k)).map(n=>C(n,`Tính chất "${n.toLowerCase()}" được viết là ${FORM[n]}, không phải dạng của đẳng thức đã cho.`)),
+    `Đẳng thức có dạng ${FORM[names[k]]} nên đó là tính chất ${names[k].toLowerCase()} của phép cộng.`);
+});}
+function genAssoc3(){return tryGen(()=>{
+  const [x0,y0]=sample(2,2,60),x=sgn()*x0,y=sgn()*y0;
+  return mk(`Tính hợp lý: ${SUMX(shuffle([x,y,-x]))}.`,N(y),[
+    C(N(-y),'Hai số đối nhau cộng lại bằng 0, còn lại số hạng kia giữ nguyên dấu.'),
+    C(N(x+y),'Bạn đã bỏ sót một số hạng. Hai số đối nhau là '+N(x)+' và '+N(-x)+', cộng lại bằng 0.'),
+    C(N(y-x),'Hai số đối nhau cộng lại bằng 0; kết quả chỉ còn lại số hạng kia.')],
+    `Nhóm hai số đối nhau: ${N(x)} + ${P(-x)} = 0. Do đó tổng bằng 0 + ${P(y)} = ${N(y)}.`);
+});}
+function genAssoc4(){return tryGen(()=>{
+  const [x0,y0,z0]=sample(3,2,50),x=sgn()*x0,y=sgn()*y0,z=sgn()*z0,s=y+z;
+  if(s===0)return null;
+  return mk(`Tính hợp lý: ${SUMX(shuffle([x,y,-x,z]))}.`,N(s),[
+    C(N(-s),'Sai dấu. Hãy nhóm hai số đối nhau, rồi cộng hai số còn lại.'),
+    C(N(y-z),`Bạn đã đổi dấu số hạng ${N(z)}.`),
+    C(N(x+y+z),`Bạn chưa triệt tiêu cặp số đối nhau ${N(x)} và ${N(-x)}.`)],
+    `Nhóm hai số đối nhau: ${N(x)} + ${P(-x)} = 0. Còn lại ${N(y)} + ${P(z)} = ${N(s)}.`);
+});}
+/* --- Trừ hai số nguyên --- */
+function genOpp(){return tryGen(()=>{
+  const a=ri(2,80),x=sgn()*a;
+  return mk(`Số đối của ${N(x)} là số nào?`,N(-x),[
+    C(N(x),'Đó là chính số đã cho. Số đối của một số có dấu ngược lại.'),
+    C('0','Chỉ số 0 mới có số đối là chính nó.'),
+    C('Không có số đối','Mọi số nguyên đều có số đối.')],
+    `Số đối của ${N(x)} là ${N(-x)}, vì ${ADD(x,-x)} = 0.`);
+});}
+function genSubNB(){return tryGen(()=>{
+  const [x,y]=sample(2,1,60);
+  return mk(`Tính ${nb(x+' − '+y)}.`,N(x-y),[
+    C(N(y-x),'Bạn đã đảo thứ tự hai số. Phép trừ không có tính chất giao hoán.'),
+    C(N(x+y),'Bạn đã làm phép cộng thay vì phép trừ.'),
+    C(N(-(x+y)),'Bạn đã làm phép cộng thay vì phép trừ, rồi lại đổi dấu.')],
+    `${nb(x+' − '+y)} = ${ADD(x,-y)} = ${N(x-y)}.`);
+});}
+function genSubNeg(){return tryGen(()=>{
+  const a=sgn()*ri(2,40),b=ri(2,40);
+  return mk(`Tính ${SUB(a,-b)}.`,N(a+b),[
+    C(N(a-b),'Trừ cho một số âm thì ta cộng với số đối của nó, là số dương: a − (−b) = a + b.'),
+    C(N(-(a+b)),'Dấu của kết quả bị ngược. Hãy chuyển phép trừ thành phép cộng với số đối.'),
+    C(N(b-a),'Bạn đã đảo thứ tự hai số.')],
+    `${SUB(a,-b)} = ${N(a)} + ${b} = ${N(a+b)}, vì số đối của ${N(-b)} là ${b}.`);
+});}
+function genSubAsAdd(){return tryGen(()=>{
+  const [a,b]=sample(2,2,60);
+  return mk(`Phép tính nào sau đây có cùng kết quả với ${nb(a+' − '+b)}?`,nb(`${a} + (−${b})`),[
+    C(nb(`${a} + ${b}`),'Đó là phép cộng a + b. Muốn trừ b thì phải cộng với số đối của b.'),
+    C(nb(`(−${a}) + ${b}`),'Bạn đã đổi dấu số bị trừ thay vì số trừ. Kết quả ngược dấu.'),
+    C(nb(`(−${a}) + (−${b})`),'Bạn đã đổi dấu cả hai số.')],
+    `${nb(a+' − '+b)} = ${nb(`${a} + (−${b})`)}, vì số đối của ${b} là −${b}.`);
+});}
+function genDiffTemp(){return tryGen(()=>{
+  const lo=ri(3,25),hi=ri(2,25),d=hi+lo;
+  return mk(`Nhiệt độ lúc sáng sớm là ${N(-lo)}°C, đến trưa là ${hi}°C. Nhiệt độ đã tăng bao nhiêu độ?`,`${d}°C`,[
+    C(`${Math.abs(hi-lo)}°C`,'Bạn đã lấy hiệu hai giá trị tuyệt đối. Số độ tăng là hiệu hai nhiệt độ: hi − (−lo), tức là phép cộng.'),
+    C(`${hi}°C`,'Đó là nhiệt độ lúc trưa, chưa phải số độ đã tăng.'),
+    C(`${N(-d)}°C`,'Nhiệt độ tăng nên số độ tăng là số dương.')],
+    `Số độ tăng = nhiệt độ lúc trưa − nhiệt độ lúc sáng = ${hi} − (${N(-lo)}) = ${hi} + ${lo} = ${d}°C.`);
+});}
+function genSub3(){return tryGen(()=>{
+  const g=[sgn(),sgn()],v0=sgn()*ri(2,30),b=sgn()*ri(2,30),c=sgn()*ri(2,30),e=EX(v0,[[g[0],b],[g[1],c]]);
+  return mk(`Tính ${e.txt}.`,N(e.val),[
+    C(N(-e.val),'Kết quả có dấu ngược lại. Hãy đổi từng phép trừ thành cộng với số đối rồi cộng lần lượt.'),
+    C(N(e.val-2*g[0]*b),`Bạn đã nhầm dấu ở số ${N(b)}: ${g[0]>0?'cộng':'trừ'} ${P(b)} nghĩa là cộng với ${P(g[0]*b)}.`),
+    C(N(e.val-2*g[1]*c),`Bạn đã nhầm dấu ở số ${N(c)}: ${g[1]>0?'cộng':'trừ'} ${P(c)} nghĩa là cộng với ${P(g[1]*c)}.`)],
+    `Đổi phép trừ thành cộng với số đối: ${SUMX([v0,g[0]*b,g[1]*c])} = ${N(e.val)}.`);
+});}
+function genUnknown(){return tryGen(()=>{
+  const a=ri(2,40),b=sgn()*ri(2,40);
+  if(RNG()<.5)return mk(`Tìm số nguyên x biết ${nb('x + '+P(-a)+' = '+N(b))}.`,N(a+b),[
+    C(N(b-a),'Số hạng chưa biết bằng tổng trừ số hạng đã biết: x = '+N(b)+' − '+P(-a)+', trừ cho số âm thì cộng với số đối của nó.'),
+    C(N(-(a+b)),'Dấu của kết quả bị ngược.'),
+    C(N(a-b),'Bạn đã đảo thứ tự số bị trừ và số trừ.')],
+    `x = ${N(b)} − ${P(-a)} = ${N(b)} + ${a} = ${N(a+b)}.`);
+  return mk(`Tìm số nguyên x biết ${nb(N(a)+' − x = '+N(b))}.`,N(a-b),[
+    C(N(a+b),'Số trừ bằng số bị trừ trừ hiệu: x = '+N(a)+' − '+P(b)+', không phải cộng.'),
+    C(N(b-a),'Bạn đã đảo thứ tự số bị trừ và số trừ.'),
+    C(N(-(a-b)),'Dấu của kết quả bị ngược.')],
+    `x = ${N(a)} − ${P(b)} = ${N(a-b)}.`);
+});}
+/* --- Quy tắc dấu ngoặc, thực tế --- */
+function genBracket(){return tryGen(()=>{
+  const [p,q,r]=shuffle(['a','b','c','m','n','x','y']).slice(0,3),f=ri(0,3);
+  let st,good,w;
+  if(f===0){st=`${p} − (${q} − ${r})`;good=`${p} − ${q} + ${r}`;w=[[`${p} − ${q} − ${r}`,`Bạn mới đổi dấu số hạng đầu trong ngoặc. Phải đổi dấu cả ${q} và −${r}.`],[`${p} + ${q} − ${r}`,'Dấu "−" đứng trước ngoặc nên phải đổi dấu tất cả các số hạng trong ngoặc.'],[`${p} + ${q} + ${r}`,`Bạn đã đổi dấu sai: ${q} phải thành −${q}.`]];}
+  else if(f===1){st=`${p} − (${q} + ${r})`;good=`${p} − ${q} − ${r}`;w=[[`${p} − ${q} + ${r}`,`Bạn mới đổi dấu số hạng đầu trong ngoặc. ${r} cũng phải đổi thành −${r}.`],[`${p} + ${q} − ${r}`,`${q} phải đổi thành −${q} vì có dấu "−" đứng trước ngoặc.`],[`${p} + ${q} + ${r}`,'Bạn đã không đổi dấu số hạng nào trong ngoặc.']];}
+  else if(f===2){st=`${p} + (${q} − ${r})`;good=`${p} + ${q} − ${r}`;w=[[`${p} − ${q} + ${r}`,'Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng trong ngoặc.'],[`${p} − ${q} − ${r}`,'Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng trong ngoặc.'],[`${p} + ${q} + ${r}`,`Số hạng −${r} phải giữ nguyên dấu "−".`]];}
+  else{st=`−(${p} − ${q})`;good=`−${p} + ${q}`;w=[[`−${p} − ${q}`,`Phải đổi dấu cả hai số hạng: −${q} đổi thành +${q}.`],[`${p} − ${q}`,'Dấu "−" đứng trước ngoặc nên phải đổi dấu các số hạng trong ngoặc.'],[`${p} + ${q}`,'Bạn đã đổi dấu sai.']];}
+  return mk(`Bỏ dấu ngoặc, biểu thức ${st} bằng biểu thức nào?`,good,w.map(x=>C(x[0],x[1])),
+    f===2?'Dấu "+" đứng trước ngoặc: bỏ ngoặc và giữ nguyên dấu các số hạng trong ngoặc.':'Dấu "−" đứng trước ngoặc: bỏ ngoặc và đổi dấu tất cả các số hạng trong ngoặc.');
+});}
+function genAfterTemp(){return tryGen(()=>{
+  const t=sgn()*ri(1,20),d=ri(3,25),up=RNG()<.5,val=t+(up?d:-d);
+  return mk(`Lúc đầu nhiệt độ là ${N(t)}°C. Sau đó nhiệt độ ${up?'tăng':'giảm'} ${d}°C. Nhiệt độ lúc sau là bao nhiêu?`,`${N(val)}°C`,[
+    C(`${N(t+(up?-d:d))}°C`,`Bạn đã nhầm ${up?'tăng':'giảm'} với ${up?'giảm':'tăng'}. ${up?'Tăng là phép cộng':'Giảm là phép trừ'}.`),
+    C(`${N(-val)}°C`,'Kết quả bị ngược dấu.'),
+    C(`${N(d-t)}°C`,'Bạn đã đảo thứ tự số bị trừ và số trừ.')],
+    `${up?'Tăng':'Giảm'} ${d}°C nghĩa là ${up?'cộng thêm':'trừ đi'} ${d}: ${nb(EX(t,[[up?1:-1,d]]).txt)} = ${N(val)}°C.`);
+});}
+function genAlt(){return tryGen(()=>{
+  const a=ri(10,60),b=ri(5,a-1),c=ri(3,30),val=-a+b-c;
+  return mk(`Một tàu ngầm đang ở độ cao ${N(-a)} m so với mực nước biển. Tàu nổi lên ${b} m, sau đó lặn xuống ${c} m. Độ cao của tàu lúc sau là bao nhiêu?`,`${N(val)} m`,[
+    C(`${N(-a-b+c)} m`,'Bạn đã nhầm hướng: nổi lên là cộng, lặn xuống là trừ.'),
+    C(`${N(-a+b+c)} m`,'Lặn xuống là trừ đi c mét, không phải cộng thêm.'),
+    C(`${N(a+b-c)} m`,'Độ cao ban đầu là số âm −'+a+', không phải +'+a+'.')],
+    `Độ cao lúc sau: ${nb(EX(-a,[[1,b],[-1,c]]).txt)} = ${N(val)} m.`);
+});}
+function genProfit(){return tryGen(()=>{
+  const m=[ri(5,40),ri(5,40),ri(5,40)].map(v=>sgn()*v),s=sum(m);
+  if(s===0||m.every(x=>x>0)||m.every(x=>x<0))return null;
+  const nm=['Tháng 1','Tháng 2','Tháng 3'],txt=m.map((v,i)=>`${nm[i].toLowerCase()} ${v>0?'lãi':'lỗ'} ${Math.abs(v)} triệu đồng`).join(', ');
+  return mk(`Một cửa hàng trong ba tháng liên tiếp: ${txt}. Tổng lợi nhuận ba tháng (số âm là lỗ) là bao nhiêu triệu đồng?`,N(s),[
+    C(N(-s),'Kết quả bị ngược dấu: hãy cộng lãi (số dương) và lỗ (số âm).'),
+    C(N(m[0]+m[1]),'Bạn mới cộng hai tháng đầu, chưa tính tháng 3.'),
+    C(N(Math.abs(m[0])+Math.abs(m[1])+Math.abs(m[2])),'Bạn đã cộng cả lãi và lỗ như nhau. Lỗ phải là số âm.')],
+    `Lãi là số dương, lỗ là số âm: ${SUMX(m)} = ${N(s)} triệu đồng.`);
+});}
+
+/* ============ Bộ sinh đúng sai ============ */
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function pick4(Ts,Fs){
+  const nT=ri(1,3);
+  return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));
+}
+function mixed(make){ // tạo 4 ý, bảo đảm có cả ý đúng và ý sai
+  for(let n=0;n<60;n++){const items=make();const k=items.filter(i=>i.v).length;if(k>=1&&k<=3)return items;}
+  return null;
+}
+const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
+  IT(nb('(−6) + (−4) = −10'),true,'cg','TH','Cộng hai số nguyên âm: 6 + 4 = 10, kết quả mang dấu "−".'),
+  IT('Tổng của hai số nguyên đối nhau bằng chính số đó.',false,'cg','TH','Tổng của hai số đối nhau bằng 0.'),
+  IT(nb('5 − 8 = −3'),true,'tr','TH','5 − 8 = 5 + (−8) = −3.'),
+  IT(nb('7 − (−2) = 5'),false,'tr','TH','7 − (−2) = 7 + 2 = 9.')]});
+const wrongOf=(s,list)=>{const l=list.filter(x=>x!==s);return l.length?sel(l):s+1;};
+/* một ý: phép cộng hai số nguyên */
+function addItem(){
+  const [x,y]=sample(2,2,50),kind=ri(0,2);
+  let a,b;if(kind===0){a=-x;b=-y;}else{a=sgn()*x;b=a<0?y:-y;}
+  const s=a+b,v=RNG()<.5,shown=v?s:wrongOf(s,kind===0?[x+y,-Math.abs(x-y)]:[-s,x+y,-(x+y)]);
+  return IT(`${ADD(a,b)} = ${N(shown)}`,v,'cg','TH',v?`${ADD(a,b)} = ${N(s)}.${kind===0?' Hai số âm: cộng phần số tự nhiên rồi đặt dấu "−".':' Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối, đặt dấu của số có giá trị tuyệt đối lớn hơn.'}`:`Kết quả đúng của ${ADD(a,b)} là ${N(s)}, không phải ${N(shown)}.`);
+}
+/* một ý: tổng nhiều số hạng (vận dụng) */
+function sum3Item(){
+  const v=[sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30)],s=sum(v),t=RNG()<.5,shown=t?s:wrongOf(s,[-s,s-2*v[2],s-2*v[0]]);
+  return IT(`${SUMX(v)} = ${N(shown)}`,t,'cg','VD',t?`${N(v[0])} + ${P(v[1])} = ${N(v[0]+v[1])}; ${N(v[0]+v[1])} + ${P(v[2])} = ${N(s)}.`:`Cộng lần lượt được ${N(s)}, không phải ${N(shown)}.`);
+}
+function tfCalc(level){return ()=>{const f=level==='VD'?sum3Item:addItem;const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+/* một ý: phép trừ hai số nguyên */
+function subItem(){
+  const a=sgn()*ri(1,30),b=sgn()*ri(1,30),s=a-b,v=RNG()<.5,shown=v?s:wrongOf(s,[a+b,b-a,-s]);
+  return IT(`${SUB(a,b)} = ${N(shown)}`,v,'tr','TH',v?`${SUB(a,b)} = ${N(a)} + ${P(-b)} = ${N(s)}.`:`${SUB(a,b)} = ${N(a)} + ${P(-b)} = ${N(s)}, không phải ${N(shown)}.`);
+}
+function sub3Item(){
+  const g=[sgn(),sgn()],v0=sgn()*ri(2,30),b=sgn()*ri(2,30),c=sgn()*ri(2,30),e=EX(v0,[[g[0],b],[g[1],c]]),t=RNG()<.5;
+  const conv=[v0,g[0]*b,g[1]*c],shown=t?e.val:wrongOf(e.val,[-e.val,e.val-2*g[0]*b,e.val-2*g[1]*c]);
+  return IT(`${e.txt} = ${N(shown)}`,t,'tr','VD',`Đổi mỗi phép trừ thành phép cộng với số đối: ${SUMX(conv)} = ${N(e.val)}.`);
+}
+function tfSub(level){return ()=>{const f=level==='VD'?sub3Item:subItem;const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+/* tính chất phép cộng */
+const PT=[
+ IT('Với mọi số nguyên a và b, a + b = b + a.',true,'tc','NB','Đây là tính chất giao hoán của phép cộng.'),
+ IT('Với mọi số nguyên a, b, c: (a + b) + c = a + (b + c).',true,'tc','NB','Đây là tính chất kết hợp của phép cộng.'),
+ IT('Với mọi số nguyên a, a + 0 = a.',true,'tc','NB','Cộng một số với 0 thì được chính số đó.'),
+ IT('Tổng của hai số nguyên đối nhau luôn bằng 0.',true,'cg','NB','Ví dụ 6 + (−6) = 0. Với mọi số nguyên a: a + (−a) = 0.'),
+ IT('Tổng của hai số nguyên âm là một số nguyên âm.',true,'cg','NB','Cộng hai số nguyên âm thì cộng hai số tự nhiên rồi đặt dấu "−", nên kết quả âm.'),
+ IT('Với mọi số nguyên a và b, a − b = a + (−b).',true,'tr','NB','Đó là quy tắc trừ hai số nguyên: cộng với số đối của số trừ.'),
+ IT('Hiệu của hai số nguyên luôn là một số nguyên.',true,'tr','NB','Trong tập hợp ℤ phép trừ luôn thực hiện được, ví dụ 3 − 7 = −4.'),
+ IT('Khi bỏ dấu ngoặc có dấu "+" đằng trước, các số hạng trong ngoặc giữ nguyên dấu.',true,'dn','NB','Đó là quy tắc dấu ngoặc khi có dấu "+" đứng trước.')];
+const PF=[
+ IT('Với mọi số nguyên a và b, a − b = b − a.',false,'tr','NB','Phép trừ không có tính chất giao hoán: 5 − 3 = 2 nhưng 3 − 5 = −2.'),
+ IT('Tổng của hai số nguyên âm là một số nguyên dương.',false,'cg','NB','Tổng của hai số nguyên âm luôn là số nguyên âm, ví dụ (−2) + (−3) = −5.'),
+ IT('Tổng của một số nguyên âm và một số nguyên dương luôn là số nguyên âm.',false,'cg','NB','Dấu của tổng phụ thuộc vào số có giá trị tuyệt đối lớn hơn. Ví dụ (−2) + 7 = 5 là số dương.'),
+ IT('Tổng của hai số nguyên đối nhau bằng chính số đó.',false,'cg','NB','Tổng của hai số đối nhau bằng 0, không phải chính số đó.'),
+ IT('Hiệu của hai số nguyên dương luôn là số nguyên dương.',false,'tr','NB','Ví dụ 3 − 5 = −2 là số nguyên âm.'),
+ IT('Khi bỏ dấu ngoặc có dấu "−" đằng trước, các số hạng trong ngoặc giữ nguyên dấu.',false,'dn','NB','Phải đổi dấu tất cả các số hạng trong ngoặc.'),
+ IT('Với mọi số nguyên a, a + a = 0.',false,'tc','NB','Chỉ đúng khi a = 0. Tổng bằng 0 khi hai số đối nhau: a + (−a) = 0.'),
+ IT('Phép cộng các số nguyên không có tính chất giao hoán.',false,'tc','NB','Phép cộng có tính chất giao hoán: a + b = b + a.')];
+function tfPropNB(){return ()=>({stem:'Xét các phát biểu sau:',items:pick4(PT,PF)});}
+function propItem(kind,v){
+  const [x0,y0]=sample(2,2,40),x=sgn()*x0,y=sgn()*y0;
+  if(kind===0)return IT(`${SUMX([x,y,-x])} = ${N(v?y:-y)}`,v,'tc','TH',v?`${N(x)} + ${P(-x)} = 0 nên tổng chỉ còn ${N(y)}.`:`Hai số đối nhau ${N(x)} và ${N(-x)} cộng lại bằng 0, tổng còn ${N(y)}, không phải ${N(-y)}.`);
+  if(kind===1)return IT(`${ADD(x,y)} = ${v?ADD(y,x):ADD(-y,-x)}`,v,'tc','TH',v?'Đổi chỗ hai số hạng thì tổng không đổi (tính chất giao hoán).':`${ADD(x,y)} = ${N(x+y)} còn ${ADD(-y,-x)} = ${N(-x-y)}, hai kết quả đối nhau.`);
+  if(kind===2)return IT(`${N(x)} + 0 = ${v?N(x):'0'}`,v,'tc','TH',v?`Cộng với 0 thì được chính số đó: ${N(x)} + 0 = ${N(x)}.`:`${N(x)} + 0 = ${N(x)}, không phải 0.`);
+  return IT(`${ADD(x,-x)} = ${v?'0':N(2*x)}`,v,'tc','TH',v?'Tổng của hai số đối nhau bằng 0.':`${ADD(x,-x)} = 0, không phải ${N(2*x)}.`);
+}
+function tfPropTH(){return ()=>{
+  const items=mixed(()=>shuffle([0,1,2,3]).map(k=>propItem(k,RNG()<.5)));
+  return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+function cancelItem(){
+  const [x0,y0,z0]=sample(3,2,40),x=sgn()*x0,y=sgn()*y0,z=sgn()*z0,s=y+z,t=RNG()<.5;
+  if(s===0)return cancelItem();
+  const shown=t?s:wrongOf(s,[-s,y-z,x+y+z]);
+  return IT(`${SUMX(shuffle([x,y,-x,z]))} = ${N(shown)}`,t,'tc','VD',t?`Nhóm ${N(x)} và ${N(-x)} (tổng bằng 0), còn lại ${N(y)} + ${P(z)} = ${N(s)}.`:`Nhóm hai số đối nhau, còn lại ${N(y)} + ${P(z)} = ${N(s)}, không phải ${N(shown)}.`);
+}
+function tfPropVD(){return ()=>{const items=mixed(()=>[cancelItem(),cancelItem(),cancelItem(),cancelItem()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+/* dấu ngoặc */
+function brItem(){
+  const [a,b,c]=sample(3,2,40),f=ri(0,2),t=RNG()<.5;
+  const L0=[`${a} − (${b} − ${c})`,`${a} − (${b} + ${c})`,`${a} + (${b} − ${c})`][f];
+  const R=[[`${a} − ${b} + ${c}`,[`${a} − ${b} − ${c}`,`${a} + ${b} − ${c}`]],[`${a} − ${b} − ${c}`,[`${a} − ${b} + ${c}`,`${a} + ${b} + ${c}`]],[`${a} + ${b} − ${c}`,[`${a} − ${b} + ${c}`,`${a} + ${b} + ${c}`]]][f];
+  const shownR=t?R[0]:sel(R[1]);
+  return IT(nb(`${L0} = ${shownR}`),t,'dn','TH',t?(f===2?'Dấu "+" đứng trước ngoặc: giữ nguyên dấu các số hạng khi bỏ ngoặc.':'Dấu "−" đứng trước ngoặc: đổi dấu tất cả các số hạng khi bỏ ngoặc.'):`Bỏ ngoặc đúng là ${nb(R[0])}, nên vế phải ${nb(shownR)} không bằng vế trái.`);
+}
+function tfBrTH(){return ()=>{const items=mixed(()=>[brItem(),brItem(),brItem(),brItem()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+function brVal(){
+  const [a,b,c]=sample(3,2,30),f=ri(0,3),t=RNG()<.5;
+  const txt=nb([`${a} − (${b} − ${c})`,`${a} − (${b} + ${c})`,`${a} + (${b} − ${c})`,`−(${a} − ${b}) + ${c}`][f]);
+  const val=[a-b+c,a-b-c,a+b-c,-a+b+c][f],wrong=[a-b-c,a-b+c,a+b+c,-a-b+c][f];
+  let shown=t?val:(RNG()<.5?wrong:-val);
+  if(!t&&shown===val)shown=val+2;
+  const ok=shown===val;
+  return IT(`${txt} = ${N(shown)}`,ok,'dn','VD',(ok?'':`Kết quả đúng là ${N(val)}. `)+`Bỏ ngoặc ${f===2?'(giữ nguyên dấu)':'(đổi dấu các số hạng trong ngoặc)'} rồi tính được ${N(val)}.`);
+}
+function tfBrVD(){return ()=>{const items=mixed(()=>[brVal(),brVal(),brVal(),brVal()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+/* bài toán thực tế */
+function realItem(kind){
+  const v=RNG()<.5;
+  if(kind===0){const t=sgn()*ri(1,15),d=ri(3,20),r=t+d,sh=v?r:wrongOf(r,[t-d,-r]);return IT(`Nhiệt độ ${N(t)}°C tăng thêm ${d}°C thì được ${N(sh)}°C.`,v,'dn','TH',v?`Tăng là cộng: ${N(t)} + ${d} = ${N(r)}°C.`:`Tăng ${d}°C là cộng: ${N(t)} + ${d} = ${N(r)}°C, không phải ${N(sh)}°C.`);}
+  if(kind===1){const t=sgn()*ri(1,15),d=ri(3,20),r=t-d,sh=v?r:wrongOf(r,[t+d,d-t]);return IT(`Nhiệt độ ${N(t)}°C giảm ${d}°C thì được ${N(sh)}°C.`,v,'dn','TH',v?`Giảm là trừ: ${N(t)} − ${d} = ${N(r)}°C.`:`Giảm ${d}°C là trừ: ${N(t)} − ${d} = ${N(r)}°C, không phải ${N(sh)}°C.`);}
+  if(kind===2){const a=ri(5,40),b=ri(3,30),r=-(a+b),sh=v?r:wrongOf(r,[-a+b,a+b]);return IT(`Một thợ lặn đang ở độ cao ${N(-a)} m, lặn thêm xuống ${b} m thì ở độ cao ${N(sh)} m.`,v,'dn','TH',v?`Lặn xuống là trừ: ${N(-a)} − ${b} = ${N(r)} m.`:`Lặn xuống ${b} m là trừ: ${N(-a)} − ${b} = ${N(r)} m, không phải ${N(sh)} m.`);}
+  const a=ri(5,40),b=ri(5,40);if(a===b)return realItem(3);const r=b-a,sh=v?r:wrongOf(r,[a-b,a+b]);
+  return IT(`Tháng trước cửa hàng lỗ ${a} triệu đồng, tháng này lãi ${b} triệu đồng thì tổng hai tháng là ${N(sh)} triệu đồng (số âm là lỗ).`,v,'dn','TH',v?`Lỗ là số âm: ${N(-a)} + ${b} = ${N(r)} triệu đồng.`:`Lỗ là số âm: ${N(-a)} + ${b} = ${N(r)} triệu đồng, không phải ${N(sh)}.`);
+}
+function tfRealTH(){return ()=>{const items=mixed(()=>[0,1,2,3].map(k=>realItem(k)));return items?{stem:'Xét các phát biểu sau:',items:shuffle(items)}:FB_TF();};}
+
+/* ============ Bộ sinh trả lời ngắn ============ */
+function saAddNeg(){const [a,b]=sample(2,1,40);return{stem:`Tính ${ADD(-a,-b)}.`,ans:[-(a+b)],exp:`Hai số âm: ${a} + ${b} = ${a+b}, đặt dấu "−": ${N(-(a+b))}.`};}
+function saAddDiff(){const [x,y]=sample(2,2,60),neg=RNG()<.5,a=neg?-x:x,b=neg?y:-y;return{stem:`Tính ${ADD(a,b)}.`,ans:[a+b],exp:`Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối ${Math.max(x,y)} − ${Math.min(x,y)} = ${Math.abs(x-y)}, đặt dấu của số có giá trị tuyệt đối lớn hơn: ${N(a+b)}.`};}
+function saSum4(){let v,s;do{v=[sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30)];s=sum(v);}while(v.every(x=>x>0)||v.every(x=>x<0));return{stem:`Tính ${SUMX(v)}.`,ans:[s],exp:`Cộng lần lượt: ${N(v[0])} + ${P(v[1])} = ${N(v[0]+v[1])}; rồi ${N(v[0]+v[1])} + ${P(v[2])} = ${N(v[0]+v[1]+v[2])}; rồi ${N(v[0]+v[1]+v[2])} + ${P(v[3])} = ${N(s)}.`};}
+function saRange(){let a,b;do{[a,b]=sample(2,2,12);}while(a===b);const s=rangeSum(a,b);return{stem:`Tính tổng tất cả các số nguyên x thỏa mãn ${nb(N(-a)+' ≤ x ≤ '+b)}.`,ans:[s],exp:`Các cặp số đối nhau có tổng bằng 0. ${b>a?`Còn lại các số từ ${a+1} đến ${b}`:`Còn lại các số từ ${N(-a)} đến ${N(-(b+1))}`}, tổng bằng ${N(s)}.`};}
+function saZero(){const x=sgn()*ri(2,60);return{stem:`Tìm số nguyên a thỏa mãn ${nb('a + '+P(x)+' = 0')}.`,ans:[-x],exp:`Hai số có tổng bằng 0 là hai số đối nhau, nên a là số đối của ${N(x)}: a = ${N(-x)}.`};}
+function saAssoc3(){const [x0,y0]=sample(2,2,60),x=sgn()*x0,y=sgn()*y0;return{stem:`Tính hợp lý: ${SUMX(shuffle([x,y,-x]))}.`,ans:[y],exp:`${N(x)} + ${P(-x)} = 0 nên tổng bằng ${N(y)}.`};}
+function saAssoc6(){const [x0,y0,z0,w0]=sample(4,2,50),x=sgn()*x0,y=sgn()*y0,z=sgn()*z0,w=sgn()*w0;return{stem:`Tính hợp lý: ${SUMX(shuffle([x,y,z,w,-x,-y]))}.`,ans:[z+w],exp:`Nhóm các cặp số đối nhau: ${N(x)} + ${P(-x)} = 0 và ${N(y)} + ${P(-y)} = 0. Còn lại ${N(z)} + ${P(w)} = ${N(z+w)}.`};}
+function saSubNB(){const [x,y]=sample(2,1,60);return{stem:`Tính ${nb(x+' − '+y)}.`,ans:[x-y],exp:`${nb(x+' − '+y)} = ${ADD(x,-y)} = ${N(x-y)}.`};}
+function saSubTH(){const a=sgn()*ri(1,40),b=sgn()*ri(1,40);return{stem:`Tính ${SUB(a,b)}.`,ans:[a-b],exp:`${SUB(a,b)} = ${N(a)} + ${P(-b)} = ${N(a-b)}.`};}
+function saSub3(){const g=[sgn(),sgn()],v0=sgn()*ri(2,30),b=sgn()*ri(2,30),c=sgn()*ri(2,30),e=EX(v0,[[g[0],b],[g[1],c]]);return{stem:`Tính ${e.txt}.`,ans:[e.val],exp:`Đổi phép trừ thành cộng với số đối: ${SUMX([v0,g[0]*b,g[1]*c])} = ${N(e.val)}.`};}
+function saUnknown(){const a=ri(2,40),b=sgn()*ri(2,40);return RNG()<.5?{stem:`Tìm số nguyên x biết ${nb('x + '+P(-a)+' = '+N(b))}.`,ans:[b+a],exp:`Số hạng chưa biết bằng tổng trừ số hạng đã biết: x = ${N(b)} − ${P(-a)} = ${N(b)} + ${a} = ${N(b+a)}.`}:{stem:`Tìm số nguyên x biết ${nb(N(a)+' − x = '+N(b))}.`,ans:[a-b],exp:`Số trừ bằng số bị trừ trừ hiệu: x = ${N(a)} − ${P(b)} = ${N(a-b)}.`};}
+function saDiffTemp(){const lo=ri(3,25),hi=ri(2,25);return{stem:`Nhiệt độ lúc sáng sớm là ${N(-lo)}°C, đến trưa là ${hi}°C. Nhiệt độ đã tăng bao nhiêu độ?`,ans:[hi+lo],exp:`Số độ tăng = ${hi} − (${N(-lo)}) = ${hi} + ${lo} = ${hi+lo}°C.`};}
+function saBr0(){const [a,b,c]=sample(3,2,40),f=ri(0,1);return f===0?{stem:`Bỏ dấu ngoặc rồi tính ${nb(a+' − ('+b+' + '+c+')')}.`,ans:[a-b-c],exp:`${nb(a+' − ('+b+' + '+c+')')} = ${nb(a+' − '+b+' − '+c)} = ${N(a-b-c)}.`}:{stem:`Bỏ dấu ngoặc rồi tính ${nb(a+' + ('+b+' − '+c+')')}.`,ans:[a+b-c],exp:`${nb(a+' + ('+b+' − '+c+')')} = ${nb(a+' + '+b+' − '+c)} = ${N(a+b-c)}.`};}
+function saBr1(){const a=sgn()*ri(2,30),b=sgn()*ri(2,30),c=ri(2,30);const txt=nb(`${N(a)} − (${N(b)} − ${c})`);return{stem:`Tính ${txt}.`,ans:[a-(b-c)],exp:`Bỏ dấu ngoặc có dấu "−" đằng trước thì đổi dấu các số hạng trong ngoặc: ${nb(N(a)+' − '+P(b)+' + '+c)} = ${N(a-b+c)}.`};}
+function saAfterTemp(){const t=sgn()*ri(1,20),d=ri(3,25),up=RNG()<.5,val=t+(up?d:-d);return{stem:`Lúc đầu nhiệt độ là ${N(t)}°C. Sau đó nhiệt độ ${up?'tăng':'giảm'} ${d}°C. Nhiệt độ lúc sau là bao nhiêu độ C?`,ans:[val],exp:`${up?'Tăng':'Giảm'} là ${up?'cộng':'trừ'}: ${EX(t,[[up?1:-1,d]]).txt} = ${N(val)}°C.`};}
+function saAlt(){const a=ri(10,60),b=ri(5,a-1),c=ri(3,30),val=-a+b-c;return{stem:`Một tàu ngầm đang ở độ cao ${N(-a)} m so với mực nước biển. Tàu nổi lên ${b} m, sau đó lặn xuống ${c} m. Độ cao của tàu lúc sau là bao nhiêu mét?`,ans:[val],exp:`${EX(-a,[[1,b],[-1,c]]).txt} = ${N(val)} m.`};}
+function saProfit(){let m,s;do{m=[ri(5,40),ri(5,40),ri(5,40)].map(v=>sgn()*v);s=sum(m);}while(s===0||m.every(x=>x>0)||m.every(x=>x<0));const nm=['tháng 1','tháng 2','tháng 3'];return{stem:`Một cửa hàng trong ba tháng liên tiếp: ${m.map((v,i)=>`${nm[i]} ${v>0?'lãi':'lỗ'} ${Math.abs(v)} triệu đồng`).join(', ')}. Tổng lợi nhuận ba tháng là bao nhiêu triệu đồng? (Số âm là lỗ.)`,ans:[s],exp:`Lãi là số dương, lỗ là số âm: ${SUMX(m)} = ${N(s)} triệu đồng.`};}
+
+const SA=[
+ {id:'s_cg_nb',topic:'cg',level:'NB',unit:'',gen:saAddNeg},
+ {id:'s_cg_th',topic:'cg',level:'TH',unit:'',gen:saAddDiff},
+ {id:'s_cg_vd',topic:'cg',level:'VD',unit:'',gen:saSum4},
+ {id:'s_cg_vd2',topic:'cg',level:'VD',unit:'',gen:saRange},
+ {id:'s_tc_nb',topic:'tc',level:'NB',unit:'',gen:saZero},
+ {id:'s_tc_th',topic:'tc',level:'TH',unit:'',gen:saAssoc3},
+ {id:'s_tc_vd',topic:'tc',level:'VD',unit:'',gen:saAssoc6},
+ {id:'s_tr_nb',topic:'tr',level:'NB',unit:'',gen:saSubNB},
+ {id:'s_tr_th',topic:'tr',level:'TH',unit:'',gen:saSubTH},
+ {id:'s_tr_th2',topic:'tr',level:'TH',unit:'°C',gen:saDiffTemp},
+ {id:'s_tr_vd',topic:'tr',level:'VD',unit:'',gen:saSub3},
+ {id:'s_tr_vd2',topic:'tr',level:'VD',unit:'',gen:saUnknown},
+ {id:'s_dn_nb',topic:'dn',level:'NB',unit:'',gen:saBr0},
+ {id:'s_dn_th',topic:'dn',level:'TH',unit:'',gen:saBr1},
+ {id:'s_dn_th2',topic:'dn',level:'TH',unit:'°C',gen:saAfterTemp},
+ {id:'s_dn_vd',topic:'dn',level:'VD',unit:'m',gen:saAlt},
+ {id:'s_dn_vd2',topic:'dn',level:'VD',unit:'triệu đồng',gen:saProfit}
+].map(q=>Object.assign({type:'sa'},q));
+SA.push(...SA.map(q=>Object.assign({},q,{id:q.id+'b'})));
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  cg:{short:'Cộng hai số nguyên',name:'Cộng hai số nguyên',rule:'Cộng hai số nguyên âm: cộng hai số tự nhiên sau dấu "−" rồi đặt dấu "−" trước kết quả. Cộng hai số nguyên khác dấu (không đối nhau): lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối, rồi đặt trước kết quả dấu của số có giá trị tuyệt đối lớn hơn. Hai số đối nhau có tổng bằng 0.',tip:'Hai số khác dấu thì lấy hiệu, không cộng hai giá trị tuyệt đối. Dấu của kết quả là dấu của số có giá trị tuyệt đối lớn hơn.'},
+  tc:{short:'Tính chất phép cộng',name:'Tính chất của phép cộng',rule:'Giao hoán: a + b = b + a. Kết hợp: (a + b) + c = a + (b + c). Cộng với số 0: a + 0 = a. Cộng với số đối: a + (−a) = 0.',tip:'Nhóm các số đối nhau (tổng bằng 0) trước để tính nhanh, và nhớ giữ nguyên dấu của mỗi số hạng khi đổi chỗ.'},
+  tr:{short:'Trừ hai số nguyên',name:'Trừ hai số nguyên',rule:'Muốn trừ số nguyên a cho số nguyên b, ta cộng a với số đối của b: a − b = a + (−b). Hiệu của hai số nguyên luôn là một số nguyên.',tip:'Trừ cho một số âm thì thành cộng với số dương: a − (−b) = a + b. Không đảo thứ tự: a − b khác b − a.'},
+  dn:{short:'Dấu ngoặc, thực tế',name:'Quy tắc dấu ngoặc và bài toán thực tế',rule:'Bỏ dấu ngoặc có dấu "+" đằng trước thì giữ nguyên dấu các số hạng trong ngoặc. Bỏ dấu ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng trong ngoặc: a − (b − c) = a − b + c.',tip:'Phải đổi dấu tất cả các số hạng trong ngoặc, không chỉ số hạng đầu. Trong bài toán thực tế: tăng là cộng, giảm là trừ; lỗ, nợ, dưới 0 là số âm.'}
+};
+const TKEYS=['cg','tc','tr','dn'];
+const TDESC={cg:'Cộng hai số nguyên âm, hai số khác dấu, hai số đối nhau',tc:'Giao hoán, kết hợp, cộng với 0, cộng với số đối, tính hợp lý',tr:'Số đối, trừ hai số nguyên, a − (−b)',dn:'Bỏ dấu ngoặc, nhiệt độ, độ cao, lãi lỗ'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhớ quy tắc cộng, trừ số nguyên, tên các tính chất, số đối, quy tắc dấu ngoặc.',TH:'Cộng, trừ hai số nguyên; tính hợp lý ba số; bỏ dấu ngoặc; bài toán thực tế một bước.',VD:'Tính tổng nhiều số hạng, tính hợp lý, tìm x, bài toán thực tế nhiều bước.'};
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const O=(t,err)=>err?{t,err}:{t};
+const MC=[
+ {id:'m1',topic:'cg',level:'NB',stem:'Muốn cộng hai số nguyên âm, ta làm thế nào?',ans:0,opts:[
+   O('Cộng hai số tự nhiên sau dấu "−" rồi đặt dấu "−" trước kết quả'),
+   O('Lấy hiệu hai số tự nhiên rồi đặt dấu "+" trước kết quả','Hai số cùng dấu thì ta cộng chứ không lấy hiệu, và kết quả mang dấu chung "−".'),
+   O('Cộng hai số tự nhiên sau dấu "−" rồi đặt dấu "+" trước kết quả','Tổng của hai số nguyên âm luôn là số nguyên âm.'),
+   O('Lấy số lớn trừ số nhỏ rồi đặt dấu của số lớn hơn','Đó là quy tắc cho hai số khác dấu, không phải hai số cùng dấu.')],
+  exp:'Cộng hai số nguyên âm: cộng hai số tự nhiên sau dấu "−" rồi đặt dấu "−" trước kết quả. Ví dụ (−3) + (−4) = −7.'},
+ {id:'m2',topic:'cg',level:'NB',stem:'Tổng của hai số nguyên âm là:',ans:0,opts:[
+   O('luôn là một số nguyên âm'),
+   O('luôn là một số nguyên dương','Cộng hai số âm thì kết quả vẫn là số âm. Ví dụ (−2) + (−5) = −7.'),
+   O('có thể bằng 0','Tổng bằng 0 chỉ khi hai số đối nhau, mà khi đó một số âm, một số dương.'),
+   O('có thể là số âm, có thể là số dương','Hai số nguyên âm cộng lại luôn cho số nguyên âm.')],
+  exp:'Cộng hai số nguyên âm được số nguyên âm (cộng hai số tự nhiên rồi đặt dấu "−").'},
+ {id:'m3',topic:'cg',level:'NB',stem:'Tổng của hai số nguyên đối nhau bằng bao nhiêu?',ans:0,opts:[
+   O('0'),O('Chính số đó','Ví dụ 4 + (−4) = 0, không phải 4.'),O('Gấp đôi số đó','Ví dụ 4 + (−4) = 0, không phải 8.'),O('Số đối của số đó','Ví dụ 4 + (−4) = 0, không phải −4.')],
+  exp:'Hai số đối nhau có tổng bằng 0: a + (−a) = 0.'},
+ {id:'m4',topic:'cg',level:'TH',stem:'Quy tắc cộng hai số nguyên khác dấu (không đối nhau) là gì?',ans:0,opts:[
+   O('Lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối, rồi đặt trước kết quả dấu của số có giá trị tuyệt đối lớn hơn'),
+   O('Cộng hai giá trị tuyệt đối rồi đặt dấu "−" trước kết quả','Hai số khác dấu thì ta lấy hiệu hai giá trị tuyệt đối chứ không cộng.'),
+   O('Lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối rồi đặt dấu "+" trước kết quả','Dấu của kết quả là dấu của số có giá trị tuyệt đối lớn hơn, có thể là dấu "−".'),
+   O('Cộng hai giá trị tuyệt đối rồi đặt dấu của số đứng trước','Phải lấy hiệu hai giá trị tuyệt đối, không phải tổng.')],
+  exp:'Ví dụ (−9) + 4: lấy 9 − 4 = 5, số −9 có giá trị tuyệt đối lớn hơn nên kết quả là −5.'},
+ {id:'m5',topic:'cg',level:'TH',stem:'Phép tính nào sau đây có kết quả là một số nguyên âm?',ans:0,opts:[
+   O('(−12) + 5'),O('12 + (−5)','Kết quả là 7, số dương, vì số 12 có giá trị tuyệt đối lớn hơn.'),O('(−5) + 12','Kết quả là 7, số dương, vì số 12 có giá trị tuyệt đối lớn hơn.'),O('9 + (−4)','Kết quả là 5, số dương, vì số 9 có giá trị tuyệt đối lớn hơn.')],
+  exp:'(−12) + 5 = −7: số −12 có giá trị tuyệt đối lớn hơn nên kết quả là số âm.'},
+ {id:'m6',topic:'cg',level:'TH',stem:'Cho a là số nguyên âm, b là số nguyên dương và |a| > |b|. Khẳng định nào đúng?',ans:0,opts:[
+   O('a + b là số nguyên âm'),
+   O('a + b là số nguyên dương','Dấu của tổng là dấu của số có giá trị tuyệt đối lớn hơn, đó là số a (âm).'),
+   O('a + b = 0','Tổng chỉ bằng 0 khi |a| = |b|.'),
+   O('a + b > b','Vì a âm nên a + b nhỏ hơn b.')],
+  exp:'Số a có giá trị tuyệt đối lớn hơn nên a + b mang dấu của a, tức là số nguyên âm. Ví dụ (−7) + 3 = −4.'},
+ {id:'m7',topic:'cg',level:'VD',stem:'Cho a là số nguyên âm, b là số nguyên dương và a + b = 0. Khẳng định nào đúng?',ans:0,opts:[
+   O('a và b là hai số đối nhau'),
+   O('a = b','a âm còn b dương nên không thể bằng nhau.'),
+   O('a và b đều bằng 0','a là số nguyên âm, b là số nguyên dương nên cả hai đều khác 0.'),
+   O('Không có hai số a, b như vậy','Ví dụ a = −3 và b = 3 thỏa mãn.')],
+  exp:'Hai số có tổng bằng 0 là hai số đối nhau, ví dụ −3 và 3.'},
+ {id:'m8',topic:'tc',level:'NB',stem:'Đẳng thức nào sau đây thể hiện tính chất kết hợp của phép cộng?',ans:0,opts:[
+   O('(a + b) + c = a + (b + c)'),O('a + b = b + a','Đây là tính chất giao hoán.'),O('a + 0 = a','Đây là tính chất cộng với số 0.'),O('a + (−a) = 0','Đây là tính chất cộng với số đối.')],
+  exp:'Tính chất kết hợp: khi cộng ba số, ta có thể nhóm hai số bất kì trước: (a + b) + c = a + (b + c).'},
+ {id:'m9',topic:'tc',level:'NB',stem:'Với mọi số nguyên a, đẳng thức nào luôn đúng?',ans:0,opts:[
+   O('a + 0 = a'),O('a + 0 = 0','Cộng với 0 thì giữ nguyên số đó, không phải bằng 0.'),O('a + a = 0','Chỉ đúng khi a = 0. Đẳng thức đúng với mọi a là a + (−a) = 0.'),O('a + 0 = −a','Cộng với 0 không đổi dấu của số đó.')],
+  exp:'Số 0 cộng với số nguyên nào cũng bằng chính số đó: a + 0 = a.'},
+ {id:'m10',topic:'tc',level:'TH',stem:'Khi tính hợp lý (−46) + 17 + 46, ta nên nhóm hai số nào lại với nhau trước?',ans:0,opts:[
+   O('(−46) và 46'),O('(−46) và 17','Hai số này không đối nhau nên không triệt tiêu được.'),O('17 và 46','Hai số này không đối nhau nên không triệt tiêu được.'),O('Không thể nhóm','Phép cộng có tính chất giao hoán và kết hợp nên có thể nhóm tùy ý.')],
+  exp:'(−46) + 46 = 0, nên tổng bằng 0 + 17 = 17.'},
+ {id:'m11',topic:'tc',level:'TH',stem:'Tính chất nào cho phép viết (−7) + 4 + 7 = (−7) + 7 + 4?',ans:0,opts:[
+   O('Tính chất giao hoán'),O('Tính chất cộng với số 0','Hai vế không có số 0 để so sánh; ở đây hai số hạng 4 và 7 đổi chỗ cho nhau.'),O('Tính chất cộng với số đối','Tính chất đó nói a + (−a) = 0; ở đây chỉ là đổi chỗ hai số hạng.'),O('Phép trừ có tính chất giao hoán','Đề bài chỉ có phép cộng, không có phép trừ.')],
+  exp:'Hai số hạng 4 và 7 đổi chỗ cho nhau, tổng không đổi: đó là tính chất giao hoán.'},
+ {id:'m12',topic:'tr',level:'NB',stem:'Muốn trừ số nguyên a cho số nguyên b, ta cộng a với:',ans:0,opts:[
+   O('số đối của b'),O('số đối của a','Phải đổi dấu số trừ b, không phải số bị trừ a.'),O('chính số b','Cộng với b chỉ cho a + b, không phải a − b.'),O('số 0','Cộng với 0 không thay đổi a.')],
+  exp:'a − b = a + (−b): cộng a với số đối của b.'},
+ {id:'m13',topic:'tr',level:'NB',stem:'Đẳng thức nào sau đây đúng với mọi số nguyên a và b?',ans:0,opts:[
+   O('a − b = a + (−b)'),O('a − b = b − a','Phép trừ không giao hoán. Ví dụ 5 − 3 = 2 còn 3 − 5 = −2.'),O('a − b = (−a) + b','Đây là b − a, ngược dấu với a − b.'),O('a − b = a + b','Chỉ đúng khi b = 0.')],
+  exp:'Quy tắc trừ hai số nguyên: a − b = a + (−b).'},
+ {id:'m14',topic:'tr',level:'TH',stem:'Trong tập hợp ℤ, phép trừ có luôn thực hiện được không?',ans:0,opts:[
+   O('Luôn thực hiện được: hiệu của hai số nguyên là một số nguyên'),
+   O('Chỉ thực hiện được khi số bị trừ lớn hơn hoặc bằng số trừ','Đó là điều kiện trong tập ℕ. Trong ℤ, 3 − 5 = −2 vẫn là số nguyên.'),
+   O('Chỉ thực hiện được khi cả hai số đều dương','Phép trừ thực hiện được với mọi cặp số nguyên, không cần điều kiện dấu.'),
+   O('Chỉ thực hiện được khi cả hai số đều âm','Phép trừ thực hiện được với mọi cặp số nguyên, không cần điều kiện dấu.')],
+  exp:'Hiệu của hai số nguyên bất kì luôn là một số nguyên, vì a − b = a + (−b) và tổng hai số nguyên là số nguyên.'},
+ {id:'m15',topic:'dn',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "−" đằng trước, ta phải làm gì với các số hạng trong ngoặc?',ans:0,opts:[
+   O('Đổi dấu tất cả các số hạng'),O('Giữ nguyên dấu tất cả các số hạng','Đó là quy tắc khi có dấu "+" đứng trước ngoặc.'),O('Chỉ đổi dấu số hạng đầu tiên','Phải đổi dấu tất cả các số hạng trong ngoặc.'),O('Bỏ hết dấu của các số hạng','Các số hạng vẫn phải mang dấu, chỉ là đổi dấu.')],
+  exp:'Ví dụ 10 − (3 − 4) = 10 − 3 + 4 = 11.'},
+ {id:'m16',topic:'dn',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "+" đằng trước, các số hạng trong ngoặc:',ans:0,opts:[
+   O('giữ nguyên dấu'),O('đổi dấu tất cả','Đó là quy tắc khi có dấu "−" đứng trước ngoặc.'),O('chỉ số hạng đầu đổi dấu','Với dấu "+" đứng trước, không số hạng nào đổi dấu.'),O('đều trở thành số dương','Các số hạng vẫn giữ dấu của mình.')],
+  exp:'Ví dụ 10 + (3 − 4) = 10 + 3 − 4 = 9.'},
+ {id:'m17',topic:'dn',level:'VD',stem:'Cho A = 15 − (−7) và B = 15 + (−7). Khẳng định nào đúng?',ans:0,opts:[
+   O('A > B'),O('A = B','A = 15 + 7 = 22 còn B = 15 − 7 = 8, hai số khác nhau.'),O('A < B','A = 22 lớn hơn B = 8.'),O('A và B là hai số đối nhau','A = 22 và B = 8 không phải hai số đối nhau.')],
+  exp:'A = 15 − (−7) = 15 + 7 = 22; B = 15 + (−7) = 8. Vậy A > B.'}
+].map(q=>Object.assign({type:'mc'},q));
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b','c'].forEach(x=>{
+  addMC('g_addneg_'+x,'cg','NB',genAddNeg);
+  addMC('g_adddiff_'+x,'cg','TH',genAddDiff);
+  addMC('g_sum4_'+x,'cg','VD',genSum4);
+  addMC('g_range_'+x,'cg','VD',genRangeSum);
+  addMC('g_prop_'+x,'tc','NB',genProp);
+  addMC('g_assoc3_'+x,'tc','TH',genAssoc3);
+  addMC('g_assoc4_'+x,'tc','VD',genAssoc4);
+  addMC('g_opp_'+x,'tr','NB',genOpp);
+  addMC('g_subnb_'+x,'tr','NB',genSubNB);
+  addMC('g_subneg_'+x,'tr','TH',genSubNeg);
+  addMC('g_subadd_'+x,'tr','TH',genSubAsAdd);
+  addMC('g_dtemp_'+x,'tr','TH',genDiffTemp);
+  addMC('g_sub3_'+x,'tr','VD',genSub3);
+  addMC('g_unk_'+x,'tr','VD',genUnknown);
+  addMC('g_br_'+x,'dn','TH',genBracket);
+  addMC('g_atemp_'+x,'dn','TH',genAfterTemp);
+  addMC('g_alt_'+x,'dn','VD',genAlt);
+  addMC('g_profit_'+x,'dn','VD',genProfit);
+});
+
+['a','b'].forEach(x=>addMC('g_brnb_'+x,'dn','NB',genBracket));
+
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+const tCalcTH=tfCalc('TH'),tCalcVD=tfCalc('VD'),tSubTH=tfSub('TH'),tSubVD=tfSub('VD');
+['a','b'].forEach(x=>{
+  addTF('tf_prop_nb_'+x,'tc','NB',tfPropNB());
+  addTF('tf_prop_th_'+x,'tc','TH',tfPropTH());
+  addTF('tf_prop_vd_'+x,'tc','VD',tfPropVD());
+  addTF('tf_calc_th_'+x,'cg','TH',tCalcTH);
+  addTF('tf_calc_vd_'+x,'cg','VD',tCalcVD);
+  addTF('tf_sub_th_'+x,'tr','TH',tSubTH);
+  addTF('tf_sub_vd_'+x,'tr','VD',tSubVD);
+  addTF('tf_br_th_'+x,'dn','TH',tfBrTH());
+  addTF('tf_br_vd_'+x,'dn','VD',tfBrVD());
+  addTF('tf_real_'+x,'dn','TH',tfRealTH());
+});
+addTF('tf_real_c','dn','TH',tfRealTH());
+addTF('tf_calc_th_c','cg','TH',tCalcTH);
+addTF('tf_sub_th_c','tr','TH',tSubTH);
+addTF('tf_prop_th_c','tc','TH',tfPropTH());
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'cg',fig:'<div class="figbox"><p>(−6) + (−4) = −(6 + 4) = −10</p><p>(−9) + 4 = −(9 − 4) = −5</p><p>7 + (−7) = 0</p></div>',extra:'Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối, dấu của số có giá trị tuyệt đối lớn hơn.'},
+  {k:'tc',fig:'<div class="figbox"><p>a + b = b + a</p><p>(a + b) + c = a + (b + c)</p><p>a + 0 = a; a + (−a) = 0</p></div>',extra:'Ví dụ: (−46) + 17 + 46 = ((−46) + 46) + 17 = 17.'},
+  {k:'tr',fig:'<div class="figbox"><p>a − b = a + (−b)</p><p>5 − 8 = 5 + (−8) = −3</p><p>7 − (−2) = 7 + 2 = 9</p></div>',extra:'Trừ cho một số âm thì thành cộng với số dương.'},
+  {k:'dn',fig:'<div class="figbox"><p>a + (b − c) = a + b − c</p><p>a − (b − c) = a − b + c</p><p>a − (b + c) = a − b − c</p></div>',extra:'Tăng là cộng, giảm là trừ; lỗ, nợ, dưới 0 là số nguyên âm.'}
+];
+
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60};
+const SEEN_KEY='pc6_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];TYPES.forEach(t=>by[t]=by[t].map(inst));
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['cg',['NB']],['cg',['TH']],['tc',['NB']],['tc',['TH','VD']],['tr',['NB','TH']],['dn',['TH','VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['cg','tr','dn'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=[
+    pick(MC.filter(q=>q.topic==='cg'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='tc'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='tr'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='dn'&&q.level==='TH'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic==='cg'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='tr'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+/* ============ Màn hình: trang chủ ============ */
+/* ============ Mã học sinh ============ */
+const HS_KEY='luyentoan-hs';
+function needHS(){return !!SHEET_URL;} // có Google Sheet thì phải có mã học sinh mới vào học
+function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
+function saveHS(o){state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+function loginHTML(){
+  return `
+  <section class="hero">
+    <h1>Phép cộng và <em>phép trừ số nguyên</em></h1>
+    <p class="lead">Trang luyện tập dành cho học sinh các lớp của thầy cô. Hãy nhập mã học sinh để bắt đầu.</p>
+  </section>
+  <section class="card stack" style="margin-top:22px">
+    <div><h2>Nhập mã học sinh</h2></div>
+    <div>
+      <label class="fl" for="hsma">Mã học sinh (6 chữ số)</label>
+      <input type="text" id="hsma" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ví dụ: 482913">
+      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)"></p>
+    </div>
+    <div class="row"><button class="btn" id="hsgo">Vào học</button></div>
+    <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
+  </section>`;
+}
+function hsBarHTML(){
+  if(!state.stu)return '';
+  return `<section class="card" style="margin-top:22px"><div class="row" style="justify-content:space-between;align-items:center"><span>Xin chào, <b>${esc(state.stu.n)}</b>${state.stu.c?' · Lớp '+esc(state.stu.c):''}</span><button class="btn sm ghost" id="hsout">Đổi học sinh</button></div></section>`;
+}
+function checkHS(){
+  const inp=document.getElementById('hsma'),err=document.getElementById('hserr'),btn=document.getElementById('hsgo');
+  const u=inp.value.replace(/\D/g,'');
+  if(u.length!==6){err.textContent='Mã học sinh gồm đúng 6 chữ số. Hãy kiểm tra lại.';inp.focus();return;}
+  err.textContent='Đang kiểm tra mã...';btn.disabled=true;
+  fetch(SHEET_URL+'?ma='+u).then(r=>r.json()).then(o=>{
+    if(o&&o.ok){saveHS({u,n:o.n||'Học sinh',c:o.c||''});render();}
+    else{btn.disabled=false;err.textContent=o&&o.err?'Chưa kiểm tra được mã. Hãy thử lại sau ít phút hoặc báo giáo viên.':'Mã này không có trong danh sách. Hãy xem lại 6 chữ số hoặc hỏi giáo viên.';inp.focus();}
+  }).catch(()=>{btn.disabled=false;err.textContent='Chưa kiểm tra được mã (có thể mất mạng). Hãy thử lại.';});
+}
+
+function homeHTML(){
+  if(needHS()&&!state.stu)return loginHTML();
+  const weak=state.weak;
+  return `
+  <section class="hero">
+    <h1>Phép cộng và <em>phép trừ số nguyên</em></h1>
+    <p class="lead">Luyện Bài 14: cộng hai số nguyên, tính chất của phép cộng, trừ hai số nguyên, quy tắc dấu ngoặc và bài toán thực tế. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
+  </section>
+
+  ${hsBarHTML()}
+
+  <section class="card stack" style="margin-top:22px">
+    <div>
+      <h2>Luyện tập</h2>
+      <p class="muted" style="margin:6px 0 0">Mỗi gói có khoảng 11 câu rút ngẫu nhiên từ ngân hàng ${MC.length+TF.length+SA.length} câu, nhiều câu tự đổi số liệu mỗi lần làm. Làm xong từng câu bấm Kiểm tra để xem lời giải ngay. Nếu chưa đúng, bạn được thử lại một lần. Không giới hạn thời gian, trang chỉ hiện thời gian bạn đã dùng.</p>
+    </div>
+    <div>
+      <div class="grp">Theo mức độ</div>
+      <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Theo nội dung</div>
+      <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Gợi ý cho bạn</div>
+      <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
+    </div>
+  </section>
+
+  <section class="card stack" style="margin-top:16px">
+    <div>
+      <h2>Kiểm tra</h2>
+      <p class="muted" style="margin:6px 0 0">Có hai bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
+    </div>
+    <div class="recap">
+      <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
+      <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một phần.</p></div>
+    </div>
+    ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
+      <label class="fl" for="nm">Họ và tên</label>
+      <input type="text" id="nm" autocomplete="name" placeholder="Ví dụ: Nguyễn Văn An" value="${esc(state.name)}">
+    </div>
+    <div>
+      <label class="fl" for="cls">Lớp</label>
+      <input type="text" id="cls" autocomplete="off" maxlength="8" value="${esc(state.cls)}">
+    </div>`}
+    <div>
+      <label class="fl" for="mcode">Mã đề (không bắt buộc)</label>
+      <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 6A-01" value="${esc(state.code)}">
+      <p class="small muted" style="margin:6px 0 0">Nếu giáo viên cho mã đề, hãy nhập đúng mã đó: các bạn nhập cùng mã sẽ làm cùng một đề. Để trống thì bạn nhận một đề ngẫu nhiên. Thứ tự đáp án A, B, C, D vẫn được xáo riêng cho từng bạn.</p>
+    </div>
+    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button></div>
+    <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
+  </section>
+
+  <section style="margin-top:28px">
+    <h2 style="margin-bottom:12px">Ôn nhanh kiến thức</h2>
+    <div class="recap">
+      ${RECAP.map(r=>`<div class="card"><h3>${TOPICS[r.k].name}</h3>${r.fig}<p>${TOPICS[r.k].rule}</p><p class="muted small">${r.extra}</p></div>`).join('')}
+    </div>
+  </section>`;
+}
+
+/* ============ Thẻ câu hỏi ============ */
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+function badge(P){
+  if(P.first&&P.first.every(Boolean))return '<span class="st good">Đúng ngay lần đầu</span>';
+  if(P.final)return '<span class="st warn">Đúng ở lần thứ hai</span>';
+  return '<span class="st bad">Chưa đúng</span>';
+}
+function tail(q,P){
+  let h=`<div class="feedbox">${P.msg?`<div class="feed ${P.cls}" role="status">${P.msg}</div>`:''}</div>`;
+  if(P.done){
+    if(q.type==='mc')h+=`<p class="ans-line">Đáp án đúng: <b>${q.opts[q.ans].t}</b></p><div class="exp">${q.exp}</div>`;
+    else if(q.type==='sa')h+=`<p class="ans-line">Đáp án đúng: <b>${N(q.ans[0])} ${q.unit}</b></p><div class="exp">${q.exp}</div>`;
+  }else h+=`<div class="row" style="margin-top:12px"><button class="btn sm chk" data-q="${q.id}">Kiểm tra</button></div>`;
+  return h;
+}
+function mcHTML(q,i){
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,tried=P.tried||[],cur=state.ans[q.id];
+  const opts=state.perm[q.id].map((oi,j)=>{
+    let cls='opt',dis='';
+    if(pr){
+      if(done){dis='disabled';if(oi===q.ans)cls+=' is-right';else if(cur===oi)cls+=' is-wrong';}
+      else if(tried.includes(oi)){dis='disabled';cls+=' is-wrong';}
+    }
+    return `<label class="${cls}"><input type="radio" name="${q.id}" value="${oi}" ${cur===oi?'checked':''} ${dis}><span class="ol">${'ABCD'[j]}</span><span>${q.opts[oi].t}</span></label>`;
+  }).join('');
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}
+    <div class="opts" role="radiogroup" aria-label="Câu ${i+1}">${opts}</div>${pr?tail(q,P):''}</article>`;
+}
+function tfHTML(q,i){
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,a=state.ans[q.id]||[];
+  const rows=q.items.map((it,j)=>{
+    const cls=v=>{let c='opt';if(done){if(it.v===v)c+=' is-right';else if(a[j]===v)c+=' is-wrong';}return c;};
+    const dis=done?'disabled':'';
+    return `<div class="tfr"><div class="tx">${q.items.length>1?`<b>${'abcd'[j]})</b>`:''}${it.t}</div>
+      <div class="tfb" role="radiogroup" aria-label="Câu ${i+1}, ý ${'abcd'[j]}">
+        <label class="${cls(true)}"><input type="radio" name="${q.id}-${j}" value="1" ${a[j]===true?'checked':''} ${dis}><span>Đúng</span></label>
+        <label class="${cls(false)}"><input type="radio" name="${q.id}-${j}" value="0" ${a[j]===false?'checked':''} ${dis}><span>Sai</span></label>
+      </div>${done?`<div class="exp"><b>Đáp án: ${it.v?'Đúng':'Sai'}.</b> ${it.exp}</div>`:''}</div>`;
+  }).join('');
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}<div class="tf">${rows}</div>${pr?tail(q,P):''}</article>`;
+}
+function saHTML(q,i){
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done;
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}
+    <div class="sa"><label class="fl" for="in-${q.id}" style="margin:0">Đáp án:</label>
+    <input type="text" id="in-${q.id}" data-sa="${q.id}" autocomplete="off" placeholder="Nhập số, ví dụ -3" value="${esc(state.ans[q.id]||'')}" ${done?'disabled':''}>
+    <span class="muted">${q.unit}</span></div>${pr?tail(q,P):''}</article>`;
+}
+const CARD={mc:mcHTML,tf:tfHTML,sa:saHTML};
+
+/* ============ Màn hình: làm bài ============ */
+function partHead(k,t,d){return `<div class="part">${k?`<div class="kicker">${k}</div>`:''}<h2>${t}</h2><p>${d}</p></div>`;}
+function quizHTML(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const desc={
+    mc:test?(quick?'Mỗi câu chỉ có một đáp án đúng. 1,25 điểm mỗi câu.':'Mỗi câu chỉ có một đáp án đúng. 0,5 điểm mỗi câu.'):'Chọn một đáp án rồi bấm Kiểm tra.',
+    tf:test?'Mỗi câu có 4 ý, chọn Đúng hoặc Sai cho từng ý. Đúng 1 ý được 0,1 điểm, 2 ý được 0,25, 3 ý được 0,5, cả 4 ý được 1 điểm.':'Chọn Đúng hoặc Sai cho cả 4 ý rồi bấm Kiểm tra.',
+    sa:test?(quick?'Nhập kết quả là một số. Có thể dùng dấu phẩy hoặc dấu chấm. 2,5 điểm mỗi câu.':'Nhập kết quả là một số. Có thể dùng dấu phẩy hoặc dấu chấm. 1 điểm mỗi câu.'):'Nhập kết quả là một số rồi bấm Kiểm tra.'
+  };
+  const heads={mc:['Phần I','Câu hỏi nhiều lựa chọn'],tf:['Phần II','Câu hỏi đúng sai'],sa:[quick?'Phần II':'Phần III','Câu hỏi trả lời ngắn']};
+  let body='';
+  TYPES.forEach(t=>{
+    if(!S.by[t].length)return;
+    body+=partHead(test?heads[t][0]:'',test?heads[t][1]:TYPE_NAME[t],desc[t]);
+    body+=`<div class="stack">${S.by[t].map(CARD[t]).join('')}</div>`;
+  });
+  return `<div class="bar-sticky"><div class="row" style="justify-content:space-between"><b id="plabel"></b><span class="small muted">${test?esc(state.name||'Học sinh'):S.title}</span><b id="timer" class="timer"></b></div><div class="prog"><i id="pbar"></i></div></div>
+  ${body}
+  <div id="warn"></div>
+  <div class="row" style="margin-top:22px"><button class="btn" id="submit">${test?'Nộp bài':'Xem kết quả'}</button><button class="btn ghost" id="back">Quay lại</button></div>`;
+}
+function totalItems(){return S.list.reduce((s,q)=>s+(q.type==='tf'?q.items.length:1),0);}
+function answered(){
+  let n=0;
+  S.by.mc.forEach(q=>{if(state.ans[q.id]!=null)n++;});
+  S.by.tf.forEach(q=>{const a=state.ans[q.id]||[];q.items.forEach((_,j)=>{if(typeof a[j]==='boolean')n++;});});
+  S.by.sa.forEach(q=>{if(String(state.ans[q.id]||'').trim()!=='')n++;});
+  return n;
+}
+function doneCount(){return S.list.filter(q=>state.pr[q.id]&&state.pr[q.id].done).length;}
+function updateProgress(){
+  const l=document.getElementById('plabel'),b=document.getElementById('pbar');if(!l)return;
+  if(S.mode!=='practice'){const n=answered(),t=totalItems();l.textContent=`Đã trả lời ${n}/${t}`;b.style.width=(100*n/t)+'%';}
+  else{const n=doneCount(),t=S.list.length;l.textContent=`Đã hoàn thành ${n}/${t} câu`;b.style.width=(100*n/t)+'%';}
+}
+
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^\d{1,3}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+/* ============ Luyện tập: kiểm tra từng câu ============ */
+function setFeed(id,msg,cls){
+  const box=document.querySelector(`#q-${id} .feedbox`);
+  if(box)box.innerHTML=`<div class="feed ${cls}" role="status">${msg}</div>`;
+}
+function practiceCheck(id){
+  const q=S.list.find(x=>x.id===id);if(!q)return;
+  const P=state.pr[id]||(state.pr[id]={attempts:0,done:false,tried:[]});
+  if(P.done)return;
+  const a=state.ans[id];
+  if(q.type==='mc'&&a==null)return setFeed(id,'Hãy chọn một đáp án trước.','info');
+  if(q.type==='tf'){const arr=a||[];if(q.items.some((_,j)=>typeof arr[j]!=='boolean'))return setFeed(id,'Hãy chọn Đúng hoặc Sai cho cả 4 ý trước.','info');}
+  if(q.type==='sa'&&String(a||'').trim()==='')return setFeed(id,'Hãy nhập đáp án trước.','info');
+  P.attempts++;
+  const oks=evalQ(q,a),all=oks.every(Boolean);
+  if(P.attempts===1){P.first=oks;P.firstAns=JSON.parse(JSON.stringify(a));}
+  if(all){
+    P.done=true;P.final=true;P.cls='ok';
+    P.msg=P.attempts===1?'Đúng rồi!':'Đúng ở lần thử thứ hai.';
+  }else if(P.attempts===1){
+    P.cls='bad';
+    if(q.type==='mc'){
+      const e=q.opts[a].err;P.tried.push(a);delete state.ans[id];
+      P.msg='Chưa đúng.'+(e?' '+e:'')+' Hãy chọn lại một đáp án khác.';
+    }else if(q.type==='tf'){
+      const k=oks.filter(Boolean).length;P.msg=`Mới đúng ${k}/${q.items.length} ý. Hãy xem lại các ý và thử một lần nữa.`;
+    }else P.msg='Đáp án chưa đúng. Hãy kiểm tra lại cách tính và thử một lần nữa.';
+  }else{
+    P.done=true;P.final=false;P.cls='bad';P.msg='Chưa đúng. Đáp án và lời giải ở bên dưới.';
+  }
+  const el=document.getElementById('q-'+id);
+  el.outerHTML=CARD[q.type](q,S.idx[id]);
+  updateProgress();
+}
+
+/* ============ Màn hình: kết quả ============ */
+function barRow(label,o){
+  const p=pct(o),[cls,txt]=status(p);
+  return `<div class="topic"><div class="trow"><b>${label}</b><span class="st ${cls}">${txt} · ${p}%</span></div>
+    <div class="track" role="img" aria-label="${label}: ${p}%"><i class="fill-${cls}" style="width:${p}%"></i></div>
+    <div class="small muted">${o.c}/${o.n} ý đúng</div></div>`;
+}
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+const SHEET_TAB='6 - Phép cộng và phép trừ số nguyên'; // tên trang tính của bài này trong Google Sheet chung
+const SHEET_TOPICS=['Cộng hai số nguyên','Tính chất phép cộng','Trừ hai số nguyên','Quy tắc dấu ngoặc, thực tế']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
+const CODE_PREFIX='PC6-';
+function makeCode(r){
+  const t={};TKEYS.forEach(k=>t[k]=[r.topics[k].c,r.topics[k].n]);
+  const o={v:1,l:'songuyen6',n:state.name||'Học sinh',d:new Date().toISOString().slice(0,10),s:r.total,m:state.elapsed,L:LIMIT[S.mode],q:S.mode,k:state.code,p:[r.sc.mc,r.sc.tf,r.sc.sa],t,c:state.cls,u:state.stu?state.stu.u:''};
+  return CODE_PREFIX+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+}
+function setSent(msg,retry){
+  const m=document.getElementById('sent');if(!m)return;
+  m.innerHTML=msg+(retry?' <button class="btn sm ghost" id="resend">Gửi lại</button>':'');
+}
+function sendResult(){
+  if(!SHEET_URL||!state.result)return;
+  const code=makeCode(state.result);
+  setSent('Đang gửi kết quả cho giáo viên...');
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
+  const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
+  fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
+    t=t.trim();
+    if(t==='saved'||t==='dup')done();
+    else if(t==='nocode')setSent('Kết quả chưa được ghi vì mã học sinh không có trong danh sách. Hãy báo giáo viên.');
+    else fail();
+  }).catch(()=>{
+    // Không đọc được trả lời: gửi lại theo cách cũ (bảng tính tự bỏ qua nếu đã nhận rồi)
+    fetch(SHEET_URL,Object.assign({mode:'no-cors'},opt)).then(done).catch(fail);
+  });
+}
+function reviewHTML(r){
+  const sym=ok=>ok?'<span class="mark-ok">✓ Đúng</span>':'<span class="mark-no">✗ Chưa đúng</span>';
+  return r.qres.map(x=>{
+    const tp=x.kind==='tf'?'':TOPICS[x.q.topic].short;
+    let body='';const head=`${partName(x.kind)} · Câu ${x.i+1}`;
+    if(x.kind==='mc'){
+      const chosen=x.a==null?'Chưa trả lời':x.q.opts[x.a].t,right=x.q.opts[x.q.ans].t;
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn chọn: <b>${chosen}</b></p><p class="ans-line">Đáp án đúng: <b>${right}</b></p>`+(x.ok||x.a==null||!x.q.opts[x.a].err?'':`<p class="ans-line mark-no">Lỗi thường gặp: ${x.q.opts[x.a].err}</p>`)+`<div class="exp">${x.q.exp}</div>`;
+    }else if(x.kind==='tf'){
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}`+x.q.items.map((it,j)=>{
+        const a=x.a[j],your=typeof a==='boolean'?(a?'Đúng':'Sai'):'Chưa chọn';
+        return `<div class="exp" style="margin-top:8px">${x.q.items.length>1?`<b>${'abcd'[j]})</b> `:''}${it.t}<br>Bạn chọn: <b>${your}</b> · Đáp án: <b>${it.v?'Đúng':'Sai'}</b> ${sym(x.oks[j])} <span class="chip">${TOPICS[it.topic].short}</span><br><span class="muted">${it.exp}</span></div>`;
+      }).join('');
+    }else{
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn nhập: <b>${x.raw?esc(x.raw):'Chưa trả lời'}</b></p><p class="ans-line">Đáp án đúng: <b>${N(x.q.ans[0])} ${x.q.unit}</b></p><div class="exp">${x.q.exp}</div>`;
+    }
+    const right=x.kind==='tf'?`${x.k}/${x.q.items.length} ý đúng · ${fmt(x.pts)}/${fmt(x.max)} điểm`:`${sym(x.ok)} · ${fmt(x.pts)}/${fmt(x.max)} điểm`;
+    return `<details class="rv"><summary><span><b>${head}</b> ${tp?`<span class="chip">${tp}</span>`:''}</span><span class="small">${right}</span></summary><div class="body">${body}</div></details>`;
+  }).join('');
+}
+function resultHTML(){
+  const r=state.result,test=S.mode!=='practice',quick=S.mode==='quick',ts=TKEYS.filter(k=>r.topics[k].n).map(k=>({k,p:pct(r.topics[k])}));
+  const weak=ts.filter(t=>t.p<80).sort((a,b)=>a.p-b.p),strong=ts.filter(t=>t.p>=80);
+  let comment;
+  if(!weak.length)comment=ts.length>1?'Bạn nắm vững cả bốn nội dung. Có thể chuyển sang các bài toán thực tế nhiều bước hơn.':'Bạn nắm vững nội dung này. Hãy thử gói của nội dung hoặc mức độ khác.';
+  else{
+    comment=`Phần cần ưu tiên ôn trước: <b>${TOPICS[weak[0].k].name}</b> (${weak[0].p}%).`;
+    if(strong.length)comment+=` Bạn làm tốt phần ${strong.map(t=>'<b>'+TOPICS[t.k].short+'</b>').join(', ')}.`;
+  }
+  const missed=k=>r.items.filter(it=>it.topic===k&&!it.ok).map(it=>it.label);
+  const correct=r.items.filter(it=>it.ok).length;
+  const head=test
+    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
+    :`<div class="big">${correct}<small> / ${r.items.length}</small></div><div><div class="muted small" style="margin-bottom:6px">${S.title}</div><div class="parts"><span class="chip">ý đúng ngay lần đầu</span><span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span><span class="chip">Luyện tập không tính điểm</span></div></div>`;
+  const code=test?makeCode(r):'';
+  return `
+  ${test&&state.timedOut?'<div class="warnbar" role="alert" style="margin:0 0 12px">Đã hết '+(LIMIT[S.mode]/60)+' phút nên bài được nộp tự động. Những ý chưa làm tính là chưa đúng.</div>':''}
+  <section class="card stack" style="margin-top:8px">
+    <div class="score">${head}</div>
+    <p style="margin:0">${comment}</p>
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo nội dung kiến thức</h2>
+    ${TKEYS.filter(k=>r.topics[k].n).map(k=>barRow(TOPICS[k].name,r.topics[k])).join('')}
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo mức độ</h2>
+    ${Object.keys(LEVELS).filter(k=>r.levels[k].n).map(k=>barRow(LEVELS[k],r.levels[k])).join('')}
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:6px">Nên ôn gì tiếp theo</h2>
+    ${weak.length?weak.map(t=>`<div class="advice"><h3>${TOPICS[t.k].name}</h3><p><b>Nhớ:</b> ${TOPICS[t.k].rule}</p><p><b>Lưu ý:</b> ${TOPICS[t.k].tip}</p><p class="small muted">Xem lại: ${missed(t.k).join('; ')}.</p></div>`).join(''):'<p class="muted">Không có nội dung nào dưới 80%.</p>'}
+    ${r.errs.length?`<h3 style="margin-top:18px">Những lỗi bạn đã mắc</h3><ul class="plain">${r.errs.map(e=>`<li><b>${e.where}</b> <span class="chip">${TOPICS[e.topic].short}</span><br><span class="muted">${e.text}</span></li>`).join('')}</ul>`:''}
+  </section>
+
+  ${test?`<section style="margin-top:22px"><h2 style="margin-bottom:12px">Xem lại từng câu</h2>${reviewHTML(r)}</section>
+
+  <section class="card codebox" style="margin-top:16px"><h2>Gửi kết quả cho giáo viên</h2>
+    <p class="small" id="sent" role="status" style="margin:0"></p>
+    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả được gửi tự động. Nếu giáo viên chưa nhận được, hãy sao chép mã dưới đây và gửi qua Zalo.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
+    <textarea id="code" readonly rows="3" aria-label="Mã kết quả">${code}</textarea>
+    <div class="row"><button class="btn sm" id="copy">Sao chép mã</button><span class="small muted" id="copied" role="status"></span></div>
+  </section>`:''}
+
+  <div class="row" style="margin-top:22px">
+    ${state.weak.length?`<button class="btn" id="weakpack">Luyện gói ôn điểm yếu</button>`:''}
+    ${nextSpec()?`<button class="btn ${state.weak.length?'ghost':''}" id="nextpack">Luyện tiếp: gói ${specName(nextSpec())}</button>`:''}
+    <button class="btn ${state.weak.length||nextSpec()?'ghost':''}" id="again">${test?(state.code?'Làm lại đề này':'Làm đề kiểm tra khác'):'Làm gói này lần nữa'}</button>
+    <button class="btn ghost" id="home">Về trang đầu</button>
+  </div>`;
+}
+
+/* ============ Màn hình: giáo viên ============ */
+function teacherHTML(){
+  return `<section class="hero"><h1>Bảng <em>tổng hợp</em> lớp</h1>
+    <p class="lead">Dán mã kết quả bài kiểm tra Phép cộng và phép trừ số nguyên của học sinh (bắt đầu bằng ${CODE_PREFIX}), mỗi mã một dòng. Bảng cho thấy điểm từng em và nội dung kiến thức cả lớp còn yếu. Mỗi học sinh nhận một đề khác nhau nhưng cùng cấu trúc, nên điểm vẫn so sánh được.</p></section>
+    <section class="card stack" style="margin-top:18px">
+      <div><label class="fl" for="codes">Mã kết quả</label><textarea id="codes" placeholder="${CODE_PREFIX}eyJ2IjoxLC..."></textarea></div>
+      <div class="row"><button class="btn" id="analyze">Tổng hợp</button><button class="btn ghost" id="clearc">Xóa</button></div>
+      <div id="tout" aria-live="polite"></div>
+    </section>`;
+}
+function decodeCode(line){
+  line=line.trim();if(!line.startsWith(CODE_PREFIX))return null;
+  try{const o=JSON.parse(decodeURIComponent(escape(atob(line.slice(CODE_PREFIX.length)))));if(o&&o.t&&typeof o.s==='number')return o;}catch(e){}
+  return null;
+}
+function analyzeCodes(){
+  const lines=document.getElementById('codes').value.split(/\r?\n/).filter(l=>l.trim());
+  const rows=[],bad=[];let other=0;
+  lines.forEach((l,i)=>{const o=decodeCode(l);if(o)rows.push(o);else{bad.push(i+1);if(/^[A-Z0-9]{2,4}-/.test(l.trim())&&!l.trim().startsWith(CODE_PREFIX))other++;}});
+  const out=document.getElementById('tout');
+  if(!rows.length){out.innerHTML=`<div class="warnbar">${lines.length?`Không đọc được mã nào. Hãy kiểm tra mã đã được sao chép đầy đủ, bắt đầu bằng ${CODE_PREFIX}.${other?' Có mã của bài khác (ví dụ Tam giác bằng nhau): hãy dán mã đó ở trang của bài ấy.':''}`:'Hãy dán ít nhất một mã kết quả.'}</div>`;return;}
+  const cell=o=>{if(!o||!o[1])return '<td class="cell">–</td>';const p=Math.round(100*o[0]/o[1]);return `<td class="cell ${status(p)[0]}">${p}%</td>`;};
+  const avg=TKEYS.map(k=>{let c=0,n=0;rows.forEach(r=>{if(r.t[k]){c+=r.t[k][0];n+=r.t[k][1];}});return [c,n];});
+  const mean=rows.reduce((s,r)=>s+r.s,0)/rows.length;
+  const timed=rows.filter(r=>typeof r.m==='number'),meanT=timed.length?timed.reduce((s,r)=>s+r.m,0)/timed.length:null;
+  const tcell=r=>typeof r.m==='number'?fmtTime(r.m):'–';
+  const flag=r=>(typeof r.m==='number'&&r.m<0.25*(r.L||1800)&&r.s<5)?' <span class="chip">Làm nhanh, điểm thấp</span>':'';
+  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
+  const weakCount=TKEYS.map(k=>rows.filter(r=>r.t[k]&&r.t[k][1]&&100*r.t[k][0]/r.t[k][1]<50).length);
+  const worst=TKEYS.map((k,i)=>({k,p:avg[i][1]?100*avg[i][0]/avg[i][1]:100})).sort((a,b)=>a.p-b.p)[0];
+  out.innerHTML=`${bad.length?`<div class="warnbar" style="margin:0 0 12px">Bỏ qua ${bad.length} dòng không đọc được (dòng ${bad.join(', ')}).${other?' Có mã của bài khác, hãy dán ở trang của bài ấy.':''}</div>`:''}
+    <p style="margin:0 0 10px"><b>${rows.length}</b> học sinh · điểm trung bình <b>${fmt(mean)}</b>. Nội dung cả lớp còn yếu nhất: <b>${TOPICS[worst.k].name}</b> (${Math.round(worst.p)}%).</p>
+    <div class="tablewrap"><table><thead><tr><th>Học sinh</th><th>Điểm</th><th>Thời gian</th>${TKEYS.map(k=>`<th>${TOPICS[k].short}</th>`).join('')}</tr></thead><tbody>
+    ${rows.sort((a,b)=>a.s-b.s).map(r=>`<tr><td>${esc(r.n)}${chips(r)}${flag(r)}</td><td><b>${fmt(r.s)}</b></td><td>${tcell(r)}</td>${TKEYS.map(k=>cell(r.t[k])).join('')}</tr>`).join('')}
+    <tr><td><b>Cả lớp</b></td><td><b>${fmt(mean)}</b></td><td>${meanT===null?'–':fmtTime(meanT)}</td>${avg.map(cell).join('')}</tr>
+    <tr><td class="muted">Số em dưới 50%</td><td></td><td></td>${weakCount.map(n=>`<td class="cell">${n}</td>`).join('')}</tr>
+    </tbody></table></div>
+    <p class="small muted" style="margin:10px 0 0">Màu: xanh từ 80%, vàng từ 50% đến dưới 80%, đỏ dưới 50%. Các em được xếp từ điểm thấp đến cao để dễ thấy em cần hỗ trợ. Nhãn "Làm nhanh, điểm thấp" hiện khi em nộp bài trong chưa đầy một phần tư thời gian cho phép mà dưới 5 điểm, thường là em chưa làm kỹ nên cần hỏi lại.</p>`;
+}
+
+/* ============ Điều hướng và sự kiện ============ */
+function render(){
+  const gv=location.hash==='#giao-vien';
+  document.getElementById('nav-hs').setAttribute('aria-current',gv?'false':'page');
+  document.getElementById('nav-gv').setAttribute('aria-current',gv?'page':'false');
+  if(gv){stopTimer();$app.innerHTML=teacherHTML();return;}
+  if(state.view==='home'){stopTimer();$app.innerHTML=homeHTML();}
+  else if(state.view==='quiz'){$app.innerHTML=quizHTML();updateProgress();startTimer();}
+  else{stopTimer();$app.innerHTML=resultHTML();if(SHEET_URL&&S.mode!=='practice'&&state.sentCode!==makeCode(state.result))sendResult();else if(SHEET_URL&&S.mode!=='practice')setSent('Đã gửi kết quả cho giáo viên.');}
+  window.scrollTo(0,0);
+}
+function normCode(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'');}
+function withCode(mode,fn){
+  if(!state.code){fn();return;}
+  RNG=mulberry32(hashStr(mode+'|'+state.code));SEEDED=true;
+  try{fn();}finally{RNG=Math.random;SEEDED=false;}
+}
+function startTest(){withCode('test',buildTest);state.view='quiz';render();}
+function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
+function startPack(spec){buildPractice(spec);state.view='quiz';render();}
+// Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
+function nextSpec(){
+  if(!S||S.mode!=='practice'||!S.spec)return null;
+  const sp=S.spec,list=sp.kind==='level'?Object.keys(LEVELS):sp.kind==='topic'?TKEYS:[],i=list.indexOf(sp.val);
+  return i>=0&&i<list.length-1?{kind:sp.kind,val:list[i+1]}:null;
+}
+const specName=sp=>sp.kind==='level'?LEVELS[sp.val]:TOPICS[sp.val].short;
+function parsePack(s){
+  if(s==='weak')return {kind:'weak',topics:state.weak.slice()};
+  const [kind,val]=s.split(':');return {kind,val};
+}
+function finish(force){
+  const test=S.mode!=='practice';
+  const left=test?totalItems()-answered():S.list.length-doneCount();
+  if(left>0&&!force){
+    const w=document.getElementById('warn');
+    w.innerHTML=test
+      ?`<div class="warnbar" role="alert">Còn <b>${left}</b> ý chưa trả lời. Những ý này sẽ tính là chưa đúng.<div class="row" style="margin-top:10px"><button class="btn sm" id="force">Vẫn nộp bài</button><button class="btn ghost sm" id="keep">Làm tiếp</button></div></div>`
+      :`<div class="warnbar" role="alert">Còn <b>${left}</b> câu chưa kiểm tra xong. Những câu này sẽ tính là chưa đúng ngay lần đầu.<div class="row" style="margin-top:10px"><button class="btn sm" id="force">Vẫn xem kết quả</button><button class="btn ghost sm" id="keep">Làm tiếp</button></div></div>`;
+    w.scrollIntoView({block:'center'});return;
+  }
+  stopTimer();
+  state.elapsed=Math.floor((Date.now()-state.t0)/1000);
+  if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
+  state.result=grade();updateWeak(state.result);state.view='result';render();
+}
+loadHS();
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
+document.addEventListener('click',e=>{
+  const pk=e.target.closest('[data-pack]');
+  if(pk&&!pk.disabled){startPack(parsePack(pk.dataset.pack));return;}
+  const ck=e.target.closest('.chk');
+  if(ck){practiceCheck(ck.dataset.q);return;}
+  const id=e.target.id;
+  if(id==='start'||id==='startq'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else startQuick();}
+  else if(id==='hsgo')checkHS();
+  else if(id==='hsout'){saveHS(null);state.view='home';render();}
+  else if(id==='submit')finish(false);
+  else if(id==='force')finish(true);
+  else if(id==='keep')document.getElementById('warn').innerHTML='';
+  else if(id==='back'){state.view='home';render();}
+  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
+  else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
+  else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
+  else if(id==='home'){state.view='home';render();}
+  else if(id==='copy'){
+    const t=document.getElementById('code'),m=document.getElementById('copied');
+    t.focus();t.select();
+    (navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>{m.textContent='Đã sao chép.';}).catch(()=>{m.textContent='Hãy nhấn giữ vùng chọn rồi chọn Sao chép.';});
+  }
+  else if(id==='resend')sendResult();
+  else if(id==='analyze')analyzeCodes();
+  else if(id==='clearc'){document.getElementById('codes').value='';document.getElementById('tout').innerHTML='';}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;if(t.type!=='radio')return;
+  const m=t.name.match(/^(.+)-(\d)$/);
+  if(m){const a=state.ans[m[1]]||(state.ans[m[1]]=[]);a[+m[2]]=t.value==='1';}
+  else state.ans[t.name]=+t.value;
+  updateProgress();
+});
+document.addEventListener('input',e=>{
+  const id=e.target.dataset&&e.target.dataset.sa;
+  if(id){state.ans[id]=e.target.value;updateProgress();}
+});
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>
