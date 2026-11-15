@@ -74,6 +74,9 @@ input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);b
 textarea{min-height:140px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
 label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
 
+.dt{border-collapse:collapse;margin:10px 0 2px;font-size:.95rem}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 14px;text-align:left}
+.dt th{background:var(--paper)}
 .figbox{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;max-width:400px;margin:10px 0}
 .figbox.ms{max-width:none}
 .figbox p{margin:2px 0}
@@ -690,6 +693,61 @@ const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
 });
 addTF('tf_num_nb_c','bc','NB',tfNum('NB'));
 
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+const lcm3=(a,b,c)=>lcm(lcm(a,b),c);
+const TRI3=[[3,4,5],[4,5,6],[2,3,7],[4,6,9],[3,5,8],[6,8,9],[4,6,10],[5,6,8]];
+const BELL=[[4,5,10],[6,8,12],[6,10,15],[9,12,18],[8,10,20],[5,9,15],[12,15,20],[8,9,12],[10,18,45],[8,15,24]];
+const BUS=[[10,15,12],[10,15,20],[8,12,18],[12,18,24],[9,12,8],[12,16,18],[10,15,25],[6,10,8],[15,20,24]];
+const gio=m=>`${Math.floor(m/60)} giờ${m%60?` ${m%60} phút`:''}`;
+const boi=(l,k)=>Array.from({length:k},(_,i)=>(i+1)*l).join(', ');
+function tfDiv(){
+  for(let n=0;n<200;n++){
+    const [a,b]=sel([[6,8],[4,6],[6,9],[8,12],[9,12],[10,15],[6,10],[12,18],[8,20],[12,16]]),l=lcm(a,b),p=a*b,v=[0,1,2,3].map(()=>RNG()<.5);
+    let q=2;while(l%q)q++;
+    const big=2*l===p?3*l:2*l,k=ri(2,5),N=k*l+ri(1,l-1),kk=v[3]?k:sel([k-1,k+1]);
+    const items=[
+      {t:`n chắc chắn chia hết cho ${v[0]?l:p}.`,v:v[0],topic:'sy',level:'VD',exp:v[0]?`n là bội chung của ${a} và ${b} nên là bội của BCNN(${a}, ${b}) = ${l}.`:`n là bội của BCNN(${a}, ${b}) = ${l}, nhưng chưa chắc chia hết cho ${p}. Ví dụ n = ${l} không chia hết cho ${p}.`},
+      {t:`n chắc chắn chia hết cho ${v[1]?l/q:big}.`,v:v[1],topic:'sy',level:'VD',exp:v[1]?`n chia hết cho ${l}, mà ${l} chia hết cho ${l/q}, nên n chia hết cho ${l/q}.`:`n chỉ chắc chắn chia hết cho BCNN(${a}, ${b}) = ${l}. Ví dụ n = ${l} không chia hết cho ${big}.`},
+      {t:`Giá trị nhỏ nhất của n là ${v[2]?l:(l/q===a||l/q===b?p:l/q)}.`,v:v[2],topic:'ts',level:'VD',exp:`Số nhỏ nhất khác 0 chia hết cho cả ${a} và ${b} là BCNN(${a}, ${b}) = ${l}.`},
+      {t:`Có đúng ${kk} giá trị của n nhỏ hơn ${N}.`,v:v[3],topic:'sy',level:'VD',exp:`Các giá trị của n nhỏ hơn ${N} là ${boi(l,k)}: có ${k} giá trị${v[3]?'.':`, không phải ${kk}.`}`}];
+    if(tfOK(items))return {stem:`Số tự nhiên n khác 0 chia hết cho cả ${a} và ${b}. Xét các phát biểu sau:`,items};
+  }
+  return FB_TF();
+}
+const HARD={tf:[{id:'h_chia',type:'tf',topic:'sy',level:'VD',gen:tfDiv}],sa:[
+ {id:'h_du',topic:'sy',level:'VD',unit:'',gen:()=>{const [a,b]=pairKind('gen',20,90),l=lcm(a,b),r=ri(1,Math.min(a,b)-1),m=Math.max(a,b);return{stem:`Tìm số tự nhiên nhỏ nhất lớn hơn ${m} mà khi chia cho ${a} và chia cho ${b} đều dư ${r}.`,ans:[l+r],exp:`Số cần tìm trừ đi ${r} thì chia hết cho cả ${a} và ${b}, tức là một bội chung của ${a} và ${b}. Bội chung nhỏ nhất khác 0 là BCNN(${a}, ${b}) = ${l}. Vậy số cần tìm là ${l} + ${r} = ${l+r}.`};}},
+ {id:'h_thieu',topic:'ts',level:'VD',unit:'',gen:()=>{const [a,b,c]=sel(TRI3),L=lcm3(a,b,c);return{stem:`Tìm số tự nhiên nhỏ nhất khác 0 mà khi chia cho ${a} dư ${a-1}, chia cho ${b} dư ${b-1} và chia cho ${c} dư ${c-1}.`,ans:[L-1],exp:`Số cần tìm cộng thêm 1 thì chia hết cho cả ${a}, ${b} và ${c}. Nhỏ nhất nên số đó cộng 1 bằng BCNN(${a}, ${b}, ${c}) = ${L}. Vậy số cần tìm là ${L} − 1 = ${L-1}.`};}},
+ {id:'h_hs',topic:'tt',level:'VD',unit:'học sinh',gen:()=>{const [a,b,c]=sel(TRI3),L=lcm3(a,b,c),r=ri(1,Math.min(a,b,c)-1),k=ri(Math.ceil(200/L),Math.floor(480/L)),x=k*L+r,lo=x-ri(3,L-3),hi=x+ri(3,L-3);return{stem:`Số học sinh khối 6 của một trường nhiều hơn ${lo} và ít hơn ${hi}. Khi xếp hàng ${a}, hàng ${b}, hàng ${c} đều thừa ${r} em. Tính số học sinh khối 6.`,ans:[x],exp:`Số học sinh trừ đi ${r} là bội chung của ${a}, ${b}, ${c}, tức là bội của BCNN(${a}, ${b}, ${c}) = ${L}. Trong khoảng đã cho chỉ có ${k} · ${L} + ${r} = ${x} thỏa mãn (${(k-1)*L+r} và ${(k+1)*L+r} nằm ngoài khoảng).`};}},
+ {id:'h_tich',topic:'ts',level:'VD',unit:'',gen:()=>{const [a,b]=pairKind('gen',30,200),g=gcd(a,b),l=lcm(a,b);return{stem:`Hai số tự nhiên a và b có ƯCLN(a, b) = ${g} và BCNN(a, b) = ${l}. Biết a = ${a}. Tìm b.`,ans:[b],exp:`Với hai số tự nhiên khác 0 ta có a · b = ƯCLN(a, b) · BCNN(a, b). Do đó ${a} · b = ${g} · ${l} = ${g*l}, suy ra b = ${g*l} : ${a} = ${b}.`};}},
+ {id:'h_chuong',topic:'tt',level:'VD',unit:'lần',gen:()=>{const [a,b,c]=sel(BELL),L=lcm3(a,b,c),H=ri(4,8),k=Math.floor(60*H/L);return{stem:`Ba chiếc chuông điện cùng reo lúc 6 giờ sáng. Sau đó chuông thứ nhất cứ ${a} phút reo một lần, chuông thứ hai cứ ${b} phút, chuông thứ ba cứ ${c} phút. Trong khoảng thời gian từ 6 giờ đến ${6+H} giờ (tính cả hai thời điểm này), có bao nhiêu lần cả ba chuông cùng reo?`,ans:[k+1],exp:`Ba chuông cùng reo sau mỗi BCNN(${a}, ${b}, ${c}) = ${L} phút. Từ 6 giờ đến ${6+H} giờ là ${60*H} phút, có ${k} lần cùng reo sau lúc 6 giờ (vì ${k} · ${L} = ${k*L} ≤ ${60*H}). Tính cả lúc 6 giờ là ${k+1} lần.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+const PISA=[
+ ()=>{const [a,b,c]=sel(BUS),l2=lcm(a,b),L=lcm3(a,b,c),k=Math.floor(360/L),T0=330;
+  return {title:'Bến xe buýt',ctx:`<p class="stem">Tại một bến xe buýt có ba tuyến cùng xuất bến chuyến đầu tiên lúc 5 giờ 30 phút. Khoảng cách giữa hai chuyến liên tiếp của mỗi tuyến cho trong bảng.</p>${tbl(['Tuyến','Cứ bao lâu có một chuyến'],[['01',a+' phút'],['02',b+' phút'],['03',c+' phút']])}`,qs:[
+   saq('Sau ít nhất bao nhiêu phút kể từ 5 giờ 30 phút thì tuyến 01 và tuyến 02 lại cùng xuất bến?',l2,'phút',`Đó là BCNN(${a}, ${b}) = ${l2} phút.`,'tt','TH'),
+   mcq('Lần tiếp theo cả ba tuyến cùng xuất bến là lúc mấy giờ?',gio(T0+L),[[gio(T0+l2),`Lúc đó mới có tuyến 01 và tuyến 02 cùng xuất bến; ${l2} không chia hết cho ${c} nên tuyến 03 chưa có xe.`],[gio(T0+a+b+c),'Cộng ba khoảng thời gian lại không cho thời điểm cùng xuất bến; phải tìm BCNN của ba số.'],[gio(T0+2*L),'Lúc đó ba tuyến cũng cùng xuất bến, nhưng chưa phải lần tiếp theo.']],`BCNN(${a}, ${b}, ${c}) = ${L} phút. Sau 5 giờ 30 phút ${L} phút là ${gio(T0+L)}.`,'tt','VD'),
+   saq('Trong khoảng thời gian từ 5 giờ 30 phút đến 11 giờ 30 phút (tính cả hai thời điểm này), có bao nhiêu lần cả ba tuyến cùng xuất bến?',k+1,'lần',`Khoảng thời gian dài 360 phút. Cứ ${L} phút ba tuyến lại cùng xuất bến, nên sau 5 giờ 30 phút có ${k} lần (vì ${k} · ${L} = ${k*L} ≤ 360). Tính cả lúc 5 giờ 30 phút là ${k+1} lần.`,'tt','VD'),
+   saq('Cũng trong khoảng thời gian đó, tuyến 01 có tất cả bao nhiêu chuyến xuất bến?',360/a+1,'chuyến',`360 : ${a} = ${360/a} chuyến sau chuyến đầu tiên. Tính cả chuyến lúc 5 giờ 30 phút là ${360/a+1} chuyến.`,'tt','VD')]};},
+ ()=>{for(;;){const [a,b]=sel([[20,30],[30,40],[15,20],[20,25],[30,45],[25,40],[40,60]]),l=lcm(a,b),S=l*ri(2,4),R=l*ri(2,5);
+   const w1=sel([3,5,7,9,11].map(t=>a*t).filter(x=>x%b)),w2=sel([3,5,7,9,11].map(t=>b*t).filter(x=>x%a)),w3=R+ri(1,4);
+   if(!w1||!w2||new Set([R,w1,w2,w3]).size<4)continue;
+   return {title:'Lát nền bằng gạch chữ nhật',ctx:`<p class="stem">Nhà bạn Minh lát nền bằng loại gạch hình chữ nhật có kích thước ${a} cm × ${b} cm. Thợ đặt các viên gạch cùng một hướng, khít nhau và không cắt gạch.</p>`,qs:[
+   saq('Mảnh nền hình vuông nhỏ nhất lát kín được bằng loại gạch này có cạnh dài bao nhiêu xăng-ti-mét?',l,'cm',`Cạnh hình vuông phải chia hết cho cả ${a} và ${b}; nhỏ nhất là BCNN(${a}, ${b}) = ${l} cm.`,'tt','TH'),
+   saq('Cần bao nhiêu viên gạch để lát kín mảnh nền hình vuông nhỏ nhất đó?',(l/a)*(l/b),'viên',`Mỗi hàng dọc theo cạnh ${a} cm xếp được ${l} : ${a} = ${l/a} viên, và có ${l} : ${b} = ${l/b} hàng. Cần ${l/a} · ${l/b} = ${(l/a)*(l/b)} viên.`,'tt','VD'),
+   mcq('Độ dài nào dưới đây có thể là cạnh của một căn phòng hình vuông lát kín được bằng loại gạch này (cùng hướng, không cắt gạch)?',R+' cm',[[w1+' cm',`${w1} chia hết cho ${a} nhưng không chia hết cho ${b}.`],[w2+' cm',`${w2} chia hết cho ${b} nhưng không chia hết cho ${a}.`],[w3+' cm',`${w3} không chia hết cho ${a} và cũng không chia hết cho ${b}.`]],`Cạnh phòng phải là bội chung của ${a} và ${b}, tức là bội của ${l}. Chỉ có ${R} = ${l} · ${R/l} thỏa mãn.`,'tt','VD'),
+   saq(`Phòng khách nhà Minh hình vuông có cạnh ${S} cm. Cần bao nhiêu viên gạch để lát kín phòng khách?`,(S/a)*(S/b),'viên',`${S} : ${a} = ${S/a} và ${S} : ${b} = ${S/b}. Cần ${S/a} · ${S/b} = ${(S/a)*(S/b)} viên.`,'tt','VD')]};}},
+ ()=>{const [a,b]=sel([[2,3],[3,4],[2,5],[4,6],[3,5],[4,10],[6,9],[4,5]]),l=lcm(a,b),nA=Math.floor(30/a)+1,nC=Math.floor(30/l)+1;
+  const days=s=>Array.from({length:Math.floor(30/s)+1},(_,i)=>1+i*s).join(', ');
+  return {title:'Chăm sóc vườn rau của lớp',ctx:`<p class="stem">Trong tháng 3 (có 31 ngày), bạn An tưới vườn rau của lớp cứ ${a} ngày một lần, bạn Bình bón phân cứ ${b} ngày một lần. Ngày 1 tháng 3, cả hai bạn cùng làm.</p>`,qs:[
+   saq('Lần tiếp theo hai bạn cùng làm là ngày bao nhiêu của tháng 3?',1+l,'',`Hai bạn lại cùng làm sau BCNN(${a}, ${b}) = ${l} ngày, tức là ngày 1 + ${l} = ${1+l} tháng 3.`,'tt','TH'),
+   saq('Trong tháng 3, có bao nhiêu ngày hai bạn cùng làm?',nC,'ngày',`Cứ ${l} ngày hai bạn lại cùng làm. Các ngày đó là: ${days(l)}. Có ${nC} ngày.`,'tt','VD'),
+   saq('Trong tháng 3, có bao nhiêu ngày chỉ có bạn An tưới rau mà bạn Bình không bón phân?',nA-nC,'ngày',`Bạn An tưới vào các ngày ${days(a)}: có ${nA} ngày. Trong đó có ${nC} ngày hai bạn cùng làm. Vậy có ${nA} − ${nC} = ${nA-nC} ngày chỉ có bạn An.`,'tt','VD')]};}
+];
+
 const BANK={mc:MC,tf:TF,sa:SA};
 const TF_SCORE=[0,0.1,0.25,0.5,1];
 const TYPES=['mc','tf','sa'];
@@ -709,7 +767,7 @@ const RECAP=[
 
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
-const LIMIT={test:25*60,quick:5*60};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
 const SEEN_KEY='bc6_seen';
 function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 let tick=null;
@@ -765,6 +823,20 @@ function buildQuick(){
   ];
   const sa=[pick(SA.filter(q=>q.topic==='ts'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='tt'&&q.level==='TH'),used)];
   makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
 }
 function buildPractice(spec){
   let f,title;
@@ -835,6 +907,8 @@ function homeHTML(){
       <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Toán thực tế</div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>
@@ -843,11 +917,12 @@ function homeHTML(){
   <section class="card stack" style="margin-top:16px">
     <div>
       <h2>Kiểm tra</h2>
-      <p class="muted" style="margin:6px 0 0">Có hai bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
+      <p class="muted" style="margin:6px 0 0">Có ba bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
     </div>
     <div class="recap">
       <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
       <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một phần.</p></div>
+      <div class="card"><h3>Thử thách 30 phút</h3><p>Dành cho bạn muốn thử sức. 13 câu, 10 điểm, toàn câu vận dụng và nâng cao: 6 câu nhiều lựa chọn, 3 câu đúng sai và 4 câu trả lời ngắn. Điểm được ghi riêng, không tính chung với bài kiểm tra.</p></div>
     </div>
     ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
       <label class="fl" for="nm">Họ và tên</label>
@@ -862,7 +937,7 @@ function homeHTML(){
       <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 6A-01" value="${esc(state.code)}">
       <p class="small muted" style="margin:6px 0 0">Nếu giáo viên cho mã đề, hãy nhập đúng mã đó: các bạn nhập cùng mã sẽ làm cùng một đề. Để trống thì bạn nhận một đề ngẫu nhiên. Thứ tự đáp án A, B, C, D vẫn được xáo riêng cho từng bạn.</p>
     </div>
-    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button></div>
+    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button><button class="btn" id="starth">Bắt đầu Thử thách 30 phút</button></div>
     <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
   </section>
 
@@ -879,6 +954,7 @@ const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'P
 const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
 const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
 function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
   const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
   return j==null?base:`${base}, ý ${'abcd'[j]}`;
 }
@@ -896,6 +972,7 @@ function tail(q,P){
   return h;
 }
 function mcHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,tried=P.tried||[],cur=state.ans[q.id];
   const opts=state.perm[q.id].map((oi,j)=>{
     let cls='opt',dis='';
@@ -910,6 +987,7 @@ function mcHTML(q,i){
     <div class="opts" role="radiogroup" aria-label="Câu ${i+1}">${opts}</div>${pr?tail(q,P):''}</article>`;
 }
 function tfHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,a=state.ans[q.id]||[];
   const rows=q.items.map((it,j)=>{
     const cls=v=>{let c='opt';if(done){if(it.v===v)c+=' is-right';else if(a[j]===v)c+=' is-wrong';}return c;};
@@ -924,6 +1002,7 @@ function tfHTML(q,i){
     <p class="stem">${q.stem}</p>${q.fig||''}<div class="tf">${rows}</div>${pr?tail(q,P):''}</article>`;
 }
 function saHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done;
   return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
     <p class="stem">${q.stem}</p>${q.fig||''}
@@ -944,7 +1023,11 @@ function quizHTML(){
   };
   const heads={mc:['Phần I','Câu hỏi nhiều lựa chọn'],tf:['Phần II','Câu hỏi đúng sai'],sa:[quick?'Phần II':'Phần III','Câu hỏi trả lời ngắn']};
   let body='';
-  TYPES.forEach(t=>{
+  if(S.units)S.units.forEach((u,ui)=>{
+    body+=partHead('Tình huống '+(ui+1),u.title,'Đọc kĩ tình huống rồi trả lời lần lượt từng câu. Làm xong mỗi câu bấm Kiểm tra.');
+    body+=`<div class="stack"><article class="card">${u.ctx}${u.fig||''}</article>${u.qs.map(q=>CARD[q.type](q,q.no)).join('')}</div>`;
+  });
+  else TYPES.forEach(t=>{
     if(!S.by[t].length)return;
     body+=partHead(test?heads[t][0]:'',test?heads[t][1]:TYPE_NAME[t],desc[t]);
     body+=`<div class="stack">${S.by[t].map(CARD[t]).join('')}</div>`;
@@ -1085,7 +1168,7 @@ function sendResult(){
   if(!SHEET_URL||!state.result)return;
   const code=makeCode(state.result);
   setSent('Đang gửi kết quả cho giáo viên...');
-  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:S.mode==='hard'?SHEET_TAB+' - Thử thách':SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
   const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
   const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
   fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
@@ -1130,7 +1213,7 @@ function resultHTML(){
   const missed=k=>r.items.filter(it=>it.topic===k&&!it.ok).map(it=>it.label);
   const correct=r.items.filter(it=>it.ok).length;
   const head=test
-    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
+    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':S.mode==='hard'?' · Thử thách':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
     :`<div class="big">${correct}<small> / ${r.items.length}</small></div><div><div class="muted small" style="margin-bottom:6px">${S.title}</div><div class="parts"><span class="chip">ý đúng ngay lần đầu</span><span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span><span class="chip">Luyện tập không tính điểm</span></div></div>`;
   const code=test?makeCode(r):'';
   return `
@@ -1197,7 +1280,7 @@ function analyzeCodes(){
   const timed=rows.filter(r=>typeof r.m==='number'),meanT=timed.length?timed.reduce((s,r)=>s+r.m,0)/timed.length:null;
   const tcell=r=>typeof r.m==='number'?fmtTime(r.m):'–';
   const flag=r=>(typeof r.m==='number'&&r.m<0.25*(r.L||1800)&&r.s<5)?' <span class="chip">Làm nhanh, điểm thấp</span>':'';
-  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
+  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':r.q==='hard'?' <span class="chip">Thử thách 30 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
   const weakCount=TKEYS.map(k=>rows.filter(r=>r.t[k]&&r.t[k][1]&&100*r.t[k][0]/r.t[k][1]<50).length);
   const worst=TKEYS.map((k,i)=>({k,p:avg[i][1]?100*avg[i][0]/avg[i][1]:100})).sort((a,b)=>a.p-b.p)[0];
   out.innerHTML=`${bad.length?`<div class="warnbar" style="margin:0 0 12px">Bỏ qua ${bad.length} dòng không đọc được (dòng ${bad.join(', ')}).${other?' Có mã của bài khác, hãy dán ở trang của bài ấy.':''}</div>`:''}
@@ -1229,7 +1312,8 @@ function withCode(mode,fn){
 }
 function startTest(){withCode('test',buildTest);state.view='quiz';render();}
 function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
-function startPack(spec){buildPractice(spec);state.view='quiz';render();}
+function startHard(){withCode('hard',buildHard);state.view='quiz';render();}
+function startPack(spec){if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
 // Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
 function nextSpec(){
   if(!S||S.mode!=='practice'||!S.spec)return null;
@@ -1264,15 +1348,15 @@ document.addEventListener('click',e=>{
   const ck=e.target.closest('.chk');
   if(ck){practiceCheck(ck.dataset.q);return;}
   const id=e.target.id;
-  if(id==='start'||id==='startq'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
-    if(id==='start')startTest();else startQuick();}
+  if(id==='start'||id==='startq'||id==='starth'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else if(id==='starth')startHard();else startQuick();}
   else if(id==='hsgo')checkHS();
   else if(id==='hsout'){saveHS(null);state.view='home';render();}
   else if(id==='submit')finish(false);
   else if(id==='force')finish(true);
   else if(id==='keep')document.getElementById('warn').innerHTML='';
   else if(id==='back'){state.view='home';render();}
-  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
+  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else if(S.mode==='hard')startHard();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
   else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
   else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
   else if(id==='home'){state.view='home';render();}
