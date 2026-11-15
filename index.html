@@ -261,6 +261,17 @@ function figKite(){
   s+=T(120,12,'A')+T(120,142,'B')+T(38,76,'C')+T(202,76,'D');
   return `<svg class="fig" viewBox="0 0 240 150" role="img" aria-label="Hai tam giác ABC và ABD có chung cạnh AB, C và D khác phía">${s}</svg>`;
 }
+function figRiver(){
+  const A=[60,72],B=[60,22],C=[120,72],D=[180,72],E=[180,122];
+  let s=`<line class="thin" x1="16" y1="22" x2="224" y2="22"/><line class="seg" x1="16" y1="72" x2="224" y2="72"/>`;
+  s+=`<line class="seg" x1="60" y1="72" x2="60" y2="22"/><line class="seg" x1="180" y1="72" x2="180" y2="122"/><line class="seg" x1="60" y1="22" x2="180" y2="122"/>`;
+  s+=ticks(A,C,1)+ticks(C,D,1)+arcs(C,A,B,1)+arcs(C,D,E,1);
+  s+=`<path class="mk" d="M60 64 L68 64 L68 72"/><path class="mk" d="M180 80 L172 80 L172 72"/>`;
+  const T=(x,y,t)=>`<text class="vl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+  s+=T(47,90,'A')+T(46,38,'B')+T(131,64,'C')+T(193,66,'D')+T(194,130,'E');
+  s+=`<text class="vl" x="150" y="50" text-anchor="middle" style="font-weight:400;font-size:12px;opacity:.7">sông</text>`;
+  return `<svg class="fig" viewBox="0 0 240 142" role="img" aria-label="Con sông có bờ nằm ngang; B ở bờ bên kia, A, C, D trên bờ bên này với AC bằng CD; AB và DE vuông góc với bờ; B, C, E thẳng hàng">${s}</svg>`;
+}
 const fb=svg=>`<div class="figbox">${svg}</div>`;
 
 /* ============ Chủ đề ============ */
@@ -737,6 +748,44 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
 });
 ['a','b'].forEach(x=>['ccc','cgc','gcg'].forEach(k=>TF.push({id:'tg_'+k+'_'+x,type:'tf',topic:k,level:'TH',gen:genTF(k)})));
 ['a','b'].forEach(x=>['ccc','cgc','gcg'].forEach(k=>TF.push({id:'tg_'+k+'_nb'+x,type:'tf',topic:k,level:'NB',gen:genTF(k,true)})));
+/* ============ Tình huống thực tế (đo khoảng cách, vì kèo) ============ */
+const RIVER_FIG=fb(figRiver());
+const POND_STEM='Để đo khoảng cách giữa hai cọc A và C ở hai bờ ao, bạn Nam chọn điểm O rồi cắm cọc B sao cho O là trung điểm của AB, cắm cọc D sao cho O là trung điểm của CD (như hình).';
+const RIVER_STEM='Để đo chiều rộng AB của một con sông (AB vuông góc với bờ), bạn Mai đi dọc bờ từ A đến C, rồi đi tiếp đến D sao cho CD = CA. Từ D, Mai đi vuông góc với bờ đến điểm E sao cho E, C, B thẳng hàng (như hình).';
+const POND_WHY='OA = OB, OC = OD và ∠AOC = ∠BOD (hai góc đối đỉnh) nên ΔOAC = ΔOBD (c.g.c)';
+const RIVER_WHY='∠A = ∠D = 90°, AC = DC và ∠ACB = ∠DCE (hai góc đối đỉnh) nên ΔABC = ΔDEC (g.c.g)';
+const SA_REAL=[
+ {id:'s_tt_ao',topic:'cgc',level:'VD',unit:'m',fig:CGC_FIG,gen:()=>{const d=ri(12,45);return{stem:`${POND_STEM} Nam đo được BD = ${d} m. Hỏi khoảng cách AC bằng bao nhiêu mét?`,ans:[d],exp:`${POND_WHY}. Suy ra AC = BD = ${d} m.`};}},
+ {id:'s_tt_buoc',topic:'cgc',level:'VD',unit:'m',fig:CGC_FIG,gen:()=>{const n=2*ri(15,40);return{stem:`${POND_STEM} Nam đi từ B đến D hết ${n} bước chân, mỗi bước dài 50 cm. Hỏi khoảng cách AC bằng bao nhiêu mét?`,ans:[n/2],exp:`BD = ${n} · 50 cm = ${n*50} cm = ${n/2} m. ${POND_WHY}. Suy ra AC = BD = ${n/2} m.`};}},
+ {id:'s_tt_song',topic:'gcg',level:'VD',unit:'m',fig:RIVER_FIG,gen:()=>{const c=ri(10,30);let d;do{d=ri(15,60);}while(d===c);return{stem:`${RIVER_STEM} Mai đo được AC = ${c} m và DE = ${d} m. Hỏi con sông rộng bao nhiêu mét?`,ans:[d],exp:`${RIVER_WHY}. Cạnh AB ứng với cạnh DE nên AB = DE = ${d} m. Số đo AC = ${c} m không phải là chiều rộng sông.`};}},
+ {id:'s_tt_keo',topic:'ccc',level:'VD',unit:'độ',fig:fb(figIso({pt:'M',ticks:{AB:1,AC:1,BP:2,PC:2},alt:'Vì kèo tam giác ABC có AB bằng AC, thanh chống AM nối A với trung điểm M của BC'})),
+  gen:()=>{const x=2*ri(40,70);return{stem:`Một vì kèo mái nhà có dạng tam giác ABC với hai thanh kèo AB = AC. Thanh chống AM nối đỉnh A với trung điểm M của thanh ngang BC (như hình). Biết ∠BAC = ${x}°. Tính số đo góc ABC giữa thanh kèo AB và thanh ngang.`,ans:[90-x/2],exp:`ΔABM và ΔACM có AB = AC, MB = MC, AM chung nên ΔABM = ΔACM (c.c.c). Suy ra ∠BAM = ∠CAM = ${x}° : 2 = ${x/2}° và ∠AMB = ∠AMC = 90° (hai góc bằng nhau và kề bù). Trong ΔABM: ∠ABM = 180° − 90° − ${x/2}° = ${90-x/2}°.`};}}
+].map(q=>Object.assign({type:'sa'},q));
+SA.push(...SA_REAL);
+function tfPond(){
+  const d=ri(12,45);let x;do{x=ri(8,30);}while(x===d);
+  const b=RNG()<.5,c=RNG()<.5;
+  return {stem:`${POND_STEM} Nam đo được OB = ${x} m và BD = ${d} m.`,items:[
+    {t:'∠AOC = ∠BOD.',v:true,topic:'cgc',level:'NB',exp:'Hai góc AOC và BOD là hai góc đối đỉnh nên bằng nhau.'},
+    b?{t:'ΔOAC = ΔOBD theo trường hợp c.g.c.',v:true,topic:'cgc',level:'TH',exp:'OA = OB, ∠AOC = ∠BOD, OC = OD: hai cặp cạnh và cặp góc xen giữa bằng nhau.'}
+     :{t:'ΔOAC = ΔOBD theo trường hợp c.c.c.',v:false,topic:'cgc',level:'TH',exp:'Mới biết hai cặp cạnh OA = OB, OC = OD; chưa biết AC = BD (đó là điều cần tìm). Hai tam giác bằng nhau theo trường hợp c.g.c nhờ cặp góc đối đỉnh xen giữa.'},
+    c?{t:`Khoảng cách AC bằng ${d} m.`,v:true,topic:'cgc',level:'VD',exp:`${POND_WHY}. Cạnh AC ứng với cạnh BD nên AC = BD = ${d} m.`}
+     :{t:`Khoảng cách AC bằng ${x} m.`,v:false,topic:'cgc',level:'VD',exp:`Cạnh AC ứng với cạnh BD nên AC = BD = ${d} m. Còn ${x} m là độ dài OB (bằng OA).`},
+    {t:'Nếu Nam cắm cọc D sao cho OD dài hơn OC thì vẫn chắc chắn AC = BD.',v:false,topic:'cgc',level:'VD',exp:'Khi đó OC khác OD nên ΔOAC và ΔOBD không còn đủ điều kiện c.g.c, không kết luận được AC = BD.'}]};
+}
+function tfRiver(){
+  const c=ri(10,30);let d;do{d=ri(15,60);}while(d===c);
+  let b,k,w;do{b=RNG()<.5;k=RNG()<.5;w=RNG()<.5;}while(b&&k&&w);
+  return {stem:`${RIVER_STEM} Mai đo được AC = ${c} m và DE = ${d} m.`,items:[
+    {t:'∠ACB = ∠DCE.',v:true,topic:'gcg',level:'NB',exp:'Hai góc ACB và DCE là hai góc đối đỉnh nên bằng nhau.'},
+    b?{t:'ΔABC = ΔDEC theo trường hợp g.c.g.',v:true,topic:'gcg',level:'TH',exp:'∠A = ∠D = 90°, AC = DC, ∠ACB = ∠DCE: một cặp cạnh và hai cặp góc kề cạnh đó bằng nhau.'}
+     :{t:'ΔABC = ΔDEC theo trường hợp c.g.c.',v:false,topic:'gcg',level:'TH',exp:'Chỉ biết một cặp cạnh bằng nhau là AC = DC, cùng hai cặp góc kề ∠A = ∠D và ∠ACB = ∠DCE. Đó là trường hợp g.c.g.'},
+    k?{t:'Cạnh AB của ΔABC ứng với cạnh DE của ΔDEC.',v:true,topic:'tu',level:'TH',exp:'ΔABC = ΔDEC có A ứng với D, B ứng với E nên AB ứng với DE.'}
+     :{t:'Cạnh AB của ΔABC ứng với cạnh CE của ΔDEC.',v:false,topic:'tu',level:'TH',exp:'ΔABC = ΔDEC có A ứng với D, B ứng với E nên AB ứng với DE. Cạnh CE ứng với cạnh CB.'},
+    w?{t:`Con sông rộng ${d} m.`,v:true,topic:'gcg',level:'VD',exp:`${RIVER_WHY}. Suy ra AB = DE = ${d} m.`}
+     :{t:`Con sông rộng ${c} m.`,v:false,topic:'gcg',level:'VD',exp:`Chiều rộng sông là AB = DE = ${d} m. Còn ${c} m là độ dài AC đi dọc bờ.`}]};
+}
+TF.push({id:'tt_ao',type:'tf',topic:'cgc',level:'VD',fig:CGC_FIG,gen:tfPond},{id:'tt_song',type:'tf',topic:'gcg',level:'VD',fig:RIVER_FIG,gen:tfRiver});
 SA.push(...SA.filter(q=>q.gen).map(q=>Object.assign({},q,{id:q.id+'b'})));
 
 const BANK={mc:MC,tf:TF,sa:SA};
