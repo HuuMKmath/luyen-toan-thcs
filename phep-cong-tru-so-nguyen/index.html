@@ -514,6 +514,48 @@ function realItem(kind){
 }
 function tfRealTH(){return ()=>{const items=mixed(()=>[0,1,2,3].map(k=>realItem(k)));return items?{stem:'Xét các phát biểu sau:',items:shuffle(items)}:FB_TF();};}
 
+/* tình huống thực tế: một ngữ cảnh, bốn ý từ dễ đến khó */
+function ctxSub(){
+  const a=ri(20,60),b=ri(10,40);let c;do{c=ri(10,a+b-5);}while(c===b);
+  const d1=-(a+b),fin=d1+c,v=[0,1,2,3].map(()=>RNG()<.5),s1=v[0]?d1:wrongOf(d1,[b-a,a+b]),s3=v[2]?fin:wrongOf(fin,[b-a-c,-fin,d1-c]),up=c>b;
+  return {stem:`Một tàu ngầm đang ở độ cao ${N(-a)} m so với mực nước biển. Tàu lặn xuống thêm ${b} m, sau đó nổi lên ${c} m.`,items:[
+    IT(`Sau khi lặn xuống thêm ${b} m, tàu ở độ cao ${N(s1)} m.`,v[0],'dn','TH',`Lặn xuống là trừ: ${nb(`${N(-a)} − ${b} = ${N(d1)}`)} (m)${v[0]?'.':`, không phải ${N(s1)} m.`}`),
+    IT(`Độ cao cuối cùng của tàu (tính bằng mét) là kết quả của phép tính ${nb(v[1]?`${N(-a)} − ${b} + ${c}`:`${N(-a)} + ${b} − ${c}`)}.`,v[1],'dn','TH',`Lặn xuống thì trừ, nổi lên thì cộng: ${nb(`${N(-a)} − ${b} + ${c}`)}.`),
+    IT(`Cuối cùng tàu ở độ cao ${N(s3)} m.`,v[2],'dn','VD',`${nb(`${N(-a)} − ${b} + ${c} = ${N(fin)}`)} (m)${v[2]?'.':`, không phải ${N(s3)} m.`}`),
+    IT(`Cuối cùng tàu ở vị trí ${v[3]===up?'cao':'thấp'} hơn so với lúc đầu.`,v[3],'dn','VD',up?`Tàu nổi lên ${c} m, nhiều hơn đoạn lặn xuống ${b} m, nên cao hơn lúc đầu ${c-b} m.`:`Tàu lặn xuống ${b} m, nhiều hơn đoạn nổi lên ${c} m, nên thấp hơn lúc đầu ${b-c} m.`)]};
+}
+function ctxTemp(){
+  const t=ri(-8,2),u=ri(5,12),w=ri(u+2,u+10),noon=t+u,night=noon-w,v=[0,1,2,3].map(()=>RNG()<.5);
+  const s1=v[0]?noon:wrongOf(noon,[t-u,-noon]),s3=v[2]?night:wrongOf(night,[noon+w,t-w]),s4=v[3]?w-u:sel([w+u,w]);
+  return {stem:`Ở Sa Pa, nhiệt độ lúc 6 giờ sáng là ${N(t)}°C. Đến trưa nhiệt độ tăng ${u}°C, đến đêm lại giảm ${w}°C so với buổi trưa.`,items:[
+    IT(`Nhiệt độ buổi trưa là ${N(s1)}°C.`,v[0],'dn','TH',`Tăng là cộng: ${nb(`${N(t)} + ${u} = ${N(noon)}`)} (°C)${v[0]?'.':`, không phải ${N(s1)}°C.`}`),
+    IT(`Nhiệt độ ban đêm (tính bằng °C) là kết quả của phép tính ${nb(v[1]?`${N(t)} + ${u} − ${w}`:`${N(t)} − ${u} + ${w}`)}.`,v[1],'dn','TH',`Tăng thì cộng, giảm thì trừ: ${nb(`${N(t)} + ${u} − ${w}`)}.`),
+    IT(`Nhiệt độ ban đêm là ${N(s3)}°C.`,v[2],'dn','VD',`${nb(`${N(t)} + ${u} − ${w} = ${N(night)}`)} (°C)${v[2]?'.':`, không phải ${N(s3)}°C.`}`),
+    IT(`Ban đêm lạnh hơn lúc 6 giờ sáng ${s4}°C.`,v[3],'dn','VD',`Tăng ${u}°C rồi giảm ${w}°C nên so với buổi sáng nhiệt độ giảm ${nb(`${w} − ${u} = ${w-u}`)} (°C)${v[3]?'.':`, không phải ${s4}°C.`}`)]};
+}
+function ctxShop(){
+  const a=ri(15,40),b=ri(5,a-5);let c;do{c=ri(5,30);}while(c===a-b);
+  const tot=a-b-c,v=[0,1,2,3].map(()=>RNG()<.5),s2=v[1]?-(b+c):wrongOf(-(b+c),[b+c,c-b]),gain=tot>0;
+  return {stem:`Một cửa hàng tháng 1 lãi ${a} triệu đồng, tháng 2 lỗ ${b} triệu đồng, tháng 3 lỗ ${c} triệu đồng. Quy ước: lãi là số dương, lỗ là số âm.`,items:[
+    IT(`Kết quả kinh doanh tháng 2 được biểu diễn bởi số ${v[0]?N(-b):b}.`,v[0],'dn','NB',`Lỗ ${b} triệu đồng được biểu diễn bởi số âm ${N(-b)}.`),
+    IT(`Tổng kết quả của tháng 2 và tháng 3 là ${N(s2)} triệu đồng.`,v[1],'dn','TH',`${nb(`${N(-b)} + ${P(-c)} = ${N(-(b+c))}`)} (triệu đồng)${v[1]?'.':`, không phải ${N(s2)}.`}`),
+    IT(`Sau ba tháng, cửa hàng ${v[2]===gain?'lãi':'lỗ'} ${Math.abs(tot)} triệu đồng.`,v[2],'dn','VD',`${nb(`${a} + ${P(-b)} + ${P(-c)} = ${N(tot)}`)}: cửa hàng ${gain?'lãi':'lỗ'} ${Math.abs(tot)} triệu đồng.`),
+    IT(`Để sau ba tháng không bị lỗ, tháng 3 cửa hàng chỉ được lỗ nhiều nhất ${v[3]?a-b:a+b} triệu đồng.`,v[3],'dn','VD',`Sau hai tháng đầu cửa hàng còn lãi ${nb(`${a} − ${b} = ${a-b}`)} (triệu đồng), nên tháng 3 chỉ được lỗ nhiều nhất ${a-b} triệu đồng.`)]};
+}
+function tfCtx(make){return ()=>{
+  for(let n=0;n<60;n++){const q=make(),k=q.items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(q.items.map(i=>i.t)).size===4)return q;}
+  return FB_TF();};}
+/* mức nhận biết: dấu của kết quả, số đối, đổi phép trừ thành phép cộng */
+function signItem(k){
+  const v=RNG()<.5,[x,y]=sample(2,2,30);
+  if(k===0)return IT(`Tổng ${ADD(-x,-y)} là một số nguyên ${v?'âm':'dương'}.`,v,'cg','NB','Tổng của hai số nguyên âm luôn là một số nguyên âm.');
+  if(k===1){const pos=y>x;return IT(`Tổng ${ADD(-x,y)} là một số nguyên ${v===pos?'dương':'âm'}.`,v,'cg','NB',`Hai số khác dấu: tổng mang dấu của số có giá trị tuyệt đối lớn hơn. Vì ${Math.max(x,y)} > ${Math.min(x,y)} nên tổng là số nguyên ${pos?'dương':'âm'}.`);}
+  if(k===2)return IT(`Số đối của ${N(-x)} là ${v?x:N(-x)}.`,v,'tr','NB',`Số đối của ${N(-x)} là ${x}, vì ${ADD(-x,x)} = 0.`);
+  if(k===3)return IT(`${SUB(x,-y)} = ${nb(v?`${x} + ${y}`:`${x} − ${y}`)}`,v,'tr','NB',`Trừ một số là cộng với số đối của số đó: ${SUB(x,-y)} = ${nb(`${x} + ${y}`)}.`);
+  const neg=x<y;return IT(`Hiệu ${SUB(x,y)} là một số nguyên ${v===neg?'âm':'dương'}.`,v,'tr','NB',`${SUB(x,y)} = ${N(x-y)} là số nguyên ${neg?'âm':'dương'} vì số bị trừ ${neg?'nhỏ':'lớn'} hơn số trừ.`);
+}
+function tfSignNB(){return ()=>{const items=mixed(()=>shuffle([0,1,2,3,4]).slice(0,4).map(signItem));return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+
 /* ============ Bộ sinh trả lời ngắn ============ */
 function saAddNeg(){const [a,b]=sample(2,1,40);return{stem:`Tính ${ADD(-a,-b)}.`,ans:[-(a+b)],exp:`Hai số âm: ${a} + ${b} = ${a+b}, đặt dấu "−": ${N(-(a+b))}.`};}
 function saAddDiff(){const [x,y]=sample(2,2,60),neg=RNG()<.5,a=neg?-x:x,b=neg?y:-y;return{stem:`Tính ${ADD(a,b)}.`,ans:[a+b],exp:`Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối ${Math.max(x,y)} − ${Math.min(x,y)} = ${Math.abs(x-y)}, đặt dấu của số có giá trị tuyệt đối lớn hơn: ${N(a+b)}.`};}
@@ -682,6 +724,11 @@ addTF('tf_real_c','dn','TH',tfRealTH());
 addTF('tf_calc_th_c','cg','TH',tCalcTH);
 addTF('tf_sub_th_c','tr','TH',tSubTH);
 addTF('tf_prop_th_c','tc','TH',tfPropTH());
+addTF('tf_ctx_tau','dn','VD',tfCtx(ctxSub));
+addTF('tf_ctx_nhiet','dn','VD',tfCtx(ctxTemp));
+addTF('tf_ctx_lai','dn','VD',tfCtx(ctxShop));
+['a','b','c'].forEach(x=>addTF('tf_sign_nb_'+x,'cg','NB',tfSignNB()));
+addTF('tf_prop_nb_c','tc','NB',tfPropNB());
 
 const BANK={mc:MC,tf:TF,sa:SA};
 const TF_SCORE=[0,0.1,0.25,0.5,1];

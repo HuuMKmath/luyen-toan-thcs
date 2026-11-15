@@ -560,6 +560,24 @@ function tfWord(){
   return FB_TF();
 }
 
+/* mức nhận biết: bội, bội chung, số 0, định nghĩa BCNN, với các số nhỏ */
+const SMALL=[[2,3],[4,6],[3,5],[6,8],[4,10],[6,9],[2,5],[3,4],[6,10],[8,12],[4,5],[9,12]];
+function tfBasicNB(){
+  for(let n=0;n<200;n++){
+    const [a,b]=sel(SMALL),c=ctxOf(a,b),tr=truths();
+    const mk=[
+      v=>{const q=ri(2,9),x=v?a*q:a*q+ri(1,a-1);return {t:`${x} là bội của ${a}.`,v,topic:'bc',level:'NB',exp:v?`${x} = ${a} · ${q} nên ${x} chia hết cho ${a}.`:`${x} không chia hết cho ${a} nên không là bội của ${a}.`};},
+      v=>({t:v?`Số 0 là một bội chung của ${a} và ${b}.`:`Số 0 không phải là bội chung của ${a} và ${b}.`,v,topic:'bc',level:'NB',exp:`Số 0 chia hết cho mọi số khác 0 nên 0 là bội chung của ${a} và ${b}.`}),
+      v=>cBC(c,v),
+      v=>({t:v?`BCNN(${a}, ${b}) là số nhỏ nhất khác 0 trong các bội chung của ${a} và ${b}.`:`BCNN(${a}, ${b}) = 0 vì 0 là bội chung nhỏ nhất của ${a} và ${b}.`,v,topic:'bc',level:'NB',exp:v?'Đó là định nghĩa bội chung nhỏ nhất.':`BCNN là số nhỏ nhất khác 0 trong các bội chung, nên BCNN(${a}, ${b}) = ${c.l}, không phải 0.`}),
+      v=>({t:`BCNN(${a}, 1) = ${v?a:1}.`,v,topic:'ts',level:'NB',exp:`Mọi số tự nhiên đều chia hết cho 1 nên BCNN(${a}, 1) = ${a}.`})];
+    const items=shuffle(mk).slice(0,4).map((f,i)=>f(tr[i]));
+    if(new Set(items.map(i=>i.t)).size<4)continue;
+    return {stem:`Cho hai số ${a} và ${b}. Xét các phát biểu sau:`,items};
+  }
+  return FB_TF();
+}
+
 /* ============ Câu trả lời ngắn ============ */
 const SA=[
  {id:'s_bc_nb',topic:'bc',level:'NB',unit:'',gen:()=>{const [a,b]=pairKind(sel(['gen','gen','cop','mul']),12,72),l=lcm(a,b);return{stem:`Tìm số tự nhiên nhỏ nhất khác 0 chia hết cho cả ${a} và ${b}.`,ans:[l],exp:`Đó là BCNN(${a}, ${b}). ${lcmWhy(a,b)}.`};}},
@@ -668,7 +686,9 @@ const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
 ['a','b','c'].forEach(x=>{
   addTF('tf_prop_'+x,'sy','TH',tfProp);
   addTF('tf_fac_'+x,'ts','TH',tfFac);
+  addTF('tf_basic_nb_'+x,'bc','NB',tfBasicNB);
 });
+addTF('tf_num_nb_c','bc','NB',tfNum('NB'));
 
 const BANK={mc:MC,tf:TF,sa:SA};
 const TF_SCORE=[0,0.1,0.25,0.5,1];
