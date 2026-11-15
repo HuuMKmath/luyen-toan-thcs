@@ -750,9 +750,11 @@ const RECAP=[
 ];
 
 /* ============ Trạng thái ============ */
-const state={view:'home',name:'',ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60}; // giây
-const SHEET_URL='https://script.google.com/macros/s/AKfycbymfKnTorrA9GSsgjJddmICBqaEzffOWhY1Ubm-CWFxbqrXSVWC9flu3tWYoyt3L2w/exec'; // địa chỉ Google Apps Script (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+const SHEET_TAB='7 - Tam giác bằng nhau'; // tên trang tính của bài này trong Google Sheet chung
+const SHEET_TOPICS=['Tổng quan tam giác','Cạnh-cạnh-cạnh','Cạnh-góc-cạnh','Góc-cạnh-góc']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
 let tick=null;
 function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
@@ -822,7 +824,45 @@ function buildPractice(spec){
 }
 
 /* ============ Màn hình: trang chủ ============ */
+/* ============ Mã học sinh ============ */
+const HS_KEY='luyentoan-hs';
+function needHS(){return !!SHEET_URL;} // có Google Sheet thì phải có mã học sinh mới vào học
+function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
+function saveHS(o){state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+function loginHTML(){
+  return `
+  <section class="hero">
+    <h1>Tam giác <em>bằng nhau</em></h1>
+    <p class="lead">Trang luyện tập dành cho học sinh các lớp của thầy cô. Hãy nhập mã học sinh để bắt đầu.</p>
+  </section>
+  <section class="card stack" style="margin-top:22px">
+    <div><h2>Nhập mã học sinh</h2></div>
+    <div>
+      <label class="fl" for="hsma">Mã học sinh (6 chữ số)</label>
+      <input type="text" id="hsma" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ví dụ: 482913">
+      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)"></p>
+    </div>
+    <div class="row"><button class="btn" id="hsgo">Vào học</button></div>
+    <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
+  </section>`;
+}
+function hsBarHTML(){
+  if(!state.stu)return '';
+  return `<section class="card" style="margin-top:22px"><div class="row" style="justify-content:space-between;align-items:center"><span>Xin chào, <b>${esc(state.stu.n)}</b>${state.stu.c?' · Lớp '+esc(state.stu.c):''}</span><button class="btn sm ghost" id="hsout">Đổi học sinh</button></div></section>`;
+}
+function checkHS(){
+  const inp=document.getElementById('hsma'),err=document.getElementById('hserr'),btn=document.getElementById('hsgo');
+  const u=inp.value.replace(/\D/g,'');
+  if(u.length!==6){err.textContent='Mã học sinh gồm đúng 6 chữ số. Hãy kiểm tra lại.';inp.focus();return;}
+  err.textContent='Đang kiểm tra mã...';btn.disabled=true;
+  fetch(SHEET_URL+'?ma='+u).then(r=>r.json()).then(o=>{
+    if(o&&o.ok){saveHS({u,n:o.n||'Học sinh',c:o.c||''});render();}
+    else{btn.disabled=false;err.textContent=o&&o.err?'Chưa kiểm tra được mã. Hãy thử lại sau ít phút hoặc báo giáo viên.':'Mã này không có trong danh sách. Hãy xem lại 6 chữ số hoặc hỏi giáo viên.';inp.focus();}
+  }).catch(()=>{btn.disabled=false;err.textContent='Chưa kiểm tra được mã (có thể mất mạng). Hãy thử lại.';});
+}
+
 function homeHTML(){
+  if(needHS()&&!state.stu)return loginHTML();
   const weak=state.weak;
   return `
   <section class="hero">
@@ -830,6 +870,8 @@ function homeHTML(){
     <p class="lead">Luyện ba trường hợp bằng nhau của tam giác: cạnh – cạnh – cạnh, cạnh – góc – cạnh và góc – cạnh – góc. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
     ${figTwo({sides:{AB:1,BC:2,CA:3},ang:{A:1,B:2,C:3},anim:true,alt:'Hai tam giác bằng nhau'})}
   </section>
+
+  ${hsBarHTML()}
 
   <section class="card stack" style="margin-top:22px">
     <div>
@@ -855,15 +897,14 @@ function homeHTML(){
       <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
       <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một trường hợp.</p></div>
     </div>
-    <div>
+    ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
       <label class="fl" for="nm">Họ và tên</label>
       <input type="text" id="nm" autocomplete="name" placeholder="Ví dụ: Nguyễn Văn An" value="${esc(state.name)}">
     </div>
     <div>
-      <label class="fl" for="cls">Lớp (bắt buộc khi làm bài kiểm tra)</label>
-      <input type="text" id="cls" autocomplete="off" placeholder="Ví dụ: 7A1" maxlength="8" value="${esc(state.cls)}">
-      <p class="small muted" id="clserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)"></p>
-    </div>
+      <label class="fl" for="cls">Lớp</label>
+      <input type="text" id="cls" autocomplete="off" maxlength="8" value="${esc(state.cls)}">
+    </div>`}
     <div>
       <label class="fl" for="mcode">Mã đề (không bắt buộc)</label>
       <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 7A-01" value="${esc(state.code)}">
@@ -1075,7 +1116,7 @@ function barRow(label,o){
 }
 function makeCode(r){
   const t={};TKEYS.forEach(k=>t[k]=[r.topics[k].c,r.topics[k].n]);
-  const o={v:1,n:state.name||'Học sinh',d:new Date().toISOString().slice(0,10),s:r.total,m:state.elapsed,L:LIMIT[S.mode],q:S.mode,k:state.code,p:[r.sc.mc,r.sc.tf,r.sc.sa],t,c:state.cls};
+  const o={v:1,n:state.name||'Học sinh',d:new Date().toISOString().slice(0,10),s:r.total,m:state.elapsed,L:LIMIT[S.mode],q:S.mode,k:state.code,p:[r.sc.mc,r.sc.tf,r.sc.sa],t,c:state.cls,u:state.stu?state.stu.u:''};
   return 'TG7-'+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 }
 function setSent(msg,retry){
@@ -1086,9 +1127,18 @@ function sendResult(){
   if(!SHEET_URL||!state.result)return;
   const code=makeCode(state.result);
   setSent('Đang gửi kết quả cho giáo viên...');
-  fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code})})
-    .then(()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');})
-    .catch(()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true));
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
+  const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
+  fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
+    t=t.trim();
+    if(t==='saved'||t==='dup')done();
+    else if(t==='nocode')setSent('Kết quả chưa được ghi vì mã học sinh không có trong danh sách. Hãy báo giáo viên.');
+    else fail();
+  }).catch(()=>{
+    // Không đọc được trả lời: gửi lại theo cách cũ (bảng tính tự bỏ qua nếu đã nhận rồi)
+    fetch(SHEET_URL,Object.assign({mode:'no-cors'},opt)).then(done).catch(fail);
+  });
 }
 function reviewHTML(r){
   const sym=ok=>ok?'<span class="mark-ok">✓ Đúng</span>':'<span class="mark-no">✗ Chưa đúng</span>';
@@ -1240,14 +1290,18 @@ function finish(force){
   if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
   state.result=grade();updateWeak(state.result);state.view='result';render();
 }
+loadHS();
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
 document.addEventListener('click',e=>{
   const pk=e.target.closest('[data-pack]');
   if(pk&&!pk.disabled){startPack(parsePack(pk.dataset.pack));return;}
   const ck=e.target.closest('.chk');
   if(ck){practiceCheck(ck.dataset.q);return;}
   const id=e.target.id;
-  if(id==='start'||id==='startq'){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);state.code=normCode(document.getElementById('mcode').value);
-    if(!state.cls){document.getElementById('clserr').textContent='Hãy nhập lớp của bạn (ví dụ 7A1) trước khi làm bài kiểm tra.';document.getElementById('cls').focus();return;}if(id==='start')startTest();else startQuick();}
+  if(id==='start'||id==='startq'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else startQuick();}
+  else if(id==='hsgo')checkHS();
+  else if(id==='hsout'){saveHS(null);state.view='home';render();}
   else if(id==='submit')finish(false);
   else if(id==='force')finish(true);
   else if(id==='keep')document.getElementById('warn').innerHTML='';

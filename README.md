@@ -19,10 +19,19 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 ## Cách dùng cho giáo viên
 
-- Học sinh làm bài kiểm tra (nhập họ tên, lớp, mã đề nếu có) rồi gửi mã kết quả.
+- Học sinh nhập mã học sinh, làm bài kiểm tra (nhập mã đề nếu có); kết quả tự gửi về Google Sheet của bài.
 - Giáo viên mở mục **Giáo viên** của đúng bài (thêm `#giao-vien` vào cuối địa chỉ), dán các mã vào để xem bảng tổng hợp.
 - Mỗi bài có tiền tố mã riêng nên không dán lẫn giữa các bài.
 
+## Google Sheet chung và mã học sinh
+
+Cả website dùng **một Google Sheet** với script `google-sheet/Code.gs` (dán vào Tiện ích mở rộng > Apps Script, triển khai một lần dạng ứng dụng web).
+
+- Trang tính **Học sinh**: cột A = Lớp, B = Họ tên, C = Mã HS. Menu **Học sinh > Tạo mã cho học sinh chưa có mã** cấp cho mỗi em một mã 6 chữ số ngẫu nhiên; mã đã có thì giữ nguyên.
+- Mỗi bài học có một trang tính riêng (ví dụ "7 - Tam giác bằng nhau"), script tự tạo khi có kết quả đầu tiên.
+- Menu **Bảng điểm > Tạo / cập nhật bảng điểm** tạo hai trang tính: **Xem điểm** (chọn Lớp, Bài, Loại bài: danh sách cả lớp với điểm cao nhất, số lần làm, phần còn yếu, em nào chưa làm) và **Sổ điểm** (chọn Lớp: mỗi học sinh một dòng, mỗi bài một cột). Hai bảng tự làm mới khi mở Sheet hoặc đổi ô chọn.
+- Học sinh nhập mã một lần trên máy của mình, sau đó luyện tập và làm bài kiểm tra ở mọi bài. Kết quả kiểm tra chỉ được ghi khi mã có trong trang tính Học sinh; họ tên và lớp lấy từ danh sách, không lấy từ máy học sinh.
+
 ## Thêm một bài mới
 
-Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `boi-chung-nho-nhat/index.html`), đặt tiền tố mã riêng, rồi thêm một thẻ vào đúng section lớp (`lop-6` đến `lop-9`) trong `cac-bai/index.html` và một dòng vào bảng trên. Section lớp chưa có bài hiện dòng "Chưa có bài"; khi thêm thẻ đầu tiên thì thay dòng đó bằng khối `<div class="list">` như các lớp khác.
+Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `boi-chung-nho-nhat/index.html`), đặt tiền tố mã riêng, giữ nguyên `SHEET_URL` của Sheet chung và đặt `SHEET_TAB`, `SHEET_TOPICS` cho bài (không phải làm gì thêm trên Google Sheet), rồi thêm một thẻ vào đúng section lớp (`lop-6` đến `lop-9`) trong `cac-bai/index.html` và một dòng vào bảng trên. Section lớp chưa có bài hiện dòng "Chưa có bài"; khi thêm thẻ đầu tiên thì thay dòng đó bằng khối `<div class="list">` như các lớp khác.
