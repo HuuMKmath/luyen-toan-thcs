@@ -1144,7 +1144,8 @@ function resultHTML(){
 
   <div class="row" style="margin-top:22px">
     ${state.weak.length?`<button class="btn" id="weakpack">Luyện gói ôn điểm yếu</button>`:''}
-    <button class="btn ${state.weak.length?'ghost':''}" id="again">${test?(state.code?'Làm lại đề này':'Làm đề kiểm tra khác'):'Làm gói này lần nữa'}</button>
+    ${nextSpec()?`<button class="btn ${state.weak.length?'ghost':''}" id="nextpack">Luyện tiếp: gói ${specName(nextSpec())}</button>`:''}
+    <button class="btn ${state.weak.length||nextSpec()?'ghost':''}" id="again">${test?(state.code?'Làm lại đề này':'Làm đề kiểm tra khác'):'Làm gói này lần nữa'}</button>
     <button class="btn ghost" id="home">Về trang đầu</button>
   </div>`;
 }
@@ -1209,6 +1210,13 @@ function withCode(mode,fn){
 function startTest(){withCode('test',buildTest);state.view='quiz';render();}
 function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
 function startPack(spec){buildPractice(spec);state.view='quiz';render();}
+// Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
+function nextSpec(){
+  if(!S||S.mode!=='practice'||!S.spec)return null;
+  const sp=S.spec,list=sp.kind==='level'?Object.keys(LEVELS):sp.kind==='topic'?TKEYS:[],i=list.indexOf(sp.val);
+  return i>=0&&i<list.length-1?{kind:sp.kind,val:list[i+1]}:null;
+}
+const specName=sp=>sp.kind==='level'?LEVELS[sp.val]:TOPICS[sp.val].short;
 function parsePack(s){
   if(s==='weak')return {kind:'weak',topics:state.weak.slice()};
   const [kind,val]=s.split(':');return {kind,val};
@@ -1246,6 +1254,7 @@ document.addEventListener('click',e=>{
   else if(id==='back'){state.view='home';render();}
   else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
   else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
+  else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
   else if(id==='home'){state.view='home';render();}
   else if(id==='copy'){
     const t=document.getElementById('code'),m=document.getElementById('copied');
