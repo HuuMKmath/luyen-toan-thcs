@@ -29,6 +29,7 @@ Cả website dùng **một Google Sheet** với script `google-sheet/Code.gs` (d
 
 - Trang tính **Học sinh**: cột A = Lớp, B = Họ tên, C = Mã HS. Menu **Học sinh > Tạo mã cho học sinh chưa có mã** cấp cho mỗi em một mã 6 chữ số ngẫu nhiên; mã đã có thì giữ nguyên.
 - Mỗi bài học có một trang tính riêng (ví dụ "7 - Tam giác bằng nhau"), script tự tạo khi có kết quả đầu tiên.
+- Menu **Bảng điểm > Tạo / cập nhật bảng điểm** tạo hai trang tính: **Xem điểm** (chọn Lớp, Bài, Loại bài: danh sách cả lớp với điểm cao nhất, số lần làm, phần còn yếu, em nào chưa làm) và **Sổ điểm** (chọn Lớp: mỗi học sinh một dòng, mỗi bài một cột). Hai bảng tự làm mới khi mở Sheet hoặc đổi ô chọn.
 - Học sinh nhập mã một lần trên máy của mình, sau đó luyện tập và làm bài kiểm tra ở mọi bài. Kết quả kiểm tra chỉ được ghi khi mã có trong trang tính Học sinh; họ tên và lớp lấy từ danh sách, không lấy từ máy học sinh.
 
 ## Thêm một bài mới
