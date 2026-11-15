@@ -74,6 +74,9 @@ input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);b
 textarea{min-height:140px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
 label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
 
+.dt{border-collapse:collapse;margin:10px 0 2px;font-size:.95rem}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 14px;text-align:left}
+.dt th{background:var(--paper)}
 .figbox{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;max-width:400px;margin:10px 0}
 .figbox.ms{max-width:none}
 .figbox p{margin:2px 0}
@@ -730,6 +733,52 @@ addTF('tf_ctx_lai','dn','VD',tfCtx(ctxShop));
 ['a','b','c'].forEach(x=>addTF('tf_sign_nb_'+x,'cg','NB',tfSignNB()));
 addTF('tf_prop_nb_c','tc','NB',tfPropNB());
 
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+function tfHardC(){
+  for(let n=0;n<60;n++){
+    const m=ri(5,30),k=ri(2,20),[p,q]=sample(2,11,60),v=[0,1,2,3].map(()=>RNG()<.5);
+    const items=shuffle([
+      IT(`Tổng tất cả các số nguyên x thỏa mãn ${nb(`${N(-m)} ≤ x ≤ ${m}`)} bằng ${v[0]?0:m}.`,v[0],'tc','VD',`Các số từ ${N(-m)} đến ${m} gồm số 0 và các cặp số đối nhau, mỗi cặp có tổng bằng 0. Vậy tổng bằng 0.`),
+      IT(v[1]?`Nếu a là số nguyên âm thì ${nb(`a − ${k}`)} là số nguyên âm.`:`Nếu a là số nguyên âm thì ${nb(`${k} − a`)} là số nguyên âm.`,v[1],'tr','VD',v[1]?`${nb(`a − ${k} = a + (−${k})`)} là tổng của hai số nguyên âm nên là số nguyên âm.`:`${nb(`${k} − a = ${k} + (−a)`)}, mà −a là số nguyên dương, nên kết quả là số nguyên dương.`),
+      IT(v[2]?'Hiệu của một số nguyên âm và một số nguyên dương luôn là một số nguyên âm.':'Hiệu của hai số nguyên âm luôn là một số nguyên âm.',v[2],'tr','VD',v[2]?'Trừ đi một số nguyên dương là cộng với một số nguyên âm; tổng của hai số nguyên âm là số nguyên âm.':'Ví dụ (−2) − (−5) = (−2) + 5 = 3 là số nguyên dương.'),
+      IT(`Số đối của ${nb(`${p} − ${q}`)} là ${nb(v[3]?`${q} − ${p}`:`−${p} − ${q}`)}.`,v[3],'dn','VD',`Số đối của ${nb(`${p} − ${q}`)} là ${nb(`−(${p} − ${q}) = −${p} + ${q} = ${q} − ${p}`)}.`)]);
+    if(tfOK(items))return {stem:'Xét các phát biểu sau:',items};
+  }
+  return FB_TF();
+}
+const HARD={tf:[{id:'h_tc',type:'tf',topic:'tr',level:'VD',gen:tfHardC}],sa:[
+ {id:'h_tong',topic:'tc',level:'VD',unit:'',gen:()=>{const a=ri(4,12),b=a+ri(0,3),rest=[];for(let x=a;x<=b;x++)rest.push(x);const s=sum(rest);return{stem:`Tính tổng tất cả các số nguyên x thỏa mãn ${nb(`${N(-a)} < x ≤ ${b}`)}.`,ans:[s],exp:`Các số từ ${N(-(a-1))} đến ${a-1} gồm số 0 và các cặp số đối nhau nên có tổng bằng 0. Còn lại ${rest.length>1?nb(rest.join(' + ')+' = '+s):s}. Vậy tổng bằng ${s}.`};}},
+ {id:'h_hl',topic:'dn',level:'VD',unit:'',gen:()=>{const [p,q]=sample(2,120,480),r=ri(11,60);return RNG()<.5
+   ?{stem:`Tính một cách hợp lí: ${nb(`${p} − (${q} − ${r}) + (${q} − ${p})`)}.`,ans:[r],exp:`Bỏ dấu ngoặc: ${nb(`${p} − ${q} + ${r} + ${q} − ${p}`)}. Nhóm các số đối nhau: ${nb(`(${p} − ${p}) + (${q} − ${q}) + ${r} = ${r}`)}.`}
+   :{stem:`Tính một cách hợp lí: ${nb(`(${p} − ${q}) − (${p} + ${r}) + ${q}`)}.`,ans:[-r],exp:`Bỏ dấu ngoặc: ${nb(`${p} − ${q} − ${p} − ${r} + ${q}`)}. Nhóm các số đối nhau: ${nb(`(${p} − ${p}) + (${q} − ${q}) − ${r} = ${N(-r)}`)}.`};}},
+ {id:'h_x',topic:'dn',level:'VD',unit:'',gen:()=>{const a=sgn()*ri(5,30),b=ri(5,30),c=sgn()*ri(5,30),x=c-a+b;return{stem:`Tìm số nguyên x, biết ${nb(`${N(a)} − (${b} − x) = ${N(c)}`)}.`,ans:[x],exp:`Bỏ dấu ngoặc: ${nb(`${N(a)} − ${b} + x = ${N(c)}`)}, tức là ${nb(`${N(a-b)} + x = ${N(c)}`)}. Vậy ${nb(`x = ${N(c)} − ${P(a-b)} = ${N(x)}`)}.`};}},
+ {id:'h_day',topic:'tc',level:'VD',unit:'',gen:()=>{const n=ri(20,60);return{stem:`Tính ${nb(`S = 1 − 2 + 3 − 4 + … + ${2*n-1} − ${2*n}`)}.`,ans:[-n],exp:`Nhóm thành ${n} cặp: ${nb(`(1 − 2) + (3 − 4) + … + (${2*n-1} − ${2*n})`)}. Mỗi cặp bằng −1 nên S = ${N(-n)}.`};}},
+ {id:'h_tk',topic:'tr',level:'VD',unit:'nghìn đồng',gen:()=>{const x=10*ri(5,30),y=10*ri(10,40),z=10*ri(5,30),R=10*ri(-20,30),s0=R-x+y+z;return{stem:`Tài khoản của bác Lan nhận thêm ${x} nghìn đồng, rồi chi ${y} nghìn đồng và chi tiếp ${z} nghìn đồng thì số dư là ${N(R)} nghìn đồng (số dư âm nghĩa là đang nợ). Hỏi lúc đầu tài khoản có bao nhiêu nghìn đồng?`,ans:[s0],exp:`Gọi số tiền lúc đầu là a. Ta có ${nb(`a + ${x} − ${y} − ${z} = ${N(R)}`)}, nên ${nb(`a = ${N(R)} − ${x} + ${y} + ${z} = ${N(s0)}`)} (nghìn đồng).`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+const SG=x=>x>0?'+'+x:N(x);
+const PISA=[
+ ()=>{const s0=10*ri(5,15),rows=[['Đóng quỹ đợt 1',10*ri(15,30)],['Mua hoa ngày 20/11',-10*ri(12,25)],['Liên hoan cuối kì',-10*ri(15,30)],['Bán giấy vụn',10*ri(3,9)],['Mua phần thưởng',-10*ri(8,20)]];
+  let cur=s0,mn=s0;const run=rows.map(r=>{cur+=r[1];mn=Math.min(mn,cur);return cur;}),chi=sum(rows.map(r=>r[1]).filter(v=>v<0)),fin=cur,T=(Math.ceil(Math.max(fin,0)/100)+2)*100;
+  return {title:'Quỹ lớp 6A',ctx:`<p class="stem">Thủ quỹ lớp 6A ghi lại các khoản thu (số dương) và chi (số âm) của quỹ lớp trong học kì I theo thứ tự thời gian, đơn vị nghìn đồng. Đầu học kì quỹ có ${s0} nghìn đồng.</p>${tbl(['Nội dung','Số tiền (nghìn đồng)'],rows.map(r=>[r[0],SG(r[1])]))}`,qs:[
+   saq('Tổng các khoản chi trong bảng, viết dưới dạng một số nguyên âm, là bao nhiêu nghìn đồng?',chi,'nghìn đồng',`${nb(rows.filter(r=>r[1]<0).map((r,i)=>i?P(r[1]):N(r[1])).join(' + ')+' = '+N(chi))}.`,'cg','TH'),
+   saq('Cuối học kì I, quỹ lớp còn bao nhiêu nghìn đồng? (Nếu quỹ bị thiếu thì ghi số âm.)',fin,'nghìn đồng',`${nb(s0+' + '+rows.map(r=>P(r[1])).join(' + ')+' = '+N(fin))}.`,'dn','VD'),
+   saq('Trong cả học kì, lúc quỹ ở mức thấp nhất thì quỹ có bao nhiêu nghìn đồng? (Nếu quỹ bị thiếu thì ghi số âm.)',mn,'nghìn đồng',`Số tiền trong quỹ lần lượt là: ${[s0].concat(run).map(N).join('; ')}. Mức thấp nhất là ${N(mn)}.`,'dn','VD'),
+   saq(`Lớp muốn đầu học kì II quỹ có ${T} nghìn đồng. Cả lớp cần đóng thêm bao nhiêu nghìn đồng?`,T-fin,'nghìn đồng',`Cuối học kì I quỹ có ${N(fin)} nghìn đồng. Cần đóng thêm ${nb(`${T} − ${P(fin)} = ${T-fin}`)} (nghìn đồng).`,'tr','VD')]};},
+ ()=>{for(;;){const D=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm'],lo=D.map(()=>ri(-9,1)),hi=lo.map(l=>l+ri(4,12)),amp=lo.map((l,i)=>hi[i]-l),mx=Math.max(...amp);
+   if(amp.filter(a=>a===mx).length>1||lo[3]===lo[0]||!lo.some(l=>l<0))continue;
+   const negs=lo.map((l,i)=>l<0&&hi[i]>0?i:-1).filter(i=>i>=0);if(!negs.length)continue;
+   const i=sel(negs),im=amp.indexOf(mx),H=Math.max(...hi),L=Math.min(...lo);
+   return {title:'Dự báo thời tiết vùng núi cao',ctx:`<p class="stem">Bảng sau là dự báo nhiệt độ thấp nhất và cao nhất trong bốn ngày ở một thị trấn vùng núi cao.</p>${tbl(['Ngày','Thấp nhất (°C)','Cao nhất (°C)'],D.map((d,j)=>[d,N(lo[j]),N(hi[j])]))}`,qs:[
+   saq(`Trong ngày ${D[i]}, nhiệt độ cao nhất hơn nhiệt độ thấp nhất bao nhiêu độ C?`,amp[i],'°C',`${nb(`${hi[i]} − ${P(lo[i])} = ${hi[i]} + ${-lo[i]} = ${amp[i]}`)} (°C).`,'tr','TH'),
+   mcq('Ngày nào có chênh lệch giữa nhiệt độ cao nhất và nhiệt độ thấp nhất lớn nhất?',D[im],D.map((d,j)=>[d,`Ngày này chênh lệch ${nb(`${N(hi[j])} − ${P(lo[j])} = ${amp[j]}`)}°C, nhỏ hơn ${mx}°C của ${D[im]}.`]).filter((_,j)=>j!==im),`Chênh lệch từng ngày: ${D.map((d,j)=>`${d} ${amp[j]}°C`).join('; ')}. Lớn nhất là ${D[im]}.`,'tr','VD'),
+   saq('Nhiệt độ cao nhất của cả bốn ngày hơn nhiệt độ thấp nhất của cả bốn ngày bao nhiêu độ C?',H-L,'°C',`Cao nhất là ${N(H)}°C, thấp nhất là ${N(L)}°C. Chênh lệch: ${nb(`${N(H)} − ${P(L)} = ${H-L}`)} (°C).`,'tr','VD'),
+   saq('So với Thứ Hai, nhiệt độ thấp nhất của Thứ Năm thay đổi bao nhiêu độ C? (Tăng thì ghi số dương, giảm thì ghi số âm.)',lo[3]-lo[0],'°C',`${nb(`${N(lo[3])} − ${P(lo[0])} = ${N(lo[3]-lo[0])}`)}: nhiệt độ thấp nhất ${lo[3]>lo[0]?'tăng':'giảm'} ${Math.abs(lo[3]-lo[0])}°C.`,'tr','VD')]};}}
+];
+
 const BANK={mc:MC,tf:TF,sa:SA};
 const TF_SCORE=[0,0.1,0.25,0.5,1];
 const TYPES=['mc','tf','sa'];
@@ -744,7 +793,7 @@ const RECAP=[
 
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
-const LIMIT={test:25*60,quick:5*60};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
 const SEEN_KEY='pc6_seen';
 function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 let tick=null;
@@ -800,6 +849,20 @@ function buildQuick(){
   ];
   const sa=[pick(SA.filter(q=>q.topic==='cg'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='tr'&&q.level!=='VD'),used)];
   makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
 }
 function buildPractice(spec){
   let f,title;
@@ -871,6 +934,8 @@ function homeHTML(){
       <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Toán thực tế</div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>
@@ -879,11 +944,12 @@ function homeHTML(){
   <section class="card stack" style="margin-top:16px">
     <div>
       <h2>Kiểm tra</h2>
-      <p class="muted" style="margin:6px 0 0">Có hai bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
+      <p class="muted" style="margin:6px 0 0">Có ba bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
     </div>
     <div class="recap">
       <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
       <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một phần.</p></div>
+      <div class="card"><h3>Thử thách 30 phút</h3><p>Dành cho bạn muốn thử sức. 13 câu, 10 điểm, toàn câu vận dụng và nâng cao: 6 câu nhiều lựa chọn, 3 câu đúng sai và 4 câu trả lời ngắn. Điểm được ghi riêng, không tính chung với bài kiểm tra.</p></div>
     </div>
     ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
       <label class="fl" for="nm">Họ và tên</label>
@@ -898,7 +964,7 @@ function homeHTML(){
       <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 6A-01" value="${esc(state.code)}">
       <p class="small muted" style="margin:6px 0 0">Nếu giáo viên cho mã đề, hãy nhập đúng mã đó: các bạn nhập cùng mã sẽ làm cùng một đề. Để trống thì bạn nhận một đề ngẫu nhiên. Thứ tự đáp án A, B, C, D vẫn được xáo riêng cho từng bạn.</p>
     </div>
-    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button></div>
+    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button><button class="btn" id="starth">Bắt đầu Thử thách 30 phút</button></div>
     <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
   </section>
 
@@ -915,6 +981,7 @@ const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'P
 const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
 const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
 function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
   const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
   return j==null?base:`${base}, ý ${'abcd'[j]}`;
 }
@@ -932,6 +999,7 @@ function tail(q,P){
   return h;
 }
 function mcHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,tried=P.tried||[],cur=state.ans[q.id];
   const opts=state.perm[q.id].map((oi,j)=>{
     let cls='opt',dis='';
@@ -946,6 +1014,7 @@ function mcHTML(q,i){
     <div class="opts" role="radiogroup" aria-label="Câu ${i+1}">${opts}</div>${pr?tail(q,P):''}</article>`;
 }
 function tfHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,a=state.ans[q.id]||[];
   const rows=q.items.map((it,j)=>{
     const cls=v=>{let c='opt';if(done){if(it.v===v)c+=' is-right';else if(a[j]===v)c+=' is-wrong';}return c;};
@@ -960,6 +1029,7 @@ function tfHTML(q,i){
     <p class="stem">${q.stem}</p>${q.fig||''}<div class="tf">${rows}</div>${pr?tail(q,P):''}</article>`;
 }
 function saHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done;
   return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
     <p class="stem">${q.stem}</p>${q.fig||''}
@@ -980,7 +1050,11 @@ function quizHTML(){
   };
   const heads={mc:['Phần I','Câu hỏi nhiều lựa chọn'],tf:['Phần II','Câu hỏi đúng sai'],sa:[quick?'Phần II':'Phần III','Câu hỏi trả lời ngắn']};
   let body='';
-  TYPES.forEach(t=>{
+  if(S.units)S.units.forEach((u,ui)=>{
+    body+=partHead('Tình huống '+(ui+1),u.title,'Đọc kĩ tình huống rồi trả lời lần lượt từng câu. Làm xong mỗi câu bấm Kiểm tra.');
+    body+=`<div class="stack"><article class="card">${u.ctx}${u.fig||''}</article>${u.qs.map(q=>CARD[q.type](q,q.no)).join('')}</div>`;
+  });
+  else TYPES.forEach(t=>{
     if(!S.by[t].length)return;
     body+=partHead(test?heads[t][0]:'',test?heads[t][1]:TYPE_NAME[t],desc[t]);
     body+=`<div class="stack">${S.by[t].map(CARD[t]).join('')}</div>`;
@@ -1121,7 +1195,7 @@ function sendResult(){
   if(!SHEET_URL||!state.result)return;
   const code=makeCode(state.result);
   setSent('Đang gửi kết quả cho giáo viên...');
-  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:S.mode==='hard'?SHEET_TAB+' - Thử thách':SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
   const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
   const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
   fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
@@ -1166,7 +1240,7 @@ function resultHTML(){
   const missed=k=>r.items.filter(it=>it.topic===k&&!it.ok).map(it=>it.label);
   const correct=r.items.filter(it=>it.ok).length;
   const head=test
-    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
+    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':S.mode==='hard'?' · Thử thách':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
     :`<div class="big">${correct}<small> / ${r.items.length}</small></div><div><div class="muted small" style="margin-bottom:6px">${S.title}</div><div class="parts"><span class="chip">ý đúng ngay lần đầu</span><span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span><span class="chip">Luyện tập không tính điểm</span></div></div>`;
   const code=test?makeCode(r):'';
   return `
@@ -1233,7 +1307,7 @@ function analyzeCodes(){
   const timed=rows.filter(r=>typeof r.m==='number'),meanT=timed.length?timed.reduce((s,r)=>s+r.m,0)/timed.length:null;
   const tcell=r=>typeof r.m==='number'?fmtTime(r.m):'–';
   const flag=r=>(typeof r.m==='number'&&r.m<0.25*(r.L||1800)&&r.s<5)?' <span class="chip">Làm nhanh, điểm thấp</span>':'';
-  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
+  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':r.q==='hard'?' <span class="chip">Thử thách 30 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
   const weakCount=TKEYS.map(k=>rows.filter(r=>r.t[k]&&r.t[k][1]&&100*r.t[k][0]/r.t[k][1]<50).length);
   const worst=TKEYS.map((k,i)=>({k,p:avg[i][1]?100*avg[i][0]/avg[i][1]:100})).sort((a,b)=>a.p-b.p)[0];
   out.innerHTML=`${bad.length?`<div class="warnbar" style="margin:0 0 12px">Bỏ qua ${bad.length} dòng không đọc được (dòng ${bad.join(', ')}).${other?' Có mã của bài khác, hãy dán ở trang của bài ấy.':''}</div>`:''}
@@ -1265,7 +1339,8 @@ function withCode(mode,fn){
 }
 function startTest(){withCode('test',buildTest);state.view='quiz';render();}
 function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
-function startPack(spec){buildPractice(spec);state.view='quiz';render();}
+function startHard(){withCode('hard',buildHard);state.view='quiz';render();}
+function startPack(spec){if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
 // Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
 function nextSpec(){
   if(!S||S.mode!=='practice'||!S.spec)return null;
@@ -1300,15 +1375,15 @@ document.addEventListener('click',e=>{
   const ck=e.target.closest('.chk');
   if(ck){practiceCheck(ck.dataset.q);return;}
   const id=e.target.id;
-  if(id==='start'||id==='startq'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
-    if(id==='start')startTest();else startQuick();}
+  if(id==='start'||id==='startq'||id==='starth'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else if(id==='starth')startHard();else startQuick();}
   else if(id==='hsgo')checkHS();
   else if(id==='hsout'){saveHS(null);state.view='home';render();}
   else if(id==='submit')finish(false);
   else if(id==='force')finish(true);
   else if(id==='keep')document.getElementById('warn').innerHTML='';
   else if(id==='back'){state.view='home';render();}
-  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
+  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else if(S.mode==='hard')startHard();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
   else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
   else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
   else if(id==='home'){state.view='home';render();}

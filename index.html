@@ -84,6 +84,9 @@ label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
 .fig .draw{stroke-dasharray:700;stroke-dashoffset:0;animation:draw 1.1s ease-out both}
 @keyframes draw{from{stroke-dashoffset:700}to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.fig .draw{animation:none}}
+.dt{border-collapse:collapse;margin:10px 0 2px;font-size:.95rem}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 14px;text-align:left}
+.dt th{background:var(--paper)}
 .figbox{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:8px;max-width:400px;margin:10px 0}
 
 /* home */
@@ -788,6 +791,68 @@ function tfRiver(){
 TF.push({id:'tt_ao',type:'tf',topic:'cgc',level:'VD',fig:CGC_FIG,gen:tfPond},{id:'tt_song',type:'tf',topic:'gcg',level:'VD',fig:RIVER_FIG,gen:tfRiver});
 SA.push(...SA.filter(q=>q.gen).map(q=>Object.assign({},q,{id:q.id+'b'})));
 
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+const sel=a=>a[ri(0,a.length-1)];
+function figMedian(){
+  const A=[80,20],B=[30,96],C=[200,96],M=[115,96],D=[150,172];
+  let s=`<polygon class="tri" points="${A} ${B} ${C}"/><line class="seg" x1="80" y1="20" x2="150" y2="172"/><line class="seg" x1="30" y1="96" x2="150" y2="172"/>`;
+  s+=ticks(A,M,1)+ticks(M,D,1)+ticks(B,M,2)+ticks(M,C,2);
+  const T=(x,y,t)=>`<text class="vl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+  s+=T(80,14,'A')+T(18,101,'B')+T(212,101,'C')+T(127,90,'M')+T(162,184,'D');
+  return `<svg class="fig" viewBox="0 0 240 192" role="img" aria-label="Tam giác ABC, M là trung điểm BC, D nằm trên tia đối của tia MA với MD bằng MA, nối B với D">${s}</svg>`;
+}
+function figRhomb(){
+  const A=[120,22],B=[50,90],C=[190,90],M=[120,90],D=[120,158];
+  let s=`<polygon class="tri" points="${A} ${B} ${C}"/><line class="seg" x1="120" y1="22" x2="120" y2="158"/><line class="seg" x1="120" y1="158" x2="190" y2="90"/><line class="thin" x1="120" y1="158" x2="50" y2="90"/>`;
+  s+=ticks(A,B,1)+ticks(A,C,1)+ticks(B,M,2)+ticks(M,C,2)+ticks(A,M,3)+ticks(M,D,3);
+  const T=(x,y,t)=>`<text class="vl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+  s+=T(120,15,'A')+T(38,95,'B')+T(202,95,'C')+T(132,106,'M')+T(120,175,'D');
+  return `<svg class="fig" viewBox="0 0 240 182" role="img" aria-label="Tam giác ABC có AB bằng AC, M là trung điểm BC, D nằm trên tia đối của tia MA với MD bằng MA">${s}</svg>`;
+}
+const TRIP=[[3,4,5],[5,12,13],[6,8,10],[8,15,17],[9,12,15]];
+const lin2=(p,q)=>`${p}x ${q<0?'−':'+'} ${Math.abs(q)}`;
+function tfRhomb(){
+  for(let n=0;n<60;n++){
+    const m=ri(3,9);let x;do{x=2*ri(25,65);}while(x===90);
+    const v=[0,1,2,3].map(()=>RNG()<.5);
+    const items=[
+      {t:`BM = ${v[0]?m:2*m} cm.`,v:v[0],topic:'tu',level:'TH',exp:`M là trung điểm của BC nên BM = BC : 2 = ${m} cm.`},
+      {t:`∠BAM = ${v[1]?x/2:x}°.`,v:v[1],topic:'ccc',level:'VD',exp:`ΔAMB và ΔAMC có AB = AC, MB = MC, AM chung nên ΔAMB = ΔAMC (c.c.c). Suy ra ∠BAM = ∠CAM = ${x}° : 2 = ${x/2}°.`},
+      {t:`∠AMB = ${v[2]?90:180-x}°.`,v:v[2],topic:'ccc',level:'VD',exp:'ΔAMB = ΔAMC (c.c.c) nên ∠AMB = ∠AMC. Hai góc này kề bù nên mỗi góc bằng 90°.'},
+      {t:`∠MDC = ${v[3]?x/2:90-x/2}°.`,v:v[3],topic:'cgc',level:'VD',exp:`ΔAMB và ΔDMC có MA = MD, ∠AMB = ∠DMC (đối đỉnh), MB = MC nên ΔAMB = ΔDMC (c.g.c). Suy ra ∠MDC = ∠MAB = ${x/2}°.`}];
+    if(tfOK(items))return {stem:`Cho ΔABC có AB = AC, BC = ${2*m} cm và ∠BAC = ${x}°. Gọi M là trung điểm của BC. Trên tia đối của tia MA lấy điểm D sao cho MD = MA (như hình).`,items};
+  }
+}
+const HARD={tf:[{id:'h_thoi',type:'tf',topic:'ccc',level:'VD',fig:fb(figRhomb()),gen:tfRhomb}],sa:[
+ {id:'h_pg',topic:'cgc',level:'VD',unit:'cm',fig:fb(figIso({pt:'D',ticks:{AB:1,AC:1},arcA:true,alt:'Tam giác ABC có AB bằng AC, AD là tia phân giác của góc A'})),gen:()=>{const [bd,ad,ab]=sel(TRIP),P=2*(ab+bd),Q=ab+bd+ad;return{stem:`Cho ΔABC có AB = AC. Tia phân giác của góc A cắt BC tại D. Biết chu vi ΔABC bằng ${P} cm và chu vi ΔABD bằng ${Q} cm. Tính độ dài AD.`,ans:[ad],exp:`ΔABD và ΔACD có AB = AC, ∠BAD = ∠CAD, AD chung nên ΔABD = ΔACD (c.g.c), suy ra BD = CD. Chu vi ΔABC = 2 · (AB + BD) = ${P} cm nên AB + BD = ${P/2} cm. Chu vi ΔABD = AB + BD + AD = ${Q} cm nên AD = ${Q} − ${P/2} = ${ad} cm.`};}},
+ {id:'h_ss',topic:'gcg',level:'VD',unit:'cm',fig:CGC2_FIG,gen:()=>{let o,a,c;do{o=ri(5,12);a=ri(5,12);c=ri(5,12);}while(2*Math.max(o,a,c)>=o+a+c);const p=o+a+c;return{stem:`Hai đoạn thẳng AB và CD cắt nhau tại O là trung điểm của AB, biết AC ∥ BD (như hình). Cho AC = ${a} cm, OC = ${c} cm và chu vi ΔOBD bằng ${p} cm. Tính độ dài AB.`,ans:[2*o],exp:`AC ∥ BD nên ∠OAC = ∠OBD (so le trong). Lại có OA = OB và ∠AOC = ∠BOD (đối đỉnh) nên ΔOAC = ΔOBD (g.c.g). Suy ra BD = AC = ${a} cm, OD = OC = ${c} cm. Do đó OB = ${p} − ${a} − ${c} = ${o} cm và AB = 2 · OB = ${2*o} cm.`};}},
+ {id:'h_dieu',topic:'ccc',level:'VD',unit:'độ',fig:fb(figKite()),gen:()=>{const x=2*ri(20,50),y=2*ri(15,45),r=180-x/2-y/2;return{stem:`Cho hình vẽ có AC = AD và BC = BD. Biết ∠CAD = ${x}° và ∠CBD = ${y}°. Tính số đo ∠ACB.`,ans:[r],exp:`ΔABC và ΔABD có AC = AD, BC = BD, AB chung nên ΔABC = ΔABD (c.c.c). Suy ra ∠CAB = ∠DAB = ${x/2}° và ∠CBA = ∠DBA = ${y/2}°. Trong ΔABC: ∠ACB = 180° − ${x/2}° − ${y/2}° = ${r}°.`};}},
+ {id:'h_tt',topic:'cgc',level:'VD',unit:'độ',fig:fb(figMedian()),gen:()=>{let a,b;do{a=ri(50,100);b=ri(30,60);}while(a+b>150);const c=180-a-b;return{stem:`Cho ΔABC có ∠BAC = ${a}° và ∠ABC = ${b}°. Gọi M là trung điểm của BC. Trên tia đối của tia MA lấy điểm D sao cho MD = MA (như hình). Tính số đo ∠ABD.`,ans:[180-a],exp:`ΔMAC và ΔMDB có MA = MD, ∠AMC = ∠DMB (đối đỉnh), MC = MB nên ΔMAC = ΔMDB (c.g.c). Suy ra ∠MBD = ∠MCA = 180° − ${a}° − ${b}° = ${c}°. Vậy ∠ABD = ∠ABC + ∠CBD = ${b}° + ${c}° = ${180-a}°.`};}},
+ {id:'h_x',topic:'tu',level:'VD',unit:'độ',gen:()=>{let x,p1,p2,q1,q2;do{x=ri(10,20);p1=ri(2,3);p2=p1+ri(1,2);q1=ri(5,15);q2=q1-(p2-p1)*x;}while(q2>=0);const r=ri(10,40),A=p1*x+q1,B=x+r,F=180-A-B;return{stem:`Cho ΔABC = ΔDEF. Biết ∠A = (${lin2(p1,q1)})°, ∠D = (${lin2(p2,q2)})° và ∠B = (x + ${r})°. Tính số đo ∠F.`,ans:[F],exp:`∠A = ∠D (hai góc tương ứng) nên ${lin2(p1,q1)} = ${lin2(p2,q2)}, suy ra x = ${x}. Khi đó ∠A = ${A}°, ∠B = ${B}°. Góc F ứng với góc C nên ∠F = ∠C = 180° − ${A}° − ${B}° = ${F}°.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+const PISA=[
+ ()=>{let n,ac;do{n=5*ri(5,12);ac=3*n/5;}while(ac%5===0);const rolls=Math.ceil(ac/5);
+  return {title:'Căng dây đèn qua ao',fig:CGC_FIG,ctx:`<p class="stem">Lớp 7A muốn căng một dây đèn trang trí thẳng từ cọc A đến cọc C ở hai bờ ao của trường. ${POND_STEM} Sau đó Nam đi từ B đến D hết ${n} bước chân, mỗi bước dài 60 cm.</p>`,qs:[
+   mcq('Nam dựa vào trường hợp bằng nhau nào của ΔOAC và ΔOBD để suy ra AC = BD?','Cạnh – góc – cạnh (c.g.c)',[['Cạnh – cạnh – cạnh (c.c.c)','Mới biết hai cặp cạnh OA = OB, OC = OD; cặp cạnh AC và BD là điều đang cần tìm.'],['Góc – cạnh – góc (g.c.g)','Chỉ biết một cặp góc bằng nhau là hai góc đối đỉnh tại O, chưa biết cặp góc thứ hai.'],['Không cần xét hai tam giác bằng nhau','Phải có ΔOAC = ΔOBD thì mới suy ra được hai cạnh tương ứng AC và BD bằng nhau.']],`${POND_WHY}.`,'cgc','TH'),
+   saq('Khoảng cách AC bằng bao nhiêu mét?',ac,'m',`BD = ${n} · 60 cm = ${n*60} cm = ${ac} m. Vì ΔOAC = ΔOBD (c.g.c) nên AC = BD = ${ac} m.`,'cgc','VD'),
+   saq('Dây đèn được bán theo cuộn, mỗi cuộn dài 5 m và không bán lẻ. Lớp 7A cần mua ít nhất bao nhiêu cuộn để đủ căng từ A đến C?',rolls,'cuộn',`AC = ${ac} m. Mua ${rolls-1} cuộn chỉ được ${5*(rolls-1)} m, chưa đủ; mua ${rolls} cuộn được ${5*rolls} m. Vậy cần ít nhất ${rolls} cuộn.`,'cgc','VD')]};},
+ ()=>{const [bm,am,ab]=sel([[40,30,50],[36,15,39],[24,10,26],[30,16,34]]),v=ri(3,8),one=2*ab+2*bm+am;
+  return {title:'Vì kèo mái nhà',fig:fb(figIso({pt:'M',ticks:{AB:1,AC:1,BP:2,PC:2},alt:'Vì kèo tam giác ABC có AB bằng AC, thanh chống AM nối A với trung điểm M của BC'})),ctx:`<p class="stem">Một vì kèo mái nhà có dạng tam giác ABC với hai thanh kèo AB = AC = ${ab} dm. Thanh chống AM dài ${am} dm nối đỉnh A với trung điểm M của thanh ngang BC; người thợ đo được BM = ${bm} dm (như hình). Ngôi nhà cần ${v} vì kèo giống hệt nhau.</p>`,qs:[
+   mcq('Vì sao người thợ chắc chắn rằng thanh chống AM vuông góc với thanh ngang BC?','Vì ΔABM = ΔACM (c.c.c) nên ∠AMB = ∠AMC, mà hai góc này kề bù',[['Vì AB = AC nên AM = BM','Từ AB = AC không suy ra được AM = BM, và điều đó cũng không cho góc vuông.'],['Vì M là trung điểm của BC nên AM = BC : 2','Trung điểm chỉ cho MB = MC, không cho biết độ dài AM.'],['Vì đoạn nối một đỉnh với một điểm trên cạnh đối diện luôn vuông góc với cạnh đó','Điều này không đúng với tam giác bất kì; ở đây đúng là nhờ AB = AC và MB = MC.']],'ΔABM và ΔACM có AB = AC, MB = MC, AM chung nên ΔABM = ΔACM (c.c.c). Suy ra ∠AMB = ∠AMC; hai góc này kề bù nên mỗi góc bằng 90°.','ccc','TH'),
+   saq('Thanh ngang BC dài bao nhiêu đề-xi-mét?',2*bm,'dm',`M là trung điểm của BC nên BC = 2 · BM = 2 · ${bm} = ${2*bm} dm.`,'tu','TH'),
+   saq(`Mỗi vì kèo gồm hai thanh kèo, một thanh ngang và một thanh chống. Cần tất cả bao nhiêu đề-xi-mét gỗ để làm ${v} vì kèo?`,v*one,'dm',`Một vì kèo cần ${ab} + ${ab} + ${2*bm} + ${am} = ${one} dm gỗ. Vậy ${v} vì kèo cần ${v} · ${one} = ${v*one} dm.`,'ccc','VD')]};},
+ ()=>{const c=ri(10,30);let d;do{d=ri(15,60);}while(d===c||d%4===0);const k=Math.ceil(d/4);
+  return {title:'Đo chiều rộng con sông',fig:RIVER_FIG,ctx:`<p class="stem">${RIVER_STEM} Mai đo được AC = ${c} m và DE = ${d} m.</p>`,qs:[
+   mcq('Hai tam giác ABC và DEC bằng nhau theo trường hợp nào?','Góc – cạnh – góc (g.c.g)',[['Cạnh – góc – cạnh (c.g.c)','Chỉ biết một cặp cạnh bằng nhau là AC = DC.'],['Cạnh – cạnh – cạnh (c.c.c)','Chỉ biết một cặp cạnh bằng nhau là AC = DC.'],['Hai tam giác này không bằng nhau','Có ∠A = ∠D = 90°, AC = DC và ∠ACB = ∠DCE nên hai tam giác bằng nhau.']],`${RIVER_WHY}.`,'gcg','TH'),
+   saq('Con sông rộng bao nhiêu mét?',d,'m',`${RIVER_WHY}. Cạnh AB ứng với cạnh DE nên AB = DE = ${d} m.`,'gcg','VD'),
+   saq('Người ta ghép các đoạn cầu phao, mỗi đoạn dài 4 m, để bắc thẳng qua sông từ A đến B. Cần ít nhất bao nhiêu đoạn?',k,'đoạn',`Sông rộng ${d} m. Ghép ${k-1} đoạn chỉ được ${4*(k-1)} m, chưa đủ; ghép ${k} đoạn được ${4*k} m. Vậy cần ít nhất ${k} đoạn.`,'gcg','VD'),
+   mcq('Nếu Mai lấy điểm D sao cho CD dài hơn CA (các bước còn lại giữ nguyên) thì kết luận nào đúng?','Không còn kết luận được AB = DE, vì ΔABC và ΔDEC không còn cặp cạnh nào bằng nhau',[['Vẫn có AB = DE, vì hai tam giác vẫn có hai cặp góc bằng nhau','Hai cặp góc bằng nhau chưa đủ; trường hợp g.c.g cần thêm cặp cạnh xen giữa bằng nhau.'],['Vẫn có AB = DE theo trường hợp c.g.c','Khi đó không còn cặp cạnh nào bằng nhau nên không dùng được c.g.c.'],['Khi đó AB = CD','AB và CD không phải hai cạnh tương ứng của hai tam giác.']],'Cách đo dựa vào ΔABC = ΔDEC (g.c.g), cần AC = DC. Nếu CD khác CA thì không còn đủ điều kiện để kết luận AB = DE.','gcg','VD')]};}
+];
+
 const BANK={mc:MC,tf:TF,sa:SA};
 const TF_SCORE=[0,0.1,0.25,0.5,1];
 const TYPES=['mc','tf','sa'];
@@ -800,7 +865,7 @@ const RECAP=[
 
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
-const LIMIT={test:25*60,quick:5*60}; // giây
+const LIMIT={test:25*60,quick:5*60,hard:30*60}; // giây
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
 const SHEET_TAB='7 - Tam giác bằng nhau'; // tên trang tính của bài này trong Google Sheet chung
 const SHEET_TOPICS=['Tổng quan tam giác','Cạnh-cạnh-cạnh','Cạnh-góc-cạnh','Góc-cạnh-góc']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
@@ -861,6 +926,20 @@ function buildQuick(){
   ];
   const sa=[pick(SA.filter(q=>q.topic==='gcg'&&q.level!=='VD'),used),pick(SA.filter(q=>(q.topic==='ccc'||q.topic==='cgc')&&q.level!=='VD'),used)];
   makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
 }
 function buildPractice(spec){
   let f,title;
@@ -932,6 +1011,8 @@ function homeHTML(){
       <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TOPICS[k].short==='Tương ứng'?'Cạnh, góc tương ứng và chu vi':'Nhận biết, tính toán và chứng minh'}</span></button>`).join('')}</div>
+      <div class="grp">Toán thực tế</div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>
@@ -940,11 +1021,12 @@ function homeHTML(){
   <section class="card stack" style="margin-top:16px">
     <div>
       <h2>Kiểm tra</h2>
-      <p class="muted" style="margin:6px 0 0">Có hai bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
+      <p class="muted" style="margin:6px 0 0">Có ba bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
     </div>
     <div class="recap">
       <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
       <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một trường hợp.</p></div>
+      <div class="card"><h3>Thử thách 30 phút</h3><p>Dành cho bạn muốn thử sức. 13 câu, 10 điểm, toàn câu vận dụng và nâng cao: 6 câu nhiều lựa chọn, 3 câu đúng sai và 4 câu trả lời ngắn. Điểm được ghi riêng, không tính chung với bài kiểm tra.</p></div>
     </div>
     ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
       <label class="fl" for="nm">Họ và tên</label>
@@ -959,7 +1041,7 @@ function homeHTML(){
       <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 7A-01" value="${esc(state.code)}">
       <p class="small muted" style="margin:6px 0 0">Nếu giáo viên cho mã đề, hãy nhập đúng mã đó: các bạn nhập cùng mã sẽ làm cùng một đề. Để trống thì bạn nhận một đề ngẫu nhiên. Thứ tự đáp án A, B, C, D vẫn được xáo riêng cho từng bạn.</p>
     </div>
-    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button></div>
+    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button><button class="btn" id="starth">Bắt đầu Thử thách 30 phút</button></div>
     <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
   </section>
 
@@ -976,6 +1058,7 @@ const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'P
 const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
 const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
 function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
   const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
   return j==null?base:`${base}, ý ${'abcd'[j]}`;
 }
@@ -993,6 +1076,7 @@ function tail(q,P){
   return h;
 }
 function mcHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,tried=P.tried||[],cur=state.ans[q.id];
   const opts=state.perm[q.id].map((oi,j)=>{
     let cls='opt',dis='';
@@ -1007,6 +1091,7 @@ function mcHTML(q,i){
     <div class="opts" role="radiogroup" aria-label="Câu ${i+1}">${opts}</div>${pr?tail(q,P):''}</article>`;
 }
 function tfHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,a=state.ans[q.id]||[];
   const rows=q.items.map((it,j)=>{
     const cls=v=>{let c='opt';if(done){if(it.v===v)c+=' is-right';else if(a[j]===v)c+=' is-wrong';}return c;};
@@ -1021,6 +1106,7 @@ function tfHTML(q,i){
     <p class="stem">${q.stem}</p>${q.fig||''}<div class="tf">${rows}</div>${pr?tail(q,P):''}</article>`;
 }
 function saHTML(q,i){
+  if(q.no!=null)i=q.no;
   const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done;
   return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
     <p class="stem">${q.stem}</p>${q.fig||''}
@@ -1041,7 +1127,11 @@ function quizHTML(){
   };
   const heads={mc:['Phần I','Câu hỏi nhiều lựa chọn'],tf:[quick?'Phần I':'Phần II','Câu hỏi đúng sai'],sa:[quick?'Phần II':'Phần III','Câu hỏi trả lời ngắn']};
   let body='';
-  TYPES.forEach(t=>{
+  if(S.units)S.units.forEach((u,ui)=>{
+    body+=partHead('Tình huống '+(ui+1),u.title,'Đọc kĩ tình huống rồi trả lời lần lượt từng câu. Làm xong mỗi câu bấm Kiểm tra.');
+    body+=`<div class="stack"><article class="card">${u.ctx}${u.fig||''}</article>${u.qs.map(q=>CARD[q.type](q,q.no)).join('')}</div>`;
+  });
+  else TYPES.forEach(t=>{
     if(!S.by[t].length)return;
     body+=partHead(test?heads[t][0]:'',test?heads[t][1]:TYPE_NAME[t],desc[t]);
     body+=`<div class="stack">${S.by[t].map(CARD[t]).join('')}</div>`;
@@ -1176,7 +1266,7 @@ function sendResult(){
   if(!SHEET_URL||!state.result)return;
   const code=makeCode(state.result);
   setSent('Đang gửi kết quả cho giáo viên...');
-  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:S.mode==='hard'?SHEET_TAB+' - Thử thách':SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
   const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
   const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
   fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
@@ -1221,7 +1311,7 @@ function resultHTML(){
   const missed=k=>r.items.filter(it=>it.topic===k&&!it.ok).map(it=>it.label);
   const correct=r.items.filter(it=>it.ok).length;
   const head=test
-    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
+    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':S.mode==='hard'?' · Thử thách':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
     :`<div class="big">${correct}<small> / ${r.items.length}</small></div><div><div class="muted small" style="margin-bottom:6px">${S.title}</div><div class="parts"><span class="chip">ý đúng ngay lần đầu</span><span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span><span class="chip">Luyện tập không tính điểm</span></div></div>`;
   const code=test?makeCode(r):'';
   return `
@@ -1288,7 +1378,7 @@ function analyzeCodes(){
   const timed=rows.filter(r=>typeof r.m==='number'),meanT=timed.length?timed.reduce((s,r)=>s+r.m,0)/timed.length:null;
   const tcell=r=>typeof r.m==='number'?fmtTime(r.m):'–';
   const flag=r=>(typeof r.m==='number'&&r.m<0.25*(r.L||1800)&&r.s<5)?' <span class="chip">Làm nhanh, điểm thấp</span>':'';
-  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
+  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':r.q==='hard'?' <span class="chip">Thử thách 30 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
   const weakCount=TKEYS.map(k=>rows.filter(r=>r.t[k]&&r.t[k][1]&&100*r.t[k][0]/r.t[k][1]<50).length);
   const worst=TKEYS.map((k,i)=>({k,p:avg[i][1]?100*avg[i][0]/avg[i][1]:100})).sort((a,b)=>a.p-b.p)[0];
   out.innerHTML=`${bad.length?`<div class="warnbar" style="margin:0 0 12px">Bỏ qua ${bad.length} dòng không đọc được (dòng ${bad.join(', ')}).</div>`:''}
@@ -1320,7 +1410,8 @@ function withCode(mode,fn){
 }
 function startTest(){withCode('test',buildTest);state.view='quiz';render();}
 function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
-function startPack(spec){buildPractice(spec);state.view='quiz';render();}
+function startHard(){withCode('hard',buildHard);state.view='quiz';render();}
+function startPack(spec){if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
 // Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
 function nextSpec(){
   if(!S||S.mode!=='practice'||!S.spec)return null;
@@ -1355,15 +1446,15 @@ document.addEventListener('click',e=>{
   const ck=e.target.closest('.chk');
   if(ck){practiceCheck(ck.dataset.q);return;}
   const id=e.target.id;
-  if(id==='start'||id==='startq'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
-    if(id==='start')startTest();else startQuick();}
+  if(id==='start'||id==='startq'||id==='starth'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else if(id==='starth')startHard();else startQuick();}
   else if(id==='hsgo')checkHS();
   else if(id==='hsout'){saveHS(null);state.view='home';render();}
   else if(id==='submit')finish(false);
   else if(id==='force')finish(true);
   else if(id==='keep')document.getElementById('warn').innerHTML='';
   else if(id==='back'){state.view='home';render();}
-  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
+  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else if(S.mode==='hard')startHard();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
   else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
   else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
   else if(id==='home'){state.view='home';render();}
