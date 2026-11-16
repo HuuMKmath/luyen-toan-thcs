@@ -9,6 +9,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
 | 6 | Tập hợp các số nguyên (Chương III, Bài 13) | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Phép cộng và phép trừ số nguyên (Chương III, Bài 14) | `phep-cong-tru-so-nguyen/` | `PC6-` |
+| 6 | Quy tắc dấu ngoặc (Chương III, Bài 15) | `quy-tac-dau-ngoac/` | `DN6-` |
 | 7 | Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
 
 Trang chung liệt kê các bài: `cac-bai/`.
@@ -20,6 +21,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Bội chung nhỏ nhất: `https://huumkmath.github.io/tam-giac-bang-nhau/boi-chung-nho-nhat/`
 - Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
+- Quy tắc dấu ngoặc: `https://huumkmath.github.io/tam-giac-bang-nhau/quy-tac-dau-ngoac/`
 
 ## Cách dùng cho giáo viên
 
