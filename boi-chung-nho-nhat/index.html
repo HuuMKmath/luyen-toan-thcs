@@ -884,6 +884,20 @@ function loginHTML(){
     <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
   </section>`;
 }
+// Học sinh chỉ làm bài đúng khối lớp của mình. Khối của bài lấy từ SHEET_TAB ("7 - ..."), khối của học sinh lấy từ số đầu tiên trong tên lớp (7A, 6T1).
+function lessonGrade(){const m=String(SHEET_TAB||'').match(/^\s*(\d+)/);return m?m[1]:'';}
+function hsGrade(){const m=state.stu&&String(state.stu.c||'').match(/\d+/);return m?m[0]:'';}
+function wrongGrade(){const a=lessonGrade(),b=hsGrade();return !!(needHS()&&state.stu&&a&&b&&a!==b);}
+function wrongGradeHTML(){
+  const a=lessonGrade(),b=hsGrade();
+  return `${hsBarHTML()}
+  <section class="card stack" style="margin-top:22px">
+    <div><h2>Bài này dành cho học sinh lớp ${a}</h2></div>
+    <p style="margin:0">Bạn đang học lớp ${esc(state.stu.c)} nên hãy chọn các bài của lớp ${b}.</p>
+    <div class="row"><a class="btn" style="text-decoration:none;display:inline-flex;align-items:center" href="../cac-bai/#lop-${b}">Xem các bài lớp ${b}</a></div>
+    <p class="small muted" style="margin:0">Nếu tên lớp ở trên không đúng, hãy bấm Đổi học sinh và nhập lại mã, hoặc báo giáo viên.</p>
+  </section>`;
+}
 function hsBarHTML(){
   if(!state.stu)return '';
   return `<section class="card" style="margin-top:22px"><div class="row" style="justify-content:space-between;align-items:center"><span>Xin chào, <b>${esc(state.stu.n)}</b>${state.stu.c?' · Lớp '+esc(state.stu.c):''}</span><button class="btn sm ghost" id="hsout">Đổi học sinh</button></div></section>`;
@@ -901,6 +915,7 @@ function checkHS(){
 
 function homeHTML(){
   if(needHS()&&!state.stu)return loginHTML();
+  if(wrongGrade())return wrongGradeHTML();
   const weak=state.weak;
   return `
   <section class="hero">
