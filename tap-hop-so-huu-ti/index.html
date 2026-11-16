@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tập hợp các số hữu tỉ – Toán 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Worksheet on graph paper. Blue ink for text, red pencil for the marked points. */
+:root{
+  --paper:#f2f6fc; --card:#ffffff; --ink:#13203a; --muted:#54627f; --line:#cdd7e9;
+  --grid:rgba(52,96,170,.08); --accent:#1f4fd8; --accent-ink:#ffffff; --mark:#d9342b; --tri:#eaf0fc;
+  --good:#17754a; --good-bg:#e4f4ea; --warn:#9a5b00; --warn-bg:#fff0d4; --bad:#b3261e; --bad-bg:#fde8e6;
+  --display:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1730; --card:#142245; --ink:#e8eefc; --muted:#9fb0d4; --line:#2b3c6b;
+    --grid:rgba(140,170,255,.07); --accent:#8aa9ff; --accent-ink:#0d1730; --mark:#ff7f72; --tri:#1a2b57;
+    --good:#58d19a; --good-bg:#12372d; --warn:#f3b955; --warn-bg:#3b2d10; --bad:#ff8a80; --bad-bg:#40191b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1730; --card:#142245; --ink:#e8eefc; --muted:#9fb0d4; --line:#2b3c6b;
+  --grid:rgba(140,170,255,.07); --accent:#8aa9ff; --accent-ink:#0d1730; --mark:#ff7f72; --tri:#1a2b57;
+  --good:#58d19a; --good-bg:#12372d; --warn:#f3b955; --warn-bg:#3b2d10; --bad:#ff8a80; --bad-bg:#40191b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink); font:16px/1.65 var(--body); -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 72px}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+sup{font-size:.72em;line-height:0}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;font-size:.82rem;color:var(--muted);flex-wrap:wrap}
+.top b{color:var(--ink);font-weight:600;letter-spacing:.02em}
+.top nav{display:flex;gap:16px;flex-wrap:wrap}
+.top nav a{color:var(--muted);text-decoration:none;border-bottom:1.5px solid transparent;padding-bottom:1px}
+.top nav a[aria-current="page"]{color:var(--ink);border-color:var(--mark)}
+
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.3rem,8vw,3.9rem);font-weight:700;letter-spacing:-.01em}
+h1 em{color:var(--accent);font-weight:600}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.15rem;font-weight:700}
+.lead{font-size:1.08rem;color:var(--muted);max-width:56ch;margin:14px 0 0}
+
+.hero{padding:12px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+
+.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;padding:12px 22px;border-radius:10px;cursor:pointer;min-height:46px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{padding:8px 14px;min-height:38px;font-size:.9rem}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:140px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+
+.dt{border-collapse:collapse;margin:10px 0 2px;font-size:.95rem}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 14px;text-align:left}
+.dt th{background:var(--paper)}
+.figbox{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;max-width:400px;margin:10px 0}
+.figbox.ms{max-width:none}
+.figbox p{margin:2px 0}
+.ms{display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.ms .r{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.ms .r b{min-width:54px;font-family:var(--display)}
+.ms i{font-style:normal;min-width:30px;text-align:center;padding:2px 4px;border-radius:6px;border:1px solid var(--line);background:var(--card);font-variant-numeric:tabular-nums}
+.ms i.c{border-color:var(--mark);color:var(--mark);font-weight:700}
+
+.grp{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark);margin:18px 0 8px}
+.grp:first-of-type{margin-top:6px}
+.pack{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.pk{appearance:none;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:68px}
+.pk:hover{border-color:var(--accent)}
+.pk b{font-family:var(--display);font-size:1.02rem}
+.pk span{font-size:.84rem;color:var(--muted);line-height:1.4}
+.pk[disabled]{opacity:.55;cursor:not-allowed}
+.pk[disabled]:hover{border-color:var(--line)}
+.recap{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.recap{grid-template-columns:1fr 1fr}}
+.recap .card{display:flex;flex-direction:column;gap:6px}
+.recap h3{font-size:1.02rem}
+.recap p{margin:0;font-size:.93rem}
+.chip{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--paper);white-space:nowrap}
+
+.bar-sticky{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:10px 16px}
+.timer{font-variant-numeric:tabular-nums;font-size:.95rem}
+.timer.low{color:var(--bad)}
+.prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.part{margin:28px 0 12px}
+.part .kicker{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark)}
+.part p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.q{margin-bottom:14px}
+.qh{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}
+.qn{font-weight:700;font-family:var(--display);font-size:1.08rem}
+.stem{margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.opt{position:relative;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;background:var(--card)}
+.opt:hover{border-color:var(--accent)}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opt .ol{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:600;font-size:.85rem}
+.opt:has(input:checked){border-color:var(--accent);background:var(--tri)}
+.opt:has(input:checked) .ol{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.opt:has(input:disabled){cursor:default}
+.opt:has(input:disabled):hover{border-color:var(--line)}
+.opt.is-right,.opt.is-right:hover{border-color:var(--good);background:var(--good-bg)}
+.opt.is-right .ol{background:var(--good);color:var(--paper);border-color:var(--good)}
+.opt.is-wrong,.opt.is-wrong:hover{border-color:var(--bad);background:var(--bad-bg)}
+.opt.is-wrong .ol{background:var(--bad);color:var(--paper);border-color:var(--bad)}
+.tf{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.tfr{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 0;border-top:1px dashed var(--line)}
+.tfr .tx{flex:1 1 260px}
+.tfr .tx b{font-family:var(--display);margin-right:6px}
+.tfr .exp{flex-basis:100%;margin-top:0}
+.tfb{display:flex;gap:8px}
+.tfb .opt{padding:7px 16px;border-radius:99px;font-weight:600;font-size:.92rem}
+.sa{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.sa input{max-width:180px}
+.warnbar{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:12px 14px;margin-top:16px}
+.feed{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:.94rem}
+.feed.ok{background:var(--good-bg);color:var(--good)}
+.feed.bad{background:var(--bad-bg);color:var(--bad)}
+.feed.info{background:var(--warn-bg);color:var(--warn)}
+.exp{background:var(--paper);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:.94rem}
+
+.score{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.big{font-family:var(--display);font-weight:700;font-size:clamp(3rem,14vw,4.6rem);line-height:1;letter-spacing:-.02em}
+.big small{font-size:.4em;color:var(--muted);font-weight:600}
+.parts{display:flex;gap:8px;flex-wrap:wrap}
+.parts .chip{font-size:.85rem;padding:5px 12px}
+.topic{padding:14px 0;border-top:1px solid var(--line)}
+.topic:first-child{border-top:0;padding-top:0}
+.trow{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.track{height:12px;border-radius:99px;background:var(--line);margin:8px 0 6px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px}
+.st{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.st.good{background:var(--good-bg);color:var(--good)}
+.st.warn{background:var(--warn-bg);color:var(--warn)}
+.st.bad{background:var(--bad-bg);color:var(--bad)}
+.fill-good{background:var(--good)} .fill-warn{background:var(--warn)} .fill-bad{background:var(--bad)}
+.advice{border-left:4px solid var(--mark);padding:2px 0 2px 14px;margin:10px 0}
+.advice p{margin:4px 0}
+ul.plain{margin:6px 0 0;padding-left:20px}
+ul.plain li{margin:3px 0}
+details.rv{border:1px solid var(--line);border-radius:10px;background:var(--card);margin-bottom:8px}
+details.rv summary{cursor:pointer;padding:11px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;list-style:none}
+details.rv summary::-webkit-details-marker{display:none}
+details.rv .body{padding:0 14px 14px;border-top:1px dashed var(--line)}
+.mark-ok{color:var(--good);font-weight:700} .mark-no{color:var(--bad);font-weight:700}
+.ans-line{margin:6px 0;font-size:.94rem}
+.codebox{display:flex;flex-direction:column;gap:8px}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.cell{font-weight:600;text-align:center}
+td.cell.good{color:var(--good)} td.cell.warn{color:var(--warn)} td.cell.bad{color:var(--bad)}
+.tablewrap{overflow-x:auto}
+[hidden]{display:none!important}
+footer{margin-top:40px;color:var(--muted);font-size:.8rem}
+.ax{stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.ah{fill:var(--ink)}
+.tl{fill:var(--ink);font-size:15px;font-family:var(--body);font-variant-numeric:tabular-nums}
+.ol0{fill:var(--muted);font:italic 600 15px var(--display)}
+.pt{fill:var(--mark)}
+.pl{fill:var(--mark);font:italic 700 17px var(--display)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.2;margin:0 .14em;font-size:.94em;font-variant-numeric:tabular-nums}
+.fr>span{padding:0 .24em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <b>Toán 7 · Kết nối tri thức · Chương I, Bài 1. Tập hợp các số hữu tỉ</b>
+    <nav aria-label="Chọn chế độ">
+      <a href="../cac-bai/" id="nav-hub">Tất cả các bài</a>
+      <a href="#" id="nav-hs" aria-current="page">Học sinh</a>
+      <a href="#giao-vien" id="nav-gv">Giáo viên</a>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+
+  <footer>Bài luyện chấm tự động ngay trên trình duyệt. Kết quả không được lưu trên máy chủ; học sinh gửi mã kết quả của bài kiểm tra cho giáo viên để tổng hợp.</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ============ Số hữu tỉ: cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;            // số nguyên, số âm dùng dấu trừ "−"
+const nb=s=>s.replace(/ /g,' ');     // khoảng trắng không ngắt dòng
+const fr=(n,d)=>`<span class="fr"><span>${N(n)}</span><span>${N(d)}</span></span>`;   // phân số n/d (HTML)
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const Rq=(n,d)=>{const g=gcd(n,d)||1;n/=g;d/=g;if(d<0){n=-n;d=-d;}return [n,d];};   // tối giản, mẫu dương
+const cmpQ=(a,b)=>a[0]*b[1]-b[0]*a[1];     // cùng dấu với a − b (hai mẫu dương)
+const negQ=a=>[-a[0],a[1]];
+const floorQ=a=>Math.floor(a[0]/a[1]);
+const SH=q=>q[1]===1?N(q[0]):fr(q[0],q[1]);                // hiển thị dạng tối giản
+const canDec=q=>q[1]>1&&100%q[1]===0;
+const DEC=q=>{const k=100/q[1],v=Math.abs(q[0])*k;let s=String(Math.floor(v/100));const r=v%100;if(r)s+=','+(r%10?String(r).padStart(2,'0'):String(r/10));return (q[0]<0?'−':'')+s;};   // số thập phân hữu hạn
+const MIXD=q=>{const a=Math.abs(q[0]),w=Math.floor(a/q[1]),r=a%q[1];return (q[0]<0?'−':'')+w+fr(r,q[1]);};   // hỗn số
+const val=q=>q[0]/q[1];
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const sgn=()=>RNG()<.5?-1:1;
+
+/* số hữu tỉ ngẫu nhiên, không nguyên, tối giản */
+function qr(maxN,maxD){for(;;){const d=ri(2,maxD),n=ri(1,maxN)*sgn(),q=Rq(n,d);if(q[1]>1)return q;}}
+/* một số hữu tỉ viết ở nhiều dạng: nguyên, phân số, phân số chưa rút gọn (có thể mẫu âm), thập phân, hỗn số */
+const UNR=q=>{const k=ri(2,4);return (RNG()<.5||q[0]===0)?fr(q[0]*k,q[1]*k):fr(-q[0]*k,-q[1]*k);};
+const KINDS=q=>{const ks=[];if(q[1]===1)ks.push('int','unr');else{ks.push('frac','unr');if(canDec(q))ks.push('dec');if(Math.abs(q[0])>q[1])ks.push('mix');}return ks;};
+function disp(q,kind){return kind==='int'?N(q[0]):kind==='frac'?SH(q):kind==='dec'?DEC(q):kind==='mix'?MIXD(q):UNR(q);}
+const FORM=(q,kinds)=>{const ks=KINDS(q),ok=kinds?ks.filter(k=>kinds.includes(k)):ks;return disp(q,sel(ok.length?ok:ks));};
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+/* ============ Hình: trục số chia đoạn đơn vị thành den phần ============ */
+function truc(lo,hi,den,pts){
+  pts=pts||{};
+  const x0=24,x1=366,st=(x1-x0)/(hi-lo),X=v=>+(x0+(v-lo)*st).toFixed(1),y=46,names=Object.keys(pts);
+  let s=`<line class="ax" x1="8" y1="${y}" x2="388" y2="${y}"/><path class="ah" d="M396 ${y} l-10 -5 v10 z"/>`;
+  for(let v=lo;v<=hi;v++){
+    s+=`<line class="ax" x1="${X(v)}" y1="${y-7}" x2="${X(v)}" y2="${y+7}"/><text class="tl" x="${X(v)}" y="${y+28}" text-anchor="middle">${N(v)}</text>`;
+    if(v<hi)for(let k=1;k<den;k++)s+=`<line class="ax" style="stroke-width:1.1" x1="${X(v+k/den)}" y1="${y-4}" x2="${X(v+k/den)}" y2="${y+4}"/>`;
+  }
+  if(!names.some(k=>Math.abs(pts[k][0]/pts[k][1])<0.6))s+=`<text class="ol0" x="${X(0)}" y="${y-13}" text-anchor="middle">O</text>`;
+  names.forEach(k=>{const x=X(pts[k][0]/pts[k][1]);s+=`<circle class="pt" cx="${x}" cy="${y}" r="4.6"/><text class="pl" x="${x}" y="${y-13}" text-anchor="middle">${k}</text>`;});
+  const where=k=>`điểm ${k} nằm ${pts[k][0]<0?'bên trái':'bên phải'} gốc O`;
+  const desc=`Trục số nằm ngang từ ${N(lo)} đến ${N(hi)}, mỗi đoạn đơn vị được chia thành ${den} phần bằng nhau`+(names.length?'; '+names.map(where).join('; '):'')+'.';
+  return `<div class="figbox"><svg viewBox="0 0 400 84" role="img" aria-label="${desc}" style="width:100%;height:auto;display:block">${s}</svg></div>`;
+}
+
+/* ============ Dựng câu nhiều lựa chọn ============ */
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const C=(t,err)=>({t,err});
+const mk=(stem,good,cands,exp)=>({stem,opts:[{t:good}].concat(pickOpts(good,cands)),ans:0,exp});
+const FB_MC=()=>({stem:`Trong các số sau, số nào là số đối của ${fr(-3,4)}?`,opts:[{t:fr(3,4)},{t:fr(-3,4),err:'Số đối phải khác dấu; bạn viết lại chính số đó.'},{t:fr(4,3),err:'Đó là số nghịch đảo, số đối chỉ đổi dấu.'},{t:fr(-4,3),err:'Số đối chỉ đổi dấu, không đảo tử và mẫu.'}],ans:0,exp:'Số đối của −x là x. Vậy số đối của −3/4 là 3/4.'});
+function tryGen(f){
+  for(let n=0;n<200;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>o.t)).size===4)return r;}
+  return FB_MC();
+}
+const E_X='Số viết được dưới dạng phân số a/b với a, b là số nguyên và b ≠ 0 thì là số hữu tỉ.';
+
+/* ============ Nội dung 1: số hữu tỉ và tập ℚ ============ */
+function genKnNot(){return tryGen(()=>{
+  const m=ri(2,9),k=ri(2,9),a=ri(1,9),b=ri(1,9),sg=sgn();
+  return mk('Cách viết nào sau đây <b>không</b> biểu diễn một số hữu tỉ?',fr(m,0),[
+    C(fr(0,k),`Tử bằng 0 và mẫu khác 0 nên ${fr(0,k)} = 0, là một số hữu tỉ.`),
+    C(fr(sg*a,-k),'Tử và mẫu đều là số nguyên, mẫu khác 0 (mẫu âm vẫn được) nên là số hữu tỉ.'),
+    C(DEC([sg*(10*a+b),10]),'Số thập phân hữu hạn viết được dưới dạng phân số nên là số hữu tỉ.')],
+    `Phân số có mẫu bằng 0 (${fr(m,0)}) không có nghĩa nên không biểu diễn số hữu tỉ. Số hữu tỉ là số viết được dưới dạng ${fr('a','b')} với a, b nguyên và b ≠ 0.`);
+});}
+const CAT_TXT={N:'Số đó thuộc ℕ',Z:'Số đó thuộc ℤ nhưng không thuộc ℕ',Q:'Số đó thuộc ℚ nhưng không thuộc ℤ',X:'Số đó không thuộc ℚ'};
+function catErr(tr,c){
+  if(c==='X')return E_X;
+  if(tr==='N')return c==='Z'?'Số này bằng một số tự nhiên nên thuộc ℕ.':'Số này bằng một số nguyên nên thuộc ℤ.';
+  if(tr==='Z')return c==='N'?'Số này là số nguyên âm nên không thuộc ℕ.':'Số này bằng một số nguyên nên thuộc ℤ.';
+  return c==='N'?'Số này không phải số nguyên nên không thuộc ℕ.':'Số này không bằng số nguyên nào nên không thuộc ℤ.';
+}
+function genKnSet(){return tryGen(()=>{
+  const cat=sel(['N','Z','Q','Q']);let q;
+  if(cat==='N')q=[ri(0,12),1];else if(cat==='Z')q=[-ri(1,12),1];else q=qr(19,9);
+  const h=FORM(q),why=cat==='N'?`${h} = ${N(q[0])} là số tự nhiên nên thuộc ℕ.`:cat==='Z'?`${h} = ${N(q[0])} là số nguyên âm nên thuộc ℤ nhưng không thuộc ℕ.`:`${h} = ${SH(q)} không phải số nguyên, nhưng viết được dưới dạng phân số nên thuộc ℚ.`;
+  return {stem:`Cho số ${h}. Khẳng định nào sau đây đúng?`,opts:[{t:CAT_TXT[cat]}].concat(['N','Z','Q','X'].filter(c=>c!==cat).map(c=>({t:CAT_TXT[c],err:catErr(cat,c)}))),ans:0,exp:`${why} Nhớ ℕ ⊂ ℤ ⊂ ℚ.`};
+});}
+function genKnDec(){return tryGen(()=>{
+  const a=ri(0,5),b=ri(1,9),sg=sgn(),n=sg*(10*a+b),q=Rq(n,10),pos=Rq(-n,10);
+  return mk(`Số thập phân ${DEC(q)} viết dưới dạng phân số tối giản là:`,SH(q),[
+    C(SH(pos),sg<0?'Số thập phân âm thì phân số cũng âm: bạn đã bỏ dấu "−".':'Số thập phân dương thì phân số cũng dương: bạn đã thêm dấu "−".'),
+    C(fr(n,100),'Có một chữ số thập phân nên mẫu số là 10, không phải 100.'),
+    C(fr(sg*a,b),'Bạn lấy phần nguyên làm tử và phần thập phân làm mẫu. Phải viết '+DEC(q)+' = '+fr(n,10)+'.')],
+    `${DEC(q)} = ${fr(n,10)} = ${SH(q)}.`);
+});}
+function genKnMix(){return tryGen(()=>{
+  const w=ri(1,5),d=ri(2,7),r=ri(1,d-1),sg=sgn(),g=w*d+r;
+  return mk(`Hỗn số ${MIXD([sg*g,d])} viết thành phân số là:`,fr(sg*g,d),[
+    C(fr(sg*(w+r),d),'Bạn cộng phần nguyên với tử số. Phải lấy phần nguyên nhân mẫu số rồi mới cộng tử số.'),
+    C(fr(sg*(w*r+d),d),'Bạn nhân phần nguyên với tử số. Phải nhân phần nguyên với mẫu số.'),
+    C(fr(sg*(w*d-r),d),'Phải cộng tử số, không phải trừ.'),
+    C(fr(-sg*g,d),'Bạn đã đổi dấu của hỗn số.')],
+    `${MIXD([sg*g,d])} = ${sg<0?'−':''}(${w}·${d} + ${r})/${d} = ${fr(sg*g,d)}.`);
+});}
+
+/* ============ Nội dung 2: biểu diễn trên trục số ============ */
+function genTsRead(far){return tryGen(()=>{
+  const den=ri(2,5),n=far?ri(den+1,2*den-1):ri(1,den-1);if(gcd(n,den)!==1)return null;
+  const s=sgn(),v=[s*n,den],lo=Math.min(-1,Math.floor(s*n/den)),hi=Math.max(1,Math.ceil(s*n/den));
+  const r=mk(`Mỗi đoạn đơn vị trên trục số được chia thành ${den} phần bằng nhau. Điểm A biểu diễn số hữu tỉ nào?`,fr(s*n,den),[
+    C(fr(-s*n,den),s>0?'Điểm A nằm bên phải gốc O nên số hữu tỉ này dương.':'Điểm A nằm bên trái gốc O nên số hữu tỉ này âm.'),
+    C(fr(s*(n+1),den),'Bạn đếm cả vạch gốc O. Phải đếm số phần bằng nhau tính từ O đến A.'),
+    C(fr(s*n,den+1),`Mỗi đoạn đơn vị được chia thành ${den} phần bằng nhau nên mẫu số là ${den}.`),
+    C(fr(s*den,n),'Bạn viết ngược tử và mẫu: tử là số phần từ O đến A, mẫu là số phần của một đơn vị.')],
+    `Điểm A nằm bên ${s>0?'phải':'trái'} gốc O, cách O ${n} phần (mỗi phần bằng ${fr(1,den)} đơn vị), nên A biểu diễn số ${fr(s*n,den)}.`);
+  r.fig=truc(lo,hi,den,{A:v});return r;
+});}
+function genTsSide(){return tryGen(()=>{
+  const n=ri(1,9),d=ri(2,9),sn=sgn(),sd=sgn(),neg=sn*sd<0,h=fr(sn*n,sd*d),L='Bên trái gốc O',R='Bên phải gốc O';
+  return {stem:`Trên trục số, điểm biểu diễn số hữu tỉ ${h} nằm ở vị trí nào?`,opts:[
+    {t:neg?L:R},
+    {t:neg?R:L,err:neg?'Tử và mẫu khác dấu nên số này âm, phải nằm bên trái gốc O.':'Tử và mẫu cùng dấu nên số này dương, phải nằm bên phải gốc O.'},
+    {t:'Trùng với gốc O',err:'Chỉ số 0 mới được biểu diễn bởi gốc O.'},
+    {t:'Không biểu diễn được trên trục số',err:'Mọi số hữu tỉ đều biểu diễn được trên trục số.'}],ans:0,
+    exp:neg?`${h} có tử và mẫu khác dấu nên là số âm, được biểu diễn bên trái gốc O.`:`${h} có tử và mẫu cùng dấu nên là số dương, được biểu diễn bên phải gốc O.`};
+});}
+function genTsPos(){return tryGen(()=>{
+  const d=ri(2,6),n=ri(1,2*d+1);if(gcd(n,d)!==1)return null;
+  const s=sgn(),side=s>0?'phải':'trái',other=s>0?'trái':'phải',h=fr(s*n,d);
+  return mk(`Để biểu diễn số hữu tỉ ${h} trên trục số, ta làm thế nào?`,`Chia mỗi đoạn đơn vị thành ${d} phần bằng nhau, từ O lấy ${n} phần về bên ${side}.`,[
+    C(`Chia mỗi đoạn đơn vị thành ${n} phần bằng nhau, từ O lấy ${d} phần về bên ${side}.`,'Mẫu số cho biết mỗi đơn vị chia thành bao nhiêu phần, tử số cho biết lấy bao nhiêu phần.'),
+    C(`Chia mỗi đoạn đơn vị thành ${d} phần bằng nhau, từ O lấy ${n} phần về bên ${other}.`,s>0?'Số dương được biểu diễn bên phải gốc O.':'Số âm được biểu diễn bên trái gốc O.'),
+    C(`Lấy điểm cách O đúng ${n} đơn vị về bên ${side}.`,`Phải chia mỗi đơn vị thành ${d} phần rồi đếm ${n} phần; tử số không phải số đơn vị.`)],
+    `Mẫu số ${d} cho biết chia mỗi đơn vị thành ${d} phần bằng nhau; tử số ${N(s*n)} cho biết lấy ${n} phần về bên ${side} gốc O (${s>0?'số dương':'số âm'}).`);
+});}
+function genTsBetween(){return tryGen(()=>{
+  const q=qr(29,8);if(Math.abs(q[0])>5*q[1])return null;
+  const k=floorQ(q),pair=j=>nb(`${N(j)} và ${N(j+1)}`);
+  return mk(`Điểm biểu diễn số hữu tỉ ${FORM(q)} nằm giữa hai điểm biểu diễn hai số nguyên liên tiếp nào?`,pair(k),[
+    C(pair(k+1),`Số này nhỏ hơn ${N(k+1)} nên không nằm giữa ${N(k+1)} và ${N(k+2)}.`),
+    C(pair(k-1),`Số này lớn hơn ${N(k)} nên không nằm giữa ${N(k-1)} và ${N(k)}.`),
+    C(pair(-k-1),'Đó là hai số nguyên kề với số đối của số đã cho, không phải kề với chính số đó.')],
+    `${FORM(q,['frac'])} ≈ ${(q[0]/q[1]).toFixed(2).replace('.',',').replace('-','−')}, mà ${N(k)} < ${SH(q)} < ${N(k+1)} nên điểm biểu diễn nằm giữa ${N(k)} và ${N(k+1)}.`);
+});}
+
+/* ============ Nội dung 3: số đối ============ */
+function genSdFind(kinds){return tryGen(()=>{
+  const kind=sel(kinds);let q;
+  if(kind==='int')q=[sgn()*ri(1,20),1];
+  else if(kind==='frac')q=qr(19,9);
+  else if(kind==='dec'){q=Rq(sgn()*ri(1,99),sel([2,4,5,10,20,25]));if(!canDec(q))return null;}
+  else{const d=ri(2,6),n=sgn()*ri(d+1,5*d);q=Rq(n,d);if(q[1]===1||Math.abs(q[0])<=q[1])return null;}
+  const r=Rq(q[1],q[0]);
+  return mk(`Số đối của ${disp(q,kind)} là:`,disp(negQ(q),kind),[
+    C(disp(q,kind),'Số đối phải khác dấu: bạn đã viết lại chính số đó.'),
+    C(SH(r),'Bạn đảo tử và mẫu. Đó là số nghịch đảo, còn số đối chỉ đổi dấu.'),
+    C(SH(negQ(r)),'Bạn vừa đổi dấu vừa đảo ngược; số đối chỉ cần đổi dấu.')],
+    `Số đối của x là −x nên số đối của ${disp(q,kind)} là ${disp(negQ(q),kind)}. Hai số đối nhau chỉ khác nhau về dấu.`);
+});}
+function genSdEq(){return tryGen(()=>{
+  const kind=sel(['frac','dec']);let y=qr(19,9);if(kind==='dec'){y=Rq(sgn()*ri(1,99),sel([2,4,5,10,20,25]));if(!canDec(y))return null;}
+  const r=Rq(y[1],y[0]);
+  return mk(`Biết x và ${disp(y,kind)} là hai số đối nhau. Khi đó x bằng:`,disp(negQ(y),kind),[
+    C(disp(y,kind),'Hai số đối nhau thì khác dấu, không thể bằng nhau (trừ số 0).'),
+    C(SH(r),'Bạn lấy số nghịch đảo. Hai số đối nhau có tổng bằng 0.'),
+    C('0','Chỉ số 0 mới có số đối là chính nó.')],
+    `x và ${disp(y,kind)} đối nhau nên x + ${disp(y,kind)} = 0, suy ra x = ${disp(negQ(y),kind)}.`);
+});}
+function genSdFig(){return tryGen(()=>{
+  const d=ri(2,4),n=ri(2,2*d-1),s=sgn(),L=shuffle(['B','C','D']),pts={A:[s*n,d]};
+  pts[L[0]]=[-s*n,d];pts[L[1]]=[s*(n+1),d];pts[L[2]]=[-s*(n-1),d];
+  const r={stem:'Trên trục số, điểm A biểu diễn số hữu tỉ x. Điểm nào biểu diễn số đối của x?',opts:[
+    {t:'Điểm '+L[0]},
+    {t:'Điểm '+L[1],err:`Điểm ${L[1]} nằm cùng phía với A nên không biểu diễn số đối (số đối nằm ở phía bên kia gốc O).`},
+    {t:'Điểm '+L[2],err:`Điểm ${L[2]} nằm bên kia gốc O nhưng không cách O bằng A; hai số đối nhau phải cách đều gốc O.`},
+    {t:'Gốc O',err:'Gốc O biểu diễn số 0, là số đối của chính nó.'}],ans:0,
+    exp:`A nằm bên ${s>0?'phải':'trái'} gốc O, cách O ${n} phần. Số đối của x nằm bên ${s>0?'trái':'phải'} và cách O cũng ${n} phần: đó là điểm ${L[0]}.`};
+  r.fig=truc(-2,2,d,pts);return r;
+});}
+function genSdDouble(){return tryGen(()=>{
+  const q=qr(19,9),r=Rq(q[1],q[0]);
+  return mk(`Cho x = ${SH(q)}. Số đối của −x là:`,SH(q),[
+    C(SH(negQ(q)),'Đó là số đối của x. Đề hỏi số đối của −x.'),
+    C(SH(r),'Bạn lấy số nghịch đảo. Số đối chỉ đổi dấu.'),
+    C(SH(negQ(r)),'Số đối chỉ đổi dấu, không đảo tử và mẫu.')],
+    `−x = ${SH(negQ(q))}. Số đối của −x là −(−x) = x = ${SH(q)}. Số đối của số đối của một số chính là số đó.`);
+});}
+
+/* ============ Nội dung 4: so sánh ============ */
+const NUMF=()=>{ // một số hữu tỉ ngẫu nhiên kèm cách viết: {q,h}
+  const kind=sel(['frac','frac','dec','int','mix']);let q;
+  if(kind==='dec'){q=Rq(sgn()*ri(1,40),sel([2,4,5,10]));if(!canDec(q))return NUMF();}
+  else if(kind==='int')q=[sgn()*ri(0,4),1];
+  else if(kind==='mix'){const d=ri(2,6),n=sgn()*ri(d+1,4*d);q=Rq(n,d);if(q[1]===1||Math.abs(q[0])<=q[1])return NUMF();}
+  else q=qr(19,9);
+  return {q,h:disp(q,kind==='frac'&&q[1]===1?'int':kind)};
+};
+function numSet(k){for(;;){const v=[];for(let i=0;i<k;i++)v.push(NUMF());let ok=true;for(let i=0;i<k;i++)for(let j=i+1;j<k;j++)if(cmpQ(v[i].q,v[j].q)===0)ok=false;if(ok)return v;}}
+function genSsSign(){return tryGen(()=>{
+  const wantPos=RNG()<.5,n=()=>ri(1,9),d=()=>ri(2,9);
+  const POS=[()=>({h:fr(n(),d()),w:'Tử và mẫu đều dương nên số này dương.'}),()=>({h:fr(-n(),-d()),w:'Tử và mẫu cùng âm nên số này dương.'}),()=>({h:DEC([ri(11,99),10]),w:'Số thập phân dương lớn hơn 0.'})];
+  const NEG=[()=>({h:fr(-n(),d()),w:'Tử âm, mẫu dương nên số này âm.'}),()=>({h:fr(n(),-d()),w:'Tử dương, mẫu âm nên số này âm.'}),()=>({h:DEC([-ri(11,99),10]),w:'Số thập phân âm nhỏ hơn 0.'})];
+  const good=sel(wantPos?POS:NEG)(),oth=shuffle(wantPos?NEG:POS).map(f=>f());
+  const zero={h:'0',w:wantPos?'Số 0 không lớn hơn chính nó.':'Số 0 không phải số âm.'};
+  const cands=shuffle(oth.concat([zero])).map(x=>C(x.h,x.w));
+  return mk(wantPos?'Số hữu tỉ nào sau đây lớn hơn 0?':'Số hữu tỉ nào sau đây là số âm?',good.h,cands,good.w+(wantPos?' Số hữu tỉ dương luôn lớn hơn 0.':' Số hữu tỉ âm luôn nhỏ hơn 0.'));
+});}
+function cmpPair(level){
+  const kind=level==='NB'?sel(['same','sign']):sel(['diff','diff','eq','neg']);
+  let qa,qb,A,B,how;
+  if(kind==='same'){const d=ri(3,9),a=ri(1,2*d)*sgn(),b=ri(1,2*d)*sgn();qa=[a,d];qb=[b,d];A=fr(a,d);B=fr(b,d);how='same';}
+  else if(kind==='sign'){const p=qr(19,9),m=qr(19,9);const pp=[Math.abs(p[0]),p[1]],mm=[-Math.abs(m[0]),m[1]];if(RNG()<.5){qa=pp;qb=mm;}else{qa=mm;qb=pp;}A=SH(qa);B=SH(qb);how='sign';}
+  else if(kind==='eq'){const q=qr(19,9);qa=q;qb=q;A=SH(q);B=UNR(q);how='eq';}
+  else if(kind==='neg'){const p=qr(19,9),m=qr(19,9);qa=[-Math.abs(p[0]),p[1]];qb=[-Math.abs(m[0]),m[1]];A=SH(qa);B=SH(qb);how='neg';}
+  else{qa=qr(19,9);qb=qr(19,9);A=SH(qa);B=SH(qb);how='diff';}
+  return {qa,qb,A,B,how};
+}
+function genSsCmp(level){return tryGen(()=>{
+  const {qa,qb,A,B,how}=cmpPair(level),c=cmpQ(qa,qb),sym=c<0?'<':c>0?'>':'=';
+  if(how!=='eq'&&c===0)return null;
+  const L=lcm(qa[1],qb[1]),x1=qa[0]*(L/qa[1]),x2=qb[0]*(L/qb[1]);
+  const both=(qa[0]<0&&qb[0]<0),mixed=qa[0]*qb[0]<0;
+  const txt=s=>`${A} ${s} ${B}`;
+  const wrong=s=>{
+    if(sym==='=')return 'Hai số rút gọn về cùng một số hữu tỉ nên bằng nhau.';
+    if(s==='=')return 'Sau khi quy đồng mẫu số, hai tử số khác nhau nên hai số không bằng nhau.';
+    return both?'Với hai số âm, số có giá trị tuyệt đối lớn hơn thì nhỏ hơn.':mixed?'Số dương luôn lớn hơn số âm.':'Hãy quy đồng mẫu số dương rồi so sánh các tử số.';
+  };
+  const opts=[{t:txt(sym)}].concat(['<','>','='].filter(s=>s!==sym).map(s=>({t:txt(s),err:wrong(s)})),[{t:'Không so sánh được',err:'Hai số hữu tỉ bất kì đều so sánh được: quy đồng mẫu rồi so sánh tử, hoặc dựa vào dấu.'}]);
+  const exp=how==='sign'?`Số dương lớn hơn 0 và 0 lớn hơn số âm nên ${txt(sym)}.`:`Quy đồng mẫu số: ${A} = ${fr(x1,L)} và ${B} = ${fr(x2,L)}. Vì ${N(x1)} ${sym} ${N(x2)} nên ${txt(sym)}.`;
+  return {stem:`So sánh hai số hữu tỉ ${A} và ${B}. Khẳng định nào đúng?`,opts,ans:0,exp};
+});}
+function genSsMax(){return tryGen(()=>{
+  const v=numSet(4),mx=RNG()<.5,idx=[0,1,2,3].sort((i,j)=>cmpQ(v[i].q,v[j].q)),good=mx?idx[3]:idx[0];
+  const bigAbs=[0,1,2,3].reduce((b,i)=>Math.abs(val(v[i].q))>Math.abs(val(v[b].q))?i:b,0);
+  const err=i=>{
+    if(i===bigAbs&&mx&&v[i].q[0]<0&&v.some(o=>o.q[0]>0))return 'Số này có giá trị tuyệt đối lớn nhất nhưng là số âm nên nhỏ hơn mọi số dương.';
+    if(i===bigAbs&&!mx&&v[i].q[0]>0&&v.some(o=>o.q[0]<0))return 'Số này có giá trị tuyệt đối lớn nhất nhưng là số dương nên lớn hơn mọi số âm.';
+    return mx?'Số này nhỏ hơn số lớn nhất trong bốn số.':'Số này lớn hơn số nhỏ nhất trong bốn số. Với số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ.';
+  };
+  return {stem:mx?'Trong các số sau, số nào lớn nhất?':'Trong các số sau, số nào nhỏ nhất?',opts:[{t:v[good].h}].concat([0,1,2,3].filter(i=>i!==good).map(i=>({t:v[i].h,err:err(i)}))),ans:0,
+    exp:`Sắp xếp từ bé đến lớn: ${idx.map(i=>v[i].h).join(' < ')}. Vậy số ${mx?'lớn':'nhỏ'} nhất là ${v[good].h}.`};
+});}
+function genSsOrder(){return tryGen(()=>{
+  const v=numSet(3),idx=[0,1,2].sort((i,j)=>cmpQ(v[i].q,v[j].q)),seq=p=>p.map(i=>v[i].h).join(' < ');
+  const byAbs=[0,1,2].sort((i,j)=>Math.abs(val(v[i].q))-Math.abs(val(v[j].q)));
+  const [a,b,c]=idx;
+  return mk(`Sắp xếp ba số ${v.map(o=>o.h).join('; ')} theo thứ tự từ bé đến lớn:`,seq(idx),[
+    C(seq([c,b,a]),'Đây là thứ tự từ lớn đến bé; đề yêu cầu từ bé đến lớn.'),
+    C(seq(byAbs),'Bạn xếp theo giá trị tuyệt đối. Số âm có giá trị tuyệt đối lớn hơn thì nhỏ hơn.'),
+    C(seq([b,a,c]),'Có hai số bị xếp sai chỗ. Hãy so sánh từng cặp số.'),
+    C(seq([a,c,b]),'Có hai số bị xếp sai chỗ. Hãy so sánh từng cặp số.')],
+    `Từ bé đến lớn: ${seq(idx)}. Số âm nhỏ hơn số dương; với hai số âm, số có giá trị tuyệt đối lớn hơn thì nhỏ hơn.`);
+});}
+function genSsBetween(){return tryGen(()=>{
+  const d=ri(2,7),a=ri(1,12)*sgn(),w=sel([2,4,6]),b=a+w,lo=[a,d],hi=[b,d];
+  const mid=Rq(a+w/2,d),below=Rq(a-w/2,d),above=Rq(b+w/2,d);
+  if(a>=b)return null;
+  const A=FORM(Rq(a,d),['frac','unr']),B=FORM(Rq(b,d),['frac','unr']);
+  return mk(`Số hữu tỉ nào sau đây nằm giữa ${A} và ${B} (lớn hơn ${A} và nhỏ hơn ${B})?`,SH(mid),[
+    C(SH(Rq(a,d)),'Số này bằng số bé nhất trong hai số, không lớn hơn nó nên không nằm giữa.'),
+    C(SH(below),`Số này nhỏ hơn ${SH(Rq(a,d))} nên nằm ngoài khoảng.`),
+    C(SH(above),`Số này lớn hơn ${SH(Rq(b,d))} nên nằm ngoài khoảng.`),
+    C(SH(Rq(b,d)),'Số này bằng số lớn nhất trong hai số, không nhỏ hơn nó nên không nằm giữa.')],
+    `Cùng mẫu số ${d}: ${fr(a,d)} < ${fr(a+w/2,d)} < ${fr(b,d)}, vì ${N(a)} < ${N(a+w/2)} < ${N(b)}. Số cần tìm là ${SH(mid)}.`);
+});}
+const STN=['A','B','C','D'];
+function tempSet(n){for(;;){const t=[];for(let i=0;i<n;i++)t.push(Rq(sgn()*ri(1,95),10));const u=new Set(t.map(q=>q[0]/q[1]));if(u.size===n&&t.some(q=>q[0]<0)&&t.some(q=>q[0]>0))return t;}}
+function genSsTemp(){return tryGen(()=>{
+  const t=tempSet(4),idx=[0,1,2,3].sort((i,j)=>cmpQ(t[i],t[j])),good=idx[0];
+  const bigPos=[0,1,2,3].reduce((b,i)=>t[i][0]>t[b][0]?i:b,0);
+  const r={stem:'Bảng sau ghi nhiệt độ lúc 5 giờ sáng tại bốn trạm quan trắc. Trạm nào lạnh nhất?',fig:tbl(['Trạm','Nhiệt độ (°C)'],[0,1,2,3].map(i=>['Trạm '+STN[i],DEC(t[i])])),
+    opts:[{t:'Trạm '+STN[good]}].concat([0,1,2,3].filter(i=>i!==good).map(i=>({t:'Trạm '+STN[i],err:i===bigPos?'Bạn chọn số có phần nguyên lớn nhất, nhưng đó là nhiệt độ dương, cao hơn nhiệt độ âm.':'Nhiệt độ này cao hơn nhiệt độ thấp nhất.'}))),ans:0,
+    exp:`Từ thấp đến cao: ${idx.map(i=>DEC(t[i])).join(' < ')}. Nhiệt độ thấp nhất là ${DEC(t[good])} °C ở trạm ${STN[good]}.`};
+  return r;
+});}
+
+/* ============ Bộ sinh đúng sai ============ */
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function pick4(Ts,Fs){const nT=ri(1,3);return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));}
+function mixed(make){
+  for(let n=0;n<80;n++){const items=make();if(items.some(i=>!i))continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}
+  return null;
+}
+const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
+  IT('ℕ ⊂ ℤ ⊂ ℚ',true,'kn','NB','Mỗi số tự nhiên là số nguyên, mỗi số nguyên là số hữu tỉ.'),
+  IT(`Số đối của ${fr(3,4)} là ${fr(4,3)}`,false,'sd','TH','Số đối của 3/4 là −3/4. Phân số 4/3 là số nghịch đảo.'),
+  IT(`${fr(-1,2)} < 0`,true,'ss','NB','Số hữu tỉ âm nhỏ hơn 0.'),
+  IT(`Điểm biểu diễn ${fr(-1,2)} nằm bên phải gốc O`,false,'ts','NB','Số âm được biểu diễn bên trái gốc O.')]});
+const four=f=>()=>{const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+const SGN2=q=>q[0]<0?'âm':q[0]>0?'dương':'bằng 0';
+function knItem(){
+  const t=ri(0,9),q=qr(19,9),m=ri(2,9),k=ri(2,5),a=ri(1,9),b=ri(1,9),sg=sgn();
+  switch(t){
+    case 0:return IT(`${FORM(q)} ∈ ℚ`,true,'kn','TH','Số này viết được dưới dạng phân số có tử, mẫu nguyên và mẫu khác 0 nên thuộc ℚ.');
+    case 1:return IT(`Phân số ${fr(m,0)} biểu diễn một số hữu tỉ`,false,'kn','TH','Mẫu số bằng 0 nên phân số không có nghĩa. Số hữu tỉ phải có b ≠ 0.');
+    case 2:return IT(`${N(sg*m)} ∉ ℚ`,false,'kn','TH',`${N(sg*m)} = ${fr(sg*m,1)} nên mọi số nguyên đều là số hữu tỉ.`);
+    case 3:{const z=sg*m;return IT(`${fr(z*k,k)} ∈ ℤ`,true,'kn','TH',`${fr(z*k,k)} = ${N(z)} là số nguyên.`);}
+    case 4:return IT(`${FORM(q)} ∈ ℤ`,false,'kn','TH',`${SH(q)} không bằng số nguyên nào nên không thuộc ℤ (nhưng thuộc ℚ).`);
+    case 5:return sel([IT('ℕ ⊂ ℤ',true,'kn','TH','Mỗi số tự nhiên đều là số nguyên.'),IT('ℤ ⊂ ℚ',true,'kn','TH','Mỗi số nguyên a viết được là a/1 nên là số hữu tỉ.'),IT('ℚ ⊂ ℤ',false,'kn','TH','Chẳng hạn 1/2 thuộc ℚ nhưng không thuộc ℤ.'),IT('ℤ ⊂ ℕ',false,'kn','TH','Chẳng hạn −1 thuộc ℤ nhưng không thuộc ℕ.')]);
+    case 6:{const p=Rq(sg*(10*a+b),10);return IT(`${DEC(p)} = ${fr(sg*(10*a+b),10)}`,true,'kn','TH',`Một chữ số thập phân nên mẫu số là 10: ${DEC(p)} = ${fr(sg*(10*a+b),10)}.`);}
+    case 7:{const p=Rq(sg*(10*a+b),10);return IT(`${DEC(p)} = ${fr(sg*(10*a+b),100)}`,false,'kn','TH',`Một chữ số thập phân nên mẫu số là 10, không phải 100.`);}
+    case 8:{const d=ri(2,6),r=ri(1,d-1),w=ri(1,4);return IT(`${w}${fr(r,d)} = ${fr(w*d+r,d)}`,true,'kn','TH',`${w}${fr(r,d)} = (${w}·${d} + ${r})/${d} = ${fr(w*d+r,d)}.`);}
+    default:{const d=ri(2,6),r=ri(1,d-1),w=ri(2,4);return IT(`${w}${fr(r,d)} = ${fr(w+r,d)}`,false,'kn','TH',`Phải lấy ${w}·${d} + ${r} = ${w*d+r} làm tử số, không phải ${w} + ${r}.`);}
+  }
+}
+function tsItem(){
+  const t=ri(0,4),q=qr(29,8),d=ri(2,8),n=ri(1,2*d-1);
+  switch(t){
+    case 0:{const side=sel(['trái','phải']),ok=(side==='trái')===(q[0]<0);return IT(`Điểm biểu diễn số hữu tỉ ${FORM(q)} nằm bên ${side} gốc O`,ok,'ts','TH',`${SH(q)} là số ${SGN2(q)} nên điểm biểu diễn nằm bên ${q[0]<0?'trái':'phải'} gốc O.`);}
+    case 1:{if(Math.abs(q[0])>5*q[1])return tsItem();const k=floorQ(q),j=RNG()<.5?k:k+sel([-1,1]);return IT(`Điểm biểu diễn ${SH(q)} nằm giữa hai điểm biểu diễn ${N(j)} và ${N(j+1)}`,j===k,'ts','TH',`${N(k)} < ${SH(q)} < ${N(k+1)}.`);}
+    case 2:{if(n===d)return tsItem();const g=RNG()<.5;return IT(`Để biểu diễn ${fr(n,d)} trên trục số, ta chia mỗi đoạn đơn vị thành ${g?d:n} phần bằng nhau`,g,'ts','TH',g?`Mẫu số ${d} cho biết số phần chia mỗi đơn vị.`:`Mẫu số ${d} (không phải tử số ${n}) cho biết số phần chia mỗi đơn vị.`);}
+    case 3:return sel([IT('Gốc O biểu diễn số 0',true,'ts','TH','Gốc của trục số ứng với số 0.'),IT('Điểm biểu diễn 0 nằm bên trái gốc O',false,'ts','TH','Số 0 được biểu diễn đúng tại gốc O.'),IT('Mọi số hữu tỉ đều biểu diễn được trên trục số',true,'ts','TH','Mỗi số hữu tỉ được biểu diễn bởi một điểm trên trục số.')]);
+    default:{const s=sgn();return IT(`Điểm biểu diễn ${fr(s*n,s*d)} nằm bên trái gốc O`,false,'ts','TH',`Tử và mẫu cùng dấu nên ${fr(s*n,s*d)} là số dương, nằm bên phải gốc O.`);}
+  }
+}
+function sdItem(){
+  const t=ri(0,7),q=qr(19,9),r=Rq(q[1],q[0]);
+  switch(t){
+    case 0:return IT(`Số đối của ${SH(q)} là ${SH(negQ(q))}`,true,'sd','TH','Số đối chỉ đổi dấu.');
+    case 1:return IT(`Số đối của ${SH(q)} là ${SH(r)}`,false,'sd','TH',`Số đối của ${SH(q)} là ${SH(negQ(q))}. ${SH(r)} là số nghịch đảo.`);
+    case 2:return IT(`Số đối của ${SH(q)} là ${SH(q)}`,false,'sd','TH','Chỉ số 0 mới có số đối là chính nó.');
+    case 3:return sel([IT('Số đối của 0 là 0',true,'sd','TH','0 + 0 = 0.'),IT('Hai số đối nhau có tổng bằng 0',true,'sd','TH','Số đối của x là số y sao cho x + y = 0.'),IT('Số đối của một số hữu tỉ dương là số hữu tỉ dương',false,'sd','TH','Số đối của số dương là số âm.')]);
+    case 4:return IT(`Số đối của ${FORM(q)} là số ${SGN2(negQ(q))}`,true,'sd','TH',`${SH(q)} là số ${SGN2(q)} nên số đối ${SH(negQ(q))} là số ${SGN2(negQ(q))}.`);
+    case 5:return IT(`Số đối của ${FORM(q)} là số ${SGN2(q)}`,false,'sd','TH',`Số đối khác dấu với số đã cho; ${SH(q)} là số ${SGN2(q)} nên số đối là số ${SGN2(negQ(q))}.`);
+    case 6:return sel([IT('Hai điểm biểu diễn hai số đối nhau cách đều gốc O',true,'sd','TH','Hai số đối nhau có cùng khoảng cách đến O, nằm hai phía của O.'),IT('Hai điểm biểu diễn hai số đối nhau nằm cùng phía với gốc O',false,'sd','TH','Hai số đối nhau khác dấu nên nằm hai phía của O.')]);
+    default:return IT(`Số đối của số đối của ${FORM(q)} chính là ${SH(q)}`,true,'sd','TH','−(−x) = x.');
+  }
+}
+function ssItem(){
+  const t=ri(0,5),a=NUMF(),b=NUMF();
+  switch(t){
+    case 0:case 1:case 2:{if(cmpQ(a.q,b.q)===0)return ssItem();const lessTrue=cmpQ(a.q,b.q)<0,say=RNG()<.5?'<':'>',ok=(say==='<')===lessTrue;
+      return IT(`${a.h} ${say} ${b.h}`,ok,'ss','TH',`Quy đồng hoặc so sánh dấu: ${SH(a.q)} ${lessTrue?'<':'>'} ${SH(b.q)}. Vậy ${a.h} ${say} ${b.h} là khẳng định ${ok?'đúng':'sai'}.`);}
+    case 3:return sel([IT('Số hữu tỉ dương lớn hơn mọi số hữu tỉ âm',true,'ss','TH','Số dương lớn hơn 0, và 0 lớn hơn mọi số âm.'),IT('Số hữu tỉ âm lớn hơn số hữu tỉ dương',false,'ss','TH','Số âm luôn nhỏ hơn số dương.')]);
+    case 4:{const p=Rq(ri(1,9),ri(2,9));const ok=RNG()<.5;return IT(`${SH(negQ(p))} ${ok?'<':'>'} 0`,ok,'ss','TH',ok?'Số âm nhỏ hơn 0.':'Số âm nhỏ hơn 0 nên không thể lớn hơn 0.');}
+    default:return IT('Nếu x < y và y < z thì x < z',true,'ss','TH','Tính chất bắc cầu của thứ tự các số hữu tỉ.');
+  }
+}
+/* mức vận dụng: các phát biểu cần suy luận nhiều bước */
+function ssItemVD(){
+  const t=ri(0,4),d=ri(2,9),n=ri(1,9);
+  switch(t){
+    case 0:{const k=ri(1,3),ok=RNG()<.5;return IT(`${fr(-n,d)} ${ok?'<':'>'} ${fr(-n,d+k)}`,ok,'ss','VD',`Hai phân số dương ${fr(n,d)} và ${fr(n,d+k)} có cùng tử nên phân số có mẫu lớn hơn thì bé hơn: ${fr(n,d)} > ${fr(n,d+k)}. Với số đối, chiều ngược lại: ${fr(-n,d)} < ${fr(-n,d+k)}.`);}
+    case 1:return sel([IT('Nếu x < y thì −x < −y',false,'ss','VD','Khi đổi dấu hai vế thì chiều bất đẳng thức đổi lại: x < y thì −x > −y. Ví dụ 1 < 2 nhưng −1 > −2.'),IT('Nếu x < y thì −x > −y',true,'ss','VD','Khi đổi dấu hai vế thì chiều đổi lại. Ví dụ 1 < 2 nhưng −1 > −2.')]);
+    case 2:return sel([IT('Giữa hai số hữu tỉ phân biệt bất kì luôn có ít nhất một số hữu tỉ',true,'ss','VD',`Chẳng hạn trung bình cộng của hai số nằm giữa hai số đó.`),IT('Có số hữu tỉ nhỏ nhất',false,'ss','VD','Với mỗi số hữu tỉ x, số x − 1 nhỏ hơn x, nên không có số nhỏ nhất.')]);
+    case 3:{const q=qr(19,9),ok=RNG()<.5;return IT(`Số đối của ${SH(q)} ${ok===(q[0]>0)?'nhỏ hơn':'lớn hơn'} ${SH(q)}`,ok,'ss','VD',`${SH(q)} là số ${SGN2(q)}; số đối ${SH(negQ(q))} ${q[0]>0?'nhỏ hơn':'lớn hơn'} ${SH(q)}.`);}
+    default:{const q=qr(19,9);if(Math.abs(q[0])>4*q[1])return ssItemVD();const k=floorQ(q),c=k+ri(0,3),ok=c*q[1]>q[0]&&c<k+3;return IT(`Số nguyên ${N(c)} nằm giữa ${SH(q)} và ${N(k+3)}`,ok,'ss','VD',`${SH(q)} nằm giữa ${N(k)} và ${N(k+1)}, nên các số nguyên ở giữa ${SH(q)} và ${N(k+3)} là ${N(k+1)}; ${N(k+2)}. Vậy ${N(c)} ${ok?'nằm':'không nằm'} giữa hai số đó.`);}
+  }
+}
+function tsItemVD(){
+  const d=ri(2,6),m=ri(d+1,3*d),s=sgn(),ok=RNG()<.5,shown=ok?Rq(s*m,d):Rq(-s*m,d);
+  return IT(`Điểm M nằm bên ${s>0?'phải':'trái'} gốc O, cách O đúng ${m} phần, mỗi đoạn đơn vị chia thành ${d} phần bằng nhau. Điểm M biểu diễn số ${SH(shown)}`,ok,'ts','VD',`M cách O ${m} phần, mỗi phần là ${fr(1,d)} đơn vị, nằm bên ${s>0?'phải':'trái'} O nên M biểu diễn ${fr(s*m,d)} = ${SH(Rq(s*m,d))}.`);
+}
+function sdItemVD(){
+  const q=qr(19,9),t=ri(0,2),ok=RNG()<.5;
+  if(t===0)return IT(`Điểm A biểu diễn ${SH(q)}. Điểm B nằm ở phía bên kia gốc O và cách O bằng OA. Điểm B biểu diễn ${SH(ok?negQ(q):q)}`,ok,'sd','VD',`B biểu diễn số đối của ${SH(q)}, tức là ${SH(negQ(q))}.`);
+  if(t===1)return IT(`Với x = ${SH(q)}, số đối của −x là ${SH(ok?q:negQ(q))}`,ok,'sd','VD',`−x = ${SH(negQ(q))} nên số đối của −x là −(−x) = x = ${SH(q)}.`);
+  const s=sgn();return IT(`Nếu x là số ${SGN2([s,1])} thì số đối của x là số ${SGN2([ok?-s:s,1])}`,ok,'sd','VD','Số đối của một số luôn khác dấu với số đó (số dương có số đối âm và ngược lại).');
+}
+const tKnTH=four(knItem),tTsTH=four(tsItem),tSdTH=four(sdItem),tSsTH=four(ssItem),tSsVD=four(ssItemVD);
+const tMixA=()=>{const items=mixed(()=>[knItem(),tsItem(),sdItem(),ssItem()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+const tMixB=()=>{const items=mixed(()=>[tsItemVD(),sdItemVD(),ssItemVD(),sdItemVD()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+function tfCtxTemp(){
+  for(let n=0;n<80;n++){
+    const t=tempSet(4),i=ri(0,3),j=(i+ri(1,3))%4,k=ri(0,3),negN=t.filter(q=>q[0]<0).length,cnt=RNG()<.5?negN:negN+sel([-1,1]);
+    const lessTrue=cmpQ(t[i],t[j])<0,say=RNG()<.5?'lạnh hơn':'nóng hơn',ok1=(say==='lạnh hơn')===lessTrue,opp=RNG()<.5;
+    const order=[0,1,2,3].sort((x,y)=>cmpQ(t[x],t[y])),useLow=RNG()<.5,lastTrue=RNG()<.5,low=t[order[0]],high=t[order[3]],shown=useLow?(lastTrue?low:high):(lastTrue?high:low);
+    const items=shuffle([
+      IT(`Trạm ${STN[i]} ${say} trạm ${STN[j]}.`,ok1,'ss','TH',`Nhiệt độ trạm ${STN[i]} là ${DEC(t[i])} °C, trạm ${STN[j]} là ${DEC(t[j])} °C. Vì ${DEC(t[i])} ${lessTrue?'<':'>'} ${DEC(t[j])} nên trạm ${STN[i]} ${lessTrue?'lạnh hơn':'nóng hơn'} trạm ${STN[j]}.`),
+      IT(`Có đúng ${cnt} trạm có nhiệt độ âm.`,cnt===negN,'ts','TH',`Trong bảng có ${negN} trạm có nhiệt độ âm.`),
+      IT(`Số đối của nhiệt độ trạm ${STN[k]} là ${DEC(opp?negQ(t[k]):t[k])} °C.`,opp,'sd','TH',`Số đối của ${DEC(t[k])} là ${DEC(negQ(t[k]))}.`),
+      IT(`${useLow?'Nhiệt độ thấp nhất':'Nhiệt độ cao nhất'} trong bốn trạm là ${DEC(shown)} °C.`,lastTrue,'ss','TH',`Từ thấp đến cao: ${order.map(x=>DEC(t[x])).join(' < ')}. Nhiệt độ ${useLow?'thấp':'cao'} nhất là ${DEC(useLow?low:high)} °C.`)]);
+    const kk=items.filter(x=>x.v).length;
+    if(kk<1||kk>3||new Set(items.map(x=>x.t)).size<4)continue;
+    return {stem:'Bảng ghi nhiệt độ lúc 5 giờ sáng tại bốn trạm quan trắc. Xét các phát biểu sau:',fig:tbl(['Trạm','Nhiệt độ (°C)'],[0,1,2,3].map(x=>['Trạm '+STN[x],DEC(t[x])])),items};
+  }
+  return FB_TF();
+}
+
+/* ============ Bộ sinh trả lời ngắn ============ */
+function saKnCount(){
+  const z=ri(1,2),items=[];
+  const good=[()=>N(sgn()*ri(1,20)),()=>DEC([sgn()*ri(11,99),10]),()=>fr(ri(1,9)*sgn(),-ri(2,9)),()=>MIXD([sgn()*(ri(1,4)*5+ri(1,4)),5]),()=>'0',()=>fr(ri(1,9),ri(2,9))];
+  const used=new Set();
+  while(items.length<6-z){const f=sel(good),h=f();if(!used.has(h)){used.add(h);items.push(h);}}
+  const bad=[];for(let i=0;i<z;i++){let h;do{h=fr(sgn()*ri(1,9),0);}while(used.has(h));used.add(h);bad.push(h);}
+  const all=shuffle(items.concat(bad)),ans=6-z;
+  return {stem:`Trong các cách viết sau, có bao nhiêu cách viết biểu diễn một số hữu tỉ? ${all.join('; ')}.`,ans:[ans],exp:`Các cách viết có mẫu bằng 0 (${bad.join('; ')}) không có nghĩa. ${ans} cách viết còn lại đều là số hữu tỉ.`};
+}
+function saKnSum(){for(;;){
+  const d=sel([10,100]),q=Rq(sgn()*ri(11,299),d);if(!canDec(q))continue;
+  return {stem:`Số thập phân ${DEC(q)} viết được thành phân số tối giản ${fr('a','b')} (b > 0). Tính a + b.`,ans:[q[0]+q[1]],exp:`${DEC(q)} = ${fr(q[0]*(d/q[1]),d)} = ${fr(q[0],q[1])}, nên a = ${N(q[0])}, b = ${q[1]} và a + b = ${N(q[0]+q[1])}.`};
+}}
+function saKnMix(){
+  const w=ri(1,5),d=ri(2,8),r=ri(1,d-1),sg=sgn(),m=w*d+r;
+  return {stem:`Hỗn số ${MIXD([sg*m,d])} viết thành phân số ${fr('m','n')} với n > 0. Tìm m.`,ans:[sg*m],exp:`${MIXD([sg*m,d])} = ${sg<0?'−':''}(${w}·${d} + ${r})/${d} = ${fr(sg*m,d)}, nên m = ${N(sg*m)}.`};
+}
+function saKnForm(){
+  const m=ri(1,3),x0=sel([-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8]),b=-m*x0,a=ri(2,9);
+  const den=`${m===1?'':m}x ${b<0?'−':'+'} ${Math.abs(b)}`;
+  return {stem:`Với số nguyên x nào thì ${fr(a,den)} không biểu diễn số hữu tỉ?`,ans:[x0],exp:`Phân số không có nghĩa khi mẫu bằng 0: ${den} = 0, suy ra ${m===1?'':m}x = ${N(-b)}, x = ${N(x0)}.`};
+}
+function saTsNum(far){
+  const den=ri(2,5),n=far?ri(den+1,2*den-1):ri(1,den-1),s=sgn(),v=s*n/den;
+  return {stem:`Mỗi đoạn đơn vị trên trục số được chia thành ${den} phần bằng nhau. Điểm A biểu diễn số hữu tỉ có mẫu số ${den}. Tử số của số hữu tỉ đó là bao nhiêu?`,fig:truc(Math.min(-1,Math.floor(v)),Math.max(1,Math.ceil(v)),den,{A:[s*n,den]}),ans:[s*n],exp:`A nằm bên ${s>0?'phải':'trái'} gốc O, cách O ${n} phần nên A biểu diễn ${fr(s*n,den)}. Tử số là ${N(s*n)}.`};
+}
+function saTsFloor(){for(;;){
+  const q=qr(29,8);if(Math.abs(q[0])>5*q[1])continue;const k=floorQ(q);
+  return {stem:`Điểm biểu diễn số hữu tỉ ${FORM(q)} nằm giữa hai điểm biểu diễn hai số nguyên liên tiếp. Hãy nhập số nguyên nhỏ hơn trong hai số đó.`,ans:[k],exp:`${N(k)} < ${SH(q)} < ${N(k+1)}, nên số nguyên nhỏ hơn là ${N(k)}.`};
+}}
+function saTsPos(){for(;;){
+  const d=sel([4,6,8,9,10,12]),m=ri(d+1,3*d),g=gcd(m,d);if(g===1)continue;
+  const s=sgn(),q=Rq(s*m,d);
+  return {stem:`Trên trục số, mỗi đoạn đơn vị được chia thành ${d} phần bằng nhau. Điểm M nằm bên ${s>0?'phải':'trái'} gốc O và cách O đúng ${m} phần. Viết số hữu tỉ biểu diễn bởi M dưới dạng phân số tối giản ${fr('a','b')} (b > 0). Tính a + b.`,ans:[q[0]+q[1]],exp:`M biểu diễn ${fr(s*m,d)} = ${fr(q[0],q[1])}, nên a = ${N(q[0])}, b = ${q[1]} và a + b = ${N(q[0]+q[1])}.`};
+}}
+function saSdNum(){
+  const d=ri(2,9),n=ri(1,9),s=sgn();
+  return {stem:`Cho x = ${fr(s*n,d)}. Số đối của x viết với mẫu số ${d} có tử số bằng bao nhiêu?`,ans:[-s*n],exp:`Số đối của ${fr(s*n,d)} là ${fr(-s*n,d)}, tử số là ${N(-s*n)}.`};
+}
+function saSdDec(){for(;;){
+  const q=Rq(sgn()*ri(11,399),sel([4,10,20,25,100]));if(!canDec(q))continue;
+  return {stem:`Số đối của ${DEC(q)} là một số thập phân. Hãy nhập số đó.`,ans:[-q[0]/q[1]],at:DEC(negQ(q)),exp:`Số đối của ${DEC(q)} là ${DEC(negQ(q))}.`};
+}}
+function saSdEq(){
+  const d=ri(3,12),a=ri(1,15)*sgn();
+  return {stem:`Hai số hữu tỉ ${fr(a,d)} và ${fr('m',d)} là hai số đối nhau. Tìm số nguyên m.`,ans:[-a],exp:`Hai số đối nhau có tổng bằng 0: ${fr(a,d)} + ${fr('m',d)} = 0, nên m = ${N(-a)}.`};
+}
+function saSdBound(){
+  const d=ri(2,6),u=ri(-3,2),v=u+ri(1,3);let cnt=0;
+  for(let a=-300;a<=300;a++){if(-a>u*d&&-a<v*d)cnt++;}
+  return {stem:`Có bao nhiêu số nguyên a để số đối của ${fr('a',d)} nằm giữa ${N(u)} và ${N(v)}? (Không tính hai đầu mút.)`,ans:[cnt],exp:`Số đối của ${fr('a',d)} là ${fr('−a',d)}. Cần ${N(u)} < ${fr('−a',d)} < ${N(v)}, tức ${N(u*d)} < −a < ${N(v*d)}, hay ${N(-v*d)} < a < ${N(-u*d)}. Có ${cnt} số nguyên a như vậy.`};
+}
+function saSsCount(){for(;;){
+  const lo=qr(29,6),hi=qr(29,6);if(cmpQ(lo,hi)>=0)continue;if(val(hi)-val(lo)>9||val(hi)-val(lo)<2)continue;
+  const f=floorQ(lo)+1,l=Math.ceil(val(hi))-1,cnt=l-f+1,lst=[];for(let z=f;z<=l;z++)lst.push(N(z));
+  return {stem:`Có bao nhiêu số nguyên nằm giữa hai số hữu tỉ ${FORM(lo)} và ${FORM(hi)}?`,ans:[cnt],exp:`${SH(lo)} ≈ ${val(lo).toFixed(2).replace('.',',').replace('-','−')} và ${SH(hi)} ≈ ${val(hi).toFixed(2).replace('.',',').replace('-','−')}. Các số nguyên ở giữa: ${lst.join('; ')}. Có ${cnt} số.`};
+}}
+function saSsLcm(){for(;;){
+  const D=[4,6,8,9,10,12,15],b=sel(D),e=sel(D);if(b===e)continue;
+  const A=Rq(sgn()*ri(1,2*b),b),B=Rq(sgn()*ri(1,2*e),e);if(A[1]<2||B[1]<2||A[1]===B[1]||B[0]===0)continue;
+  const L=lcm(A[1],B[1]),x=B[0]*(L/B[1]);
+  return {stem:`Quy đồng mẫu số hai số hữu tỉ ${SH(A)} và ${SH(B)} với mẫu số chung dương nhỏ nhất. Tử số của số thứ hai là bao nhiêu?`,ans:[x],exp:`Mẫu số chung nhỏ nhất là BCNN(${A[1]}; ${B[1]}) = ${L}. ${SH(B)} = ${fr(x,L)}, tử số là ${N(x)}.`};
+}}
+function saSsMax(){
+  const d=ri(3,9),p=qr(19,6),v=p[0]*d/p[1],m=Math.ceil(v)-1;
+  return {stem:`Tìm số nguyên m lớn nhất sao cho ${fr('m',d)} < ${SH(p)}.`,ans:[m],exp:`${fr('m',d)} < ${SH(p)} khi m < ${SH(p)}·${d} = ${SH(Rq(p[0]*d,p[1]))}. Số nguyên lớn nhất nhỏ hơn ${SH(Rq(p[0]*d,p[1]))} là ${N(m)}.`};
+}
+function saSsRank(){
+  const v=numSet(4),k=ri(2,3),idx=[0,1,2,3].sort((i,j)=>cmpQ(v[i].q,v[j].q)),w=v[idx[k-1]];
+  return {stem:`Sắp xếp các số ${v.map(o=>o.h).join('; ')} theo thứ tự từ bé đến lớn. Nhập số đứng thứ ${k}.`,ans:[val(w.q)],at:w.q[1]===1?N(w.q[0]):(canDec(w.q)?DEC(w.q):SH(w.q)),exp:`Từ bé đến lớn: ${idx.map(i=>v[i].h).join(' < ')}. Số đứng thứ ${k} là ${w.h}.`};
+}
+function saSsPos(){
+  for(;;){
+    const items=[];const vs=[];
+    for(let i=0;i<6;i++){if(i===0&&RNG()<.6){vs.push([0,1]);items.push(RNG()<.5?'0':fr(0,ri(2,9)));continue;}const q=RNG()<.25?[sgn()*ri(1,9),1]:qr(19,9);vs.push(q);items.push(FORM(q));}
+    const pos=vs.filter(q=>q[0]>0).length;if(pos<2||pos>4||new Set(items).size<6)continue;
+    const ord=shuffle([0,1,2,3,4,5]);
+    return {stem:`Trong các số sau, có bao nhiêu số lớn hơn 0? ${ord.map(i=>items[i]).join('; ')}.`,ans:[pos],exp:`Số lớn hơn 0 là số hữu tỉ dương (tử và mẫu cùng dấu, tử khác 0). Có ${pos} số như vậy.`};
+  }
+}
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  kn:{short:'Số hữu tỉ và ℚ',name:'Số hữu tỉ và tập hợp ℚ',rule:'Số hữu tỉ là số viết được dưới dạng phân số a/b với a, b là số nguyên và b ≠ 0. Tập hợp các số hữu tỉ kí hiệu là ℚ. Số nguyên, số thập phân hữu hạn và hỗn số đều là số hữu tỉ: ℕ ⊂ ℤ ⊂ ℚ. Số 0 không dương cũng không âm.',tip:'Phân số có mẫu bằng 0 không có nghĩa. Mẫu số âm vẫn được. Khi đổi hỗn số hay số thập phân ra phân số, nhớ giữ dấu "−".'},
+  ts:{short:'Biểu diễn trên trục số',name:'Biểu diễn số hữu tỉ trên trục số',rule:'Để biểu diễn a/b (b > 0) trên trục số, chia mỗi đoạn đơn vị thành b phần bằng nhau rồi từ gốc O lấy a phần. Số dương nằm bên phải O, số âm nằm bên trái O.',tip:'Mẫu số cho biết số phần chia mỗi đơn vị, tử số cho biết số phần đếm từ O (không đếm vạch O). Mẫu số âm thì đổi dấu cả tử và mẫu trước khi biểu diễn.'},
+  sd:{short:'Số đối',name:'Số đối của một số hữu tỉ',rule:'Số đối của a/b là −a/b, hai số đối nhau có tổng bằng 0: a/b + (−a/b) = 0. Số đối của 0 là 0. Hai điểm biểu diễn hai số đối nhau nằm hai phía của O và cách đều O.',tip:'Số đối chỉ đổi dấu, không đảo tử và mẫu (đó là số nghịch đảo). Số đối của −x là x.'},
+  ss:{short:'So sánh',name:'So sánh hai số hữu tỉ',rule:'Viết hai số dưới dạng phân số cùng mẫu dương rồi so sánh các tử số. Số hữu tỉ dương lớn hơn 0, số hữu tỉ âm nhỏ hơn 0, số dương lớn hơn số âm. Trên trục số, số ở bên trái nhỏ hơn số ở bên phải.',tip:'Với hai số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ. Quy đồng về mẫu dương trước khi so sánh các tử.'}
+};
+const TKEYS=['kn','ts','sd','ss'];
+const TDESC={kn:'Khái niệm số hữu tỉ, kí hiệu ∈ ∉ ⊂, số thập phân và hỗn số',ts:'Đọc và biểu diễn số hữu tỉ trên trục số, chia đoạn đơn vị',sd:'Tìm số đối, hai điểm đối xứng qua gốc O',ss:'So sánh, sắp xếp các số hữu tỉ, số nằm giữa hai số'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhớ khái niệm số hữu tỉ, nhận ra số dương, số âm, tìm số đối đơn giản, so sánh hai số cùng mẫu.',TH:'Đổi số thập phân và hỗn số ra phân số, đọc điểm trên trục số, so sánh hai số khác mẫu.',VD:'Số hữu tỉ nằm giữa hai số, sắp xếp ba số, số đối của số đối, suy luận nhiều bước.'};
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const O=(t,err)=>err?{t,err}:{t};
+const MC=[
+ {id:'m1',topic:'kn',level:'NB',stem:'Số hữu tỉ là số viết được dưới dạng phân số '+fr('a','b')+' với:',ans:0,opts:[
+   O('a, b là số nguyên, b ≠ 0'),O('a, b là số tự nhiên, b ≠ 0','Số hữu tỉ âm không viết được với a, b đều tự nhiên. Cần a, b là số nguyên.'),O('a, b là số nguyên','Thiếu điều kiện b ≠ 0: mẫu số không được bằng 0.'),O('a là số nguyên, b là số nguyên dương, a ≠ 0','Tử số a có thể bằng 0 (số 0 là số hữu tỉ) và mẫu số cũng có thể âm; điều kiện cần là b ≠ 0.')],
+  exp:'Số hữu tỉ là số viết được dưới dạng a/b với a, b ∈ ℤ, b ≠ 0.'},
+ {id:'m2',topic:'kn',level:'NB',stem:'Tập hợp các số hữu tỉ được kí hiệu là:',ans:0,opts:[O('ℚ'),O('ℤ','ℤ là tập hợp các số nguyên.'),O('ℕ','ℕ là tập hợp các số tự nhiên.'),O('ℕ*','ℕ* là tập hợp các số tự nhiên khác 0.')],
+  exp:'Tập hợp các số hữu tỉ kí hiệu là ℚ.'},
+ {id:'m3',topic:'kn',level:'NB',stem:'Khẳng định nào sau đây đúng?',ans:0,opts:[O('ℕ ⊂ ℤ ⊂ ℚ'),O('ℚ ⊂ ℤ ⊂ ℕ','Thứ tự bao nhau ngược: mỗi số tự nhiên là số nguyên, mỗi số nguyên là số hữu tỉ.'),O('ℤ ⊂ ℕ ⊂ ℚ','ℕ ⊂ ℤ chứ không phải ℤ ⊂ ℕ (số −1 thuộc ℤ nhưng không thuộc ℕ).'),O('ℕ ⊂ ℚ ⊂ ℤ','ℚ ⊄ ℤ vì 1/2 thuộc ℚ nhưng không thuộc ℤ.')],
+  exp:'Số tự nhiên là số nguyên, số nguyên là số hữu tỉ: ℕ ⊂ ℤ ⊂ ℚ.'},
+ {id:'m4',topic:'kn',level:'TH',stem:'Số nào sau đây không là số hữu tỉ dương và cũng không là số hữu tỉ âm?',ans:0,opts:[O('0'),O(fr(-1,-2),'Tử và mẫu cùng âm nên số này dương.'),O(fr(5,-3),'Tử dương, mẫu âm nên số này âm.'),O(fr(1,100),'Số này dương.')],
+  exp:'Số 0 không dương cũng không âm.'},
+ {id:'m5',topic:'kn',level:'VD',stem:'Cho bốn khẳng định: (I) Mỗi số nguyên là một số hữu tỉ. (II) Mỗi số hữu tỉ là một số nguyên. (III) Số 0 là số hữu tỉ. (IV) Phân số '+fr('a','b')+' với a, b nguyên luôn là số hữu tỉ. Có bao nhiêu khẳng định đúng?',ans:0,opts:[O('2'),O('1','Khẳng định (I) và (III) đều đúng.'),O('3','Khẳng định (IV) sai khi b = 0 vì phân số không có nghĩa.'),O('4','(II) sai (chẳng hạn 1/2 không là số nguyên) và (IV) sai khi b = 0.')],
+  exp:'(I) đúng, (II) sai, (III) đúng (0 = 0/1), (IV) sai vì cần b ≠ 0. Có 2 khẳng định đúng.'},
+ {id:'m6',topic:'kn',level:'VD',stem:'Số hữu tỉ nào sau đây không là số nguyên?',ans:0,opts:[O(fr(-7,2)),O(fr(-12,4),'−12/4 = −3 là số nguyên.'),O(fr(15,5),'15/5 = 3 là số nguyên.'),O(fr(0,9),'0/9 = 0 là số nguyên.')],
+  exp:'−12/4 = −3, 15/5 = 3 và 0/9 = 0 đều là số nguyên, còn −7/2 = −3,5 không là số nguyên.'},
+ {id:'m7',topic:'ts',level:'NB',stem:'Trên trục số, các điểm biểu diễn số hữu tỉ âm nằm ở đâu so với gốc O?',ans:0,opts:[O('Bên trái gốc O'),O('Bên phải gốc O','Số hữu tỉ dương được biểu diễn bên phải gốc O.'),O('Trùng với gốc O','Chỉ số 0 được biểu diễn bởi gốc O.'),O('Có thể ở bên trái hoặc bên phải','Số âm luôn nằm bên trái gốc O.')],
+  exp:'Điểm biểu diễn số hữu tỉ âm nằm bên trái gốc O, số dương nằm bên phải.'},
+ {id:'m8',topic:'ts',level:'NB',stem:'Gốc O của trục số biểu diễn số nào?',ans:0,opts:[O('0'),O('1','Số 1 nằm bên phải gốc O, cách O một đơn vị.'),O('−1','Số −1 nằm bên trái gốc O, cách O một đơn vị.'),O('Không biểu diễn số nào','Gốc O biểu diễn số 0.')],
+  exp:'Gốc O biểu diễn số 0.'},
+ {id:'m9',topic:'ts',level:'TH',stem:'Điểm M nằm giữa hai điểm biểu diễn các số −1 và 0. Điểm M có thể biểu diễn số hữu tỉ nào?',ans:0,opts:[O(fr(-1,2)),O(fr(1,2),'1/2 dương, nằm giữa 0 và 1.'),O(fr(-3,2),'−3/2 = −1,5 nằm giữa −2 và −1.'),O(fr(-2,1),'−2 nằm bên trái −1, không nằm giữa −1 và 0.')],
+  exp:'−1 < −1/2 < 0 nên điểm biểu diễn −1/2 nằm giữa −1 và 0.'},
+ {id:'m10',topic:'ts',level:'VD',stem:'Điểm A biểu diễn số hữu tỉ '+fr(-3,4)+' và điểm B biểu diễn số hữu tỉ '+fr(5,4)+'. Khẳng định nào đúng?',ans:0,opts:[O('A nằm bên trái gốc O, B nằm bên phải gốc O'),O('A và B nằm cùng bên phải gốc O','−3/4 là số âm nên A nằm bên trái gốc O.'),O('A nằm bên phải, B nằm bên trái gốc O','Số âm nằm bên trái O, số dương nằm bên phải O.'),O('A và B cùng nằm giữa 0 và 1','5/4 > 1 nên B nằm bên phải điểm 1; −3/4 âm nên A nằm bên trái O.')],
+  exp:'−3/4 < 0 nên A nằm bên trái O; 5/4 > 0 (và 5/4 > 1) nên B nằm bên phải O.'},
+ {id:'m11',topic:'sd',level:'NB',stem:'Số đối của số 0 là:',ans:0,opts:[O('0'),O('1','0 + 1 = 1 ≠ 0 nên 1 không là số đối của 0.'),O('−1','0 + (−1) = −1 ≠ 0 nên −1 không là số đối của 0.'),O('Không có','Mọi số hữu tỉ đều có số đối, số đối của 0 là 0.')],
+  exp:'0 + 0 = 0 nên số đối của 0 là 0.'},
+ {id:'m12',topic:'sd',level:'NB',stem:'Tổng của hai số đối nhau bằng:',ans:0,opts:[O('0'),O('1','Tích của một số và nghịch đảo của nó mới bằng 1.'),O('Chính số đó','Tổng hai số đối nhau là 0.'),O('Hai lần số đó','Hai số đối nhau có tổng bằng 0.')],
+  exp:'Hai số đối nhau có tổng bằng 0: a/b + (−a/b) = 0.'},
+ {id:'m13',topic:'sd',level:'TH',stem:'Số đối của số hữu tỉ x = '+fr(-5,9)+' là:',ans:0,opts:[O(fr(5,9)),O(fr(-5,9),'Số đối phải khác dấu.'),O(fr(9,5),'Đó là số nghịch đảo của −5/9 đổi dấu; số đối chỉ đổi dấu.'),O(fr(-9,5),'Đó là số nghịch đảo, không phải số đối.')],
+  exp:'Số đối của −5/9 là 5/9.'},
+ {id:'m14',topic:'sd',level:'VD',stem:'Điểm A biểu diễn số hữu tỉ '+fr(-2,3)+'. Điểm B nằm bên phải gốc O và cách O một khoảng bằng OA. Điểm B biểu diễn số nào?',ans:0,opts:[O(fr(2,3)),O(fr(-2,3),'Đó là số mà điểm A biểu diễn.'),O(fr(3,2),'OB bằng OA nên B cách O một khoảng 2/3 đơn vị, không phải 3/2.'),O('0','Gốc O biểu diễn số 0, nhưng B cách O một khoảng OA.')],
+  exp:'B và A cách đều O và ở hai phía của O nên biểu diễn hai số đối nhau: số đối của −2/3 là 2/3.'},
+ {id:'m15',topic:'ss',level:'NB',stem:'Số hữu tỉ âm luôn:',ans:0,opts:[O('nhỏ hơn 0'),O('lớn hơn 0','Số hữu tỉ dương mới lớn hơn 0.'),O('bằng 0','Số 0 không phải số hữu tỉ âm.'),O('lớn hơn mọi số hữu tỉ dương','Số âm nhỏ hơn mọi số dương.')],
+  exp:'Số hữu tỉ âm nhỏ hơn 0 (và nhỏ hơn mọi số hữu tỉ dương).'},
+ {id:'m16',topic:'ss',level:'TH',stem:'Phát biểu nào sau đây đúng?',ans:0,opts:[O(fr(-3,4)+' < '+fr(-2,3)),O(fr(-3,4)+' > '+fr(-2,3),'−3/4 = −9/12 và −2/3 = −8/12; −9 < −8 nên −3/4 < −2/3.'),O(fr(-1,2)+' > 0','−1/2 là số âm nên nhỏ hơn 0.'),O(fr(2,5)+' < '+fr(-1,3),'Số dương luôn lớn hơn số âm.')],
+  exp:'Quy đồng mẫu số 12: −3/4 = −9/12, −2/3 = −8/12 và −9 < −8 nên −3/4 < −2/3.'},
+ {id:'m17',topic:'ss',level:'VD',stem:'Cho x < y và y < 0. Khẳng định nào chắc chắn đúng?',ans:0,opts:[O('x < 0'),O('x > 0','Từ x < y < 0 suy ra x < 0.'),O('x = y','Đề cho x < y nên hai số khác nhau.'),O('x > y','Đề cho x < y.')],
+  exp:'x < y và y < 0 nên x < 0 (tính chất bắc cầu).'},
+ {id:'m18',topic:'ss',level:'VD',stem:'Số nào dưới đây nằm giữa '+fr(-1,2)+' và '+fr(-1,3)+'?',ans:0,opts:[O(fr(-2,5)),O(fr(-3,5),'−3/5 = −0,6 nhỏ hơn −1/2 = −0,5 nên nằm ngoài khoảng.'),O(fr(-1,4),'−1/4 = −0,25 lớn hơn −1/3 nên nằm ngoài khoảng.'),O(fr(1,3),'1/3 là số dương, lớn hơn cả −1/3.')],
+  exp:'−1/2 = −15/30 và −1/3 = −10/30. −2/5 = −12/30 và −15 < −12 < −10 nên −1/2 < −2/5 < −1/3.'}
+].map(q=>Object.assign({type:'mc'},q));
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b','c'].forEach(x=>{
+  addMC('g_knnot_'+x,'kn','NB',genKnNot);
+  addMC('g_knset_'+x,'kn','TH',genKnSet);
+  addMC('g_kndec_'+x,'kn','TH',genKnDec);
+  addMC('g_knmix_'+x,'kn','TH',genKnMix);
+  addMC('g_tsrd_'+x,'ts','NB',()=>genTsRead(false));
+  addMC('g_tsside_'+x,'ts','NB',genTsSide);
+  addMC('g_tsrd2_'+x,'ts','TH',()=>genTsRead(true));
+  addMC('g_tspos_'+x,'ts','TH',genTsPos);
+  addMC('g_tsbet_'+x,'ts','TH',genTsBetween);
+  addMC('g_sdfind_'+x,'sd','NB',()=>genSdFind(['int','frac']));
+  addMC('g_sdfind2_'+x,'sd','TH',()=>genSdFind(['dec','mix']));
+  addMC('g_sdeq_'+x,'sd','TH',genSdEq);
+  addMC('g_sdfig_'+x,'sd','TH',genSdFig);
+  addMC('g_sddbl_'+x,'sd','VD',genSdDouble);
+  addMC('g_sssign_'+x,'ss','NB',genSsSign);
+  addMC('g_sscmp_'+x,'ss','NB',()=>genSsCmp('NB'));
+  addMC('g_sscmp2_'+x,'ss','TH',()=>genSsCmp('TH'));
+  addMC('g_ssmax_'+x,'ss','TH',genSsMax);
+  addMC('g_sstemp_'+x,'ss','TH',genSsTemp);
+  addMC('g_ssord_'+x,'ss','VD',genSsOrder);
+  addMC('g_ssbet_'+x,'ss','VD',genSsBetween);
+});
+['a','b'].forEach(x=>{addMC('g_sdfinda_'+x,'sd','NB',()=>genSdFind(['int','frac']));addMC('g_knnotb_'+x,'kn','NB',genKnNot);});
+
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+['a','b'].forEach(x=>{
+  addTF('tf_kn_th_'+x,'kn','TH',tKnTH);
+  addTF('tf_ts_th_'+x,'ts','TH',tTsTH);
+  addTF('tf_sd_th_'+x,'sd','TH',tSdTH);
+  addTF('tf_ss_th_'+x,'ss','TH',tSsTH);
+  addTF('tf_ss_vd_'+x,'ss','VD',tSsVD);
+});
+addTF('tf_mix_a','ts','TH',tMixA);
+addTF('tf_mix_b','sd','VD',tMixB);
+addTF('tf_ctx_nd','ss','VD',tfCtxTemp);
+addTF('tf_ts_vd','ts','VD',four(()=>RNG()<.5?tsItem():tsItemVD()));
+addTF('tf_kn_vd','kn','VD',tKnTH);
+addTF('tf_sd_vd','sd','VD',four(()=>RNG()<.5?sdItem():sdItemVD()));
+/* câu nhận biết: bốn ý lấy từ kho ý của từng nội dung */
+const PT=[
+ IT('Mọi số nguyên đều là số hữu tỉ',true,'kn','NB','Số nguyên a viết được a = a/1.'),
+ IT('Số 0 là một số hữu tỉ',true,'kn','NB','0 = 0/1 (hoặc 0/5, …).'),
+ IT('ℕ ⊂ ℤ ⊂ ℚ',true,'kn','NB','Số tự nhiên là số nguyên, số nguyên là số hữu tỉ.'),
+ IT('Số thập phân −0,5 là một số hữu tỉ',true,'kn','NB',`−0,5 = ${fr(-1,2)}.`),
+ IT('Gốc O biểu diễn số 0',true,'ts','NB','Gốc của trục số ứng với số 0.'),
+ IT('Điểm biểu diễn số hữu tỉ âm nằm bên trái gốc O',true,'ts','NB','Số âm được biểu diễn bên trái gốc O.'),
+ IT('Điểm biểu diễn số hữu tỉ dương nằm bên phải gốc O',true,'ts','NB','Số dương được biểu diễn bên phải gốc O.'),
+ IT('Số đối của 0 là 0',true,'sd','NB','0 + 0 = 0.'),
+ IT(`Số đối của ${fr(-5,7)} là ${fr(5,7)}`,true,'sd','NB','Số đối chỉ đổi dấu.'),
+ IT('Hai số đối nhau có tổng bằng 0',true,'sd','NB','Số đối của x là y sao cho x + y = 0.'),
+ IT('Số hữu tỉ dương lớn hơn 0',true,'ss','NB','Số dương lớn hơn 0 theo định nghĩa.'),
+ IT('Số hữu tỉ âm nhỏ hơn 0',true,'ss','NB','Số âm nhỏ hơn 0.'),
+ IT('Số hữu tỉ dương lớn hơn mọi số hữu tỉ âm',true,'ss','NB','Số dương lớn hơn 0, và 0 lớn hơn mọi số âm.')];
+const PF=[
+ IT('Số 0 là số hữu tỉ dương',false,'kn','NB','Số 0 không dương cũng không âm.'),
+ IT('Số nguyên âm không phải là số hữu tỉ',false,'kn','NB','Mọi số nguyên đều là số hữu tỉ.'),
+ IT('ℚ ⊂ ℤ',false,'kn','NB','Chẳng hạn 1/2 thuộc ℚ nhưng không thuộc ℤ.'),
+ IT('Mọi số hữu tỉ đều là số nguyên',false,'kn','NB','Chẳng hạn 1/2 là số hữu tỉ nhưng không là số nguyên.'),
+ IT('Điểm biểu diễn số hữu tỉ âm nằm bên phải gốc O',false,'ts','NB','Số âm nằm bên trái gốc O.'),
+ IT(`Điểm biểu diễn ${fr(1,2)} nằm giữa 1 và 2`,false,'ts','NB','1/2 nằm giữa 0 và 1.'),
+ IT('Có số hữu tỉ không biểu diễn được trên trục số',false,'ts','NB','Mỗi số hữu tỉ được biểu diễn bởi một điểm trên trục số.'),
+ IT(`Số đối của ${fr(3,4)} là ${fr(4,3)}`,false,'sd','NB','Số đối của 3/4 là −3/4. 4/3 là số nghịch đảo.'),
+ IT('Số đối của một số hữu tỉ dương là số hữu tỉ dương',false,'sd','NB','Số đối của số dương là số âm.'),
+ IT('Số 0 không có số đối',false,'sd','NB','Số đối của 0 là 0.'),
+ IT('Số hữu tỉ âm lớn hơn số hữu tỉ dương',false,'ss','NB','Số âm luôn nhỏ hơn số dương.'),
+ IT(`${fr(-1,2)} > 0`,false,'ss','NB','Số âm nhỏ hơn 0.'),
+ IT('Số hữu tỉ âm nào cũng lớn hơn 1',false,'ss','NB','Số âm nhỏ hơn 0 nên nhỏ hơn 1.')];
+const tfNB=t=>()=>({stem:'Xét các phát biểu sau:',items:pick4(PT.filter(i=>i.topic===t),PF.filter(i=>i.topic===t))});
+TKEYS.forEach(t=>addTF('tf_nb_'+t,t,'NB',tfNB(t)));
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level,at)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp,at});
+function tfHardC(){
+  for(let n=0;n<80;n++){
+    const lo=qr(29,6),hi=qr(29,6);if(cmpQ(lo,hi)>=0||val(hi)-val(lo)>8||val(hi)-val(lo)<2)continue;
+    const f=floorQ(lo)+1,l=Math.ceil(val(hi))-1,cnt=l-f+1,say=cnt+(RNG()<.5?0:sel([-1,1])),d=ri(3,9),k=ri(1,3),nn=ri(1,9),ok2=RNG()<.5,p=qr(19,9),ok3=RNG()<.5;
+    const a=NUMF(),b=NUMF(),c=NUMF();if(cmpQ(a.q,b.q)===0||cmpQ(b.q,c.q)===0||cmpQ(a.q,c.q)===0)continue;
+    const ord=[a,b,c].sort((x,y)=>cmpQ(x.q,y.q)),ok4=RNG()<.5,shown=ok4?ord:[ord[1],ord[0],ord[2]];
+    const items=shuffle([
+      IT(`Có đúng ${Math.max(say,1)} số nguyên nằm giữa ${FORM(lo)} và ${FORM(hi)}.`,Math.max(say,1)===cnt,'ss','VD',`Các số nguyên ở giữa là từ ${N(f)} đến ${N(l)}: có ${cnt} số.`),
+      IT(`${fr(-nn,d)} ${ok2?'<':'>'} ${fr(-nn,d+k)}`,ok2,'ss','VD',`${fr(nn,d)} > ${fr(nn,d+k)} (cùng tử, mẫu bé hơn thì lớn hơn), nên ${fr(-nn,d)} < ${fr(-nn,d+k)}.`),
+      IT(`Số đối của ${SH(p)} ${ok3===(p[0]>0)?'nhỏ hơn':'lớn hơn'} ${SH(p)}.`,ok3,'sd','VD',`${SH(p)} là số ${SGN2(p)} nên số đối ${SH(negQ(p))} ${p[0]>0?'nhỏ hơn':'lớn hơn'} ${SH(p)}.`),
+      IT(`${shown.map(x=>x.h).join(' < ')}.`,ok4,'ss','VD',`Từ bé đến lớn: ${ord.map(x=>x.h).join(' < ')}.`)]);
+    const k2=items.filter(i=>i.v).length;
+    if(k2>=1&&k2<=3&&new Set(items.map(i=>i.t)).size===4)return {stem:'Xét các phát biểu sau:',items};
+  }
+  return FB_TF();
+}
+const HARD={tf:[{id:'h_tc',type:'tf',topic:'ss',level:'VD',gen:tfHardC}],sa:[
+ {id:'h_dem',topic:'ts',level:'VD',unit:'',gen:()=>{for(;;){const lo=qr(60,8),hi=qr(60,8);if(cmpQ(lo,hi)>=0||val(hi)-val(lo)<3||val(hi)-val(lo)>12)continue;const f=floorQ(lo)+1,l=Math.ceil(val(hi))-1,cnt=l-f+1;return {stem:`Có bao nhiêu số nguyên nằm giữa hai số hữu tỉ ${FORM(lo,['mix','frac'])} và ${FORM(hi,['mix','frac'])}?`,ans:[cnt],exp:`${SH(lo)} ≈ ${val(lo).toFixed(2).replace('.',',').replace('-','−')} và ${SH(hi)} ≈ ${val(hi).toFixed(2).replace('.',',').replace('-','−')}. Các số nguyên ở giữa là từ ${N(f)} đến ${N(l)}: có ${cnt} số.`};}}},
+ {id:'h_x',topic:'ss',level:'VD',unit:'',gen:()=>{for(;;){const A=qr(19,4),B=qr(19,4),c=ri(2,6);if(cmpQ(A,B)>=0)continue;let cnt=0,lst=[];for(let x=-400;x<=400;x++){const q=[x,c];if(cmpQ(A,q)<0&&cmpQ(q,B)<0){cnt++;lst.push(x);}}if(cnt<3||cnt>14)continue;return {stem:`Có bao nhiêu số nguyên x thỏa mãn ${SH(A)} < ${fr('x',c)} < ${SH(B)}?`,ans:[cnt],exp:`Quy đồng mẫu số ${lcm(lcm(A[1],B[1]),c)}: các số nguyên x thỏa mãn là ${lst.map(N).join('; ')}. Có ${cnt} số.`};}}},
+ {id:'h_sum',topic:'ts',level:'VD',unit:'',gen:()=>{for(;;){const lo=qr(40,6),hi=qr(40,6);if(cmpQ(lo,hi)>=0||val(hi)-val(lo)<3||val(hi)-val(lo)>10)continue;const f=floorQ(lo)+1,l=Math.ceil(val(hi))-1;let s=0,lst=[];for(let z=f;z<=l;z++){s+=z;lst.push(N(z));}return {stem:`Tính tổng tất cả các số nguyên nằm giữa ${FORM(lo,['frac','mix'])} và ${FORM(hi,['frac','mix'])}.`,ans:[s],exp:`Các số nguyên ở giữa là ${lst.join('; ')}. Tổng của chúng bằng ${N(s)}.`};}}},
+ {id:'h_min',topic:'ss',level:'VD',unit:'',gen:()=>{for(;;){const d=ri(3,9),p=qr(40,6);if(p[0]<0||val(p)<1.2)continue;let n=1;while(!(cmpQ([-n,d],negQ(p))<0))n++;const bound=Rq(p[0]*d,p[1]);
+   return {stem:`Tìm số nguyên dương n nhỏ nhất sao cho ${fr('−n',d)} < ${SH(negQ(p))}.`,ans:[n],exp:`${fr('−n',d)} < ${SH(negQ(p))} ⇔ ${fr('n',d)} > ${SH(p)} ⇔ n > ${SH(p)}·${d} = ${SH(bound)}. Số nguyên dương nhỏ nhất lớn hơn ${SH(bound)} là ${n}.`};}}}
+].map(q=>Object.assign({type:'sa'},q))};
+const PISA=[
+ ()=>{const t=tempSet(5),nm=['A','B','C','D','E'],idx=[0,1,2,3,4].sort((i,j)=>cmpQ(t[i],t[j])),lo=idx[0],neg=t.filter(q=>q[0]<0).length,k=sel(idx.filter(i=>t[i][0]<0)),bigPos=[0,1,2,3,4].reduce((b,i)=>t[i][0]>t[b][0]?i:b,0);
+  return {title:'Nhiệt độ các trạm quan trắc',ctx:`<p class="stem">Bảng ghi nhiệt độ lúc 5 giờ sáng tại năm trạm quan trắc ở vùng núi.</p>${tbl(['Trạm','Nhiệt độ (°C)'],[0,1,2,3,4].map(i=>['Trạm '+nm[i],DEC(t[i])]))}`,qs:[
+   mcq('Trạm nào lạnh nhất?','Trạm '+nm[lo],[0,1,2,3,4].filter(i=>i!==lo).slice(0,3).map(i=>['Trạm '+nm[i],i===bigPos?'Bạn chọn số có phần nguyên lớn nhất, nhưng đó là nhiệt độ dương, cao hơn nhiệt độ âm.':'Nhiệt độ này cao hơn nhiệt độ thấp nhất.']),`Nhiệt độ thấp nhất là ${DEC(t[lo])} °C, ở trạm ${nm[lo]}.`,'ss','TH'),
+   saq('Có bao nhiêu trạm có nhiệt độ thấp hơn 0 °C?',neg,'trạm',`Các nhiệt độ âm: ${t.filter(q=>q[0]<0).map(q=>DEC(q)).join('; ')}. Có ${neg} trạm.`,'ts','TH'),
+   saq('Xếp nhiệt độ các trạm từ thấp đến cao. Nhiệt độ của trạm đứng thứ ba là bao nhiêu độ C?',val(t[idx[2]]),'°C',`Từ thấp đến cao: ${idx.map(i=>DEC(t[i])).join(' < ')}. Số đứng thứ ba là ${DEC(t[idx[2]])}.`,'ss','VD',DEC(t[idx[2]])),
+   saq(`Nhiệt độ ở trạm ${nm[k]} lúc này là ${DEC(t[k])} °C. Hôm sau nhiệt độ ở đó đúng bằng số đối của nhiệt độ hôm nay. Nhiệt độ hôm sau là bao nhiêu độ C?`,-val(t[k]),'°C',`Số đối của ${DEC(t[k])} là ${DEC(negQ(t[k]))}.`,'sd','TH',DEC(negQ(t[k])))]};},
+ ()=>{for(;;){
+  const x=Rq(ri(11,99),10);if(x[1]===1)continue;const hs=[x,negQ(x)];
+  while(hs.length<5){const q=Rq(sgn()*ri(11,199),10);if(hs.every(h=>cmpQ(h,q)!==0&&cmpQ(h,negQ(q))!==0))hs.push(q);}
+  const nm=['Đồi A','Hang B','Hồ C','Núi D','Vực E'],h=shuffle(hs),below=h.filter(q=>q[0]<0).length;
+  if(below<2||below>3)continue;
+  const ia=h.findIndex(q=>cmpQ(q,x)===0),ib=h.findIndex(q=>cmpQ(q,negQ(x))===0),idx=[0,1,2,3,4].sort((i,j)=>cmpQ(h[j],h[i]));
+  const tag=(i,j)=>nm[Math.min(i,j)]+' và '+nm[Math.max(i,j)],pairs=[];
+  for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)if(!(i===Math.min(ia,ib)&&j===Math.max(ia,ib)))pairs.push([i,j]);
+  const wrongs=shuffle(pairs).slice(0,3).map(([i,j])=>[tag(i,j),`Độ cao ${DEC(h[i])} m và ${DEC(h[j])} m không phải hai số đối nhau.`]);
+  const cand=[0,1,2,3,4].filter(i=>h[i][1]>1),c=sel(cand),hh=h[c],k=floorQ(hh);
+  return {title:'Độ cao so với mực nước biển',ctx:`<p class="stem">Bảng ghi độ cao của năm địa điểm so với mực nước biển (đơn vị mét). Độ cao âm nghĩa là địa điểm nằm dưới mực nước biển.</p>${tbl(['Địa điểm','Độ cao (m)'],h.map((q,i)=>[nm[i],DEC(q)]))}`,qs:[
+   mcq('Hai địa điểm nào có độ cao là hai số đối nhau?',tag(ia,ib),wrongs,`Độ cao ${DEC(h[ia])} m và ${DEC(h[ib])} m là hai số đối nhau (tổng bằng 0).`,'sd','TH'),
+   saq('Có bao nhiêu địa điểm nằm dưới mực nước biển?',below,'địa điểm',`Các độ cao âm: ${h.filter(q=>q[0]<0).map(q=>DEC(q)).join('; ')}. Có ${below} địa điểm.`,'ts','TH'),
+   saq('Xếp độ cao từ lớn đến bé. Độ cao của địa điểm đứng thứ hai là bao nhiêu mét?',val(h[idx[1]]),'m',`Từ lớn đến bé: ${idx.map(i=>DEC(h[i])).join(' > ')}. Số đứng thứ hai là ${DEC(h[idx[1]])}.`,'ss','VD',DEC(h[idx[1]])),
+   mcq(`Điểm biểu diễn độ cao của ${nm[c]} (${DEC(hh)} m) trên trục số nằm giữa hai điểm biểu diễn hai số nguyên liên tiếp nào?`,nb(`${N(k)} và ${N(k+1)}`),[[nb(`${N(k+1)} và ${N(k+2)}`),`${DEC(hh)} nhỏ hơn ${N(k+1)} nên không nằm giữa ${N(k+1)} và ${N(k+2)}.`],[nb(`${N(k-1)} và ${N(k)}`),`${DEC(hh)} lớn hơn ${N(k)} nên không nằm giữa ${N(k-1)} và ${N(k)}.`],[nb(`${N(-k-1)} và ${N(-k)}`),'Đó là hai số nguyên kề với số đối của độ cao này.']],`${N(k)} < ${DEC(hh)} < ${N(k+1)}.`,'ts','VD')]};}}
+];
+
+const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
+function SA_BUILD(){
+  const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
+  add('s_kncnt','kn','NB',saKnCount);add('s_knsum','kn','TH',saKnSum);add('s_knmix','kn','TH',saKnMix);add('s_knform','kn','VD',saKnForm);
+  add('s_tsnum','ts','NB',()=>saTsNum(false));add('s_tsnum2','ts','TH',()=>saTsNum(true));add('s_tsflr','ts','TH',saTsFloor);add('s_tspos','ts','VD',saTsPos);
+  add('s_sdnum','sd','NB',saSdNum);add('s_sddec','sd','TH',saSdDec);add('s_sdeq','sd','TH',saSdEq);add('s_sdbnd','sd','VD',saSdBound);
+  add('s_sspos','ss','NB',saSsPos);add('s_sslcm','ss','TH',saSsLcm);add('s_ssrank','ss','TH',saSsRank);add('s_ssmax','ss','VD',saSsMax);add('s_sscnt','ss','VD',saSsCount);
+  return S;
+}
+const SA=BANK.sa;
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'kn',fig:`<div class="figbox"><p>Số hữu tỉ: ${fr('a','b')} (a, b ∈ ℤ, b ≠ 0)</p><p>ℕ ⊂ ℤ ⊂ ℚ</p><p>${fr(-3,4)} = −0,75; 2${fr(1,3)} = ${fr(7,3)}</p></div>`,extra:'Ví dụ: 0,6 = 6/10 = 3/5 và −2 = −2/1 đều là số hữu tỉ; 5/0 thì không.'},
+  {k:'ts',fig:truc(-2,2,3,{A:[-5,3],B:[2,3]}),extra:'Ví dụ: mỗi đoạn đơn vị chia thành 3 phần. A cách O 5 phần về bên trái nên A biểu diễn −5/3; B biểu diễn 2/3.'},
+  {k:'sd',fig:`<div class="figbox"><p>Số đối của ${fr('a','b')} là ${fr('−a','b')}</p><p>${fr(3,4)} + ${fr(-3,4)} = 0</p><p>Số đối của 0 là 0</p></div>`,extra:'Ví dụ: số đối của −5/7 là 5/7; số đối của 1,5 là −1,5.'},
+  {k:'ss',fig:`<div class="figbox"><p>${fr(-3,4)} và ${fr(-2,3)}</p><p>${fr(-9,12)} và ${fr(-8,12)}</p><p>−9 < −8 nên ${fr(-3,4)} < ${fr(-2,3)}</p></div>`,extra:'Quy đồng về mẫu dương rồi so sánh tử. Số dương > 0 > số âm.'}
+];
+
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='sh7_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];TYPES.forEach(t=>by[t]=by[t].map(inst));
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['kn',['NB']],['kn',['TH','VD']],['ts',['NB','TH','VD']],['sd',['NB','TH','VD']],['ss',['NB','TH']],['ss',['TH','VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>q.topic===t&&l.includes(q.level)),used));
+  const tf=['kn',sel(['ts','sd']),'ss'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set(),t1=sel(['kn','ts']),t2=sel(['sd','ss']);
+  const mc=[
+    pick(MC.filter(q=>q.topic==='kn'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='ts'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='sd'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='ss'&&q.level!=='VD'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic===t1&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic===t2&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+/* ============ Màn hình: trang chủ ============ */
+/* ============ Mã học sinh ============ */
+const HS_KEY='luyentoan-hs';
+function needHS(){return !!SHEET_URL;} // có Google Sheet thì phải có mã học sinh mới vào học
+function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
+function saveHS(o){state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+function loginHTML(){
+  return `
+  <section class="hero">
+    <h1>Tập hợp các <em>số hữu tỉ</em></h1>
+    <p class="lead">Trang luyện tập dành cho học sinh các lớp của thầy cô. Hãy nhập mã học sinh để bắt đầu.</p>
+  </section>
+  <section class="card stack" style="margin-top:22px">
+    <div><h2>Nhập mã học sinh</h2></div>
+    <div>
+      <label class="fl" for="hsma">Mã học sinh (6 chữ số)</label>
+      <input type="text" id="hsma" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ví dụ: 482913">
+      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)"></p>
+    </div>
+    <div class="row"><button class="btn" id="hsgo">Vào học</button></div>
+    <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
+  </section>`;
+}
+function hsBarHTML(){
+  if(!state.stu)return '';
+  return `<section class="card" style="margin-top:22px"><div class="row" style="justify-content:space-between;align-items:center"><span>Xin chào, <b>${esc(state.stu.n)}</b>${state.stu.c?' · Lớp '+esc(state.stu.c):''}</span><button class="btn sm ghost" id="hsout">Đổi học sinh</button></div></section>`;
+}
+function checkHS(){
+  const inp=document.getElementById('hsma'),err=document.getElementById('hserr'),btn=document.getElementById('hsgo');
+  const u=inp.value.replace(/\D/g,'');
+  if(u.length!==6){err.textContent='Mã học sinh gồm đúng 6 chữ số. Hãy kiểm tra lại.';inp.focus();return;}
+  err.textContent='Đang kiểm tra mã...';btn.disabled=true;
+  fetch(SHEET_URL+'?ma='+u).then(r=>r.json()).then(o=>{
+    if(o&&o.ok){saveHS({u,n:o.n||'Học sinh',c:o.c||''});render();}
+    else{btn.disabled=false;err.textContent=o&&o.err?'Chưa kiểm tra được mã. Hãy thử lại sau ít phút hoặc báo giáo viên.':'Mã này không có trong danh sách. Hãy xem lại 6 chữ số hoặc hỏi giáo viên.';inp.focus();}
+  }).catch(()=>{btn.disabled=false;err.textContent='Chưa kiểm tra được mã (có thể mất mạng). Hãy thử lại.';});
+}
+
+function homeHTML(){
+  if(needHS()&&!state.stu)return loginHTML();
+  const weak=state.weak;
+  return `
+  <section class="hero">
+    <h1>Tập hợp các <em>số hữu tỉ</em></h1>
+    <p class="lead">Luyện Bài 1: số hữu tỉ và tập hợp ℚ, biểu diễn trên trục số, số đối, so sánh hai số hữu tỉ và bài toán thực tế. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
+  </section>
+
+  ${hsBarHTML()}
+
+  <section class="card stack" style="margin-top:22px">
+    <div>
+      <h2>Luyện tập</h2>
+      <p class="muted" style="margin:6px 0 0">Mỗi gói có khoảng 11 câu rút ngẫu nhiên từ ngân hàng ${MC.length+TF.length+SA.length} câu, nhiều câu tự đổi số liệu mỗi lần làm. Làm xong từng câu bấm Kiểm tra để xem lời giải ngay. Nếu chưa đúng, bạn được thử lại một lần. Không giới hạn thời gian, trang chỉ hiện thời gian bạn đã dùng.</p>
+    </div>
+    <div>
+      <div class="grp">Theo mức độ</div>
+      <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Theo nội dung</div>
+      <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Toán thực tế</div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="grp">Gợi ý cho bạn</div>
+      <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
+    </div>
+  </section>
+
+  <section class="card stack" style="margin-top:16px">
+    <div>
+      <h2>Kiểm tra</h2>
+      <p class="muted" style="margin:6px 0 0">Có ba bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
+    </div>
+    <div class="recap">
+      <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
+      <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một phần.</p></div>
+      <div class="card"><h3>Thử thách 30 phút</h3><p>Dành cho bạn muốn thử sức. 13 câu, 10 điểm, toàn câu vận dụng và nâng cao: 6 câu nhiều lựa chọn, 3 câu đúng sai và 4 câu trả lời ngắn. Điểm được ghi riêng, không tính chung với bài kiểm tra.</p></div>
+    </div>
+    ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
+      <label class="fl" for="nm">Họ và tên</label>
+      <input type="text" id="nm" autocomplete="name" placeholder="Ví dụ: Nguyễn Văn An" value="${esc(state.name)}">
+    </div>
+    <div>
+      <label class="fl" for="cls">Lớp</label>
+      <input type="text" id="cls" autocomplete="off" maxlength="8" value="${esc(state.cls)}">
+    </div>`}
+    <div>
+      <label class="fl" for="mcode">Mã đề (không bắt buộc)</label>
+      <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 6A-01" value="${esc(state.code)}">
+      <p class="small muted" style="margin:6px 0 0">Nếu giáo viên cho mã đề, hãy nhập đúng mã đó: các bạn nhập cùng mã sẽ làm cùng một đề. Để trống thì bạn nhận một đề ngẫu nhiên. Thứ tự đáp án A, B, C, D vẫn được xáo riêng cho từng bạn.</p>
+    </div>
+    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button><button class="btn" id="starth">Bắt đầu Thử thách 30 phút</button></div>
+    <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
+  </section>
+
+  <section style="margin-top:28px">
+    <h2 style="margin-bottom:12px">Ôn nhanh kiến thức</h2>
+    <div class="recap">
+      ${RECAP.map(r=>`<div class="card"><h3>${TOPICS[r.k].name}</h3>${r.fig}<p>${TOPICS[r.k].rule}</p><p class="muted small">${r.extra}</p></div>`).join('')}
+    </div>
+  </section>`;
+}
+
+/* ============ Thẻ câu hỏi ============ */
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+function badge(P){
+  if(P.first&&P.first.every(Boolean))return '<span class="st good">Đúng ngay lần đầu</span>';
+  if(P.final)return '<span class="st warn">Đúng ở lần thứ hai</span>';
+  return '<span class="st bad">Chưa đúng</span>';
+}
+function tail(q,P){
+  let h=`<div class="feedbox">${P.msg?`<div class="feed ${P.cls}" role="status">${P.msg}</div>`:''}</div>`;
+  if(P.done){
+    if(q.type==='mc')h+=`<p class="ans-line">Đáp án đúng: <b>${q.opts[q.ans].t}</b></p><div class="exp">${q.exp}</div>`;
+    else if(q.type==='sa')h+=`<p class="ans-line">Đáp án đúng: <b>${q.at||N(q.ans[0])} ${q.unit}</b></p><div class="exp">${q.exp}</div>`;
+  }else h+=`<div class="row" style="margin-top:12px"><button class="btn sm chk" data-q="${q.id}">Kiểm tra</button></div>`;
+  return h;
+}
+function mcHTML(q,i){
+  if(q.no!=null)i=q.no;
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,tried=P.tried||[],cur=state.ans[q.id];
+  const opts=state.perm[q.id].map((oi,j)=>{
+    let cls='opt',dis='';
+    if(pr){
+      if(done){dis='disabled';if(oi===q.ans)cls+=' is-right';else if(cur===oi)cls+=' is-wrong';}
+      else if(tried.includes(oi)){dis='disabled';cls+=' is-wrong';}
+    }
+    return `<label class="${cls}"><input type="radio" name="${q.id}" value="${oi}" ${cur===oi?'checked':''} ${dis}><span class="ol">${'ABCD'[j]}</span><span>${q.opts[oi].t}</span></label>`;
+  }).join('');
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}
+    <div class="opts" role="radiogroup" aria-label="Câu ${i+1}">${opts}</div>${pr?tail(q,P):''}</article>`;
+}
+function tfHTML(q,i){
+  if(q.no!=null)i=q.no;
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,a=state.ans[q.id]||[];
+  const rows=q.items.map((it,j)=>{
+    const cls=v=>{let c='opt';if(done){if(it.v===v)c+=' is-right';else if(a[j]===v)c+=' is-wrong';}return c;};
+    const dis=done?'disabled':'';
+    return `<div class="tfr"><div class="tx">${q.items.length>1?`<b>${'abcd'[j]})</b>`:''}${it.t}</div>
+      <div class="tfb" role="radiogroup" aria-label="Câu ${i+1}, ý ${'abcd'[j]}">
+        <label class="${cls(true)}"><input type="radio" name="${q.id}-${j}" value="1" ${a[j]===true?'checked':''} ${dis}><span>Đúng</span></label>
+        <label class="${cls(false)}"><input type="radio" name="${q.id}-${j}" value="0" ${a[j]===false?'checked':''} ${dis}><span>Sai</span></label>
+      </div>${done?`<div class="exp"><b>Đáp án: ${it.v?'Đúng':'Sai'}.</b> ${it.exp}</div>`:''}</div>`;
+  }).join('');
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}<div class="tf">${rows}</div>${pr?tail(q,P):''}</article>`;
+}
+function saHTML(q,i){
+  if(q.no!=null)i=q.no;
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done;
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}
+    <div class="sa"><label class="fl" for="in-${q.id}" style="margin:0">Đáp án:</label>
+    <input type="text" id="in-${q.id}" data-sa="${q.id}" autocomplete="off" placeholder="Ví dụ: -3 hoặc 0,5 hoặc 2/5" value="${esc(state.ans[q.id]||'')}" ${done?'disabled':''}>
+    <span class="muted">${q.unit}</span></div>${pr?tail(q,P):''}</article>`;
+}
+const CARD={mc:mcHTML,tf:tfHTML,sa:saHTML};
+
+/* ============ Màn hình: làm bài ============ */
+function partHead(k,t,d){return `<div class="part">${k?`<div class="kicker">${k}</div>`:''}<h2>${t}</h2><p>${d}</p></div>`;}
+function quizHTML(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const desc={
+    mc:test?(quick?'Mỗi câu chỉ có một đáp án đúng. 1,25 điểm mỗi câu.':'Mỗi câu chỉ có một đáp án đúng. 0,5 điểm mỗi câu.'):'Chọn một đáp án rồi bấm Kiểm tra.',
+    tf:test?'Mỗi câu có 4 ý, chọn Đúng hoặc Sai cho từng ý. Đúng 1 ý được 0,1 điểm, 2 ý được 0,25, 3 ý được 0,5, cả 4 ý được 1 điểm.':'Chọn Đúng hoặc Sai cho cả 4 ý rồi bấm Kiểm tra.',
+    sa:test?(quick?'Nhập kết quả là một số. Có thể dùng dấu phẩy hoặc dấu chấm. 2,5 điểm mỗi câu.':'Nhập kết quả là một số. Có thể dùng dấu phẩy hoặc dấu chấm. 1 điểm mỗi câu.'):'Nhập kết quả là một số rồi bấm Kiểm tra.'
+  };
+  const heads={mc:['Phần I','Câu hỏi nhiều lựa chọn'],tf:['Phần II','Câu hỏi đúng sai'],sa:[quick?'Phần II':'Phần III','Câu hỏi trả lời ngắn']};
+  let body='';
+  if(S.units)S.units.forEach((u,ui)=>{
+    body+=partHead('Tình huống '+(ui+1),u.title,'Đọc kĩ tình huống rồi trả lời lần lượt từng câu. Làm xong mỗi câu bấm Kiểm tra.');
+    body+=`<div class="stack"><article class="card">${u.ctx}${u.fig||''}</article>${u.qs.map(q=>CARD[q.type](q,q.no)).join('')}</div>`;
+  });
+  else TYPES.forEach(t=>{
+    if(!S.by[t].length)return;
+    body+=partHead(test?heads[t][0]:'',test?heads[t][1]:TYPE_NAME[t],desc[t]);
+    body+=`<div class="stack">${S.by[t].map(CARD[t]).join('')}</div>`;
+  });
+  return `<div class="bar-sticky"><div class="row" style="justify-content:space-between"><b id="plabel"></b><span class="small muted">${test?esc(state.name||'Học sinh'):S.title}</span><b id="timer" class="timer"></b></div><div class="prog"><i id="pbar"></i></div></div>
+  ${body}
+  <div id="warn"></div>
+  <div class="row" style="margin-top:22px"><button class="btn" id="submit">${test?'Nộp bài':'Xem kết quả'}</button><button class="btn ghost" id="back">Quay lại</button></div>`;
+}
+function totalItems(){return S.list.reduce((s,q)=>s+(q.type==='tf'?q.items.length:1),0);}
+function answered(){
+  let n=0;
+  S.by.mc.forEach(q=>{if(state.ans[q.id]!=null)n++;});
+  S.by.tf.forEach(q=>{const a=state.ans[q.id]||[];q.items.forEach((_,j)=>{if(typeof a[j]==='boolean')n++;});});
+  S.by.sa.forEach(q=>{if(String(state.ans[q.id]||'').trim()!=='')n++;});
+  return n;
+}
+function doneCount(){return S.list.filter(q=>state.pr[q.id]&&state.pr[q.id].done).length;}
+function updateProgress(){
+  const l=document.getElementById('plabel'),b=document.getElementById('pbar');if(!l)return;
+  if(S.mode!=='practice'){const n=answered(),t=totalItems();l.textContent=`Đã trả lời ${n}/${t}`;b.style.width=(100*n/t)+'%';}
+  else{const n=doneCount(),t=S.list.length;l.textContent=`Đã hoàn thành ${n}/${t} câu`;b.style.width=(100*n/t)+'%';}
+}
+
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^\d{1,3}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+/* ============ Luyện tập: kiểm tra từng câu ============ */
+function setFeed(id,msg,cls){
+  const box=document.querySelector(`#q-${id} .feedbox`);
+  if(box)box.innerHTML=`<div class="feed ${cls}" role="status">${msg}</div>`;
+}
+function practiceCheck(id){
+  const q=S.list.find(x=>x.id===id);if(!q)return;
+  const P=state.pr[id]||(state.pr[id]={attempts:0,done:false,tried:[]});
+  if(P.done)return;
+  const a=state.ans[id];
+  if(q.type==='mc'&&a==null)return setFeed(id,'Hãy chọn một đáp án trước.','info');
+  if(q.type==='tf'){const arr=a||[];if(q.items.some((_,j)=>typeof arr[j]!=='boolean'))return setFeed(id,'Hãy chọn Đúng hoặc Sai cho cả 4 ý trước.','info');}
+  if(q.type==='sa'&&String(a||'').trim()==='')return setFeed(id,'Hãy nhập đáp án trước.','info');
+  P.attempts++;
+  const oks=evalQ(q,a),all=oks.every(Boolean);
+  if(P.attempts===1){P.first=oks;P.firstAns=JSON.parse(JSON.stringify(a));}
+  if(all){
+    P.done=true;P.final=true;P.cls='ok';
+    P.msg=P.attempts===1?'Đúng rồi!':'Đúng ở lần thử thứ hai.';
+  }else if(P.attempts===1){
+    P.cls='bad';
+    if(q.type==='mc'){
+      const e=q.opts[a].err;P.tried.push(a);delete state.ans[id];
+      P.msg='Chưa đúng.'+(e?' '+e:'')+' Hãy chọn lại một đáp án khác.';
+    }else if(q.type==='tf'){
+      const k=oks.filter(Boolean).length;P.msg=`Mới đúng ${k}/${q.items.length} ý. Hãy xem lại các ý và thử một lần nữa.`;
+    }else P.msg='Đáp án chưa đúng. Hãy kiểm tra lại cách tính và thử một lần nữa.';
+  }else{
+    P.done=true;P.final=false;P.cls='bad';P.msg='Chưa đúng. Đáp án và lời giải ở bên dưới.';
+  }
+  const el=document.getElementById('q-'+id);
+  el.outerHTML=CARD[q.type](q,S.idx[id]);
+  updateProgress();
+}
+
+/* ============ Màn hình: kết quả ============ */
+function barRow(label,o){
+  const p=pct(o),[cls,txt]=status(p);
+  return `<div class="topic"><div class="trow"><b>${label}</b><span class="st ${cls}">${txt} · ${p}%</span></div>
+    <div class="track" role="img" aria-label="${label}: ${p}%"><i class="fill-${cls}" style="width:${p}%"></i></div>
+    <div class="small muted">${o.c}/${o.n} ý đúng</div></div>`;
+}
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+const SHEET_TAB='7 - Tập hợp các số hữu tỉ'; // tên trang tính của bài này trong Google Sheet chung
+const SHEET_TOPICS=['Số hữu tỉ và ℚ','Biểu diễn trên trục số','Số đối','So sánh']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
+const CODE_PREFIX='SH7-';
+function makeCode(r){
+  const t={};TKEYS.forEach(k=>t[k]=[r.topics[k].c,r.topics[k].n]);
+  const o={v:1,l:'sohuuti7',n:state.name||'Học sinh',d:new Date().toISOString().slice(0,10),s:r.total,m:state.elapsed,L:LIMIT[S.mode],q:S.mode,k:state.code,p:[r.sc.mc,r.sc.tf,r.sc.sa],t,c:state.cls,u:state.stu?state.stu.u:''};
+  return CODE_PREFIX+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+}
+function setSent(msg,retry){
+  const m=document.getElementById('sent');if(!m)return;
+  m.innerHTML=msg+(retry?' <button class="btn sm ghost" id="resend">Gửi lại</button>':'');
+}
+function sendResult(){
+  if(!SHEET_URL||!state.result)return;
+  const code=makeCode(state.result);
+  setSent('Đang gửi kết quả cho giáo viên...');
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:S.mode==='hard'?SHEET_TAB+' - Thử thách':SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
+  const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
+  fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
+    t=t.trim();
+    if(t==='saved'||t==='dup')done();
+    else if(t==='nocode')setSent('Kết quả chưa được ghi vì mã học sinh không có trong danh sách. Hãy báo giáo viên.');
+    else fail();
+  }).catch(()=>{
+    // Không đọc được trả lời: gửi lại theo cách cũ (bảng tính tự bỏ qua nếu đã nhận rồi)
+    fetch(SHEET_URL,Object.assign({mode:'no-cors'},opt)).then(done).catch(fail);
+  });
+}
+function reviewHTML(r){
+  const sym=ok=>ok?'<span class="mark-ok">✓ Đúng</span>':'<span class="mark-no">✗ Chưa đúng</span>';
+  return r.qres.map(x=>{
+    const tp=x.kind==='tf'?'':TOPICS[x.q.topic].short;
+    let body='';const head=`${partName(x.kind)} · Câu ${x.i+1}`;
+    if(x.kind==='mc'){
+      const chosen=x.a==null?'Chưa trả lời':x.q.opts[x.a].t,right=x.q.opts[x.q.ans].t;
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn chọn: <b>${chosen}</b></p><p class="ans-line">Đáp án đúng: <b>${right}</b></p>`+(x.ok||x.a==null||!x.q.opts[x.a].err?'':`<p class="ans-line mark-no">Lỗi thường gặp: ${x.q.opts[x.a].err}</p>`)+`<div class="exp">${x.q.exp}</div>`;
+    }else if(x.kind==='tf'){
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}`+x.q.items.map((it,j)=>{
+        const a=x.a[j],your=typeof a==='boolean'?(a?'Đúng':'Sai'):'Chưa chọn';
+        return `<div class="exp" style="margin-top:8px">${x.q.items.length>1?`<b>${'abcd'[j]})</b> `:''}${it.t}<br>Bạn chọn: <b>${your}</b> · Đáp án: <b>${it.v?'Đúng':'Sai'}</b> ${sym(x.oks[j])} <span class="chip">${TOPICS[it.topic].short}</span><br><span class="muted">${it.exp}</span></div>`;
+      }).join('');
+    }else{
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn nhập: <b>${x.raw?esc(x.raw):'Chưa trả lời'}</b></p><p class="ans-line">Đáp án đúng: <b>${x.q.at||N(x.q.ans[0])} ${x.q.unit}</b></p><div class="exp">${x.q.exp}</div>`;
+    }
+    const right=x.kind==='tf'?`${x.k}/${x.q.items.length} ý đúng · ${fmt(x.pts)}/${fmt(x.max)} điểm`:`${sym(x.ok)} · ${fmt(x.pts)}/${fmt(x.max)} điểm`;
+    return `<details class="rv"><summary><span><b>${head}</b> ${tp?`<span class="chip">${tp}</span>`:''}</span><span class="small">${right}</span></summary><div class="body">${body}</div></details>`;
+  }).join('');
+}
+function resultHTML(){
+  const r=state.result,test=S.mode!=='practice',quick=S.mode==='quick',ts=TKEYS.filter(k=>r.topics[k].n).map(k=>({k,p:pct(r.topics[k])}));
+  const weak=ts.filter(t=>t.p<80).sort((a,b)=>a.p-b.p),strong=ts.filter(t=>t.p>=80);
+  let comment;
+  if(!weak.length)comment=ts.length>1?'Bạn nắm vững cả bốn nội dung. Có thể chuyển sang các bài toán thực tế nhiều bước hơn.':'Bạn nắm vững nội dung này. Hãy thử gói của nội dung hoặc mức độ khác.';
+  else{
+    comment=`Phần cần ưu tiên ôn trước: <b>${TOPICS[weak[0].k].name}</b> (${weak[0].p}%).`;
+    if(strong.length)comment+=` Bạn làm tốt phần ${strong.map(t=>'<b>'+TOPICS[t.k].short+'</b>').join(', ')}.`;
+  }
+  const missed=k=>r.items.filter(it=>it.topic===k&&!it.ok).map(it=>it.label);
+  const correct=r.items.filter(it=>it.ok).length;
+  const head=test
+    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':S.mode==='hard'?' · Thử thách':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
+    :`<div class="big">${correct}<small> / ${r.items.length}</small></div><div><div class="muted small" style="margin-bottom:6px">${S.title}</div><div class="parts"><span class="chip">ý đúng ngay lần đầu</span><span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span><span class="chip">Luyện tập không tính điểm</span></div></div>`;
+  const code=test?makeCode(r):'';
+  return `
+  ${test&&state.timedOut?'<div class="warnbar" role="alert" style="margin:0 0 12px">Đã hết '+(LIMIT[S.mode]/60)+' phút nên bài được nộp tự động. Những ý chưa làm tính là chưa đúng.</div>':''}
+  <section class="card stack" style="margin-top:8px">
+    <div class="score">${head}</div>
+    <p style="margin:0">${comment}</p>
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo nội dung kiến thức</h2>
+    ${TKEYS.filter(k=>r.topics[k].n).map(k=>barRow(TOPICS[k].name,r.topics[k])).join('')}
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo mức độ</h2>
+    ${Object.keys(LEVELS).filter(k=>r.levels[k].n).map(k=>barRow(LEVELS[k],r.levels[k])).join('')}
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:6px">Nên ôn gì tiếp theo</h2>
+    ${weak.length?weak.map(t=>`<div class="advice"><h3>${TOPICS[t.k].name}</h3><p><b>Nhớ:</b> ${TOPICS[t.k].rule}</p><p><b>Lưu ý:</b> ${TOPICS[t.k].tip}</p><p class="small muted">Xem lại: ${missed(t.k).join('; ')}.</p></div>`).join(''):'<p class="muted">Không có nội dung nào dưới 80%.</p>'}
+    ${r.errs.length?`<h3 style="margin-top:18px">Những lỗi bạn đã mắc</h3><ul class="plain">${r.errs.map(e=>`<li><b>${e.where}</b> <span class="chip">${TOPICS[e.topic].short}</span><br><span class="muted">${e.text}</span></li>`).join('')}</ul>`:''}
+  </section>
+
+  ${test?`<section style="margin-top:22px"><h2 style="margin-bottom:12px">Xem lại từng câu</h2>${reviewHTML(r)}</section>
+
+  <section class="card codebox" style="margin-top:16px"><h2>Gửi kết quả cho giáo viên</h2>
+    <p class="small" id="sent" role="status" style="margin:0"></p>
+    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả được gửi tự động. Nếu giáo viên chưa nhận được, hãy sao chép mã dưới đây và gửi qua Zalo.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
+    <textarea id="code" readonly rows="3" aria-label="Mã kết quả">${code}</textarea>
+    <div class="row"><button class="btn sm" id="copy">Sao chép mã</button><span class="small muted" id="copied" role="status"></span></div>
+  </section>`:''}
+
+  <div class="row" style="margin-top:22px">
+    ${state.weak.length?`<button class="btn" id="weakpack">Luyện gói ôn điểm yếu</button>`:''}
+    ${nextSpec()?`<button class="btn ${state.weak.length?'ghost':''}" id="nextpack">Luyện tiếp: gói ${specName(nextSpec())}</button>`:''}
+    <button class="btn ${state.weak.length||nextSpec()?'ghost':''}" id="again">${test?(state.code?'Làm lại đề này':'Làm đề kiểm tra khác'):'Làm gói này lần nữa'}</button>
+    <button class="btn ghost" id="home">Về trang đầu</button>
+  </div>`;
+}
+
+/* ============ Màn hình: giáo viên ============ */
+function teacherHTML(){
+  return `<section class="hero"><h1>Bảng <em>tổng hợp</em> lớp</h1>
+    <p class="lead">Dán mã kết quả bài kiểm tra Tập hợp các số hữu tỉ của học sinh (bắt đầu bằng ${CODE_PREFIX}), mỗi mã một dòng. Bảng cho thấy điểm từng em và nội dung kiến thức cả lớp còn yếu. Mỗi học sinh nhận một đề khác nhau nhưng cùng cấu trúc, nên điểm vẫn so sánh được.</p></section>
+    <section class="card stack" style="margin-top:18px">
+      <div><label class="fl" for="codes">Mã kết quả</label><textarea id="codes" placeholder="${CODE_PREFIX}eyJ2IjoxLC..."></textarea></div>
+      <div class="row"><button class="btn" id="analyze">Tổng hợp</button><button class="btn ghost" id="clearc">Xóa</button></div>
+      <div id="tout" aria-live="polite"></div>
+    </section>`;
+}
+function decodeCode(line){
+  line=line.trim();if(!line.startsWith(CODE_PREFIX))return null;
+  try{const o=JSON.parse(decodeURIComponent(escape(atob(line.slice(CODE_PREFIX.length)))));if(o&&o.t&&typeof o.s==='number')return o;}catch(e){}
+  return null;
+}
+function analyzeCodes(){
+  const lines=document.getElementById('codes').value.split(/\r?\n/).filter(l=>l.trim());
+  const rows=[],bad=[];let other=0;
+  lines.forEach((l,i)=>{const o=decodeCode(l);if(o)rows.push(o);else{bad.push(i+1);if(/^[A-Z0-9]{2,4}-/.test(l.trim())&&!l.trim().startsWith(CODE_PREFIX))other++;}});
+  const out=document.getElementById('tout');
+  if(!rows.length){out.innerHTML=`<div class="warnbar">${lines.length?`Không đọc được mã nào. Hãy kiểm tra mã đã được sao chép đầy đủ, bắt đầu bằng ${CODE_PREFIX}.${other?' Có mã của bài khác (ví dụ Tam giác bằng nhau): hãy dán mã đó ở trang của bài ấy.':''}`:'Hãy dán ít nhất một mã kết quả.'}</div>`;return;}
+  const cell=o=>{if(!o||!o[1])return '<td class="cell">–</td>';const p=Math.round(100*o[0]/o[1]);return `<td class="cell ${status(p)[0]}">${p}%</td>`;};
+  const avg=TKEYS.map(k=>{let c=0,n=0;rows.forEach(r=>{if(r.t[k]){c+=r.t[k][0];n+=r.t[k][1];}});return [c,n];});
+  const mean=rows.reduce((s,r)=>s+r.s,0)/rows.length;
+  const timed=rows.filter(r=>typeof r.m==='number'),meanT=timed.length?timed.reduce((s,r)=>s+r.m,0)/timed.length:null;
+  const tcell=r=>typeof r.m==='number'?fmtTime(r.m):'–';
+  const flag=r=>(typeof r.m==='number'&&r.m<0.25*(r.L||1800)&&r.s<5)?' <span class="chip">Làm nhanh, điểm thấp</span>':'';
+  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':r.q==='hard'?' <span class="chip">Thử thách 30 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
+  const weakCount=TKEYS.map(k=>rows.filter(r=>r.t[k]&&r.t[k][1]&&100*r.t[k][0]/r.t[k][1]<50).length);
+  const worst=TKEYS.map((k,i)=>({k,p:avg[i][1]?100*avg[i][0]/avg[i][1]:100})).sort((a,b)=>a.p-b.p)[0];
+  out.innerHTML=`${bad.length?`<div class="warnbar" style="margin:0 0 12px">Bỏ qua ${bad.length} dòng không đọc được (dòng ${bad.join(', ')}).${other?' Có mã của bài khác, hãy dán ở trang của bài ấy.':''}</div>`:''}
+    <p style="margin:0 0 10px"><b>${rows.length}</b> học sinh · điểm trung bình <b>${fmt(mean)}</b>. Nội dung cả lớp còn yếu nhất: <b>${TOPICS[worst.k].name}</b> (${Math.round(worst.p)}%).</p>
+    <div class="tablewrap"><table><thead><tr><th>Học sinh</th><th>Điểm</th><th>Thời gian</th>${TKEYS.map(k=>`<th>${TOPICS[k].short}</th>`).join('')}</tr></thead><tbody>
+    ${rows.sort((a,b)=>a.s-b.s).map(r=>`<tr><td>${esc(r.n)}${chips(r)}${flag(r)}</td><td><b>${fmt(r.s)}</b></td><td>${tcell(r)}</td>${TKEYS.map(k=>cell(r.t[k])).join('')}</tr>`).join('')}
+    <tr><td><b>Cả lớp</b></td><td><b>${fmt(mean)}</b></td><td>${meanT===null?'–':fmtTime(meanT)}</td>${avg.map(cell).join('')}</tr>
+    <tr><td class="muted">Số em dưới 50%</td><td></td><td></td>${weakCount.map(n=>`<td class="cell">${n}</td>`).join('')}</tr>
+    </tbody></table></div>
+    <p class="small muted" style="margin:10px 0 0">Màu: xanh từ 80%, vàng từ 50% đến dưới 80%, đỏ dưới 50%. Các em được xếp từ điểm thấp đến cao để dễ thấy em cần hỗ trợ. Nhãn "Làm nhanh, điểm thấp" hiện khi em nộp bài trong chưa đầy một phần tư thời gian cho phép mà dưới 5 điểm, thường là em chưa làm kỹ nên cần hỏi lại.</p>`;
+}
+
+/* ============ Điều hướng và sự kiện ============ */
+function render(){
+  const gv=location.hash==='#giao-vien';
+  document.getElementById('nav-hs').setAttribute('aria-current',gv?'false':'page');
+  document.getElementById('nav-gv').setAttribute('aria-current',gv?'page':'false');
+  if(gv){stopTimer();$app.innerHTML=teacherHTML();return;}
+  if(state.view==='home'){stopTimer();$app.innerHTML=homeHTML();}
+  else if(state.view==='quiz'){$app.innerHTML=quizHTML();updateProgress();startTimer();}
+  else{stopTimer();$app.innerHTML=resultHTML();if(SHEET_URL&&S.mode!=='practice'&&state.sentCode!==makeCode(state.result))sendResult();else if(SHEET_URL&&S.mode!=='practice')setSent('Đã gửi kết quả cho giáo viên.');}
+  window.scrollTo(0,0);
+}
+function normCode(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'');}
+function withCode(mode,fn){
+  if(!state.code){fn();return;}
+  RNG=mulberry32(hashStr(mode+'|'+state.code));SEEDED=true;
+  try{fn();}finally{RNG=Math.random;SEEDED=false;}
+}
+function startTest(){withCode('test',buildTest);state.view='quiz';render();}
+function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
+function startHard(){withCode('hard',buildHard);state.view='quiz';render();}
+function startPack(spec){if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
+// Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
+function nextSpec(){
+  if(!S||S.mode!=='practice'||!S.spec)return null;
+  const sp=S.spec,list=sp.kind==='level'?Object.keys(LEVELS):sp.kind==='topic'?TKEYS:[],i=list.indexOf(sp.val);
+  return i>=0&&i<list.length-1?{kind:sp.kind,val:list[i+1]}:null;
+}
+const specName=sp=>sp.kind==='level'?LEVELS[sp.val]:TOPICS[sp.val].short;
+function parsePack(s){
+  if(s==='weak')return {kind:'weak',topics:state.weak.slice()};
+  const [kind,val]=s.split(':');return {kind,val};
+}
+function finish(force){
+  const test=S.mode!=='practice';
+  const left=test?totalItems()-answered():S.list.length-doneCount();
+  if(left>0&&!force){
+    const w=document.getElementById('warn');
+    w.innerHTML=test
+      ?`<div class="warnbar" role="alert">Còn <b>${left}</b> ý chưa trả lời. Những ý này sẽ tính là chưa đúng.<div class="row" style="margin-top:10px"><button class="btn sm" id="force">Vẫn nộp bài</button><button class="btn ghost sm" id="keep">Làm tiếp</button></div></div>`
+      :`<div class="warnbar" role="alert">Còn <b>${left}</b> câu chưa kiểm tra xong. Những câu này sẽ tính là chưa đúng ngay lần đầu.<div class="row" style="margin-top:10px"><button class="btn sm" id="force">Vẫn xem kết quả</button><button class="btn ghost sm" id="keep">Làm tiếp</button></div></div>`;
+    w.scrollIntoView({block:'center'});return;
+  }
+  stopTimer();
+  state.elapsed=Math.floor((Date.now()-state.t0)/1000);
+  if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
+  state.result=grade();updateWeak(state.result);state.view='result';render();
+}
+loadHS();
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
+document.addEventListener('click',e=>{
+  const pk=e.target.closest('[data-pack]');
+  if(pk&&!pk.disabled){startPack(parsePack(pk.dataset.pack));return;}
+  const ck=e.target.closest('.chk');
+  if(ck){practiceCheck(ck.dataset.q);return;}
+  const id=e.target.id;
+  if(id==='start'||id==='startq'||id==='starth'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else if(id==='starth')startHard();else startQuick();}
+  else if(id==='hsgo')checkHS();
+  else if(id==='hsout'){saveHS(null);state.view='home';render();}
+  else if(id==='submit')finish(false);
+  else if(id==='force')finish(true);
+  else if(id==='keep')document.getElementById('warn').innerHTML='';
+  else if(id==='back'){state.view='home';render();}
+  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else if(S.mode==='hard')startHard();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
+  else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
+  else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
+  else if(id==='home'){state.view='home';render();}
+  else if(id==='copy'){
+    const t=document.getElementById('code'),m=document.getElementById('copied');
+    t.focus();t.select();
+    (navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>{m.textContent='Đã sao chép.';}).catch(()=>{m.textContent='Hãy nhấn giữ vùng chọn rồi chọn Sao chép.';});
+  }
+  else if(id==='resend')sendResult();
+  else if(id==='analyze')analyzeCodes();
+  else if(id==='clearc'){document.getElementById('codes').value='';document.getElementById('tout').innerHTML='';}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;if(t.type!=='radio')return;
+  const m=t.name.match(/^(.+)-(\d)$/);
+  if(m){const a=state.ans[m[1]]||(state.ans[m[1]]=[]);a[+m[2]]=t.value==='1';}
+  else state.ans[t.name]=+t.value;
+  updateProgress();
+});
+document.addEventListener('input',e=>{
+  const id=e.target.dataset&&e.target.dataset.sa;
+  if(id){state.ans[id]=e.target.value;updateProgress();}
+});
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>
