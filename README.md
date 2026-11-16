@@ -12,6 +12,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Quy tắc dấu ngoặc (Chương III, Bài 15) | `quy-tac-dau-ngoac/` | `DN6-` |
 | 7 | Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
 | 7 | Tập hợp các số hữu tỉ (Chương I, Bài 1) | `tap-hop-so-huu-ti/` | `SH7-` |
+| 7 | Cộng, trừ, nhân, chia số hữu tỉ (Chương I, Bài 2) | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
 
 Trang chung liệt kê các bài: `cac-bai/`.
 
@@ -24,6 +25,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
 - Quy tắc dấu ngoặc: `https://huumkmath.github.io/tam-giac-bang-nhau/quy-tac-dau-ngoac/`
 - Tập hợp các số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-huu-ti/`
+- Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/cong-tru-nhan-chia-so-huu-ti/`
 
 ## Cách dùng cho giáo viên
 
