@@ -372,16 +372,31 @@ function genUnknown(){return tryGen(()=>{
     C(N(-(a-b)),'Dấu của kết quả bị ngược.')],
     `x = ${N(a)} − ${P(b)} = ${N(a-b)}.`);
 });}
-/* --- Quy tắc dấu ngoặc, thực tế --- */
-function genBracket(){return tryGen(()=>{
-  const [p,q,r]=shuffle(['a','b','c','m','n','x','y']).slice(0,3),f=ri(0,3);
-  let st,good,w;
-  if(f===0){st=`${p} − (${q} − ${r})`;good=`${p} − ${q} + ${r}`;w=[[`${p} − ${q} − ${r}`,`Bạn mới đổi dấu số hạng đầu trong ngoặc. Phải đổi dấu cả ${q} và −${r}.`],[`${p} + ${q} − ${r}`,'Dấu "−" đứng trước ngoặc nên phải đổi dấu tất cả các số hạng trong ngoặc.'],[`${p} + ${q} + ${r}`,`Bạn đã đổi dấu sai: ${q} phải thành −${q}.`]];}
-  else if(f===1){st=`${p} − (${q} + ${r})`;good=`${p} − ${q} − ${r}`;w=[[`${p} − ${q} + ${r}`,`Bạn mới đổi dấu số hạng đầu trong ngoặc. ${r} cũng phải đổi thành −${r}.`],[`${p} + ${q} − ${r}`,`${q} phải đổi thành −${q} vì có dấu "−" đứng trước ngoặc.`],[`${p} + ${q} + ${r}`,'Bạn đã không đổi dấu số hạng nào trong ngoặc.']];}
-  else if(f===2){st=`${p} + (${q} − ${r})`;good=`${p} + ${q} − ${r}`;w=[[`${p} − ${q} + ${r}`,'Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng trong ngoặc.'],[`${p} − ${q} − ${r}`,'Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng trong ngoặc.'],[`${p} + ${q} + ${r}`,`Số hạng −${r} phải giữ nguyên dấu "−".`]];}
-  else{st=`−(${p} − ${q})`;good=`−${p} + ${q}`;w=[[`−${p} − ${q}`,`Phải đổi dấu cả hai số hạng: −${q} đổi thành +${q}.`],[`${p} − ${q}`,'Dấu "−" đứng trước ngoặc nên phải đổi dấu các số hạng trong ngoặc.'],[`${p} + ${q}`,'Bạn đã đổi dấu sai.']];}
-  return mk(`Bỏ dấu ngoặc, biểu thức ${st} bằng biểu thức nào?`,good,w.map(x=>C(x[0],x[1])),
-    f===2?'Dấu "+" đứng trước ngoặc: bỏ ngoặc và giữ nguyên dấu các số hạng trong ngoặc.':'Dấu "−" đứng trước ngoặc: bỏ ngoặc và đổi dấu tất cả các số hạng trong ngoặc.');
+/* --- Bài toán thực tế, trục số --- */
+function genMove(){return tryGen(()=>{
+  const a=ri(3,25),b=ri(a+1,a+25),right=RNG()<.5,val=-a+(right?b:-b);
+  return mk(`Trên trục số, điểm A biểu diễn số ${N(-a)}. Điểm B nằm bên ${right?'phải':'trái'} điểm A và cách A ${b} đơn vị. Điểm B biểu diễn số nào?`,N(val),[
+    C(N(-a+(right?-b:b)),'Bạn đã nhầm chiều di chuyển: sang phải là cộng, sang trái là trừ.'),
+    C(N(-val),'Kết quả bị ngược dấu.'),
+    C(right?N(a+b):N(a-b),'Bạn đã bỏ qua dấu "−" của số '+N(-a)+' nên tính nhầm phép tính trên trục số.')],
+    `Sang ${right?'phải':'trái'} là ${right?'cộng':'trừ'}: ${nb(EX(-a,[[right?1:-1,b]]).txt)} = ${N(val)}.`);
+});}
+function genDiffAlt(){return tryGen(()=>{
+  const a=ri(10,80),b=ri(5,60),d=a+b;
+  return mk(`Điểm A ở độ cao ${a} m, điểm B ở độ cao ${N(-b)} m so với mực nước biển. Điểm A cao hơn điểm B bao nhiêu mét?`,`${d} m`,[
+    C(`${Math.abs(a-b)} m`,'Bạn đã lấy hiệu hai giá trị tuyệt đối. Chênh lệch là hiệu hai độ cao: a − (−b) = a + b.'),
+    C(`${a} m`,'Đó là độ cao của điểm A, chưa phải chênh lệch độ cao của hai điểm.'),
+    C(`${N(-d)} m`,'A cao hơn B nên chênh lệch là số dương.')],
+    `Chênh lệch độ cao = độ cao của A − độ cao của B = ${nb(`${a} − ${P(-b)} = ${a} + ${b} = ${d}`)} (m).`);
+});}
+function genElev(){return tryGen(()=>{
+  const b=ri(1,4),c=ri(b+2,b+9),d=ri(2,c+b-1),val=-b+c-d;
+  if(val===0||c===d)return null;
+  return mk(`Một thang máy đang ở tầng ${N(-b)} (tầng hầm). Thang máy đi lên ${c} tầng, rồi đi xuống ${d} tầng. Cuối cùng thang máy ở tầng nào?`,`tầng ${N(val)}`,[
+    C(`tầng ${N(-b-c+d)}`,'Bạn đã nhầm hướng: đi lên là cộng, đi xuống là trừ.'),
+    C(`tầng ${N(b+c-d)}`,'Tầng hầm là số âm: lúc đầu thang máy ở tầng '+N(-b)+', không phải tầng '+b+'.'),
+    C(`tầng ${N(-b+c+d)}`,'Đi xuống là trừ đi d tầng, không phải cộng thêm.')],
+    `Đi lên thì cộng, đi xuống thì trừ: ${nb(EX(-b,[[1,c],[-1,d]]).txt)} = ${N(val)}. Thang máy ở tầng ${N(val)}.`);
 });}
 function genAfterTemp(){return tryGen(()=>{
   const t=sgn()*ri(1,20),d=ri(3,25),up=RNG()<.5,val=t+(up?d:-d);
@@ -416,8 +431,8 @@ function pick4(Ts,Fs){
   const nT=ri(1,3);
   return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));
 }
-function mixed(make){ // tạo 4 ý, bảo đảm có cả ý đúng và ý sai
-  for(let n=0;n<60;n++){const items=make();const k=items.filter(i=>i.v).length;if(k>=1&&k<=3)return items;}
+function mixed(make){ // tạo 4 ý, bảo đảm có cả ý đúng và ý sai, không trùng nhau
+  for(let n=0;n<60;n++){const items=make();const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===items.length)return items;}
   return null;
 }
 const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
@@ -459,14 +474,14 @@ const PT=[
  IT('Tổng của hai số nguyên âm là một số nguyên âm.',true,'cg','NB','Cộng hai số nguyên âm thì cộng hai số tự nhiên rồi đặt dấu "−", nên kết quả âm.'),
  IT('Với mọi số nguyên a và b, a − b = a + (−b).',true,'tr','NB','Đó là quy tắc trừ hai số nguyên: cộng với số đối của số trừ.'),
  IT('Hiệu của hai số nguyên luôn là một số nguyên.',true,'tr','NB','Trong tập hợp ℤ phép trừ luôn thực hiện được, ví dụ 3 − 7 = −4.'),
- IT('Khi bỏ dấu ngoặc có dấu "+" đằng trước, các số hạng trong ngoặc giữ nguyên dấu.',true,'dn','NB','Đó là quy tắc dấu ngoặc khi có dấu "+" đứng trước.')];
+ IT('Số nguyên âm có thể dùng để biểu diễn nhiệt độ dưới 0°C, độ cao dưới mực nước biển hoặc số tiền nợ.',true,'dn','NB','Đúng: nhiệt độ dưới 0°C, độ cao dưới mực nước biển, tiền nợ hay lỗ đều được biểu diễn bằng số nguyên âm.')];
 const PF=[
  IT('Với mọi số nguyên a và b, a − b = b − a.',false,'tr','NB','Phép trừ không có tính chất giao hoán: 5 − 3 = 2 nhưng 3 − 5 = −2.'),
  IT('Tổng của hai số nguyên âm là một số nguyên dương.',false,'cg','NB','Tổng của hai số nguyên âm luôn là số nguyên âm, ví dụ (−2) + (−3) = −5.'),
  IT('Tổng của một số nguyên âm và một số nguyên dương luôn là số nguyên âm.',false,'cg','NB','Dấu của tổng phụ thuộc vào số có giá trị tuyệt đối lớn hơn. Ví dụ (−2) + 7 = 5 là số dương.'),
  IT('Tổng của hai số nguyên đối nhau bằng chính số đó.',false,'cg','NB','Tổng của hai số đối nhau bằng 0, không phải chính số đó.'),
  IT('Hiệu của hai số nguyên dương luôn là số nguyên dương.',false,'tr','NB','Ví dụ 3 − 5 = −2 là số nguyên âm.'),
- IT('Khi bỏ dấu ngoặc có dấu "−" đằng trước, các số hạng trong ngoặc giữ nguyên dấu.',false,'dn','NB','Phải đổi dấu tất cả các số hạng trong ngoặc.'),
+ IT('Khi nhiệt độ giảm, ta cộng thêm số độ giảm vào nhiệt độ ban đầu.',false,'dn','NB','Nhiệt độ giảm là trừ đi số độ giảm, nhiệt độ tăng mới là cộng thêm.'),
  IT('Với mọi số nguyên a, a + a = 0.',false,'tc','NB','Chỉ đúng khi a = 0. Tổng bằng 0 khi hai số đối nhau: a + (−a) = 0.'),
  IT('Phép cộng các số nguyên không có tính chất giao hoán.',false,'tc','NB','Phép cộng có tính chất giao hoán: a + b = b + a.')];
 function tfPropNB(){return ()=>({stem:'Xét các phát biểu sau:',items:pick4(PT,PF)});}
@@ -487,25 +502,22 @@ function cancelItem(){
   return IT(`${SUMX(shuffle([x,y,-x,z]))} = ${N(shown)}`,t,'tc','VD',t?`Nhóm ${N(x)} và ${N(-x)} (tổng bằng 0), còn lại ${N(y)} + ${P(z)} = ${N(s)}.`:`Nhóm hai số đối nhau, còn lại ${N(y)} + ${P(z)} = ${N(s)}, không phải ${N(shown)}.`);
 }
 function tfPropVD(){return ()=>{const items=mixed(()=>[cancelItem(),cancelItem(),cancelItem(),cancelItem()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
-/* dấu ngoặc */
-function brItem(){
-  const [a,b,c]=sample(3,2,40),f=ri(0,2),t=RNG()<.5;
-  const L0=[`${a} − (${b} − ${c})`,`${a} − (${b} + ${c})`,`${a} + (${b} − ${c})`][f];
-  const R=[[`${a} − ${b} + ${c}`,[`${a} − ${b} − ${c}`,`${a} + ${b} − ${c}`]],[`${a} − ${b} − ${c}`,[`${a} − ${b} + ${c}`,`${a} + ${b} + ${c}`]],[`${a} + ${b} − ${c}`,[`${a} − ${b} + ${c}`,`${a} + ${b} + ${c}`]]][f];
-  const shownR=t?R[0]:sel(R[1]);
-  return IT(nb(`${L0} = ${shownR}`),t,'dn','TH',t?(f===2?'Dấu "+" đứng trước ngoặc: giữ nguyên dấu các số hạng khi bỏ ngoặc.':'Dấu "−" đứng trước ngoặc: đổi dấu tất cả các số hạng khi bỏ ngoặc.'):`Bỏ ngoặc đúng là ${nb(R[0])}, nên vế phải ${nb(shownR)} không bằng vế trái.`);
+/* trục số, chênh lệch, tìm x */
+function lineItem(){
+  const p=sgn()*ri(1,15),d=ri(3,20),right=RNG()<.5,r=p+(right?d:-d),v=RNG()<.5,sh=v?r:wrongOf(r,[p+(right?-d:d),-r]);
+  return IT(`Trên trục số, điểm ${N(p)} dịch chuyển sang ${right?'phải':'trái'} ${d} đơn vị thì đến điểm ${N(sh)}.`,v,'dn','TH',`Sang ${right?'phải':'trái'} là ${right?'cộng':'trừ'}: ${nb(EX(p,[[right?1:-1,d]]).txt)} = ${N(r)}${v?'.':`, không phải ${N(sh)}.`}`);
 }
-function tfBrTH(){return ()=>{const items=mixed(()=>[brItem(),brItem(),brItem(),brItem()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
-function brVal(){
-  const [a,b,c]=sample(3,2,30),f=ri(0,3),t=RNG()<.5;
-  const txt=nb([`${a} − (${b} − ${c})`,`${a} − (${b} + ${c})`,`${a} + (${b} − ${c})`,`−(${a} − ${b}) + ${c}`][f]);
-  const val=[a-b+c,a-b-c,a+b-c,-a+b+c][f],wrong=[a-b-c,a-b+c,a+b+c,-a-b+c][f];
-  let shown=t?val:(RNG()<.5?wrong:-val);
-  if(!t&&shown===val)shown=val+2;
-  const ok=shown===val;
-  return IT(`${txt} = ${N(shown)}`,ok,'dn','VD',(ok?'':`Kết quả đúng là ${N(val)}. `)+`Bỏ ngoặc ${f===2?'(giữ nguyên dấu)':'(đổi dấu các số hạng trong ngoặc)'} rồi tính được ${N(val)}.`);
+function tfLineTH(){return ()=>{for(let n=0;n<60;n++){const items=mixed(()=>[lineItem(),lineItem(),lineItem(),lineItem()]);if(items&&new Set(items.map(i=>i.t)).size===4)return {stem:'Xét các phát biểu sau:',items};}return FB_TF();};}
+function gapItem(){
+  const a=ri(5,60),b=ri(5,40),d=a+b,v=RNG()<.5,sh=v?d:wrongOf(d,[Math.abs(a-b),d+10]);
+  return IT(`Điểm A ở độ cao ${a} m, điểm B ở độ cao ${N(-b)} m so với mực nước biển. Điểm A cao hơn điểm B ${sh} m.`,v,'dn','VD',`Chênh lệch độ cao là ${nb(`${a} − ${P(-b)} = ${a} + ${b} = ${d}`)} (m)${v?'.':`, không phải ${sh} m.`}`);
 }
-function tfBrVD(){return ()=>{const items=mixed(()=>[brVal(),brVal(),brVal(),brVal()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};}
+function unkItem(){
+  const a=ri(3,40),b=sgn()*ri(2,40),v=RNG()<.5,k=ri(0,1);
+  if(k===0){const r=a+b,sh=v?r:wrongOf(r,[b-a,-r]);return IT(`Biết ${nb('x − '+a+' = '+N(b))}. Khi đó x = ${N(sh)}.`,v,'dn','VD',`Số bị trừ bằng hiệu cộng số trừ: ${nb(`x = ${N(b)} + ${a} = ${N(r)}`)}${v?'.':`, không phải ${N(sh)}.`}`);}
+  const r=b-a,sh=v?r:wrongOf(r,[a+b,-r]);return IT(`Biết ${nb('x + '+a+' = '+N(b))}. Khi đó x = ${N(sh)}.`,v,'dn','VD',`Số hạng chưa biết bằng tổng trừ số hạng đã biết: ${nb(`x = ${N(b)} − ${a} = ${N(r)}`)}${v?'.':`, không phải ${N(sh)}.`}`);
+}
+function tfGapVD(){return ()=>{for(let n=0;n<60;n++){const items=mixed(()=>[gapItem(),unkItem(),gapItem(),unkItem()]);if(items&&new Set(items.map(i=>i.t)).size===4)return {stem:'Xét các phát biểu sau:',items:shuffle(items)};}return FB_TF();};}
 /* bài toán thực tế */
 function realItem(kind){
   const v=RNG()<.5;
@@ -572,8 +584,8 @@ function saSubTH(){const a=sgn()*ri(1,40),b=sgn()*ri(1,40);return{stem:`Tính ${
 function saSub3(){const g=[sgn(),sgn()],v0=sgn()*ri(2,30),b=sgn()*ri(2,30),c=sgn()*ri(2,30),e=EX(v0,[[g[0],b],[g[1],c]]);return{stem:`Tính ${e.txt}.`,ans:[e.val],exp:`Đổi phép trừ thành cộng với số đối: ${SUMX([v0,g[0]*b,g[1]*c])} = ${N(e.val)}.`};}
 function saUnknown(){const a=ri(2,40),b=sgn()*ri(2,40);return RNG()<.5?{stem:`Tìm số nguyên x biết ${nb('x + '+P(-a)+' = '+N(b))}.`,ans:[b+a],exp:`Số hạng chưa biết bằng tổng trừ số hạng đã biết: x = ${N(b)} − ${P(-a)} = ${N(b)} + ${a} = ${N(b+a)}.`}:{stem:`Tìm số nguyên x biết ${nb(N(a)+' − x = '+N(b))}.`,ans:[a-b],exp:`Số trừ bằng số bị trừ trừ hiệu: x = ${N(a)} − ${P(b)} = ${N(a-b)}.`};}
 function saDiffTemp(){const lo=ri(3,25),hi=ri(2,25);return{stem:`Nhiệt độ lúc sáng sớm là ${N(-lo)}°C, đến trưa là ${hi}°C. Nhiệt độ đã tăng bao nhiêu độ?`,ans:[hi+lo],exp:`Số độ tăng = ${hi} − (${N(-lo)}) = ${hi} + ${lo} = ${hi+lo}°C.`};}
-function saBr0(){const [a,b,c]=sample(3,2,40),f=ri(0,1);return f===0?{stem:`Bỏ dấu ngoặc rồi tính ${nb(a+' − ('+b+' + '+c+')')}.`,ans:[a-b-c],exp:`${nb(a+' − ('+b+' + '+c+')')} = ${nb(a+' − '+b+' − '+c)} = ${N(a-b-c)}.`}:{stem:`Bỏ dấu ngoặc rồi tính ${nb(a+' + ('+b+' − '+c+')')}.`,ans:[a+b-c],exp:`${nb(a+' + ('+b+' − '+c+')')} = ${nb(a+' + '+b+' − '+c)} = ${N(a+b-c)}.`};}
-function saBr1(){const a=sgn()*ri(2,30),b=sgn()*ri(2,30),c=ri(2,30);const txt=nb(`${N(a)} − (${N(b)} − ${c})`);return{stem:`Tính ${txt}.`,ans:[a-(b-c)],exp:`Bỏ dấu ngoặc có dấu "−" đằng trước thì đổi dấu các số hạng trong ngoặc: ${nb(N(a)+' − '+P(b)+' + '+c)} = ${N(a-b+c)}.`};}
+function saMove(){const a=ri(3,25),b=ri(a+1,a+25),right=RNG()<.5,val=-a+(right?b:-b);return{stem:`Trên trục số, điểm A biểu diễn số ${N(-a)}. Điểm B nằm bên ${right?'phải':'trái'} điểm A và cách A ${b} đơn vị. Điểm B biểu diễn số nào?`,ans:[val],exp:`Sang ${right?'phải':'trái'} là ${right?'cộng':'trừ'}: ${nb(EX(-a,[[right?1:-1,b]]).txt)} = ${N(val)}.`};}
+function saGap(){const a=ri(10,80),b=ri(5,60);return{stem:`Điểm A ở độ cao ${a} m, điểm B ở độ cao ${N(-b)} m so với mực nước biển. Điểm A cao hơn điểm B bao nhiêu mét?`,ans:[a+b],exp:`Chênh lệch độ cao: ${nb(`${a} − ${P(-b)} = ${a} + ${b} = ${a+b}`)} (m).`};}
 function saAfterTemp(){const t=sgn()*ri(1,20),d=ri(3,25),up=RNG()<.5,val=t+(up?d:-d);return{stem:`Lúc đầu nhiệt độ là ${N(t)}°C. Sau đó nhiệt độ ${up?'tăng':'giảm'} ${d}°C. Nhiệt độ lúc sau là bao nhiêu độ C?`,ans:[val],exp:`${up?'Tăng':'Giảm'} là ${up?'cộng':'trừ'}: ${EX(t,[[up?1:-1,d]]).txt} = ${N(val)}°C.`};}
 function saAlt(){const a=ri(10,60),b=ri(5,a-1),c=ri(3,30),val=-a+b-c;return{stem:`Một tàu ngầm đang ở độ cao ${N(-a)} m so với mực nước biển. Tàu nổi lên ${b} m, sau đó lặn xuống ${c} m. Độ cao của tàu lúc sau là bao nhiêu mét?`,ans:[val],exp:`${EX(-a,[[1,b],[-1,c]]).txt} = ${N(val)} m.`};}
 function saProfit(){let m,s;do{m=[ri(5,40),ri(5,40),ri(5,40)].map(v=>sgn()*v);s=sum(m);}while(s===0||m.every(x=>x>0)||m.every(x=>x<0));const nm=['tháng 1','tháng 2','tháng 3'];return{stem:`Một cửa hàng trong ba tháng liên tiếp: ${m.map((v,i)=>`${nm[i]} ${v>0?'lãi':'lỗ'} ${Math.abs(v)} triệu đồng`).join(', ')}. Tổng lợi nhuận ba tháng là bao nhiêu triệu đồng? (Số âm là lỗ.)`,ans:[s],exp:`Lãi là số dương, lỗ là số âm: ${SUMX(m)} = ${N(s)} triệu đồng.`};}
@@ -591,8 +603,8 @@ const SA=[
  {id:'s_tr_th2',topic:'tr',level:'TH',unit:'°C',gen:saDiffTemp},
  {id:'s_tr_vd',topic:'tr',level:'VD',unit:'',gen:saSub3},
  {id:'s_tr_vd2',topic:'tr',level:'VD',unit:'',gen:saUnknown},
- {id:'s_dn_nb',topic:'dn',level:'NB',unit:'',gen:saBr0},
- {id:'s_dn_th',topic:'dn',level:'TH',unit:'',gen:saBr1},
+ {id:'s_dn_nb',topic:'dn',level:'NB',unit:'',gen:saMove},
+ {id:'s_dn_th',topic:'dn',level:'TH',unit:'m',gen:saGap},
  {id:'s_dn_th2',topic:'dn',level:'TH',unit:'°C',gen:saAfterTemp},
  {id:'s_dn_vd',topic:'dn',level:'VD',unit:'m',gen:saAlt},
  {id:'s_dn_vd2',topic:'dn',level:'VD',unit:'triệu đồng',gen:saProfit}
@@ -604,12 +616,12 @@ const TOPICS={
   cg:{short:'Cộng hai số nguyên',name:'Cộng hai số nguyên',rule:'Cộng hai số nguyên âm: cộng hai số tự nhiên sau dấu "−" rồi đặt dấu "−" trước kết quả. Cộng hai số nguyên khác dấu (không đối nhau): lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối, rồi đặt trước kết quả dấu của số có giá trị tuyệt đối lớn hơn. Hai số đối nhau có tổng bằng 0.',tip:'Hai số khác dấu thì lấy hiệu, không cộng hai giá trị tuyệt đối. Dấu của kết quả là dấu của số có giá trị tuyệt đối lớn hơn.'},
   tc:{short:'Tính chất phép cộng',name:'Tính chất của phép cộng',rule:'Giao hoán: a + b = b + a. Kết hợp: (a + b) + c = a + (b + c). Cộng với số 0: a + 0 = a. Cộng với số đối: a + (−a) = 0.',tip:'Nhóm các số đối nhau (tổng bằng 0) trước để tính nhanh, và nhớ giữ nguyên dấu của mỗi số hạng khi đổi chỗ.'},
   tr:{short:'Trừ hai số nguyên',name:'Trừ hai số nguyên',rule:'Muốn trừ số nguyên a cho số nguyên b, ta cộng a với số đối của b: a − b = a + (−b). Hiệu của hai số nguyên luôn là một số nguyên.',tip:'Trừ cho một số âm thì thành cộng với số dương: a − (−b) = a + b. Không đảo thứ tự: a − b khác b − a.'},
-  dn:{short:'Dấu ngoặc, thực tế',name:'Quy tắc dấu ngoặc và bài toán thực tế',rule:'Bỏ dấu ngoặc có dấu "+" đằng trước thì giữ nguyên dấu các số hạng trong ngoặc. Bỏ dấu ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng trong ngoặc: a − (b − c) = a − b + c.',tip:'Phải đổi dấu tất cả các số hạng trong ngoặc, không chỉ số hạng đầu. Trong bài toán thực tế: tăng là cộng, giảm là trừ; lỗ, nợ, dưới 0 là số âm.'}
+  dn:{short:'Bài toán thực tế',name:'Bài toán thực tế và trục số',rule:'Số nguyên âm biểu diễn nhiệt độ dưới 0°C, độ cao dưới mực nước biển, số tiền nợ hay lỗ. Tăng là cộng, giảm là trừ. Trên trục số, cộng là sang phải, trừ là sang trái. Chênh lệch giữa hai giá trị là hiệu của số lớn trừ số bé.',tip:'Đọc kĩ tình huống và viết phép tính trước khi tính. Cẩn thận khi trừ cho số âm: 8 − (−5) = 8 + 5 = 13, không phải 3.'}
 };
 const TKEYS=['cg','tc','tr','dn'];
-const TDESC={cg:'Cộng hai số nguyên âm, hai số khác dấu, hai số đối nhau',tc:'Giao hoán, kết hợp, cộng với 0, cộng với số đối, tính hợp lý',tr:'Số đối, trừ hai số nguyên, a − (−b)',dn:'Bỏ dấu ngoặc, nhiệt độ, độ cao, lãi lỗ'};
+const TDESC={cg:'Cộng hai số nguyên âm, hai số khác dấu, hai số đối nhau',tc:'Giao hoán, kết hợp, cộng với 0, cộng với số đối, tính hợp lý',tr:'Số đối, trừ hai số nguyên, a − (−b)',dn:'Trục số, nhiệt độ, độ cao, lãi lỗ'};
 const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
-const LEVEL_DESC={NB:'Nhớ quy tắc cộng, trừ số nguyên, tên các tính chất, số đối, quy tắc dấu ngoặc.',TH:'Cộng, trừ hai số nguyên; tính hợp lý ba số; bỏ dấu ngoặc; bài toán thực tế một bước.',VD:'Tính tổng nhiều số hạng, tính hợp lý, tìm x, bài toán thực tế nhiều bước.'};
+const LEVEL_DESC={NB:'Nhớ quy tắc cộng, trừ số nguyên, tên các tính chất, số đối, ý nghĩa của số âm trong thực tế.',TH:'Cộng, trừ hai số nguyên; tính hợp lý ba số; trục số; bài toán thực tế một bước.',VD:'Tính tổng nhiều số hạng, tính hợp lý, tìm x, bài toán thực tế nhiều bước.'};
 
 /* ============ Ngân hàng nhiều lựa chọn ============ */
 const O=(t,err)=>err?{t,err}:{t};
@@ -674,13 +686,13 @@ const MC=[
    O('Chỉ thực hiện được khi cả hai số đều dương','Phép trừ thực hiện được với mọi cặp số nguyên, không cần điều kiện dấu.'),
    O('Chỉ thực hiện được khi cả hai số đều âm','Phép trừ thực hiện được với mọi cặp số nguyên, không cần điều kiện dấu.')],
   exp:'Hiệu của hai số nguyên bất kì luôn là một số nguyên, vì a − b = a + (−b) và tổng hai số nguyên là số nguyên.'},
- {id:'m15',topic:'dn',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "−" đằng trước, ta phải làm gì với các số hạng trong ngoặc?',ans:0,opts:[
-   O('Đổi dấu tất cả các số hạng'),O('Giữ nguyên dấu tất cả các số hạng','Đó là quy tắc khi có dấu "+" đứng trước ngoặc.'),O('Chỉ đổi dấu số hạng đầu tiên','Phải đổi dấu tất cả các số hạng trong ngoặc.'),O('Bỏ hết dấu của các số hạng','Các số hạng vẫn phải mang dấu, chỉ là đổi dấu.')],
-  exp:'Ví dụ 10 − (3 − 4) = 10 − 3 + 4 = 11.'},
- {id:'m16',topic:'dn',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "+" đằng trước, các số hạng trong ngoặc:',ans:0,opts:[
-   O('giữ nguyên dấu'),O('đổi dấu tất cả','Đó là quy tắc khi có dấu "−" đứng trước ngoặc.'),O('chỉ số hạng đầu đổi dấu','Với dấu "+" đứng trước, không số hạng nào đổi dấu.'),O('đều trở thành số dương','Các số hạng vẫn giữ dấu của mình.')],
-  exp:'Ví dụ 10 + (3 − 4) = 10 + 3 − 4 = 9.'},
- {id:'m17',topic:'dn',level:'VD',stem:'Cho A = 15 − (−7) và B = 15 + (−7). Khẳng định nào đúng?',ans:0,opts:[
+ {id:'m15',topic:'dn',level:'NB',stem:'Số dư tài khoản của một người là −200 nghìn đồng. Điều đó có nghĩa là người đó:',ans:0,opts:[
+   O('đang nợ 200 nghìn đồng'),O('có 200 nghìn đồng','Số dư âm không phải là có tiền. Số âm biểu diễn tiền nợ.'),O('có 2 000 nghìn đồng','Số dư là −200, giá trị tuyệt đối của nó là 200, không phải 2 000.'),O('chưa có khoản nào','Số dư khác 0 nên đã có giao dịch; số dư âm là đang nợ.')],
+  exp:'Số nguyên âm dùng để biểu diễn tiền nợ, nên số dư −200 nghìn đồng nghĩa là nợ 200 nghìn đồng.'},
+ {id:'m16',topic:'dn',level:'NB',stem:'Nhiệt độ lúc đầu là −3°C, sau đó tăng 5°C. Phép tính nào cho nhiệt độ lúc sau?',ans:0,opts:[
+   O('(−3) + 5'),O('(−3) − 5','Nhiệt độ tăng thì cộng thêm, không phải trừ đi.'),O('3 + 5','Nhiệt độ lúc đầu là −3°C, không phải 3°C.'),O('3 − 5','Nhiệt độ lúc đầu là −3°C và tăng là phép cộng.')],
+  exp:'Tăng là cộng: (−3) + 5 = 2, nhiệt độ lúc sau là 2°C.'},
+ {id:'m17',topic:'tr',level:'VD',stem:'Cho A = 15 − (−7) và B = 15 + (−7). Khẳng định nào đúng?',ans:0,opts:[
    O('A > B'),O('A = B','A = 15 + 7 = 22 còn B = 15 − 7 = 8, hai số khác nhau.'),O('A < B','A = 22 lớn hơn B = 8.'),O('A và B là hai số đối nhau','A = 22 và B = 8 không phải hai số đối nhau.')],
   exp:'A = 15 − (−7) = 15 + 7 = 22; B = 15 + (−7) = 8. Vậy A > B.'}
 ].map(q=>Object.assign({type:'mc'},q));
@@ -700,13 +712,13 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
   addMC('g_dtemp_'+x,'tr','TH',genDiffTemp);
   addMC('g_sub3_'+x,'tr','VD',genSub3);
   addMC('g_unk_'+x,'tr','VD',genUnknown);
-  addMC('g_br_'+x,'dn','TH',genBracket);
   addMC('g_atemp_'+x,'dn','TH',genAfterTemp);
   addMC('g_alt_'+x,'dn','VD',genAlt);
   addMC('g_profit_'+x,'dn','VD',genProfit);
 });
 
-['a','b'].forEach(x=>addMC('g_brnb_'+x,'dn','NB',genBracket));
+['a','b'].forEach(x=>addMC('g_move_'+x,'dn','NB',genMove));
+['a','b','c'].forEach(x=>{addMC('g_diffalt_'+x,'dn','TH',genDiffAlt);addMC('g_elev_'+x,'dn','VD',genElev);});
 
 const TF=[];
 const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
@@ -719,8 +731,8 @@ const tCalcTH=tfCalc('TH'),tCalcVD=tfCalc('VD'),tSubTH=tfSub('TH'),tSubVD=tfSub(
   addTF('tf_calc_vd_'+x,'cg','VD',tCalcVD);
   addTF('tf_sub_th_'+x,'tr','TH',tSubTH);
   addTF('tf_sub_vd_'+x,'tr','VD',tSubVD);
-  addTF('tf_br_th_'+x,'dn','TH',tfBrTH());
-  addTF('tf_br_vd_'+x,'dn','VD',tfBrVD());
+  addTF('tf_line_'+x,'dn','TH',tfLineTH());
+  addTF('tf_gap_'+x,'dn','VD',tfGapVD());
   addTF('tf_real_'+x,'dn','TH',tfRealTH());
 });
 addTF('tf_real_c','dn','TH',tfRealTH());
@@ -745,17 +757,15 @@ function tfHardC(){
       IT(`Tổng tất cả các số nguyên x thỏa mãn ${nb(`${N(-m)} ≤ x ≤ ${m}`)} bằng ${v[0]?0:m}.`,v[0],'tc','VD',`Các số từ ${N(-m)} đến ${m} gồm số 0 và các cặp số đối nhau, mỗi cặp có tổng bằng 0. Vậy tổng bằng 0.`),
       IT(v[1]?`Nếu a là số nguyên âm thì ${nb(`a − ${k}`)} là số nguyên âm.`:`Nếu a là số nguyên âm thì ${nb(`${k} − a`)} là số nguyên âm.`,v[1],'tr','VD',v[1]?`${nb(`a − ${k} = a + (−${k})`)} là tổng của hai số nguyên âm nên là số nguyên âm.`:`${nb(`${k} − a = ${k} + (−a)`)}, mà −a là số nguyên dương, nên kết quả là số nguyên dương.`),
       IT(v[2]?'Hiệu của một số nguyên âm và một số nguyên dương luôn là một số nguyên âm.':'Hiệu của hai số nguyên âm luôn là một số nguyên âm.',v[2],'tr','VD',v[2]?'Trừ đi một số nguyên dương là cộng với một số nguyên âm; tổng của hai số nguyên âm là số nguyên âm.':'Ví dụ (−2) − (−5) = (−2) + 5 = 3 là số nguyên dương.'),
-      IT(`Số đối của ${nb(`${p} − ${q}`)} là ${nb(v[3]?`${q} − ${p}`:`−${p} − ${q}`)}.`,v[3],'dn','VD',`Số đối của ${nb(`${p} − ${q}`)} là ${nb(`−(${p} − ${q}) = −${p} + ${q} = ${q} − ${p}`)}.`)]);
+      IT(v[3]?'Nếu hai số nguyên a và b có a + b = 0 thì a và b là hai số đối nhau.':'Nếu hai số nguyên a và b có a + b = 0 thì a = b.',v[3],'tc','VD',v[3]?'Hai số nguyên có tổng bằng 0 là hai số đối nhau.':'Ví dụ 3 + (−3) = 0 nhưng 3 ≠ −3. Hai số có tổng bằng 0 là hai số đối nhau, không phải hai số bằng nhau.')]);
     if(tfOK(items))return {stem:'Xét các phát biểu sau:',items};
   }
   return FB_TF();
 }
 const HARD={tf:[{id:'h_tc',type:'tf',topic:'tr',level:'VD',gen:tfHardC}],sa:[
  {id:'h_tong',topic:'tc',level:'VD',unit:'',gen:()=>{const a=ri(4,12),b=a+ri(0,3),rest=[];for(let x=a;x<=b;x++)rest.push(x);const s=sum(rest);return{stem:`Tính tổng tất cả các số nguyên x thỏa mãn ${nb(`${N(-a)} < x ≤ ${b}`)}.`,ans:[s],exp:`Các số từ ${N(-(a-1))} đến ${a-1} gồm số 0 và các cặp số đối nhau nên có tổng bằng 0. Còn lại ${rest.length>1?nb(rest.join(' + ')+' = '+s):s}. Vậy tổng bằng ${s}.`};}},
- {id:'h_hl',topic:'dn',level:'VD',unit:'',gen:()=>{const [p,q]=sample(2,120,480),r=ri(11,60);return RNG()<.5
-   ?{stem:`Tính một cách hợp lí: ${nb(`${p} − (${q} − ${r}) + (${q} − ${p})`)}.`,ans:[r],exp:`Bỏ dấu ngoặc: ${nb(`${p} − ${q} + ${r} + ${q} − ${p}`)}. Nhóm các số đối nhau: ${nb(`(${p} − ${p}) + (${q} − ${q}) + ${r} = ${r}`)}.`}
-   :{stem:`Tính một cách hợp lí: ${nb(`(${p} − ${q}) − (${p} + ${r}) + ${q}`)}.`,ans:[-r],exp:`Bỏ dấu ngoặc: ${nb(`${p} − ${q} − ${p} − ${r} + ${q}`)}. Nhóm các số đối nhau: ${nb(`(${p} − ${p}) + (${q} − ${q}) − ${r} = ${N(-r)}`)}.`};}},
- {id:'h_x',topic:'dn',level:'VD',unit:'',gen:()=>{const a=sgn()*ri(5,30),b=ri(5,30),c=sgn()*ri(5,30),x=c-a+b;return{stem:`Tìm số nguyên x, biết ${nb(`${N(a)} − (${b} − x) = ${N(c)}`)}.`,ans:[x],exp:`Bỏ dấu ngoặc: ${nb(`${N(a)} − ${b} + x = ${N(c)}`)}, tức là ${nb(`${N(a-b)} + x = ${N(c)}`)}. Vậy ${nb(`x = ${N(c)} − ${P(a-b)} = ${N(x)}`)}.`};}},
+ {id:'h_hl',topic:'tc',level:'VD',unit:'',gen:()=>{const [p,q,r,t]=sample(4,120,480);return{stem:`Tính một cách hợp lí: ${SUMX(shuffle([p,-q,r,-p,q,-t]))}.`,ans:[r-t],exp:`Nhóm các cặp số đối nhau: ${nb(`${p} + ${P(-p)} = 0`)}; ${nb(`${q} + ${P(-q)} = 0`)}. Còn lại ${nb(`${r} + ${P(-t)} = ${N(r-t)}`)}.`};}},
+ {id:'h_x',topic:'tr',level:'VD',unit:'',gen:()=>{const a=ri(5,60),b=sgn()*ri(5,60),c=sgn()*ri(5,60);return{stem:`Tìm số nguyên x, biết ${nb(`x − ${a} = ${N(b)} + ${P(c)}`)}.`,ans:[a+b+c],exp:`Tính vế phải: ${nb(`${N(b)} + ${P(c)} = ${N(b+c)}`)}. Vậy ${nb(`x = ${N(b+c)} + ${a} = ${N(a+b+c)}`)}.`};}},
  {id:'h_day',topic:'tc',level:'VD',unit:'',gen:()=>{const n=ri(20,60);return{stem:`Tính ${nb(`S = 1 − 2 + 3 − 4 + … + ${2*n-1} − ${2*n}`)}.`,ans:[-n],exp:`Nhóm thành ${n} cặp: ${nb(`(1 − 2) + (3 − 4) + … + (${2*n-1} − ${2*n})`)}. Mỗi cặp bằng −1 nên S = ${N(-n)}.`};}},
  {id:'h_tk',topic:'tr',level:'VD',unit:'nghìn đồng',gen:()=>{const x=10*ri(5,30),y=10*ri(10,40),z=10*ri(5,30),R=10*ri(-20,30),s0=R-x+y+z;return{stem:`Tài khoản của bác Lan nhận thêm ${x} nghìn đồng, rồi chi ${y} nghìn đồng và chi tiếp ${z} nghìn đồng thì số dư là ${N(R)} nghìn đồng (số dư âm nghĩa là đang nợ). Hỏi lúc đầu tài khoản có bao nhiêu nghìn đồng?`,ans:[s0],exp:`Gọi số tiền lúc đầu là a. Ta có ${nb(`a + ${x} − ${y} − ${z} = ${N(R)}`)}, nên ${nb(`a = ${N(R)} − ${x} + ${y} + ${z} = ${N(s0)}`)} (nghìn đồng).`};}}
 ].map(q=>Object.assign({type:'sa'},q))};
@@ -788,7 +798,7 @@ const RECAP=[
   {k:'cg',fig:'<div class="figbox"><p>(−6) + (−4) = −(6 + 4) = −10</p><p>(−9) + 4 = −(9 − 4) = −5</p><p>7 + (−7) = 0</p></div>',extra:'Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối, dấu của số có giá trị tuyệt đối lớn hơn.'},
   {k:'tc',fig:'<div class="figbox"><p>a + b = b + a</p><p>(a + b) + c = a + (b + c)</p><p>a + 0 = a; a + (−a) = 0</p></div>',extra:'Ví dụ: (−46) + 17 + 46 = ((−46) + 46) + 17 = 17.'},
   {k:'tr',fig:'<div class="figbox"><p>a − b = a + (−b)</p><p>5 − 8 = 5 + (−8) = −3</p><p>7 − (−2) = 7 + 2 = 9</p></div>',extra:'Trừ cho một số âm thì thành cộng với số dương.'},
-  {k:'dn',fig:'<div class="figbox"><p>a + (b − c) = a + b − c</p><p>a − (b − c) = a − b + c</p><p>a − (b + c) = a − b − c</p></div>',extra:'Tăng là cộng, giảm là trừ; lỗ, nợ, dưới 0 là số nguyên âm.'}
+  {k:'dn',fig:'<div class="figbox"><p>Tăng là cộng, giảm là trừ</p><p>(−3) + 5 = 2 (nhiệt độ −3°C tăng 5°C)</p><p>Chênh lệch: 8 − (−5) = 8 + 5 = 13</p></div>',extra:'Lỗ, nợ, dưới 0 là số nguyên âm. Trên trục số, cộng là sang phải, trừ là sang trái.'}
 ];
 
 /* ============ Trạng thái ============ */
@@ -919,7 +929,7 @@ function homeHTML(){
   return `
   <section class="hero">
     <h1>Phép cộng và <em>phép trừ số nguyên</em></h1>
-    <p class="lead">Luyện Bài 14: cộng hai số nguyên, tính chất của phép cộng, trừ hai số nguyên, quy tắc dấu ngoặc và bài toán thực tế. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
+    <p class="lead">Luyện Bài 14: cộng hai số nguyên, tính chất của phép cộng, trừ hai số nguyên và bài toán thực tế. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
   </section>
 
   ${hsBarHTML()}
@@ -1180,7 +1190,7 @@ function barRow(label,o){
 }
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
 const SHEET_TAB='6 - Phép cộng và phép trừ số nguyên'; // tên trang tính của bài này trong Google Sheet chung
-const SHEET_TOPICS=['Cộng hai số nguyên','Tính chất phép cộng','Trừ hai số nguyên','Quy tắc dấu ngoặc, thực tế']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
+const SHEET_TOPICS=['Cộng hai số nguyên','Tính chất phép cộng','Trừ hai số nguyên','Bài toán thực tế']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
 const CODE_PREFIX='PC6-';
 function makeCode(r){
   const t={};TKEYS.forEach(k=>t[k]=[r.topics[k].c,r.topics[k].n]);
