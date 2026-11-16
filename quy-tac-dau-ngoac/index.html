@@ -590,7 +590,7 @@ function saHlReal(){const R=100*ri(1,2),b=ri(21,R-21),c=R-b,d=10*ri(3,15),S0=R+1
 const SA=[
  {id:'s_vg_nb',topic:'vg',level:'NB',unit:'',gen:saVg1},
  {id:'s_vg_th',topic:'vg',level:'TH',unit:'',gen:saVg3},
- {id:'s_vg_vd',topic:'vg',level:'VD',unit:'',gen:saVg5},
+ {id:'s_vg_vd',topic:'vg',level:'TH',unit:'',gen:saVg5},
  {id:'s_bn_nb',topic:'bn',level:'NB',unit:'',gen:saBn0},
  {id:'s_bn_th',topic:'bn',level:'TH',unit:'',gen:saBn1},
  {id:'s_bn_vd',topic:'bn',level:'VD',unit:'',gen:saBn2},
@@ -656,7 +656,7 @@ const MC=[
  {id:'m11',topic:'dn',level:'NB',stem:'Đẳng thức nào đúng với mọi số nguyên a, b, c?',ans:0,opts:[
    O(nb('a − b − c = a − (b + c)')),O(nb('a − b − c = a − (b − c)'),'a − (b − c) = a − b + c, khác a − b − c.'),O(nb('a − b + c = a − (b + c)'),'a − (b + c) = a − b − c, khác a − b + c.'),O(nb('a + b − c = a + (b + c)'),'a + (b + c) = a + b + c, khác a + b − c.')],
   exp:'Đặt −b và −c vào ngoặc có dấu "−" đằng trước thì đổi dấu: a − b − c = a − (b + c).'},
- {id:'m12',topic:'dn',level:'VD',stem:'Để tính nhanh '+nb('123 − 67 + 77 − 33')+', cách nhóm nào đúng?',ans:0,opts:[
+ {id:'m12',topic:'dn',level:'TH',stem:'Để tính nhanh '+nb('123 − 67 + 77 − 33')+', cách nhóm nào đúng?',ans:0,opts:[
    O(nb('(123 + 77) − (67 + 33)')),O(nb('(123 + 77) − (67 − 33)'),'Đặt −67 và −33 vào ngoặc có dấu "−" đằng trước thì phải là −(67 + 33).'),O(nb('(123 − 77) − (67 + 33)'),'Số hạng 77 mang dấu "+" nên trong ngoặc thứ nhất phải là 123 + 77.'),O(nb('(123 + 77) + (67 + 33)'),'−67 − 33 = −(67 + 33), không phải +(67 + 33).')],
   exp:'123 − 67 + 77 − 33 = (123 + 77) − (67 + 33) = 200 − 100 = 100.'},
  {id:'m13',topic:'hl',level:'NB',stem:'Bỏ dấu ngoặc trong '+nb('(318 − 45) − 318')+' rồi nhóm các số hạng một cách hợp lí, ta được:',ans:0,opts:[
@@ -677,15 +677,15 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
   addMC('g_vgone_'+x,'vg','NB',genVgOne);
   addMC('g_vgchain_'+x,'vg','TH',genVgChain);
   addMC('g_vgval_'+x,'vg','TH',genVgVal);
-  addMC('g_vgvd_'+x,'vg','VD',genVgVD);
+  addMC('g_vgvd_'+x,'vg','TH',genVgVD);
   addMC('g_bnsym_'+x,'bn','NB',genBnSym);
   addMC('g_bnnum_'+x,'bn','TH',genBnNum3);
   addMC('g_bnval_'+x,'bn','TH',genBnVal);
-  addMC('g_bntwo_'+x,'bn','VD',genBnTwo);
-  addMC('g_bnopp_'+x,'bn','VD',genBnOpp);
+  addMC('g_bntwo_'+x,'bn','TH',genBnTwo);
+  addMC('g_bnopp_'+x,'bn','TH',genBnOpp);
   addMC('g_dnput_'+x,'dn','TH',genDnPut);
   addMC('g_dnswap_'+x,'dn','TH',genDnSwap);
-  addMC('g_dngrp_'+x,'dn','VD',genDnGroup);
+  addMC('g_dngrp_'+x,'dn','TH',genDnGroup);
   addMC('g_hlpair_'+x,'hl','NB',genHlPair);
   addMC('g_hlcan_'+x,'hl','TH',genHlCancel);
   addMC('g_hlreal_'+x,'hl','TH',genHlReal);

@@ -576,11 +576,11 @@ const MC=[
 const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
 ['a','b','c'].forEach(x=>{
   addMC('g_ctsame_'+x,'ct','NB',genCtSame);addMC('g_ctdiff_'+x,'ct','TH',genCtDiff);addMC('g_ctsub_'+x,'ct','TH',genCtSub);addMC('g_ctdec_'+x,'ct','TH',genCtDec);
-  addMC('g_ctthree_'+x,'ct','VD',genCtThree);addMC('g_ctopp_'+x,'ct','VD',genCtOpp);
+  addMC('g_ctthree_'+x,'ct','TH',genCtThree);addMC('g_ctopp_'+x,'ct','TH',genCtOpp);
   addMC('g_nhint_'+x,'nh','NB',genNhInt);addMC('g_nhfr_'+x,'nh','TH',genNhFr);addMC('g_nhdec_'+x,'nh','TH',genNhDec);addMC('g_nhsign_'+x,'nh','TH',genNhSign);
-  addMC('g_nhthree_'+x,'nh','VD',genNhThree);
+  addMC('g_nhthree_'+x,'nh','TH',genNhThree);
   addMC('g_chinv_'+x,'ch','NB',genChInv);addMC('g_chint_'+x,'ch','NB',genChInt);addMC('g_chdiv_'+x,'ch','TH',genChDiv);addMC('g_chdec_'+x,'ch','TH',genChDec);
-  addMC('g_chchain_'+x,'ch','VD',genChChain);addMC('g_chfind_'+x,'ch','VD',genChFind);
+  addMC('g_chchain_'+x,'ch','TH',genChChain);addMC('g_chfind_'+x,'ch','TH',genChFind);
   addMC('g_tcbr1_'+x,'tc','NB',genTcBr1);addMC('g_tcbr2_'+x,'tc','TH',genTcBr2);addMC('g_tcbr3_'+x,'tc','VD',genTcBr3);addMC('g_tchop_'+x,'tc','TH',genTcHop);addMC('g_tcdist_'+x,'tc','VD',genTcDist);
 });
 ['a','b'].forEach(x=>{addMC('g_cttemp_'+x,'ct','VD',genCtTemp);addMC('g_nharea_'+x,'nh','VD',genNhArea);addMC('g_chctx_'+x,'ch','VD',genChCtx);});
@@ -785,9 +785,9 @@ function saTcDist(){for(;;){const A=rfr(),k=sgn()*ri(1,3),B=rfr(),Cc=qs([k,1],B)
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
-  add('s_ctadd','ct','NB',saCtAdd);add('s_ctdec','ct','TH',saCtDec);add('s_ctnum','ct','TH',saCtNum);add('s_ctthree','ct','VD',saCtThree);
+  add('s_ctadd','ct','NB',saCtAdd);add('s_ctdec','ct','TH',saCtDec);add('s_ctnum','ct','TH',saCtNum);add('s_ctthree','ct','TH',saCtThree);
   add('s_nhfr','nh','NB',saNhFr);add('s_nhdec','nh','TH',saNhDec);add('s_nhnum','nh','TH',saNhNum);add('s_nharea','nh','VD',saNhArea);
-  add('s_chinv','ch','NB',saChInv);add('s_chfr','ch','TH',saChFr);add('s_chfind','ch','TH',saChFind);add('s_chchain','ch','VD',saChChain);add('s_chctx','ch','VD',saChCtx);
+  add('s_chinv','ch','NB',saChInv);add('s_chfr','ch','TH',saChFr);add('s_chfind','ch','TH',saChFind);add('s_chchain','ch','TH',saChChain);add('s_chctx','ch','VD',saChCtx);
   add('s_tcbr1','tc','NB',saTcBr1);add('s_tcbr2','tc','TH',saTcBr2);add('s_tcbr3','tc','VD',saTcBr3);add('s_tcdist','tc','VD',saTcDist);
   return S;
 }
