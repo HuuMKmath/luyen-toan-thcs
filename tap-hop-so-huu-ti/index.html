@@ -244,7 +244,7 @@ function disp(q,kind){return kind==='int'?N(q[0]):kind==='frac'?SH(q):kind==='de
 const FORM=(q,kinds)=>{const ks=KINDS(q),ok=kinds?ks.filter(k=>kinds.includes(k)):ks;return disp(q,sel(ok.length?ok:ks));};
 const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 
-/* ============ Hình: trục số chia đoạn đơn vị thành den phần ============ */
+/* ============ Hình: trục số chia đoạn thẳng đơn vị thành den đoạn bằng nhau ============ */
 function truc(lo,hi,den,pts){
   pts=pts||{};
   const x0=24,x1=366,st=(x1-x0)/(hi-lo),X=v=>+(x0+(v-lo)*st).toFixed(1),y=46,names=Object.keys(pts);
@@ -255,8 +255,8 @@ function truc(lo,hi,den,pts){
   }
   if(!names.some(k=>Math.abs(pts[k][0]/pts[k][1])<0.6))s+=`<text class="ol0" x="${X(0)}" y="${y-13}" text-anchor="middle">O</text>`;
   names.forEach(k=>{const x=X(pts[k][0]/pts[k][1]);s+=`<circle class="pt" cx="${x}" cy="${y}" r="4.6"/><text class="pl" x="${x}" y="${y-13}" text-anchor="middle">${k}</text>`;});
-  const where=k=>`điểm ${k} nằm ${pts[k][0]<0?'bên trái':'bên phải'} gốc O`;
-  const desc=`Trục số nằm ngang từ ${N(lo)} đến ${N(hi)}, mỗi đoạn đơn vị được chia thành ${den} phần bằng nhau`+(names.length?'; '+names.map(where).join('; '):'')+'.';
+  const where=k=>`điểm ${k} nằm ${pts[k][0]<0?'trước':'sau'} gốc O`;
+  const desc=`Trục số nằm ngang từ ${N(lo)} đến ${N(hi)}, đoạn thẳng đơn vị được chia thành ${den} đoạn bằng nhau`+(names.length?'; '+names.map(where).join('; '):'')+'.';
   return `<div class="figbox"><svg viewBox="0 0 400 84" role="img" aria-label="${desc}" style="width:100%;height:auto;display:block">${s}</svg></div>`;
 }
 
@@ -295,7 +295,7 @@ function genKnSet(){return tryGen(()=>{
   const cat=sel(['N','Z','Q','Q']);let q;
   if(cat==='N')q=[ri(0,12),1];else if(cat==='Z')q=[-ri(1,12),1];else q=qr(19,9);
   const h=FORM(q),why=cat==='N'?`${h} = ${N(q[0])} là số tự nhiên nên thuộc ℕ.`:cat==='Z'?`${h} = ${N(q[0])} là số nguyên âm nên thuộc ℤ nhưng không thuộc ℕ.`:`${h} = ${SH(q)} không phải số nguyên, nhưng viết được dưới dạng phân số nên thuộc ℚ.`;
-  return {stem:`Cho số ${h}. Khẳng định nào sau đây đúng?`,opts:[{t:CAT_TXT[cat]}].concat(['N','Z','Q','X'].filter(c=>c!==cat).map(c=>({t:CAT_TXT[c],err:catErr(cat,c)}))),ans:0,exp:`${why} Nhớ ℕ ⊂ ℤ ⊂ ℚ.`};
+  return {stem:`Cho số ${h}. Khẳng định nào sau đây đúng?`,opts:[{t:CAT_TXT[cat]}].concat(['N','Z','Q','X'].filter(c=>c!==cat).map(c=>({t:CAT_TXT[c],err:catErr(cat,c)}))),ans:0,exp:`${why} Mọi số tự nhiên và mọi số nguyên đều là số hữu tỉ.`};
 });}
 function genKnDec(){return tryGen(()=>{
   const a=ri(0,5),b=ri(1,9),sg=sgn(),n=sg*(10*a+b),q=Rq(n,10),pos=Rq(-n,10);
@@ -319,31 +319,31 @@ function genKnMix(){return tryGen(()=>{
 function genTsRead(far){return tryGen(()=>{
   const den=ri(2,5),n=far?ri(den+1,2*den-1):ri(1,den-1);if(gcd(n,den)!==1)return null;
   const s=sgn(),v=[s*n,den],lo=Math.min(-1,Math.floor(s*n/den)),hi=Math.max(1,Math.ceil(s*n/den));
-  const r=mk(`Mỗi đoạn đơn vị trên trục số được chia thành ${den} phần bằng nhau. Điểm A biểu diễn số hữu tỉ nào?`,fr(s*n,den),[
-    C(fr(-s*n,den),s>0?'Điểm A nằm bên phải gốc O nên số hữu tỉ này dương.':'Điểm A nằm bên trái gốc O nên số hữu tỉ này âm.'),
-    C(fr(s*(n+1),den),'Bạn đếm cả vạch gốc O. Phải đếm số phần bằng nhau tính từ O đến A.'),
-    C(fr(s*n,den+1),`Mỗi đoạn đơn vị được chia thành ${den} phần bằng nhau nên mẫu số là ${den}.`),
-    C(fr(s*den,n),'Bạn viết ngược tử và mẫu: tử là số phần từ O đến A, mẫu là số phần của một đơn vị.')],
-    `Điểm A nằm bên ${s>0?'phải':'trái'} gốc O, cách O ${n} phần (mỗi phần bằng ${fr(1,den)} đơn vị), nên A biểu diễn số ${fr(s*n,den)}.`);
+  const r=mk(`Đoạn thẳng đơn vị trên trục số được chia thành ${den} đoạn bằng nhau. Điểm A biểu diễn số hữu tỉ nào?`,fr(s*n,den),[
+    C(fr(-s*n,den),s>0?'Điểm A nằm sau gốc O nên số hữu tỉ này dương.':'Điểm A nằm trước gốc O nên số hữu tỉ này âm.'),
+    C(fr(s*(n+1),den),'Bạn đếm cả vạch gốc O. Phải đếm số đơn vị mới tính từ O đến A.'),
+    C(fr(s*n,den+1),`Đoạn thẳng đơn vị được chia thành ${den} đoạn bằng nhau nên mẫu số là ${den}.`),
+    C(fr(s*den,n),'Bạn viết ngược tử và mẫu: tử là số đơn vị mới từ O đến A, mẫu là số đoạn bằng nhau của đoạn thẳng đơn vị.')],
+    `Điểm A nằm ${s>0?'sau':'trước'} gốc O, cách O ${n} đơn vị mới (mỗi đơn vị mới bằng ${fr(1,den)} đơn vị cũ), nên A biểu diễn số ${fr(s*n,den)}.`);
   r.fig=truc(lo,hi,den,{A:v});return r;
 });}
 function genTsSide(){return tryGen(()=>{
-  const n=ri(1,9),d=ri(2,9),sn=sgn(),sd=sgn(),neg=sn*sd<0,h=fr(sn*n,sd*d),L='Bên trái gốc O',R='Bên phải gốc O';
+  const n=ri(1,9),d=ri(2,9),sn=sgn(),sd=sgn(),neg=sn*sd<0,h=fr(sn*n,sd*d),L='Nằm trước gốc O',R='Nằm sau gốc O';
   return {stem:`Trên trục số, điểm biểu diễn số hữu tỉ ${h} nằm ở vị trí nào?`,opts:[
     {t:neg?L:R},
-    {t:neg?R:L,err:neg?'Tử và mẫu khác dấu nên số này âm, phải nằm bên trái gốc O.':'Tử và mẫu cùng dấu nên số này dương, phải nằm bên phải gốc O.'},
+    {t:neg?R:L,err:neg?'Tử và mẫu khác dấu nên số này âm, phải nằm trước gốc O.':'Tử và mẫu cùng dấu nên số này dương, phải nằm sau gốc O.'},
     {t:'Trùng với gốc O',err:'Chỉ số 0 mới được biểu diễn bởi gốc O.'},
     {t:'Không biểu diễn được trên trục số',err:'Mọi số hữu tỉ đều biểu diễn được trên trục số.'}],ans:0,
-    exp:neg?`${h} có tử và mẫu khác dấu nên là số âm, được biểu diễn bên trái gốc O.`:`${h} có tử và mẫu cùng dấu nên là số dương, được biểu diễn bên phải gốc O.`};
+    exp:neg?`${h} có tử và mẫu khác dấu nên là số âm, được biểu diễn bởi điểm nằm trước gốc O.`:`${h} có tử và mẫu cùng dấu nên là số dương, được biểu diễn bởi điểm nằm sau gốc O.`};
 });}
 function genTsPos(){return tryGen(()=>{
   const d=ri(2,6),n=ri(1,2*d+1);if(gcd(n,d)!==1)return null;
-  const s=sgn(),side=s>0?'phải':'trái',other=s>0?'trái':'phải',h=fr(s*n,d);
-  return mk(`Để biểu diễn số hữu tỉ ${h} trên trục số, ta làm thế nào?`,`Chia mỗi đoạn đơn vị thành ${d} phần bằng nhau, từ O lấy ${n} phần về bên ${side}.`,[
-    C(`Chia mỗi đoạn đơn vị thành ${n} phần bằng nhau, từ O lấy ${d} phần về bên ${side}.`,'Mẫu số cho biết mỗi đơn vị chia thành bao nhiêu phần, tử số cho biết lấy bao nhiêu phần.'),
-    C(`Chia mỗi đoạn đơn vị thành ${d} phần bằng nhau, từ O lấy ${n} phần về bên ${other}.`,s>0?'Số dương được biểu diễn bên phải gốc O.':'Số âm được biểu diễn bên trái gốc O.'),
-    C(`Lấy điểm cách O đúng ${n} đơn vị về bên ${side}.`,`Phải chia mỗi đơn vị thành ${d} phần rồi đếm ${n} phần; tử số không phải số đơn vị.`)],
-    `Mẫu số ${d} cho biết chia mỗi đơn vị thành ${d} phần bằng nhau; tử số ${N(s*n)} cho biết lấy ${n} phần về bên ${side} gốc O (${s>0?'số dương':'số âm'}).`);
+  const s=sgn(),side=s>0?'sau':'trước',other=s>0?'trước':'sau',h=fr(s*n,d);
+  return mk(`Để biểu diễn số hữu tỉ ${h} trên trục số, ta làm thế nào?`,`Chia đoạn thẳng đơn vị thành ${d} đoạn bằng nhau, lấy một đoạn làm đơn vị mới; điểm cần tìm nằm ${side} gốc O và cách O ${n} đơn vị mới.`,[
+    C(`Chia đoạn thẳng đơn vị thành ${n} đoạn bằng nhau, lấy một đoạn làm đơn vị mới; điểm cần tìm nằm ${side} gốc O và cách O ${d} đơn vị mới.`,'Mẫu số cho biết đoạn thẳng đơn vị chia thành bao nhiêu đoạn bằng nhau, tử số cho biết điểm cách O bao nhiêu đơn vị mới.'),
+    C(`Chia đoạn thẳng đơn vị thành ${d} đoạn bằng nhau, lấy một đoạn làm đơn vị mới; điểm cần tìm nằm ${other} gốc O và cách O ${n} đơn vị mới.`,s>0?'Số dương được biểu diễn bởi điểm nằm sau gốc O.':'Số âm được biểu diễn bởi điểm nằm trước gốc O.'),
+    C(`Lấy điểm nằm ${side} gốc O và cách O đúng ${n} đơn vị.`,`Phải chia đoạn thẳng đơn vị thành ${d} đoạn bằng nhau rồi lấy ${n} đơn vị mới; tử số không phải số đơn vị cũ.`)],
+    `Mẫu số ${d} cho biết chia đoạn thẳng đơn vị thành ${d} đoạn bằng nhau (đơn vị mới bằng ${fr(1,d)} đơn vị cũ); tử số ${N(s*n)} cho biết điểm cách O ${n} đơn vị mới và nằm ${side} gốc O (${s>0?'số dương':'số âm'}).`);
 });}
 function genTsBetween(){return tryGen(()=>{
   const q=qr(29,8);if(Math.abs(q[0])>5*q[1])return null;
@@ -386,7 +386,7 @@ function genSdFig(){return tryGen(()=>{
     {t:'Điểm '+L[1],err:`Điểm ${L[1]} nằm cùng phía với A nên không biểu diễn số đối (số đối nằm ở phía bên kia gốc O).`},
     {t:'Điểm '+L[2],err:`Điểm ${L[2]} nằm bên kia gốc O nhưng không cách O bằng A; hai số đối nhau phải cách đều gốc O.`},
     {t:'Gốc O',err:'Gốc O biểu diễn số 0, là số đối của chính nó.'}],ans:0,
-    exp:`A nằm bên ${s>0?'phải':'trái'} gốc O, cách O ${n} phần. Số đối của x nằm bên ${s>0?'trái':'phải'} và cách O cũng ${n} phần: đó là điểm ${L[0]}.`};
+    exp:`A nằm ${s>0?'sau':'trước'} gốc O, cách O ${n} đơn vị mới. Số đối của x nằm ${s>0?'trước':'sau'} gốc O và cũng cách O ${n} đơn vị mới: đó là điểm ${L[0]}.`};
   r.fig=truc(-2,2,d,pts);return r;
 });}
 function genSdDouble(){return tryGen(()=>{
@@ -495,10 +495,10 @@ function mixed(make){
   return null;
 }
 const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
-  IT('ℕ ⊂ ℤ ⊂ ℚ',true,'kn','NB','Mỗi số tự nhiên là số nguyên, mỗi số nguyên là số hữu tỉ.'),
+  IT('−3 ∈ ℚ',true,'kn','NB','−3 = −3/1 viết được dưới dạng phân số nên thuộc ℚ.'),
   IT(`Số đối của ${fr(3,4)} là ${fr(4,3)}`,false,'sd','TH','Số đối của 3/4 là −3/4. Phân số 4/3 là số nghịch đảo.'),
   IT(`${fr(-1,2)} < 0`,true,'ss','NB','Số hữu tỉ âm nhỏ hơn 0.'),
-  IT(`Điểm biểu diễn ${fr(-1,2)} nằm bên phải gốc O`,false,'ts','NB','Số âm được biểu diễn bên trái gốc O.')]});
+  IT(`Điểm biểu diễn ${fr(-1,2)} nằm sau gốc O`,false,'ts','NB','Số âm được biểu diễn bởi điểm nằm trước gốc O.')]});
 const four=f=>()=>{const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
 const SGN2=q=>q[0]<0?'âm':q[0]>0?'dương':'bằng 0';
 function knItem(){
@@ -509,7 +509,7 @@ function knItem(){
     case 2:return IT(`${N(sg*m)} ∉ ℚ`,false,'kn','TH',`${N(sg*m)} = ${fr(sg*m,1)} nên mọi số nguyên đều là số hữu tỉ.`);
     case 3:{const z=sg*m;return IT(`${fr(z*k,k)} ∈ ℤ`,true,'kn','TH',`${fr(z*k,k)} = ${N(z)} là số nguyên.`);}
     case 4:return IT(`${FORM(q)} ∈ ℤ`,false,'kn','TH',`${SH(q)} không bằng số nguyên nào nên không thuộc ℤ (nhưng thuộc ℚ).`);
-    case 5:return sel([IT('ℕ ⊂ ℤ',true,'kn','TH','Mỗi số tự nhiên đều là số nguyên.'),IT('ℤ ⊂ ℚ',true,'kn','TH','Mỗi số nguyên a viết được là a/1 nên là số hữu tỉ.'),IT('ℚ ⊂ ℤ',false,'kn','TH','Chẳng hạn 1/2 thuộc ℚ nhưng không thuộc ℤ.'),IT('ℤ ⊂ ℕ',false,'kn','TH','Chẳng hạn −1 thuộc ℤ nhưng không thuộc ℕ.')]);
+    case 5:return sel([IT(`${N(sg*m)} ∈ ℤ`,true,'kn','TH',`${N(sg*m)} là số nguyên.`),IT(`${N(sg*m)} ∈ ℚ`,true,'kn','TH',`Mỗi số nguyên a viết được là a/1 nên là số hữu tỉ.`),IT(`${fr(1,k)} ∉ ℚ`,false,'kn','TH',`${fr(1,k)} viết được dưới dạng phân số (tử, mẫu nguyên, mẫu khác 0) nên thuộc ℚ.`),IT(`${fr(1,k)} ∈ ℤ`,false,'kn','TH',`${fr(1,k)} không bằng số nguyên nào nên không thuộc ℤ (nhưng thuộc ℚ).`)]);
     case 6:{const p=Rq(sg*(10*a+b),10);return IT(`${DEC(p)} = ${fr(sg*(10*a+b),10)}`,true,'kn','TH',`Một chữ số thập phân nên mẫu số là 10: ${DEC(p)} = ${fr(sg*(10*a+b),10)}.`);}
     case 7:{const p=Rq(sg*(10*a+b),10);return IT(`${DEC(p)} = ${fr(sg*(10*a+b),100)}`,false,'kn','TH',`Một chữ số thập phân nên mẫu số là 10, không phải 100.`);}
     case 8:{const d=ri(2,6),r=ri(1,d-1),w=ri(1,4);return IT(`${w}${fr(r,d)} = ${fr(w*d+r,d)}`,true,'kn','TH',`${w}${fr(r,d)} = (${w}·${d} + ${r})/${d} = ${fr(w*d+r,d)}.`);}
@@ -519,11 +519,11 @@ function knItem(){
 function tsItem(){
   const t=ri(0,4),q=qr(29,8),d=ri(2,8),n=ri(1,2*d-1);
   switch(t){
-    case 0:{const side=sel(['trái','phải']),ok=(side==='trái')===(q[0]<0);return IT(`Điểm biểu diễn số hữu tỉ ${FORM(q)} nằm bên ${side} gốc O`,ok,'ts','TH',`${SH(q)} là số ${SGN2(q)} nên điểm biểu diễn nằm bên ${q[0]<0?'trái':'phải'} gốc O.`);}
+    case 0:{const side=sel(['trước','sau']),ok=(side==='trước')===(q[0]<0);return IT(`Điểm biểu diễn số hữu tỉ ${FORM(q)} nằm ${side} gốc O`,ok,'ts','TH',`${SH(q)} là số ${SGN2(q)} nên điểm biểu diễn nằm ${q[0]<0?'trước':'sau'} gốc O.`);}
     case 1:{if(Math.abs(q[0])>5*q[1])return tsItem();const k=floorQ(q),j=RNG()<.5?k:k+sel([-1,1]);return IT(`Điểm biểu diễn ${SH(q)} nằm giữa hai điểm biểu diễn ${N(j)} và ${N(j+1)}`,j===k,'ts','TH',`${N(k)} < ${SH(q)} < ${N(k+1)}.`);}
-    case 2:{if(n===d)return tsItem();const g=RNG()<.5;return IT(`Để biểu diễn ${fr(n,d)} trên trục số, ta chia mỗi đoạn đơn vị thành ${g?d:n} phần bằng nhau`,g,'ts','TH',g?`Mẫu số ${d} cho biết số phần chia mỗi đơn vị.`:`Mẫu số ${d} (không phải tử số ${n}) cho biết số phần chia mỗi đơn vị.`);}
-    case 3:return sel([IT('Gốc O biểu diễn số 0',true,'ts','TH','Gốc của trục số ứng với số 0.'),IT('Điểm biểu diễn 0 nằm bên trái gốc O',false,'ts','TH','Số 0 được biểu diễn đúng tại gốc O.'),IT('Mọi số hữu tỉ đều biểu diễn được trên trục số',true,'ts','TH','Mỗi số hữu tỉ được biểu diễn bởi một điểm trên trục số.')]);
-    default:{const s=sgn();return IT(`Điểm biểu diễn ${fr(s*n,s*d)} nằm bên trái gốc O`,false,'ts','TH',`Tử và mẫu cùng dấu nên ${fr(s*n,s*d)} là số dương, nằm bên phải gốc O.`);}
+    case 2:{if(n===d)return tsItem();const g=RNG()<.5;return IT(`Để biểu diễn ${fr(n,d)} trên trục số, ta chia đoạn thẳng đơn vị thành ${g?d:n} đoạn bằng nhau`,g,'ts','TH',g?`Mẫu số ${d} cho biết số đoạn bằng nhau chia đoạn thẳng đơn vị.`:`Mẫu số ${d} (không phải tử số ${n}) cho biết số đoạn bằng nhau chia đoạn thẳng đơn vị.`);}
+    case 3:return sel([IT('Gốc O biểu diễn số 0',true,'ts','TH','Gốc của trục số ứng với số 0.'),IT('Điểm biểu diễn 0 nằm trước gốc O',false,'ts','TH','Số 0 được biểu diễn đúng tại gốc O.'),IT('Mọi số hữu tỉ đều biểu diễn được trên trục số',true,'ts','TH','Mỗi số hữu tỉ được biểu diễn bởi một điểm trên trục số.')]);
+    default:{const s=sgn();return IT(`Điểm biểu diễn ${fr(s*n,s*d)} nằm trước gốc O`,false,'ts','TH',`Tử và mẫu cùng dấu nên ${fr(s*n,s*d)} là số dương, nằm sau gốc O.`);}
   }
 }
 function sdItem(){
@@ -562,7 +562,7 @@ function ssItemVD(){
 }
 function tsItemVD(){
   const d=ri(2,6),m=ri(d+1,3*d),s=sgn(),ok=RNG()<.5,shown=ok?Rq(s*m,d):Rq(-s*m,d);
-  return IT(`Điểm M nằm bên ${s>0?'phải':'trái'} gốc O, cách O đúng ${m} phần, mỗi đoạn đơn vị chia thành ${d} phần bằng nhau. Điểm M biểu diễn số ${SH(shown)}`,ok,'ts','VD',`M cách O ${m} phần, mỗi phần là ${fr(1,d)} đơn vị, nằm bên ${s>0?'phải':'trái'} O nên M biểu diễn ${fr(s*m,d)} = ${SH(Rq(s*m,d))}.`);
+  return IT(`Chia đoạn thẳng đơn vị thành ${d} đoạn bằng nhau, lấy một đoạn làm đơn vị mới. Điểm M nằm ${s>0?'sau':'trước'} gốc O, cách O đúng ${m} đơn vị mới. Điểm M biểu diễn số ${SH(shown)}`,ok,'ts','VD',`M cách O ${m} đơn vị mới, mỗi đơn vị mới bằng ${fr(1,d)} đơn vị cũ, nằm ${s>0?'sau':'trước'} O nên M biểu diễn ${fr(s*m,d)} = ${SH(Rq(s*m,d))}.`);
 }
 function sdItemVD(){
   const q=qr(19,9),t=ri(0,2),ok=RNG()<.5;
@@ -615,7 +615,7 @@ function saKnForm(){
 }
 function saTsNum(far){
   const den=ri(2,5),n=far?ri(den+1,2*den-1):ri(1,den-1),s=sgn(),v=s*n/den;
-  return {stem:`Mỗi đoạn đơn vị trên trục số được chia thành ${den} phần bằng nhau. Điểm A biểu diễn số hữu tỉ có mẫu số ${den}. Tử số của số hữu tỉ đó là bao nhiêu?`,fig:truc(Math.min(-1,Math.floor(v)),Math.max(1,Math.ceil(v)),den,{A:[s*n,den]}),ans:[s*n],exp:`A nằm bên ${s>0?'phải':'trái'} gốc O, cách O ${n} phần nên A biểu diễn ${fr(s*n,den)}. Tử số là ${N(s*n)}.`};
+  return {stem:`Đoạn thẳng đơn vị trên trục số được chia thành ${den} đoạn bằng nhau. Điểm A biểu diễn số hữu tỉ có mẫu số ${den}. Tử số của số hữu tỉ đó là bao nhiêu?`,fig:truc(Math.min(-1,Math.floor(v)),Math.max(1,Math.ceil(v)),den,{A:[s*n,den]}),ans:[s*n],exp:`A nằm ${s>0?'sau':'trước'} gốc O, cách O ${n} đơn vị mới nên A biểu diễn ${fr(s*n,den)}. Tử số là ${N(s*n)}.`};
 }
 function saTsFloor(){for(;;){
   const q=qr(29,8);if(Math.abs(q[0])>5*q[1])continue;const k=floorQ(q);
@@ -624,7 +624,7 @@ function saTsFloor(){for(;;){
 function saTsPos(){for(;;){
   const d=sel([4,6,8,9,10,12]),m=ri(d+1,3*d),g=gcd(m,d);if(g===1)continue;
   const s=sgn(),q=Rq(s*m,d);
-  return {stem:`Trên trục số, mỗi đoạn đơn vị được chia thành ${d} phần bằng nhau. Điểm M nằm bên ${s>0?'phải':'trái'} gốc O và cách O đúng ${m} phần. Viết số hữu tỉ biểu diễn bởi M dưới dạng phân số tối giản ${fr('a','b')} (b > 0). Tính a + b.`,ans:[q[0]+q[1]],exp:`M biểu diễn ${fr(s*m,d)} = ${fr(q[0],q[1])}, nên a = ${N(q[0])}, b = ${q[1]} và a + b = ${N(q[0]+q[1])}.`};
+  return {stem:`Trên trục số, đoạn thẳng đơn vị được chia thành ${d} đoạn bằng nhau, lấy một đoạn làm đơn vị mới. Điểm M nằm ${s>0?'sau':'trước'} gốc O và cách O đúng ${m} đơn vị mới. Viết số hữu tỉ biểu diễn bởi M dưới dạng phân số tối giản ${fr('a','b')} (b > 0). Tính a + b.`,ans:[q[0]+q[1]],exp:`M biểu diễn ${fr(s*m,d)} = ${fr(q[0],q[1])}, nên a = ${N(q[0])}, b = ${q[1]} và a + b = ${N(q[0]+q[1])}.`};
 }}
 function saSdNum(){
   const d=ri(2,9),n=ri(1,9),s=sgn();
@@ -674,13 +674,13 @@ function saSsPos(){
 
 /* ============ Chủ đề ============ */
 const TOPICS={
-  kn:{short:'Số hữu tỉ và ℚ',name:'Số hữu tỉ và tập hợp ℚ',rule:'Số hữu tỉ là số viết được dưới dạng phân số a/b với a, b là số nguyên và b ≠ 0. Tập hợp các số hữu tỉ kí hiệu là ℚ. Số nguyên, số thập phân hữu hạn và hỗn số đều là số hữu tỉ: ℕ ⊂ ℤ ⊂ ℚ. Số 0 không dương cũng không âm.',tip:'Phân số có mẫu bằng 0 không có nghĩa. Mẫu số âm vẫn được. Khi đổi hỗn số hay số thập phân ra phân số, nhớ giữ dấu "−".'},
-  ts:{short:'Biểu diễn trên trục số',name:'Biểu diễn số hữu tỉ trên trục số',rule:'Để biểu diễn a/b (b > 0) trên trục số, chia mỗi đoạn đơn vị thành b phần bằng nhau rồi từ gốc O lấy a phần. Số dương nằm bên phải O, số âm nằm bên trái O.',tip:'Mẫu số cho biết số phần chia mỗi đơn vị, tử số cho biết số phần đếm từ O (không đếm vạch O). Mẫu số âm thì đổi dấu cả tử và mẫu trước khi biểu diễn.'},
-  sd:{short:'Số đối',name:'Số đối của một số hữu tỉ',rule:'Số đối của a/b là −a/b, hai số đối nhau có tổng bằng 0: a/b + (−a/b) = 0. Số đối của 0 là 0. Hai điểm biểu diễn hai số đối nhau nằm hai phía của O và cách đều O.',tip:'Số đối chỉ đổi dấu, không đảo tử và mẫu (đó là số nghịch đảo). Số đối của −x là x.'},
-  ss:{short:'So sánh',name:'So sánh hai số hữu tỉ',rule:'Viết hai số dưới dạng phân số cùng mẫu dương rồi so sánh các tử số. Số hữu tỉ dương lớn hơn 0, số hữu tỉ âm nhỏ hơn 0, số dương lớn hơn số âm. Trên trục số, số ở bên trái nhỏ hơn số ở bên phải.',tip:'Với hai số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ. Quy đồng về mẫu dương trước khi so sánh các tử.'}
+  kn:{short:'Số hữu tỉ và ℚ',name:'Số hữu tỉ và tập hợp ℚ',rule:'Số hữu tỉ là số viết được dưới dạng phân số a/b với a, b là số nguyên và b ≠ 0. Tập hợp các số hữu tỉ kí hiệu là ℚ. Số nguyên, số thập phân hữu hạn và hỗn số đều là số hữu tỉ. Số đối của số hữu tỉ m là −m. Số 0 không là số hữu tỉ dương, cũng không là số hữu tỉ âm.',tip:'Phân số có mẫu bằng 0 không có nghĩa. Mẫu số âm vẫn được. Khi đổi hỗn số hay số thập phân ra phân số, nhớ giữ dấu "−".'},
+  ts:{short:'Biểu diễn trên trục số',name:'Biểu diễn số hữu tỉ trên trục số',rule:'Để biểu diễn a/b (b > 0) trên trục số, chia đoạn thẳng đơn vị thành b đoạn bằng nhau, lấy một đoạn làm đơn vị mới (bằng 1/b đơn vị cũ). Điểm biểu diễn a/b cách O a đơn vị mới; số dương nằm sau gốc O, số âm nằm trước gốc O.',tip:'Mẫu số cho biết đoạn thẳng đơn vị chia thành bao nhiêu đoạn bằng nhau, tử số cho biết điểm cách O bao nhiêu đơn vị mới (không đếm vạch O). Mẫu số âm thì đổi dấu cả tử và mẫu trước khi biểu diễn.'},
+  sd:{short:'Số đối',name:'Số đối của một số hữu tỉ',rule:'Số đối của a/b là −a/b, hai số đối nhau có tổng bằng 0: a/b + (−a/b) = 0. Số đối của 0 là 0. Hai điểm biểu diễn hai số hữu tỉ đối nhau nằm về hai phía khác nhau so với O và có cùng khoảng cách đến O.',tip:'Số đối chỉ đổi dấu, không đảo tử và mẫu (đó là số nghịch đảo). Số đối của −x là x.'},
+  ss:{short:'So sánh',name:'So sánh hai số hữu tỉ',rule:'Viết hai số dưới dạng phân số cùng mẫu dương rồi so sánh các tử số. Số hữu tỉ dương lớn hơn 0, số hữu tỉ âm nhỏ hơn 0, số dương lớn hơn số âm. Trên trục số, nếu a < b thì điểm a nằm trước điểm b.',tip:'Với hai số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ. Quy đồng về mẫu dương trước khi so sánh các tử.'}
 };
 const TKEYS=['kn','ts','sd','ss'];
-const TDESC={kn:'Khái niệm số hữu tỉ, kí hiệu ∈ ∉ ⊂, số thập phân và hỗn số',ts:'Đọc và biểu diễn số hữu tỉ trên trục số, chia đoạn đơn vị',sd:'Tìm số đối, hai điểm đối xứng qua gốc O',ss:'So sánh, sắp xếp các số hữu tỉ, số nằm giữa hai số'};
+const TDESC={kn:'Khái niệm số hữu tỉ, kí hiệu ∈ ∉ ℚ, số thập phân và hỗn số',ts:'Đọc và biểu diễn số hữu tỉ trên trục số, chia đoạn thẳng đơn vị',sd:'Tìm số đối, hai điểm đối xứng qua gốc O',ss:'So sánh, sắp xếp các số hữu tỉ, số nằm giữa hai số'};
 const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
 const LEVEL_DESC={NB:'Nhớ khái niệm số hữu tỉ, nhận ra số dương, số âm, tìm số đối đơn giản, so sánh hai số cùng mẫu.',TH:'Đổi số thập phân và hỗn số ra phân số, đọc điểm trên trục số, so sánh hai số khác mẫu.',VD:'Số hữu tỉ nằm giữa hai số, sắp xếp ba số, số đối của số đối, suy luận nhiều bước.'};
 
@@ -692,29 +692,29 @@ const MC=[
   exp:'Số hữu tỉ là số viết được dưới dạng a/b với a, b ∈ ℤ, b ≠ 0.'},
  {id:'m2',topic:'kn',level:'NB',stem:'Tập hợp các số hữu tỉ được kí hiệu là:',ans:0,opts:[O('ℚ'),O('ℤ','ℤ là tập hợp các số nguyên.'),O('ℕ','ℕ là tập hợp các số tự nhiên.'),O('ℕ*','ℕ* là tập hợp các số tự nhiên khác 0.')],
   exp:'Tập hợp các số hữu tỉ kí hiệu là ℚ.'},
- {id:'m3',topic:'kn',level:'NB',stem:'Khẳng định nào sau đây đúng?',ans:0,opts:[O('ℕ ⊂ ℤ ⊂ ℚ'),O('ℚ ⊂ ℤ ⊂ ℕ','Thứ tự bao nhau ngược: mỗi số tự nhiên là số nguyên, mỗi số nguyên là số hữu tỉ.'),O('ℤ ⊂ ℕ ⊂ ℚ','ℕ ⊂ ℤ chứ không phải ℤ ⊂ ℕ (số −1 thuộc ℤ nhưng không thuộc ℕ).'),O('ℕ ⊂ ℚ ⊂ ℤ','ℚ ⊄ ℤ vì 1/2 thuộc ℚ nhưng không thuộc ℤ.')],
-  exp:'Số tự nhiên là số nguyên, số nguyên là số hữu tỉ: ℕ ⊂ ℤ ⊂ ℚ.'},
+ {id:'m3',topic:'kn',level:'NB',stem:'Khẳng định nào sau đây đúng?',ans:0,opts:[O('−3 ∈ ℚ'),O('−3 ∉ ℚ','−3 = −3/1 viết được dưới dạng phân số nên là số hữu tỉ.'),O(fr(1,2)+' ∈ ℤ','1/2 không bằng số nguyên nào nên không thuộc ℤ.'),O('0,5 ∉ ℚ','0,5 = 5/10 viết được dưới dạng phân số nên là số hữu tỉ.')],
+  exp:'Số nguyên và số thập phân đều viết được dưới dạng phân số nên đều là số hữu tỉ: −3 ∈ ℚ.'},
  {id:'m4',topic:'kn',level:'TH',stem:'Số nào sau đây không là số hữu tỉ dương và cũng không là số hữu tỉ âm?',ans:0,opts:[O('0'),O(fr(-1,-2),'Tử và mẫu cùng âm nên số này dương.'),O(fr(5,-3),'Tử dương, mẫu âm nên số này âm.'),O(fr(1,100),'Số này dương.')],
   exp:'Số 0 không dương cũng không âm.'},
  {id:'m5',topic:'kn',level:'VD',stem:'Cho bốn khẳng định: (I) Mỗi số nguyên là một số hữu tỉ. (II) Mỗi số hữu tỉ là một số nguyên. (III) Số 0 là số hữu tỉ. (IV) Phân số '+fr('a','b')+' với a, b nguyên luôn là số hữu tỉ. Có bao nhiêu khẳng định đúng?',ans:0,opts:[O('2'),O('1','Khẳng định (I) và (III) đều đúng.'),O('3','Khẳng định (IV) sai khi b = 0 vì phân số không có nghĩa.'),O('4','(II) sai (chẳng hạn 1/2 không là số nguyên) và (IV) sai khi b = 0.')],
   exp:'(I) đúng, (II) sai, (III) đúng (0 = 0/1), (IV) sai vì cần b ≠ 0. Có 2 khẳng định đúng.'},
  {id:'m6',topic:'kn',level:'VD',stem:'Số hữu tỉ nào sau đây không là số nguyên?',ans:0,opts:[O(fr(-7,2)),O(fr(-12,4),'−12/4 = −3 là số nguyên.'),O(fr(15,5),'15/5 = 3 là số nguyên.'),O(fr(0,9),'0/9 = 0 là số nguyên.')],
   exp:'−12/4 = −3, 15/5 = 3 và 0/9 = 0 đều là số nguyên, còn −7/2 = −3,5 không là số nguyên.'},
- {id:'m7',topic:'ts',level:'NB',stem:'Trên trục số, các điểm biểu diễn số hữu tỉ âm nằm ở đâu so với gốc O?',ans:0,opts:[O('Bên trái gốc O'),O('Bên phải gốc O','Số hữu tỉ dương được biểu diễn bên phải gốc O.'),O('Trùng với gốc O','Chỉ số 0 được biểu diễn bởi gốc O.'),O('Có thể ở bên trái hoặc bên phải','Số âm luôn nằm bên trái gốc O.')],
-  exp:'Điểm biểu diễn số hữu tỉ âm nằm bên trái gốc O, số dương nằm bên phải.'},
- {id:'m8',topic:'ts',level:'NB',stem:'Gốc O của trục số biểu diễn số nào?',ans:0,opts:[O('0'),O('1','Số 1 nằm bên phải gốc O, cách O một đơn vị.'),O('−1','Số −1 nằm bên trái gốc O, cách O một đơn vị.'),O('Không biểu diễn số nào','Gốc O biểu diễn số 0.')],
+ {id:'m7',topic:'ts',level:'NB',stem:'Trên trục số, các điểm biểu diễn số hữu tỉ âm nằm ở đâu so với gốc O?',ans:0,opts:[O('Nằm trước gốc O'),O('Nằm sau gốc O','Số hữu tỉ dương được biểu diễn bởi điểm nằm sau gốc O.'),O('Trùng với gốc O','Chỉ số 0 được biểu diễn bởi gốc O.'),O('Có thể nằm trước hoặc nằm sau gốc O','Số âm luôn nằm trước gốc O.')],
+  exp:'Điểm biểu diễn số hữu tỉ âm nằm trước gốc O, số dương nằm sau.'},
+ {id:'m8',topic:'ts',level:'NB',stem:'Gốc O của trục số biểu diễn số nào?',ans:0,opts:[O('0'),O('1','Số 1 nằm sau gốc O, cách O một đơn vị.'),O('−1','Số −1 nằm trước gốc O, cách O một đơn vị.'),O('Không biểu diễn số nào','Gốc O biểu diễn số 0.')],
   exp:'Gốc O biểu diễn số 0.'},
- {id:'m9',topic:'ts',level:'TH',stem:'Điểm M nằm giữa hai điểm biểu diễn các số −1 và 0. Điểm M có thể biểu diễn số hữu tỉ nào?',ans:0,opts:[O(fr(-1,2)),O(fr(1,2),'1/2 dương, nằm giữa 0 và 1.'),O(fr(-3,2),'−3/2 = −1,5 nằm giữa −2 và −1.'),O(fr(-2,1),'−2 nằm bên trái −1, không nằm giữa −1 và 0.')],
+ {id:'m9',topic:'ts',level:'TH',stem:'Điểm M nằm giữa hai điểm biểu diễn các số −1 và 0. Điểm M có thể biểu diễn số hữu tỉ nào?',ans:0,opts:[O(fr(-1,2)),O(fr(1,2),'1/2 dương, nằm giữa 0 và 1.'),O(fr(-3,2),'−3/2 = −1,5 nằm giữa −2 và −1.'),O(fr(-2,1),'−2 nằm trước −1, không nằm giữa −1 và 0.')],
   exp:'−1 < −1/2 < 0 nên điểm biểu diễn −1/2 nằm giữa −1 và 0.'},
- {id:'m10',topic:'ts',level:'VD',stem:'Điểm A biểu diễn số hữu tỉ '+fr(-3,4)+' và điểm B biểu diễn số hữu tỉ '+fr(5,4)+'. Khẳng định nào đúng?',ans:0,opts:[O('A nằm bên trái gốc O, B nằm bên phải gốc O'),O('A và B nằm cùng bên phải gốc O','−3/4 là số âm nên A nằm bên trái gốc O.'),O('A nằm bên phải, B nằm bên trái gốc O','Số âm nằm bên trái O, số dương nằm bên phải O.'),O('A và B cùng nằm giữa 0 và 1','5/4 > 1 nên B nằm bên phải điểm 1; −3/4 âm nên A nằm bên trái O.')],
-  exp:'−3/4 < 0 nên A nằm bên trái O; 5/4 > 0 (và 5/4 > 1) nên B nằm bên phải O.'},
+ {id:'m10',topic:'ts',level:'VD',stem:'Điểm A biểu diễn số hữu tỉ '+fr(-3,4)+' và điểm B biểu diễn số hữu tỉ '+fr(5,4)+'. Khẳng định nào đúng?',ans:0,opts:[O('A nằm trước gốc O, B nằm sau gốc O'),O('A và B cùng nằm sau gốc O','−3/4 là số âm nên A nằm trước gốc O.'),O('A nằm sau, B nằm trước gốc O','Số âm nằm trước O, số dương nằm sau O.'),O('A và B cùng nằm giữa 0 và 1','5/4 > 1 nên B nằm sau điểm 1; −3/4 âm nên A nằm trước O.')],
+  exp:'−3/4 < 0 nên A nằm trước O; 5/4 > 0 (và 5/4 > 1) nên B nằm sau O.'},
  {id:'m11',topic:'sd',level:'NB',stem:'Số đối của số 0 là:',ans:0,opts:[O('0'),O('1','0 + 1 = 1 ≠ 0 nên 1 không là số đối của 0.'),O('−1','0 + (−1) = −1 ≠ 0 nên −1 không là số đối của 0.'),O('Không có','Mọi số hữu tỉ đều có số đối, số đối của 0 là 0.')],
   exp:'0 + 0 = 0 nên số đối của 0 là 0.'},
  {id:'m12',topic:'sd',level:'NB',stem:'Tổng của hai số đối nhau bằng:',ans:0,opts:[O('0'),O('1','Tích của một số và nghịch đảo của nó mới bằng 1.'),O('Chính số đó','Tổng hai số đối nhau là 0.'),O('Hai lần số đó','Hai số đối nhau có tổng bằng 0.')],
   exp:'Hai số đối nhau có tổng bằng 0: a/b + (−a/b) = 0.'},
  {id:'m13',topic:'sd',level:'TH',stem:'Số đối của số hữu tỉ x = '+fr(-5,9)+' là:',ans:0,opts:[O(fr(5,9)),O(fr(-5,9),'Số đối phải khác dấu.'),O(fr(9,5),'Đó là số nghịch đảo của −5/9 đổi dấu; số đối chỉ đổi dấu.'),O(fr(-9,5),'Đó là số nghịch đảo, không phải số đối.')],
   exp:'Số đối của −5/9 là 5/9.'},
- {id:'m14',topic:'sd',level:'VD',stem:'Điểm A biểu diễn số hữu tỉ '+fr(-2,3)+'. Điểm B nằm bên phải gốc O và cách O một khoảng bằng OA. Điểm B biểu diễn số nào?',ans:0,opts:[O(fr(2,3)),O(fr(-2,3),'Đó là số mà điểm A biểu diễn.'),O(fr(3,2),'OB bằng OA nên B cách O một khoảng 2/3 đơn vị, không phải 3/2.'),O('0','Gốc O biểu diễn số 0, nhưng B cách O một khoảng OA.')],
+ {id:'m14',topic:'sd',level:'VD',stem:'Điểm A biểu diễn số hữu tỉ '+fr(-2,3)+'. Điểm B nằm sau gốc O và cách O một khoảng bằng OA. Điểm B biểu diễn số nào?',ans:0,opts:[O(fr(2,3)),O(fr(-2,3),'Đó là số mà điểm A biểu diễn.'),O(fr(3,2),'OB bằng OA nên B cách O một khoảng 2/3 đơn vị, không phải 3/2.'),O('0','Gốc O biểu diễn số 0, nhưng B cách O một khoảng OA.')],
   exp:'B và A cách đều O và ở hai phía của O nên biểu diễn hai số đối nhau: số đối của −2/3 là 2/3.'},
  {id:'m15',topic:'ss',level:'NB',stem:'Số hữu tỉ âm luôn:',ans:0,opts:[O('nhỏ hơn 0'),O('lớn hơn 0','Số hữu tỉ dương mới lớn hơn 0.'),O('bằng 0','Số 0 không phải số hữu tỉ âm.'),O('lớn hơn mọi số hữu tỉ dương','Số âm nhỏ hơn mọi số dương.')],
   exp:'Số hữu tỉ âm nhỏ hơn 0 (và nhỏ hơn mọi số hữu tỉ dương).'},
@@ -770,11 +770,11 @@ addTF('tf_sd_vd','sd','VD',four(()=>RNG()<.5?sdItem():sdItemVD()));
 const PT=[
  IT('Mọi số nguyên đều là số hữu tỉ',true,'kn','NB','Số nguyên a viết được a = a/1.'),
  IT('Số 0 là một số hữu tỉ',true,'kn','NB','0 = 0/1 (hoặc 0/5, …).'),
- IT('ℕ ⊂ ℤ ⊂ ℚ',true,'kn','NB','Số tự nhiên là số nguyên, số nguyên là số hữu tỉ.'),
+ IT('−3 ∈ ℚ',true,'kn','NB','−3 = −3/1 viết được dưới dạng phân số nên thuộc ℚ.'),
  IT('Số thập phân −0,5 là một số hữu tỉ',true,'kn','NB',`−0,5 = ${fr(-1,2)}.`),
  IT('Gốc O biểu diễn số 0',true,'ts','NB','Gốc của trục số ứng với số 0.'),
- IT('Điểm biểu diễn số hữu tỉ âm nằm bên trái gốc O',true,'ts','NB','Số âm được biểu diễn bên trái gốc O.'),
- IT('Điểm biểu diễn số hữu tỉ dương nằm bên phải gốc O',true,'ts','NB','Số dương được biểu diễn bên phải gốc O.'),
+ IT('Điểm biểu diễn số hữu tỉ âm nằm trước gốc O',true,'ts','NB','Số âm được biểu diễn bởi điểm nằm trước gốc O.'),
+ IT('Điểm biểu diễn số hữu tỉ dương nằm sau gốc O',true,'ts','NB','Số dương được biểu diễn bởi điểm nằm sau gốc O.'),
  IT('Số đối của 0 là 0',true,'sd','NB','0 + 0 = 0.'),
  IT(`Số đối của ${fr(-5,7)} là ${fr(5,7)}`,true,'sd','NB','Số đối chỉ đổi dấu.'),
  IT('Hai số đối nhau có tổng bằng 0',true,'sd','NB','Số đối của x là y sao cho x + y = 0.'),
@@ -784,9 +784,9 @@ const PT=[
 const PF=[
  IT('Số 0 là số hữu tỉ dương',false,'kn','NB','Số 0 không dương cũng không âm.'),
  IT('Số nguyên âm không phải là số hữu tỉ',false,'kn','NB','Mọi số nguyên đều là số hữu tỉ.'),
- IT('ℚ ⊂ ℤ',false,'kn','NB','Chẳng hạn 1/2 thuộc ℚ nhưng không thuộc ℤ.'),
+ IT(`${fr(1,2)} ∈ ℤ`,false,'kn','NB','1/2 không phải là số nguyên nên không thuộc ℤ (nhưng thuộc ℚ).'),
  IT('Mọi số hữu tỉ đều là số nguyên',false,'kn','NB','Chẳng hạn 1/2 là số hữu tỉ nhưng không là số nguyên.'),
- IT('Điểm biểu diễn số hữu tỉ âm nằm bên phải gốc O',false,'ts','NB','Số âm nằm bên trái gốc O.'),
+ IT('Điểm biểu diễn số hữu tỉ âm nằm sau gốc O',false,'ts','NB','Số âm nằm trước gốc O.'),
  IT(`Điểm biểu diễn ${fr(1,2)} nằm giữa 1 và 2`,false,'ts','NB','1/2 nằm giữa 0 và 1.'),
  IT('Có số hữu tỉ không biểu diễn được trên trục số',false,'ts','NB','Mỗi số hữu tỉ được biểu diễn bởi một điểm trên trục số.'),
  IT(`Số đối của ${fr(3,4)} là ${fr(4,3)}`,false,'sd','NB','Số đối của 3/4 là −3/4. 4/3 là số nghịch đảo.'),
@@ -863,8 +863,8 @@ const TYPES=['mc','tf','sa'];
 
 /* ============ Ôn nhanh ============ */
 const RECAP=[
-  {k:'kn',fig:`<div class="figbox"><p>Số hữu tỉ: ${fr('a','b')} (a, b ∈ ℤ, b ≠ 0)</p><p>ℕ ⊂ ℤ ⊂ ℚ</p><p>${fr(-3,4)} = −0,75; 2${fr(1,3)} = ${fr(7,3)}</p></div>`,extra:'Ví dụ: 0,6 = 6/10 = 3/5 và −2 = −2/1 đều là số hữu tỉ; 5/0 thì không.'},
-  {k:'ts',fig:truc(-2,2,3,{A:[-5,3],B:[2,3]}),extra:'Ví dụ: mỗi đoạn đơn vị chia thành 3 phần. A cách O 5 phần về bên trái nên A biểu diễn −5/3; B biểu diễn 2/3.'},
+  {k:'kn',fig:`<div class="figbox"><p>Số hữu tỉ: ${fr('a','b')} (a, b ∈ ℤ, b ≠ 0)</p><p>−2 ∈ ℚ; 0,6 ∈ ℚ; ${fr(5,0)} không là số hữu tỉ</p><p>${fr(-3,4)} = −0,75; 2${fr(1,3)} = ${fr(7,3)}</p></div>`,extra:'Ví dụ: 0,6 = 6/10 = 3/5 và −2 = −2/1 đều là số hữu tỉ; 5/0 thì không.'},
+  {k:'ts',fig:truc(-2,2,3,{A:[-5,3],B:[2,3]}),extra:'Ví dụ: chia đoạn thẳng đơn vị thành 3 đoạn bằng nhau, lấy một đoạn làm đơn vị mới. A nằm trước O và cách O 5 đơn vị mới nên A biểu diễn −5/3; B nằm sau O, cách O 2 đơn vị mới nên B biểu diễn 2/3.'},
   {k:'sd',fig:`<div class="figbox"><p>Số đối của ${fr('a','b')} là ${fr('−a','b')}</p><p>${fr(3,4)} + ${fr(-3,4)} = 0</p><p>Số đối của 0 là 0</p></div>`,extra:'Ví dụ: số đối của −5/7 là 5/7; số đối của 1,5 là −1,5.'},
   {k:'ss',fig:`<div class="figbox"><p>${fr(-3,4)} và ${fr(-2,3)}</p><p>${fr(-9,12)} và ${fr(-8,12)}</p><p>−9 < −8 nên ${fr(-3,4)} < ${fr(-2,3)}</p></div>`,extra:'Quy đồng về mẫu dương rồi so sánh tử. Số dương > 0 > số âm.'}
 ];
