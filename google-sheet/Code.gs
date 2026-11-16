@@ -111,10 +111,27 @@ function doGet(e) {
     if (soLanSai().n >= SAI_TOI_DA) return json({ ok: false, err: 1 }); // đang tạm ngừng tra mã
     const hs = timHocSinh(ma);
     if (!hs) ghiLanSai();
+    if (hs && e.parameter.tiendo) return json(tienDo(hs, ma)); // trang chung: tiến độ cá nhân
     return json(hs ? { ok: true, n: hs.n, c: hs.c } : { ok: false });
   } catch (err) {
     return json({ ok: false, err: 1 });
   }
+}
+
+// Tiến độ cá nhân cho trang chung: mỗi bài học = điểm cao nhất, số lần làm, lần gần nhất, phần còn yếu.
+// Chỉ trả về dữ liệu của chính học sinh có mã này (mã đã qua bước tra và chống dò ở doGet).
+function tienDo(hs, ma) {
+  const u = soMa(ma);
+  const bai = {};
+  dsBai().forEach(function (sh) {
+    const k = ketQuaBai(sh, '').kq[u];
+    if (k) bai[sh.getName()] = {
+      d: k.diem, l: k.lan, p: k.phut,
+      t: k.moi ? Utilities.formatDate(k.moi, 'Asia/Ho_Chi_Minh', 'dd/MM HH:mm') : '',
+      y: k.yeu
+    };
+  });
+  return { ok: true, n: hs.n, c: hs.c, bai: bai };
 }
 
 /* ---------- Khối lớp ---------- */
