@@ -49,6 +49,9 @@ Cả website dùng **một Google Sheet** với script `google-sheet/Code.gs` (d
 - Mỗi bài học có một trang tính riêng (ví dụ "7 - Tam giác bằng nhau"), script tự tạo khi có kết quả đầu tiên.
 - Menu **Bảng điểm > Tạo / cập nhật bảng điểm** tạo hai trang tính: **Xem điểm** (chọn Lớp, Bài, Loại bài: danh sách cả lớp với điểm cao nhất, số lần làm, phần còn yếu, em nào chưa làm) và **Sổ điểm** (chọn Lớp: mỗi học sinh một dòng, mỗi bài một cột). Hai bảng tự làm mới khi mở Sheet hoặc đổi ô chọn.
 - Học sinh nhập mã một lần trên máy của mình, sau đó luyện tập và làm bài kiểm tra ở mọi bài. Kết quả kiểm tra chỉ được ghi khi mã có trong trang tính Học sinh; họ tên và lớp lấy từ danh sách, không lấy từ máy học sinh.
+- Script chỉ ghi điểm ở bài đúng khối của học sinh (số đầu tên lớp phải trùng số đầu tên trang tính của bài).
+- Chống dò mã: nếu trong 10 phút có quá 40 lần nhập mã sai (tính chung mọi máy), script tạm ngừng tra mã cho đến hết 10 phút đó. Học sinh đã đăng nhập và việc nộp bài không bị ảnh hưởng. Đổi hai số này ở `SAI_TOI_DA`, `SAI_PHUT` trong `Code.gs`.
+- Mỗi lần sửa `Code.gs`: dán lại toàn bộ vào Apps Script, rồi Triển khai > Quản lí các bản triển khai > biểu tượng bút chì > Phiên bản: **Phiên bản mới** > Triển khai. Làm như vậy địa chỉ `/exec` giữ nguyên, không phải sửa các trang bài.
 
 ## Thêm một bài mới
 

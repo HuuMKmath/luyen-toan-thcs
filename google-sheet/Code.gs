@@ -2,6 +2,7 @@
 //  - Trang tính "Học sinh": cột A = Lớp, B = Họ tên, C = Mã HS (dòng 1 là tiêu đề).
 //  - Mỗi bài học có một trang tính riêng, script tự tạo khi có kết quả đầu tiên của bài đó.
 //  - Chỉ ghi điểm khi mã học sinh có trong trang tính "Học sinh".
+//  - Chỉ ghi điểm ở bài đúng khối lớp của học sinh; tạm ngừng tra mã khi có quá nhiều lần nhập mã sai (chống dò mã).
 //  - Menu "Bảng điểm" tạo hai trang tính "Xem điểm" (một lớp, một bài) và "Sổ điểm" (một lớp, mọi bài).
 // Thêm bài mới trên website KHÔNG cần sửa script này.
 
@@ -80,17 +81,46 @@ function timHocSinh(ma) {
   return null;
 }
 
+// Chống dò mã: nếu trong SAI_PHUT phút có quá SAI_TOI_DA lần nhập mã sai (tính chung mọi máy),
+// script tạm ngừng tra mã cho đến hết khoảng thời gian đó. Học sinh đã đăng nhập và việc nộp bài không bị ảnh hưởng.
+const SAI_TOI_DA = 40;
+const SAI_PHUT = 10;
+const KHOA_SAI = 'tra-ma-sai';
+
+function soLanSai() {
+  const v = CacheService.getScriptCache().get(KHOA_SAI);
+  if (!v) return { n: 0, t: 0 };
+  const p = v.split('|');
+  return { n: Number(p[0]) || 0, t: Number(p[1]) || 0 };
+}
+
+function ghiLanSai() {
+  const now = Date.now();
+  const cu = soLanSai();
+  const t = cu.t && now - cu.t < SAI_PHUT * 60000 ? cu.t : now; // mốc bắt đầu của khoảng đang đếm
+  const n = t === cu.t ? cu.n + 1 : 1;
+  const con = Math.max(1, Math.ceil((t + SAI_PHUT * 60000 - now) / 1000));
+  CacheService.getScriptCache().put(KHOA_SAI, n + '|' + t, con);
+}
+
 // Trang hỏi: mã học sinh này có trong danh sách không?
 function doGet(e) {
   const ma = e && e.parameter && e.parameter.ma;
   if (!ma) return ok('ready');
   try {
+    if (soLanSai().n >= SAI_TOI_DA) return json({ ok: false, err: 1 }); // đang tạm ngừng tra mã
     const hs = timHocSinh(ma);
+    if (!hs) ghiLanSai();
     return json(hs ? { ok: true, n: hs.n, c: hs.c } : { ok: false });
   } catch (err) {
     return json({ ok: false, err: 1 });
   }
 }
+
+/* ---------- Khối lớp ---------- */
+// Khối của học sinh = số đầu tiên trong tên lớp (7A, 6T1). Khối của bài = số đứng đầu tên trang tính ("7 - Tam giác bằng nhau").
+function khoiLop(lop) { const m = String(lop || '').match(/\d+/); return m ? m[0] : ''; }
+function khoiBai(tab) { const m = String(tab || '').match(/^\s*(\d+)/); return m ? m[1] : ''; }
 
 /* ---------- Nhận kết quả bài kiểm tra ---------- */
 
@@ -115,6 +145,9 @@ function doPost(e) {
     // Chỉ nhận kết quả của học sinh có mã trong danh sách
     const hs = timHocSinh(o.u);
     if (!hs) return ok('nocode');
+    // Học sinh chỉ được ghi điểm ở bài đúng khối của mình
+    const kb = khoiBai(tab), kl = khoiLop(hs.c);
+    if (kb && kl && kb !== kl) return ok('wronggrade');
     const maHS = String(o.u).replace(/\D/g, '');
 
     const HEADERS = COT_DAU.concat(names, COT_CUOI);
