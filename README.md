@@ -35,9 +35,10 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 ## Cách dùng cho giáo viên
 
-- Học sinh nhập mã học sinh, làm bài kiểm tra (nhập mã đề nếu có); kết quả tự gửi về Google Sheet của bài.
-- Giáo viên mở mục **Giáo viên** của đúng bài (thêm `#giao-vien` vào cuối địa chỉ), dán các mã vào để xem bảng tổng hợp.
-- Mỗi bài có tiền tố mã riêng nên không dán lẫn giữa các bài.
+- Học sinh nhập mã học sinh, làm bài kiểm tra (nhập mã đề nếu có); kết quả tự gửi về Google Sheet chung "LUYỆN TOÁN THCS".
+- Giáo viên xem điểm ở hai trang tính **Xem điểm** và **Sổ điểm** của Sheet chung.
+- Dự phòng khi học sinh không gửi được (mất mạng): các em đưa mã kết quả, giáo viên mở mục **Giáo viên** của đúng bài (thêm `#giao-vien` vào cuối địa chỉ) rồi dán mã. Mỗi bài có tiền tố mã riêng nên không dán lẫn giữa các bài.
+- Trong một gói luyện tập hay một đề kiểm tra không có hai câu giống hệt nhau; câu tự sinh bị trùng sẽ được sinh lại.
 
 ## Google Sheet chung và mã học sinh
 
