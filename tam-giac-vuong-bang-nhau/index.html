@@ -508,14 +508,14 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
   addMC(`tr_nr_${x}`,'hc','TH',genCase(['notright'],'txt'));
   addMC(`trf_${x}`,'gv','TH',genCase(['ang2','leg1','hyp1'],'fig'));
   addMC(`vd_cv_c_${x}`,'cv','VD',genKite('case'));
-  addMC(`vd_cv_k_${x}`,'cv','VD',genKite('corr'));
+  addMC(`vd_cv_k_${x}`,'cv','TH',genKite('corr'));
   addMC(`vd_gv_c_${x}`,'gv','VD',genBisAlt('gv'));
   addMC(`vd_hc_c_${x}`,'hc','VD',genBisAlt('hc'));
-  addMC(`vd_hc_k_${x}`,'hc','VD',genBisAlt('hc2'));
+  addMC(`vd_hc_k_${x}`,'hc','TH',genBisAlt('hc2'));
 });
 addMC('vd_hg1','hg','VD',genHg1);
 addMC('vd_hg2','hg','VD',genHg2);
-addMC('vd_hg3','hg','VD',genHg3);
+addMC('vd_hg3','hg','TH',genHg3);
 addMC('vd_hc1','hc','VD',genHc1);
 
 /* ============ Câu đúng sai ============ */

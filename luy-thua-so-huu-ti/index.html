@@ -556,9 +556,9 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
 ['a','b','c'].forEach(x=>{
   addMC('g_dnval_'+x,'dn','NB',genDnVal);addMC('g_dnname_'+x,'dn','NB',genDnName);addMC('g_dnwrite_'+x,'dn','NB',genDnWrite);addMC('g_dnrep_'+x,'dn','NB',genDnRep);
   addMC('g_dnfr_'+x,'dn','TH',genDnFr);addMC('g_dnsign_'+x,'dn','TH',genDnSign);addMC('g_dnmax_'+x,'dn','TH',genDnMax);addMC('g_dnzero_'+x,'dn','TH',genDnZero);
-  addMC('g_dnexpr_'+x,'dn','VD',genDnExpr);addMC('g_dngiven_'+x,'dn','VD',genDnGiven);
-  addMC('g_ttprod_'+x,'tt','NB',genTtProd);addMC('g_ttmul_'+x,'tt','TH',genTtMul);addMC('g_ttdiv_'+x,'tt','TH',genTtDiv);addMC('g_ttcombo_'+x,'tt','VD',genTtCombo);addMC('g_ttdec_'+x,'tt','VD',genTtDec);
-  addMC('g_ncmul_'+x,'nc','NB',genNcMul);addMC('g_ncdiv_'+x,'nc','TH',genNcDiv);addMC('g_ncsame_'+x,'nc','TH',genNcSame);addMC('g_ncval_'+x,'nc','TH',genNcVal);addMC('g_nceval_'+x,'nc','VD',genNcEval);
+  addMC('g_dnexpr_'+x,'dn','TH',genDnExpr);addMC('g_dngiven_'+x,'dn','TH',genDnGiven);
+  addMC('g_ttprod_'+x,'tt','NB',genTtProd);addMC('g_ttmul_'+x,'tt','TH',genTtMul);addMC('g_ttdiv_'+x,'tt','TH',genTtDiv);addMC('g_ttcombo_'+x,'tt','TH',genTtCombo);addMC('g_ttdec_'+x,'tt','VD',genTtDec);
+  addMC('g_ncmul_'+x,'nc','NB',genNcMul);addMC('g_ncdiv_'+x,'nc','TH',genNcDiv);addMC('g_ncsame_'+x,'nc','TH',genNcSame);addMC('g_ncval_'+x,'nc','TH',genNcVal);addMC('g_nceval_'+x,'nc','TH',genNcEval);
   addMC('g_ltform_'+x,'lt','NB',genLtForm);addMC('g_ltval_'+x,'lt','TH',genLtVal);addMC('g_ltbase_'+x,'lt','TH',genLtBase);addMC('g_ltmix_'+x,'lt','VD',genLtMix);
 });
 
@@ -732,12 +732,99 @@ function saLtBase(){for(;;){const r=sel(BASES_LT),k=ri(2,3),n=ri(2,5);if(k*n>12)
 function saLtMix(){for(;;){const a=sgn()*ri(2,3),A=[a,1],m=ri(2,3),n=ri(2,3),k=ri(2,4),div=RNG()<.4,e=div?m*n-k:m*n+k;if(e<1)continue;const g=pw(A,e);if(Math.abs(g[0])>1e6)continue;
   return {stem:`Tính ${E(`${BR(PW(A,m))}${SUP(n)} ${div?':':'·'} ${PW(A,k)}`)}.`,ans:[g[0]],exp:`${BR(PW(A,m))}${SUP(n)} = ${PW(A,m*n)}; ${PW(A,m*n)} ${div?':':'·'} ${PW(A,k)} = ${PW(A,e)} = ${N(g[0])}.`};}}
 
+/* ============ Câu vận dụng bổ sung: tìm x, tìm số mũ, so sánh luỹ thừa, đổi cơ số, bài toán thực tế ============ */
+function genVdFindX(){return tryGen(()=>{
+  const a=sgn()*ri(2,5),A=[a,1],m=ri(2,4),n=ri(m+2,m+4),div=RNG()<.5,e=div?m+n:n-m,good=pw(A,e),T=k=>'x = '+PW(A,k);
+  if(div)return mk(`Tìm x, biết ${E(`x : ${PW(A,m)} = ${PW(A,n)}`)}.`,T(e),[
+    Wt(good,pw(A,n-m),T(n-m),'Muốn tìm số bị chia, ta lấy thương nhân với số chia. Bạn đã chia nên trừ hai số mũ.'),
+    Wt(good,pw(A,m*n),T(m*n),'Nhân hai luỹ thừa cùng cơ số thì cộng hai số mũ, không nhân hai số mũ.'),
+    Wt(good,pw(A,n),T(n),'Bạn chưa nhân thương với số chia.'),
+    Wt(good,pw(A,m+n+1),T(m+n+1),'Bạn cộng sai hai số mũ.')],
+    `x = ${PW(A,n)} · ${PW(A,m)} = ${PW(A,`${n} + ${m}`)} = ${PW(A,e)}.`);
+  return mk(`Tìm x, biết ${E(`${PW(A,m)} · x = ${PW(A,n)}`)}.`,T(e),[
+    Wt(good,pw(A,m+n),T(m+n),'Muốn tìm thừa số chưa biết, ta lấy tích chia cho thừa số đã biết. Bạn đã nhân nên cộng hai số mũ.'),
+    n%m===0?Wt(good,pw(A,n/m),T(n/m),'Chia hai luỹ thừa cùng cơ số thì trừ hai số mũ, không chia hai số mũ.'):null,
+    Wt(good,pw(A,n),T(n),'Bạn chưa chia tích cho thừa số đã biết.'),
+    Wt(good,pw(A,e+1),T(e+1),'Bạn trừ sai hai số mũ.'),
+    Wt(good,pw(A,e-1),T(e-1),'Bạn trừ sai hai số mũ.')],
+    `x = ${PW(A,n)} : ${PW(A,m)} = ${PW(A,`${n} − ${m}`)} = ${PW(A,e)}.`);
+});}
+const CMP_VD=[[2,3,3,2],[2,5,5,2],[3,3,5,2],[2,7,5,3],[2,5,3,3],[3,4,4,3]];   // [a,p,b,q]: so sánh a^p với b^q
+function vdCmpData(){
+  let [a,p,b,q]=sel(CMP_VD);const k=ri(5,25);
+  if(RNG()<.5){[a,p,b,q]=[b,q,a,p];}
+  return {a,p,b,q,k,u:Math.pow(a,p),v:Math.pow(b,q)};
+}
+function genVdCmp(){return tryGen(()=>{
+  const d=vdCmpData(),{a,p,b,q,k,u,v}=d,A=PW([a,1],p*k),B=PW([b,1],q*k),sg=u<v?'<':'>',op=u<v?'>':'<';
+  const how=`${A} = (${a}${SUP(p)})${SUP(k)} = ${u}${SUP(k)} và ${B} = (${b}${SUP(q)})${SUP(k)} = ${v}${SUP(k)}`;
+  return mk(`So sánh ${E(A)} và ${E(B)}.`,`${A} ${sg} ${B}`,[
+    C(`${A} ${op} ${B}`,`Cơ số lớn hơn hay số mũ lớn hơn chưa đủ để kết luận. Hãy đưa về cùng số mũ ${k}: ${how}.`),
+    C(`${A} = ${B}`,`Hai luỹ thừa này không bằng nhau: ${how}, mà ${u} ≠ ${v}.`),
+    C('Không so sánh được vì khác cả cơ số và số mũ',`Vẫn so sánh được nếu đưa về cùng số mũ ${k}: ${how}.`)],
+    `Đưa về cùng số mũ ${k}: ${how}. Vì ${u} ${sg} ${v} nên ${u}${SUP(k)} ${sg} ${v}${SUP(k)}, tức là ${A} ${sg} ${B}.`);
+});}
+function vdGrowData(){
+  if(RNG()<.5){const t=sel([15,20,30]),n=ri(3,7);return {n,stem:`Một loại vi khuẩn cứ ${t} phút lại phân đôi một lần (mỗi con thành 2 con). Ban đầu có 1 con vi khuẩn. Sau ${t*n} phút có tất cả bao nhiêu con vi khuẩn?`,why:`Trong ${t*n} phút có ${t*n} : ${t} = ${n} lần phân đôi. Sau mỗi lần số vi khuẩn gấp đôi`,unit:'con'};}
+  const n=ri(3,6);return {n,stem:`Bạn Lan gấp đôi một tờ giấy, rồi lại gấp đôi tiếp. Sau ${n} lần gấp đôi liên tiếp, xấp giấy thu được dày bao nhiêu lớp giấy?`,why:`Sau mỗi lần gấp đôi, số lớp giấy tăng gấp 2`,unit:'lớp'};
+}
+function genVdGrow(){return tryGen(()=>{
+  const d=vdGrowData(),n=d.n,good=[Math.pow(2,n),1];
+  return mk(d.stem,show(good),[
+    Wq(good,[2*n,1],`Sau mỗi lần số lượng gấp đôi, tức là nhân với 2, không phải cộng thêm 2. Kết quả là 2${SUP(n)}, không phải 2 · ${n}.`),
+    Wq(good,[n*n,1],`Bạn nhầm cơ số và số mũ: phải tính 2${SUP(n)}, không phải ${n}${SUP(2)}.`),
+    Wq(good,[Math.pow(2,n-1),1],'Bạn đếm thiếu một lần gấp đôi.'),
+    Wq(good,[Math.pow(2,n+1),1],'Bạn đếm thừa một lần gấp đôi.')],
+    `${d.why}, nên kết quả là ${Array(n).fill(2).join(' · ')} = 2${SUP(n)} = ${N(good[0])}.`);
+});}
+function vdBaseData(){
+  const r=sel([2,3]),a=ri(2,4);let b=ri(2,4);while(b===a)b=ri(2,4);
+  return {r,a,b,u:r*r,v:r*r*r,e:2*a+3*b};
+}
+function genVdBase(){return tryGen(()=>{
+  const {r,a,b,u,v,e}=vdBaseData(),R=[r,1],good=pw(R,e),P=k=>PW(R,k);
+  return mk(`Viết ${E(`${PW([u,1],a)} · ${PW([v,1],b)}`)} dưới dạng luỹ thừa của ${r}.`,P(e),[
+    Wt(good,pw(R,a+b),P(a+b),`Phải đổi ${u} = ${r}${SUP(2)} và ${v} = ${r}${SUP(3)} trước, rồi mới cộng các số mũ.`),
+    Wt(good,pw(R,3*a+2*b),P(3*a+2*b),`Bạn nhầm: ${u} = ${r}${SUP(2)} và ${v} = ${r}${SUP(3)}, không phải ngược lại.`),
+    Wt(good,pw(R,a+3*b),P(a+3*b),`Bạn mới đổi ${v} = ${r}${SUP(3)}, còn ${u} = ${r}${SUP(2)} chưa đổi.`),
+    Wt(good,pw(R,2*a+b),P(2*a+b),`Bạn mới đổi ${u} = ${r}${SUP(2)}, còn ${v} = ${r}${SUP(3)} chưa đổi.`)],
+    `${PW([u,1],a)} = (${r}${SUP(2)})${SUP(a)} = ${P(2*a)} và ${PW([v,1],b)} = (${r}${SUP(3)})${SUP(b)} = ${P(3*b)}. Vậy ${PW([u,1],a)} · ${PW([v,1],b)} = ${P(2*a)} · ${P(3*b)} = ${P(`${2*a} + ${3*b}`)} = ${P(e)}.`);
+});}
+function vdTenData(){
+  const k=ri(2,4),j=ri(1,2),two=RNG()<.5,m=two?k+j:k,n=two?k:k+j,rest=Math.pow(two?2:5,j),val=rest*Math.pow(10,k);
+  const ex=`${PW([2,1],m)} · ${PW([5,1],n)}`;
+  const exp=two?`${ex} = 2${SUP(j)} · (2${SUP(k)} · 5${SUP(k)}) = ${rest} · 10${SUP(k)} = ${N(val)}.`:`${ex} = (2${SUP(k)} · 5${SUP(k)}) · 5${SUP(j)} = 10${SUP(k)} · ${rest} = ${N(val)}.`;
+  return {k,j,m,n,val,ex,exp};
+}
+function genVdTen(){return tryGen(()=>{
+  const d=vdTenData(),good=[d.val,1];
+  return mk(`Tính một cách hợp lí ${E(d.ex)}.`,show(good),[
+    Wq(good,[Math.pow(10,d.m+d.n),1],`Hai luỹ thừa khác cơ số nên không cộng số mũ được. Chỉ ghép được 2${SUP(d.k)} · 5${SUP(d.k)} = 10${SUP(d.k)}.`),
+    Wq(good,[Math.pow(10,d.k),1],`Bạn đã ghép 2${SUP(d.k)} · 5${SUP(d.k)} = 10${SUP(d.k)} nhưng bỏ quên thừa số còn lại.`),
+    Wq(good,[Math.pow(10,d.k+d.j),1],`Chỉ có ${d.k} cặp thừa số 2 và 5 để ghép thành 10, không phải ${d.k+d.j} cặp.`)],
+    d.exp);
+});}
+function saVdGrow(){const d=vdGrowData(),v=Math.pow(2,d.n);return {stem:d.stem,ans:[v],exp:`${d.why}, nên kết quả là ${Array(d.n).fill(2).join(' · ')} = 2${SUP(d.n)} = ${v}.`};}
+function saVdTen(){const d=vdTenData();return {stem:`Tính một cách hợp lí ${E(d.ex)}.`,ans:[d.val],exp:d.exp};}
+function saVdFindN(){const a=sel([2,3,5]),A=[a,1],k=ri(2,3),div=RNG()<.5;
+  if(div){const n=k+ri(1,4),v=Math.pow(a,n-k);return {stem:`Tìm số tự nhiên n, biết ${E(`${PW(A,'n')} : ${PW(A,k)} = ${N(v)}`)}.`,ans:[n],exp:`${N(v)} = ${PW(A,n-k)} và ${PW(A,'n')} : ${PW(A,k)} = ${PW(A,'n − '+k)}. Vậy n − ${k} = ${n-k}, suy ra n = ${n}.`};}
+  const n=ri(2,4),v=Math.pow(a,n+k);return {stem:`Tìm số tự nhiên n, biết ${E(`${PW(A,'n')} · ${PW(A,k)} = ${N(v)}`)}.`,ans:[n],exp:`${N(v)} = ${PW(A,n+k)} và ${PW(A,'n')} · ${PW(A,k)} = ${PW(A,'n + '+k)}. Vậy n + ${k} = ${n+k}, suy ra n = ${n}.`};}
+function saVdFindN2(){const a=sel([2,3]),A=[a,1],k=ri(2,3),n=ri(2,3),v=Math.pow(a,n*k);
+  return {stem:`Tìm số tự nhiên n, biết ${E(`${BR(PW(A,'n'))}${SUP(k)} = ${N(v)}`)}.`,ans:[n],exp:`${N(v)} = ${PW(A,n*k)} và ${BR(PW(A,'n'))}${SUP(k)} = ${PW(A,'n · '+k)}. Vậy n · ${k} = ${n*k}, suy ra n = ${n}.`};}
+function saVdQuot(){const c=ri(2,4),a=c+ri(1,3),b=ri(2,3),d=2*b-ri(1,2),v=Math.pow(2,a-c)*Math.pow(3,2*b-d);
+  return {stem:`Tính ${E(`(${PW([2,1],a)} · ${PW([9,1],b)}) : (${PW([2,1],c)} · ${PW([3,1],d)})`)}.`,ans:[v],exp:`${PW([9,1],b)} = (3${SUP(2)})${SUP(b)} = ${PW([3,1],2*b)}. Do đó biểu thức bằng (${PW([2,1],a)} : ${PW([2,1],c)}) · (${PW([3,1],2*b)} : ${PW([3,1],d)}) = ${PW([2,1],a-c)} · ${PW([3,1],2*b-d)} = ${Math.pow(2,a-c)} · ${Math.pow(3,2*b-d)} = ${v}.`};}
+['a','b','c'].forEach(x=>{
+  addMC('g_vdgrow_'+x,'dn','VD',genVdGrow);addMC('g_vdten_'+x,'tt','VD',genVdTen);addMC('g_vdfindx_'+x,'nc','VD',genVdFindX);
+  addMC('g_vdcmp_'+x,'lt','VD',genVdCmp);addMC('g_vdbase_'+x,'lt','VD',genVdBase);
+});
+
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
-  add('s_dnval','dn','NB',saDnVal);add('s_dnrep','dn','NB',saDnRep);add('s_dnfr','dn','TH',saDnFr);add('s_dnexp','dn','TH',saDnExp);add('s_dnexpr','dn','VD',saDnExpr);
-  add('s_ttprod','tt','NB',saTtProd);add('s_ttmul','tt','TH',saTtMul);add('s_ttdiv','tt','TH',saTtDiv);add('s_ttcombo','tt','VD',saTtCombo);add('s_ttdec','tt','VD',saTtDec);
-  add('s_ncmul','nc','NB',saNcMul);add('s_ncdiv','nc','NB',saNcDiv);add('s_ncval','nc','TH',saNcVal);add('s_nceval','nc','VD',saNcEval);
+  add('s_dnval','dn','NB',saDnVal);add('s_dnrep','dn','NB',saDnRep);add('s_dnfr','dn','TH',saDnFr);add('s_dnexp','dn','TH',saDnExp);add('s_dnexpr','dn','TH',saDnExpr);
+  add('s_ttprod','tt','NB',saTtProd);add('s_ttmul','tt','TH',saTtMul);add('s_ttdiv','tt','TH',saTtDiv);add('s_ttcombo','tt','TH',saTtCombo);add('s_ttdec','tt','VD',saTtDec);
+  add('s_ncmul','nc','NB',saNcMul);add('s_ncdiv','nc','NB',saNcDiv);add('s_ncval','nc','TH',saNcVal);add('s_nceval','nc','TH',saNcEval);
+  add('s_vdgrow','dn','VD',saVdGrow);add('s_vdten','tt','VD',saVdTen);add('s_vdquot','tt','VD',saVdQuot);add('s_vdfindn','nc','VD',saVdFindN);add('s_vdfindn2','lt','VD',saVdFindN2);
   add('s_ltexp','lt','NB',saLtExp);add('s_ltval','lt','TH',saLtVal);add('s_ltbase','lt','VD',saLtBase);add('s_ltmix','lt','VD',saLtMix);
   return S;
 }

@@ -640,17 +640,22 @@ const SA=[
  {id:'s_na_vd',topic:'na',level:'VD',unit:'',gen:()=>{const d=mixList(8);return{stem:`Trong các số ${d.txt}, gọi m là số các số nguyên âm và n là số các số nguyên dương. Tính m + n.`,ans:[d.neg+d.pos],exp:`Số nguyên âm: ${L(d.negs)} (m = ${d.neg}). Số nguyên dương: ${L(d.poss)} (n = ${d.pos}). Số 0 không thuộc nhóm nào. Vậy m + n = ${d.neg+d.pos}.`};}},
  {id:'s_tt_nb',topic:'tt',level:'NB',unit:'°C',gen:()=>{const x=ri(2,25);return{stem:`Nhiệt độ ${x} độ dưới 0°C được viết bằng số nguyên nào?`,ans:[-x],exp:`Nhiệt độ dưới 0°C được biểu thị bằng số nguyên âm: ${N(-x)}°C.`};}},
  {id:'s_tt_th',topic:'tt',level:'TH',unit:'triệu đồng',gen:()=>{const [a,b]=sample(2,3,40);return{stem:`Tháng Ba một cửa hàng lãi ${a} triệu đồng, tháng Tư cửa hàng lỗ ${b} triệu đồng. Viết số nguyên biểu thị lợi nhuận tháng Tư của cửa hàng.`,ans:[-b],exp:`Lỗ ${b} triệu đồng được biểu thị bằng số nguyên âm ${N(-b)}. Số liệu của tháng Ba không cần dùng đến.`};}},
- {id:'s_tt_vd',topic:'tt',level:'VD',unit:'°C',gen:()=>{const t=shuffle(sample(3,1,14).map(v=>-v).concat([ri(0,5)])),mn=Math.min(...t);return{stem:`Nhiệt độ lúc 5 giờ sáng của bốn ngày liên tiếp tại một thị trấn vùng núi là ${t.map(v=>N(v)+'°C').join('; ')}. Nhiệt độ thấp nhất trong bốn ngày đó là bao nhiêu?`,ans:[mn],exp:`Sắp xếp tăng dần: ${L(asc(t))}. Số nhỏ nhất là ${N(mn)}, nên nhiệt độ thấp nhất là ${N(mn)}°C.`};}},
+ {id:'s_tt_vd',topic:'tt',level:'TH',unit:'°C',gen:()=>{const t=shuffle(sample(3,1,14).map(v=>-v).concat([ri(0,5)])),mn=Math.min(...t);return{stem:`Nhiệt độ lúc 5 giờ sáng của bốn ngày liên tiếp tại một thị trấn vùng núi là ${t.map(v=>N(v)+'°C').join('; ')}. Nhiệt độ thấp nhất trong bốn ngày đó là bao nhiêu?`,ans:[mn],exp:`Sắp xếp tăng dần: ${L(asc(t))}. Số nhỏ nhất là ${N(mn)}, nên nhiệt độ thấp nhất là ${N(mn)}°C.`};}},
  {id:'s_ts_nb',topic:'ts',level:'NB',unit:'',gen:()=>{const k=ri(2,6),sg=sel([-1,-1,1]),a=sg*k;return{stem:'Trên trục số dưới đây, điểm A biểu diễn số nào?'+FIG_NOTE,fig:truc(-7,7,{A:a},[0,1]),ans:[a],exp:`Điểm A nằm bên ${sg<0?'trái':'phải'} gốc O và cách O ${k} đơn vị nên A biểu diễn số ${N(a)}.`};}},
  {id:'s_ts_th',topic:'ts',level:'TH',unit:'đơn vị',gen:()=>{const a=ri(2,60);return{stem:`Trên trục số, điểm biểu diễn số ${N(-a)} cách gốc O bao nhiêu đơn vị?`,ans:[a],exp:`Điểm ${N(-a)} nằm bên trái gốc O và cách gốc O ${a} đơn vị. Khoảng cách không mang dấu "−".`};}},
  {id:'s_ts_th2',topic:'ts',level:'TH',unit:'',gen:()=>{const k=ri(2,40);return{stem:`Trên trục số nằm ngang, từ gốc O di chuyển sang trái ${k} đơn vị thì đến điểm biểu diễn số nào?`,ans:[-k],exp:`Bên trái gốc O là các số nguyên âm; cách O ${k} đơn vị là điểm ${N(-k)}.`};}},
- {id:'s_ts_vd',topic:'ts',level:'VD',unit:'',gen:()=>{let D=moveData();for(let n=0;n<50&&D.e===0;n++)D=moveData();const {s,m,left,e}=D;return{stem:`Trên trục số, một con kiến xuất phát từ điểm biểu diễn số ${N(s)} và bò sang ${left?'trái':'phải'} ${m} đơn vị. Con kiến dừng lại ở điểm biểu diễn số nào?`,fig:truc(-7,7,{},'all'),ans:[e],exp:`Từ ${N(s)} bò sang ${left?'trái':'phải'} ${m} đơn vị, con kiến lần lượt đến các điểm ${L(D.path)}. Vậy nó dừng ở điểm ${N(e)}.`};}},
+ {id:'s_ts_vd',topic:'ts',level:'TH',unit:'',gen:()=>{let D=moveData();for(let n=0;n<50&&D.e===0;n++)D=moveData();const {s,m,left,e}=D;return{stem:`Trên trục số, một con kiến xuất phát từ điểm biểu diễn số ${N(s)} và bò sang ${left?'trái':'phải'} ${m} đơn vị. Con kiến dừng lại ở điểm biểu diễn số nào?`,fig:truc(-7,7,{},'all'),ans:[e],exp:`Từ ${N(s)} bò sang ${left?'trái':'phải'} ${m} đơn vị, con kiến lần lượt đến các điểm ${L(D.path)}. Vậy nó dừng ở điểm ${N(e)}.`};}},
  {id:'s_ts_vd2',topic:'ts',level:'VD',unit:'đơn vị',gen:()=>{const [a,b]=sample(2,2,30);return{stem:`Trên trục số, điểm A biểu diễn số ${N(-a)} và điểm B biểu diễn số ${b}. Hai điểm A và B cách nhau bao nhiêu đơn vị?`,ans:[a+b],exp:`A cách gốc O ${a} đơn vị về bên trái, B cách gốc O ${b} đơn vị về bên phải. Vậy A và B cách nhau ${a} + ${b} = ${a+b} đơn vị.`};}},
  {id:'s_ss_nb',topic:'ss',level:'NB',unit:'',gen:()=>{const [a,b]=sample(2,2,40),g=-Math.min(a,b),w=-Math.max(a,b);return{stem:`Trong hai số ${N(-a)} và ${N(-b)}, số nào lớn hơn? Hãy nhập số đó.`,ans:[g],exp:`Trên trục số, điểm ${N(g)} nằm bên phải điểm ${N(w)} nên ${N(g)} > ${N(w)}.`};}},
  {id:'s_ss_th',topic:'ss',level:'TH',unit:'',gen:()=>{const d=sortData(),mn=Math.min(...d.v);return{stem:`Tìm số nhỏ nhất trong các số ${L(shuffle(d.v))}.`,ans:[mn],exp:`Sắp xếp tăng dần: ${L(asc(d.v))}. Số nhỏ nhất là ${N(mn)}.`};}},
  {id:'s_ss_th2',topic:'ss',level:'TH',unit:'',gen:()=>{const v=sample(4,2,40).map(x=>-x),mx=Math.max(...v);return{stem:`Tìm số lớn nhất trong các số ${L(v)}.`,ans:[mx],exp:`Sắp xếp tăng dần: ${L(asc(v))}. Số lớn nhất là ${N(mx)}, vì điểm ${N(mx)} nằm bên phải các điểm còn lại trên trục số.`};}},
  {id:'s_ss_vd',topic:'ss',level:'VD',unit:'số',gen:()=>{const a=ri(4,15),b=ri(3,12),k=ri(0,3);return{stem:`Có bao nhiêu số nguyên x thỏa mãn ${RG.txt(a,b,k)}?`,ans:[RG.hi(b,k)-RG.lo(a,k)+1],exp:countExp(a,b,k)};}},
- {id:'s_ss_vd2',topic:'ss',level:'VD',unit:'',gen:()=>{const a=ri(3,50),below=ri(0,1)===1;return below?{stem:`Tìm số nguyên lớn nhất nhỏ hơn ${N(-a)}.`,ans:[-a-1],exp:`Trên trục số, số nguyên đứng ngay bên trái ${N(-a)} là ${N(-a-1)}.`}:{stem:`Tìm số nguyên nhỏ nhất lớn hơn ${N(-a)}.`,ans:[-a+1],exp:`Trên trục số, số nguyên đứng ngay bên phải ${N(-a)} là ${N(-a+1)}.`};}}
+ {id:'s_ss_vd2',topic:'ss',level:'TH',unit:'',gen:()=>{const a=ri(3,50),below=ri(0,1)===1;return below?{stem:`Tìm số nguyên lớn nhất nhỏ hơn ${N(-a)}.`,ans:[-a-1],exp:`Trên trục số, số nguyên đứng ngay bên trái ${N(-a)} là ${N(-a-1)}.`}:{stem:`Tìm số nguyên nhỏ nhất lớn hơn ${N(-a)}.`,ans:[-a+1],exp:`Trên trục số, số nguyên đứng ngay bên phải ${N(-a)} là ${N(-a+1)}.`};}},
+ {id:'s_ts_vd3',topic:'ts',level:'VD',unit:'',gen:()=>{const d=vdMidData();return{stem:d.stem,fig:d.fig,ans:[d.M],exp:d.exp};}},
+ {id:'s_ts_vd4',topic:'ts',level:'VD',unit:'',gen:()=>{const a=ri(1,6),d=a+ri(1,8);return{stem:`Trên trục số, điểm A biểu diễn số ${a}. Điểm B biểu diễn một số nguyên âm và cách điểm A đúng ${d} đơn vị. Điểm B biểu diễn số nào?`,ans:[a-d],exp:`Có hai điểm cách A đúng ${d} đơn vị: điểm ${N(a-d)} (bên trái A) và điểm ${a+d} (bên phải A). Vì B biểu diễn số nguyên âm nên B biểu diễn số ${N(a-d)}.`};}},
+ {id:'s_ss_vd3',topic:'ss',level:'VD',unit:'số',gen:()=>{const a=ri(3,15),b=ri(2,12),st=ri(0,1)===1,lo=st?-a+1:-a;return{stem:`Có bao nhiêu số nguyên x thỏa mãn ${nb(`${N(-a)} ${st?'<':'≤'} x < ${b}`)} mà x không phải là số nguyên dương?`,ans:[1-lo],exp:`Các số nguyên x thỏa mãn điều kiện và không phải số nguyên dương là các số từ ${N(lo)} đến 0 (số 0 không phải số nguyên dương). Có ${-lo} số nguyên âm và số 0, tất cả ${1-lo} số.`};}},
+ {id:'s_tt_vd2',topic:'tt',level:'VD',unit:'điểm',gen:()=>{for(;;){const ng=sample(4,1,40).map(v=>-v*5),ps=sample(1,1,40).map(v=>v*5),all=shuffle(ng.concat(ps)),s=asc(ng),ref=sel([s[1],s[2]]),low=asc(all.filter(v=>v<ref));return{stem:`Độ cao so với mực nước biển của năm điểm khảo sát lần lượt là ${all.map(v=>N(v)+' m').join('; ')}. Có bao nhiêu điểm nằm thấp hơn điểm có độ cao ${N(ref)} m?`,ans:[low.length],exp:`Điểm thấp hơn điểm ${N(ref)} m là điểm có độ cao nhỏ hơn ${N(ref)}. Đó là: ${low.map(v=>N(v)+' m').join('; ')}. Có ${low.length} điểm.`};}}},
+ {id:'s_na_vd2',topic:'na',level:'VD',unit:'số',gen:()=>{const ng=sample(ri(2,3),1,30).map(v=>-v),ps=sample(2,1,30),dc=sample(2,1,9).map(v=>v+',5'),z=ri(0,2)>0,list=shuffle(ng.map(N).concat(ps.map(String),dc,z?['0']:[])),k=ng.length+(z?1:0);return{stem:`Trong các số ${list.join('; ')}, có bao nhiêu số thuộc tập hợp ℤ nhưng không phải là số nguyên dương?`,ans:[k],exp:`Các số thuộc ℤ là ${asc(ng.concat(ps,z?[0]:[])).map(N).join('; ')} (${dc.join(' và ')} không phải số nguyên). Trong đó các số không phải số nguyên dương là ${asc(ng.concat(z?[0]:[])).map(N).join('; ')}. Có ${k} số.`};}},
 ].map(q=>Object.assign({type:'sa'},q));
 SA.push(...SA.map(q=>Object.assign({},q,{id:q.id+'b'})));
 
@@ -664,7 +669,7 @@ const TOPICS={
 const TKEYS=['na','tt','ts','ss'];
 const TDESC={na:'Nhận biết số nguyên âm, số nguyên dương, kí hiệu ∈, ∉ với tập ℤ',tt:'Nhiệt độ, độ cao, tiền lãi lỗ, tiền nợ',ts:'Đọc điểm trên trục số, khoảng cách đến gốc O, di chuyển trên trục số',ss:'So sánh, sắp xếp, tìm các số nguyên trong một khoảng'};
 const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
-const LEVEL_DESC={NB:'Nhận ra số nguyên âm, đọc số trên trục số, so sánh các cặp số đơn giản.',TH:'Dùng số nguyên âm trong thực tế, khoảng cách đến gốc O, sắp xếp và liệt kê số nguyên.',VD:'Di chuyển trên trục số, đếm số nguyên trong một khoảng, bài toán thực tế nhiều bước.'};
+const LEVEL_DESC={NB:'Nhận ra số nguyên âm, đọc số trên trục số, so sánh các cặp số đơn giản.',TH:'Dùng số nguyên âm trong thực tế, khoảng cách đến gốc O, sắp xếp và liệt kê số nguyên.',VD:'Hai điểm trên trục số, điểm cách đều, đếm số nguyên trong một khoảng, bài toán thực tế nhiều bước.'};
 
 /* ============ Ngân hàng nhiều lựa chọn ============ */
 const O=(t,err)=>err?{t,err}:{t};
@@ -771,16 +776,70 @@ const MC=[
    O('a < −5'),O('a > −5','Điểm nằm bên trái biểu diễn số nhỏ hơn.'),O('a > 0','Điểm a nằm bên trái điểm −5 nên cũng nằm bên trái gốc O: a là số nguyên âm.'),O('a = 5','Điểm 5 nằm bên phải điểm −5.')],
   exp:'Điểm a nằm bên trái điểm −5 nên a < −5.'}
 ].map(q=>Object.assign({type:'mc'},q));
+/* ============ Câu vận dụng bổ sung: hai điểm trên trục số, điểm cách đều, số nguyên âm lớn nhất, sắp xếp độ cao ============ */
+function genVdTwoPts(){return tryGen(()=>{
+  const a=sel([-1,1])*ri(1,8),d=ri(2,6);
+  return {stem:`Trên trục số, điểm A biểu diễn số ${N(a)}. Điểm B cách điểm A đúng ${d} đơn vị. Điểm B có thể biểu diễn số nào?`,opts:[
+    {t:`${N(a-d)} hoặc ${N(a+d)}`},
+    {t:`Chỉ số ${N(a+d)}`,err:`Còn một điểm nữa nằm bên trái điểm A và cũng cách A đúng ${d} đơn vị, đó là điểm ${N(a-d)}.`},
+    {t:`Chỉ số ${N(a-d)}`,err:`Còn một điểm nữa nằm bên phải điểm A và cũng cách A đúng ${d} đơn vị, đó là điểm ${N(a+d)}.`},
+    {t:`${N(-d)} hoặc ${d}`,err:`Đó là hai điểm cách gốc O đúng ${d} đơn vị. Đề bài hỏi điểm cách điểm A.`}],ans:0,
+    exp:`Từ điểm ${N(a)}, đi sang trái ${d} đơn vị đến điểm ${N(a-d)}, đi sang phải ${d} đơn vị đến điểm ${N(a+d)}. Vậy B biểu diễn số ${N(a-d)} hoặc ${N(a+d)}.`};
+});}
+function vdMidData(){
+  for(;;){const a=-ri(1,7),b=ri(1,7);if((a+b)%2!==0||a+b===0)continue;const M=(a+b)/2,h=(b-a)/2;
+    return {a,b,M,h,stem:`Trên trục số dưới đây, điểm A biểu diễn số ${N(a)} và điểm B biểu diễn số ${b}. Điểm M nằm giữa A và B, cách đều hai điểm đó. Điểm M biểu diễn số nào?`+FIG_NOTE,fig:truc(-7,7,{A:a,B:b},[0,1]),
+      exp:`A và B cách nhau ${-a} + ${b} = ${b-a} đơn vị nên M cách mỗi điểm ${h} đơn vị. Từ điểm A (số ${N(a)}) đi sang phải ${h} đơn vị thì đến điểm ${N(M)}. Vậy M biểu diễn số ${N(M)}.`};}
+}
+function genVdMid(){return tryGen(()=>{
+  const d=vdMidData(),{a,b,M,h}=d;
+  return {stem:d.stem,fig:d.fig,opts:[
+    {t:N(M)},
+    {t:N(h),err:`${h} là khoảng cách từ M đến mỗi điểm A, B, chưa phải số mà điểm M biểu diễn.`},
+    {t:'0',err:`Gốc O cách A ${-a} đơn vị và cách B ${b} đơn vị nên không cách đều hai điểm.`},
+    {t:N(-M),err:`Điểm ${N(-M)} nằm ở phía bên kia gốc O: nó cách A ${Math.abs(-M-a)} đơn vị và cách B ${Math.abs(b+M)} đơn vị nên không cách đều.`}],ans:0,exp:d.exp};
+});}
+function genVdExt(){return tryGen(()=>{
+  const big=ri(0,1)===1,three=ri(0,1)===1,lo=three?-999:-99,hi=three?-100:-10,cs=three?'ba':'hai',it=three?'hai':'một';
+  const why=`Với hai số nguyên âm, số nào có phần số tự nhiên lớn hơn thì nhỏ hơn.`;
+  if(big)return {stem:`Số nguyên âm lớn nhất có ${cs} chữ số là số nào?`,opts:[
+    {t:N(hi)},
+    {t:N(lo),err:`${N(lo)} là số nguyên âm nhỏ nhất có ${cs} chữ số. ${why}`},
+    {t:N(hi-1),err:`${N(hi)} còn lớn hơn ${N(hi-1)} vì điểm ${N(hi)} nằm bên phải điểm ${N(hi-1)} trên trục số.`},
+    {t:N(hi+1),err:`${N(hi+1)} chỉ có ${it} chữ số.`}],ans:0,
+    exp:`${why} Số tự nhiên nhỏ nhất có ${cs} chữ số là ${-hi}, nên số nguyên âm lớn nhất có ${cs} chữ số là ${N(hi)}.`};
+  return {stem:`Số nguyên âm nhỏ nhất có ${cs} chữ số là số nào?`,opts:[
+    {t:N(lo)},
+    {t:N(hi),err:`${N(hi)} là số nguyên âm lớn nhất có ${cs} chữ số. ${why}`},
+    {t:N(lo+1),err:`${N(lo)} còn nhỏ hơn ${N(lo+1)} vì điểm ${N(lo)} nằm bên trái điểm ${N(lo+1)} trên trục số.`},
+    {t:N(lo-1),err:`${N(lo-1)} có ${three?'bốn':'ba'} chữ số.`}],ans:0,
+    exp:`${why} Số tự nhiên lớn nhất có ${cs} chữ số là ${-lo}, nên số nguyên âm nhỏ nhất có ${cs} chữ số là ${N(lo)}.`};
+});}
+const VD_DUOI=['tàu ngầm','thợ lặn','đàn cá ngừ','rạn san hô','xác tàu đắm'],VD_TREN=['chim hải âu','khinh khí cầu','ngọn hải đăng','cánh diều','máy bay mô hình'];
+function genVdOrder(){return tryGen(()=>{
+  const ng=sample(2,1,30).map(v=>-v*5),ps=sample(2,2,30).map(v=>v*5);
+  if(Math.min(...ps)>=Math.max(...ng.map(v=>-v)))return null;
+  const nm=shuffle(VD_DUOI).slice(0,2).concat(shuffle(VD_TREN).slice(0,2)),it=ng.concat(ps).map((v,i)=>({v,n:nm[i]}));
+  const J=a=>a.map(x=>x.n).join('; '),up=it.slice().sort((x,y)=>x.v-y.v),ab=it.slice().sort((x,y)=>Math.abs(x.v)-Math.abs(y.v)),sw=[up[1],up[0],up[2],up[3]];
+  return {stem:`So với mực nước biển: ${shuffle(it).map(x=>`${x.n} ở độ cao ${N(x.v)} m`).join(', ')}. Sắp xếp theo độ cao từ thấp đến cao, ta được:`,opts:[
+    {t:J(up)},
+    {t:J(ab),err:`Bạn đã so sánh phần số tự nhiên mà bỏ qua dấu "−". Mọi số nguyên âm đều nhỏ hơn mọi số nguyên dương.`},
+    {t:J(up.slice().reverse()),err:'Đó là thứ tự từ cao đến thấp. Đề bài yêu cầu từ thấp đến cao.'},
+    {t:J(sw),err:`Với hai số nguyên âm, số có phần số tự nhiên lớn hơn thì nhỏ hơn: ${N(up[0].v)} < ${N(up[1].v)}.`}],ans:0,
+    exp:`Sắp xếp các số theo thứ tự tăng dần: ${up.map(x=>N(x.v)).join(' < ')}. Vậy thứ tự từ thấp đến cao là: ${J(up)}.`};
+});}
 const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b','c'].forEach(x=>{addMC('g_vdtwo_'+x,'ts','VD',genVdTwoPts);addMC('g_vdmid_'+x,'ts','VD',genVdMid);addMC('g_vdorder_'+x,'tt','VD',genVdOrder);});
+['a','b'].forEach(x=>addMC('g_vdext_'+x,'ss','VD',genVdExt));
 const gInc=genSort(true),gDec=genSort(false);
 ['a','b','c'].forEach(x=>{
   addMC('g_neg_'+x,'na','NB',genNeg);
   addMC('g_in_'+x,'na','TH',genIn);
   addMC('g_two_'+x,'tt','NB',genTwo);
   addMC('g_mean_'+x,'tt','TH',genMean);
-  addMC('g_cold_'+x,'tt','VD',genCold);
+  addMC('g_cold_'+x,'tt','TH',genCold);
   addMC('g_read_'+x,'ts','NB',genRead);
-  addMC('g_move_'+x,'ts','VD',genMove);
+  addMC('g_move_'+x,'ts','TH',genMove);
   addMC('g_cmp_'+x,'ss','NB',genCmp);
   addMC('g_list_'+x,'ss','TH',genList);
   addMC('g_cnt_'+x,'ss','VD',genCountRange);
@@ -794,7 +853,7 @@ const gInc=genSort(true),gDec=genSort(false);
   addMC('g_ab_'+x,'ts','VD',genAB);
   addMC('g_inc_'+x,'ss','TH',gInc);
   addMC('g_dec_'+x,'ss','TH',gDec);
-  addMC('g_near_'+x,'ss','VD',genNear);
+  addMC('g_near_'+x,'ss','TH',genNear);
 });
 
 const TF=[];

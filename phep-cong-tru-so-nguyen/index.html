@@ -593,7 +593,7 @@ function saProfit(){let m,s;do{m=[ri(5,40),ri(5,40),ri(5,40)].map(v=>sgn()*v);s=
 const SA=[
  {id:'s_cg_nb',topic:'cg',level:'NB',unit:'',gen:saAddNeg},
  {id:'s_cg_th',topic:'cg',level:'TH',unit:'',gen:saAddDiff},
- {id:'s_cg_vd',topic:'cg',level:'VD',unit:'',gen:saSum4},
+ {id:'s_cg_vd',topic:'cg',level:'TH',unit:'',gen:saSum4},
  {id:'s_cg_vd2',topic:'cg',level:'VD',unit:'',gen:saRange},
  {id:'s_tc_nb',topic:'tc',level:'NB',unit:'',gen:saZero},
  {id:'s_tc_th',topic:'tc',level:'TH',unit:'',gen:saAssoc3},
@@ -601,8 +601,8 @@ const SA=[
  {id:'s_tr_nb',topic:'tr',level:'NB',unit:'',gen:saSubNB},
  {id:'s_tr_th',topic:'tr',level:'TH',unit:'',gen:saSubTH},
  {id:'s_tr_th2',topic:'tr',level:'TH',unit:'°C',gen:saDiffTemp},
- {id:'s_tr_vd',topic:'tr',level:'VD',unit:'',gen:saSub3},
- {id:'s_tr_vd2',topic:'tr',level:'VD',unit:'',gen:saUnknown},
+ {id:'s_tr_vd',topic:'tr',level:'TH',unit:'',gen:saSub3},
+ {id:'s_tr_vd2',topic:'tr',level:'TH',unit:'',gen:saUnknown},
  {id:'s_dn_nb',topic:'dn',level:'NB',unit:'',gen:saMove},
  {id:'s_dn_th',topic:'dn',level:'TH',unit:'m',gen:saGap},
  {id:'s_dn_th2',topic:'dn',level:'TH',unit:'°C',gen:saAfterTemp},
@@ -692,7 +692,7 @@ const MC=[
  {id:'m16',topic:'dn',level:'NB',stem:'Nhiệt độ lúc đầu là −3°C, sau đó tăng 5°C. Phép tính nào cho nhiệt độ lúc sau?',ans:0,opts:[
    O('(−3) + 5'),O('(−3) − 5','Nhiệt độ tăng thì cộng thêm, không phải trừ đi.'),O('3 + 5','Nhiệt độ lúc đầu là −3°C, không phải 3°C.'),O('3 − 5','Nhiệt độ lúc đầu là −3°C và tăng là phép cộng.')],
   exp:'Tăng là cộng: (−3) + 5 = 2, nhiệt độ lúc sau là 2°C.'},
- {id:'m17',topic:'tr',level:'VD',stem:'Cho A = 15 − (−7) và B = 15 + (−7). Khẳng định nào đúng?',ans:0,opts:[
+ {id:'m17',topic:'tr',level:'TH',stem:'Cho A = 15 − (−7) và B = 15 + (−7). Khẳng định nào đúng?',ans:0,opts:[
    O('A > B'),O('A = B','A = 15 + 7 = 22 còn B = 15 − 7 = 8, hai số khác nhau.'),O('A < B','A = 22 lớn hơn B = 8.'),O('A và B là hai số đối nhau','A = 22 và B = 8 không phải hai số đối nhau.')],
   exp:'A = 15 − (−7) = 15 + 7 = 22; B = 15 + (−7) = 8. Vậy A > B.'}
 ].map(q=>Object.assign({type:'mc'},q));
@@ -700,7 +700,7 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
 ['a','b','c'].forEach(x=>{
   addMC('g_addneg_'+x,'cg','NB',genAddNeg);
   addMC('g_adddiff_'+x,'cg','TH',genAddDiff);
-  addMC('g_sum4_'+x,'cg','VD',genSum4);
+  addMC('g_sum4_'+x,'cg','TH',genSum4);
   addMC('g_range_'+x,'cg','VD',genRangeSum);
   addMC('g_prop_'+x,'tc','NB',genProp);
   addMC('g_assoc3_'+x,'tc','TH',genAssoc3);
@@ -710,8 +710,8 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
   addMC('g_subneg_'+x,'tr','TH',genSubNeg);
   addMC('g_subadd_'+x,'tr','TH',genSubAsAdd);
   addMC('g_dtemp_'+x,'tr','TH',genDiffTemp);
-  addMC('g_sub3_'+x,'tr','VD',genSub3);
-  addMC('g_unk_'+x,'tr','VD',genUnknown);
+  addMC('g_sub3_'+x,'tr','TH',genSub3);
+  addMC('g_unk_'+x,'tr','TH',genUnknown);
   addMC('g_atemp_'+x,'dn','TH',genAfterTemp);
   addMC('g_alt_'+x,'dn','VD',genAlt);
   addMC('g_profit_'+x,'dn','VD',genProfit);

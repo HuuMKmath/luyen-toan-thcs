@@ -698,7 +698,7 @@ const MC=[
   exp:'Số 0 không dương cũng không âm.'},
  {id:'m5',topic:'kn',level:'VD',stem:'Cho bốn khẳng định: (I) Mỗi số nguyên là một số hữu tỉ. (II) Mỗi số hữu tỉ là một số nguyên. (III) Số 0 là số hữu tỉ. (IV) Phân số '+fr('a','b')+' với a, b nguyên luôn là số hữu tỉ. Có bao nhiêu khẳng định đúng?',ans:0,opts:[O('2'),O('1','Khẳng định (I) và (III) đều đúng.'),O('3','Khẳng định (IV) sai khi b = 0 vì phân số không có nghĩa.'),O('4','(II) sai (chẳng hạn 1/2 không là số nguyên) và (IV) sai khi b = 0.')],
   exp:'(I) đúng, (II) sai, (III) đúng (0 = 0/1), (IV) sai vì cần b ≠ 0. Có 2 khẳng định đúng.'},
- {id:'m6',topic:'kn',level:'VD',stem:'Số hữu tỉ nào sau đây không là số nguyên?',ans:0,opts:[O(fr(-7,2)),O(fr(-12,4),'−12/4 = −3 là số nguyên.'),O(fr(15,5),'15/5 = 3 là số nguyên.'),O(fr(0,9),'0/9 = 0 là số nguyên.')],
+ {id:'m6',topic:'kn',level:'TH',stem:'Số hữu tỉ nào sau đây không là số nguyên?',ans:0,opts:[O(fr(-7,2)),O(fr(-12,4),'−12/4 = −3 là số nguyên.'),O(fr(15,5),'15/5 = 3 là số nguyên.'),O(fr(0,9),'0/9 = 0 là số nguyên.')],
   exp:'−12/4 = −3, 15/5 = 3 và 0/9 = 0 đều là số nguyên, còn −7/2 = −3,5 không là số nguyên.'},
  {id:'m7',topic:'ts',level:'NB',stem:'Trên trục số, các điểm biểu diễn số hữu tỉ âm nằm ở đâu so với gốc O?',ans:0,opts:[O('Nằm trước gốc O'),O('Nằm sau gốc O','Số hữu tỉ dương được biểu diễn bởi điểm nằm sau gốc O.'),O('Trùng với gốc O','Chỉ số 0 được biểu diễn bởi gốc O.'),O('Có thể nằm trước hoặc nằm sau gốc O','Số âm luôn nằm trước gốc O.')],
   exp:'Điểm biểu diễn số hữu tỉ âm nằm trước gốc O, số dương nằm sau.'},
@@ -740,7 +740,7 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
   addMC('g_sdfind2_'+x,'sd','TH',()=>genSdFind(['dec','mix']));
   addMC('g_sdeq_'+x,'sd','TH',genSdEq);
   addMC('g_sdfig_'+x,'sd','TH',genSdFig);
-  addMC('g_sddbl_'+x,'sd','VD',genSdDouble);
+  addMC('g_sddbl_'+x,'sd','TH',genSdDouble);
   addMC('g_sssign_'+x,'ss','NB',genSsSign);
   addMC('g_sscmp_'+x,'ss','NB',()=>genSsCmp('NB'));
   addMC('g_sscmp2_'+x,'ss','TH',()=>genSsCmp('TH'));

@@ -919,9 +919,9 @@ const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
 ['a','b','c'].forEach(x=>{
   addMC('g_ssopp_'+x,'ss','NB',genSsOpp);addMC('g_ssq_'+x,'ss','NB',genSsQ);addMC('g_ssneg_'+x,'ss','TH',genSsNeg);addMC('g_sstrue_'+x,'ss','TH',genSsTrue);addMC('g_ssmax_'+x,'ss','TH',genSsMax);addMC('g_ssbet_'+x,'ss','VD',genSsBetween);
   addMC('g_ctsame_'+x,'pt','NB',genCtSame);addMC('g_chinv_'+x,'pt','NB',genChInv);addMC('g_ctdiff_'+x,'pt','TH',genCtDiff);addMC('g_ctsub_'+x,'pt','TH',genCtSub);addMC('g_nhfr_'+x,'pt','TH',genNhFr);addMC('g_nhsign_'+x,'pt','TH',genNhSign);addMC('g_chdiv_'+x,'pt','TH',genChDiv);
-  addMC('g_ctthree_'+x,'pt','VD',genCtThree);addMC('g_nhthree_'+x,'pt','VD',genNhThree);addMC('g_chchain_'+x,'pt','VD',genChChain);addMC('g_chfind_'+x,'pt','VD',genChFind);
+  addMC('g_ctthree_'+x,'pt','TH',genCtThree);addMC('g_nhthree_'+x,'pt','TH',genNhThree);addMC('g_chchain_'+x,'pt','TH',genChChain);addMC('g_chfind_'+x,'pt','TH',genChFind);
   addMC('g_dnval_'+x,'lt','NB',genDnVal);addMC('g_ncmul_'+x,'lt','NB',genNcMul);addMC('g_dnfr_'+x,'lt','TH',genDnFr);addMC('g_dnsign_'+x,'lt','TH',genDnSign);addMC('g_ttmul_'+x,'lt','TH',genTtMul);addMC('g_ncval_'+x,'lt','TH',genNcVal);addMC('g_ltval_'+x,'lt','TH',genLtVal);
-  addMC('g_nceval_'+x,'lt','VD',genNcEval);addMC('g_ltmix_'+x,'lt','VD',genLtMix);addMC('g_dnexpr_'+x,'lt','VD',genDnExpr);addMC('g_ttcombo_'+x,'lt','VD',genTtCombo);
+  addMC('g_nceval_'+x,'lt','TH',genNcEval);addMC('g_ltmix_'+x,'lt','VD',genLtMix);addMC('g_dnexpr_'+x,'lt','TH',genDnExpr);addMC('g_ttcombo_'+x,'lt','TH',genTtCombo);
   addMC('g_tcbr1_'+x,'tc','NB',genTcBr1);addMC('g_tcfind_'+x,'tc','TH',genTcFind);addMC('g_tcbr2_'+x,'tc','TH',genTcBr2);addMC('g_tchop_'+x,'tc','TH',genTcHop);addMC('g_tcgroup_'+x,'tc','TH',genTcGroup);
   addMC('g_tcbr3_'+x,'tc','VD',genTcBr3);addMC('g_tcdist_'+x,'tc','VD',genTcDist);addMC('g_tcfind2_'+x,'tc','VD',genTcFind2);
 });
@@ -985,8 +985,8 @@ const PISA=[
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
   add('s_ssopp','ss','NB',saSsOpp);add('s_sseq','ss','TH',saSsEq);add('s_ssint','ss','VD',saSsInt);
-  add('s_nhfr','pt','NB',saNhFr);add('s_ctadd','pt','NB',saCtAdd);add('s_chfr','pt','TH',saChFr);add('s_ctdec','pt','TH',saCtDec);add('s_ctthree','pt','VD',saCtThree);add('s_chchain','pt','VD',saChChain);
-  add('s_dnval','lt','NB',saDnVal);add('s_ncdiv','lt','NB',saNcDiv);add('s_dnfr','lt','TH',saDnFr);add('s_ltval','lt','TH',saLtVal);add('s_nceval','lt','VD',saNcEval);add('s_ltmix','lt','VD',saLtMix);add('s_ltbase','lt','VD',saLtBase);
+  add('s_nhfr','pt','NB',saNhFr);add('s_ctadd','pt','NB',saCtAdd);add('s_chfr','pt','TH',saChFr);add('s_ctdec','pt','TH',saCtDec);add('s_ctthree','pt','TH',saCtThree);add('s_chchain','pt','TH',saChChain);
+  add('s_dnval','lt','NB',saDnVal);add('s_ncdiv','lt','NB',saNcDiv);add('s_dnfr','lt','TH',saDnFr);add('s_ltval','lt','TH',saLtVal);add('s_nceval','lt','TH',saNcEval);add('s_ltmix','lt','VD',saLtMix);add('s_ltbase','lt','VD',saLtBase);
   add('s_tcbr1','tc','NB',saTcBr1);add('s_tcfind','tc','TH',saTcFind);add('s_tcbr2','tc','TH',saTcBr2);add('s_tcdist','tc','VD',saTcDist);add('s_tcfind2','tc','VD',saTcFind2);add('s_tcbr3','tc','VD',saTcBr3);
   return S;
 }
