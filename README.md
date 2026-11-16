@@ -15,6 +15,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 7 | Cộng, trừ, nhân, chia số hữu tỉ (Chương I, Bài 2) | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
 | 7 | Luỹ thừa với số mũ tự nhiên của một số hữu tỉ (Chương I, Bài 3) | `luy-thua-so-huu-ti/` | `LT7-` |
 | 7 | Làm quen với số thập phân vô hạn tuần hoàn (Chương II, Bài 5) | `so-thap-phan-vo-han-tuan-hoan/` | `TP7-` |
+| 7 | Số vô tỉ. Căn bậc hai số học (Chương II, Bài 6) | `so-vo-ti-can-bac-hai/` | `VT7-` |
 | 7 | Bài tập cuối chương I | `bai-tap-cuoi-chuong-1-toan-7/` | `CC7-` |
 | 7 | Các trường hợp bằng nhau của tam giác vuông (Chương IV, Bài 15) | `tam-giac-vuong-bang-nhau/` | `TV7-` |
 
@@ -32,6 +33,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/cong-tru-nhan-chia-so-huu-ti/`
 - Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-so-huu-ti/`
 - Làm quen với số thập phân vô hạn tuần hoàn: `https://huumkmath.github.io/tam-giac-bang-nhau/so-thap-phan-vo-han-tuan-hoan/`
+- Số vô tỉ. Căn bậc hai số học: `https://huumkmath.github.io/tam-giac-bang-nhau/so-vo-ti-can-bac-hai/`
 - Bài tập cuối chương I: `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-1-toan-7/`
 - Các trường hợp bằng nhau của tam giác vuông: `https://huumkmath.github.io/tam-giac-bang-nhau/tam-giac-vuong-bang-nhau/`
 
