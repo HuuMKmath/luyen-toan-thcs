@@ -42,6 +42,22 @@ a.lesson p{margin:0;font-size:.92rem;color:var(--muted)}
 .jump a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font-weight:600;font-size:.95rem;text-decoration:none}
 .jump a:hover{border-color:var(--accent);color:var(--accent)}
 section[id]{scroll-margin-top:12px}
+.me{margin-top:26px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}
+.me h2{margin:0 0 8px}
+.me input{font:inherit;min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);width:11ch}
+.me button{font:inherit;font-weight:600;min-height:44px;padding:0 18px;border-radius:10px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.me button.ghost{background:transparent;color:var(--accent)}
+.me .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.me .err{color:var(--mark);font-size:.9rem;margin:8px 0 0;min-height:1.2em}
+.me .sum{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+.me .bar{height:10px;border-radius:99px;background:var(--paper);border:1px solid var(--line);overflow:hidden;margin-top:10px}
+.me .bar i{display:block;height:100%;background:var(--accent)}
+.prog{display:block;margin-top:2px;font-size:.84rem;color:var(--muted)}
+.prog b{color:var(--ink)}
+.prog.none{font-style:italic}
+.prog .weak{display:block}
+a.lesson.done{border-color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -56,28 +72,33 @@ section[id]{scroll-margin-top:12px}
     <a href="#lop-9">Lớp 9</a>
   </nav>
 
+  <section class="me" id="me" aria-labelledby="h-me">
+    <h2 id="h-me">Tiến độ của em</h2>
+    <div id="me-body"></div>
+  </section>
+
   <section id="lop-6" aria-labelledby="h-lop-6">
     <h2 id="h-lop-6">Lớp 6 · Toán 6 Kết nối tri thức</h2>
     <div class="list">
-      <a class="lesson" href="../boi-chung-nho-nhat/">
+      <a class="lesson" href="../boi-chung-nho-nhat/" data-tab="6 - Bội chung, bội chung nhỏ nhất">
         <h3>Bội chung, bội chung nhỏ nhất</h3>
         <p>Bội chung, tìm BCNN bằng phân tích ra thừa số nguyên tố, suy ra bội chung, bài toán thực tế.</p>
         <span><span class="chip">Mã kết quả BC6-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../tap-hop-so-nguyen/">
+      <a class="lesson" href="../tap-hop-so-nguyen/" data-tab="6 - Tập hợp các số nguyên">
         <h3>Tập hợp các số nguyên</h3>
         <p>Chương III, Bài 13: số nguyên âm và tập hợp ℤ, số nguyên trong thực tế, trục số, so sánh hai số nguyên.</p>
         <span><span class="chip">Mã kết quả SN6-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../phep-cong-tru-so-nguyen/">
+      <a class="lesson" href="../phep-cong-tru-so-nguyen/" data-tab="6 - Phép cộng và phép trừ số nguyên">
         <h3>Phép cộng và phép trừ số nguyên</h3>
         <p>Chương III, Bài 14: cộng hai số nguyên, tính chất của phép cộng, trừ hai số nguyên, bài toán thực tế.</p>
         <span><span class="chip">Mã kết quả PC6-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../quy-tac-dau-ngoac/">
+      <a class="lesson" href="../quy-tac-dau-ngoac/" data-tab="6 - Quy tắc dấu ngoặc">
         <h3>Quy tắc dấu ngoặc</h3>
         <p>Chương III, Bài 15: viết gọn một tổng, bỏ dấu ngoặc, đặt dấu ngoặc và đổi chỗ số hạng, tính hợp lí, bài toán thực tế.</p>
         <span><span class="chip">Mã kết quả DN6-</span></span>
@@ -89,37 +110,37 @@ section[id]{scroll-margin-top:12px}
   <section id="lop-7" aria-labelledby="h-lop-7">
     <h2 id="h-lop-7">Lớp 7 · Toán 7 Kết nối tri thức</h2>
     <div class="list">
-      <a class="lesson" href="../">
+      <a class="lesson" href="../" data-tab="7 - Tam giác bằng nhau">
         <h3>Tam giác bằng nhau</h3>
         <p>Hai tam giác bằng nhau và ba trường hợp bằng nhau: c.c.c, c.g.c, g.c.g.</p>
         <span><span class="chip">Mã kết quả TG7-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../tap-hop-so-huu-ti/">
+      <a class="lesson" href="../tap-hop-so-huu-ti/" data-tab="7 - Tập hợp các số hữu tỉ">
         <h3>Tập hợp các số hữu tỉ</h3>
         <p>Chương I, Bài 1: số hữu tỉ, biểu diễn trên trục số, số đối và so sánh hai số hữu tỉ.</p>
         <span><span class="chip">Mã kết quả SH7-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../cong-tru-nhan-chia-so-huu-ti/">
+      <a class="lesson" href="../cong-tru-nhan-chia-so-huu-ti/" data-tab="7 - Cộng, trừ, nhân, chia số hữu tỉ">
         <h3>Cộng, trừ, nhân, chia số hữu tỉ</h3>
         <p>Chương I, Bài 2: cộng, trừ, nhân, chia số hữu tỉ, quy tắc dấu ngoặc và tính một cách hợp lí.</p>
         <span><span class="chip">Mã kết quả CT7-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../luy-thua-so-huu-ti/">
+      <a class="lesson" href="../luy-thua-so-huu-ti/" data-tab="7 - Luỹ thừa của số hữu tỉ">
         <h3>Luỹ thừa với số mũ tự nhiên của một số hữu tỉ</h3>
         <p>Chương I, Bài 3: luỹ thừa, luỹ thừa của tích và thương, nhân chia luỹ thừa cùng cơ số, luỹ thừa của luỹ thừa.</p>
         <span><span class="chip">Mã kết quả LT7-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../bai-tap-cuoi-chuong-1-toan-7/">
+      <a class="lesson" href="../bai-tap-cuoi-chuong-1-toan-7/" data-tab="7 - Bài tập cuối chương I">
         <h3>Bài tập cuối chương I</h3>
         <p>Ôn tập cả Chương I: số hữu tỉ và so sánh, cộng trừ nhân chia, luỹ thừa, quy tắc dấu ngoặc và chuyển vế, tìm x.</p>
         <span><span class="chip">Mã kết quả CC7-</span></span>
         <span class="go">Mở bài →</span>
       </a>
-      <a class="lesson" href="../tam-giac-vuong-bang-nhau/">
+      <a class="lesson" href="../tam-giac-vuong-bang-nhau/" data-tab="7 - Tam giác vuông bằng nhau">
         <h3>Các trường hợp bằng nhau của tam giác vuông</h3>
         <p>Chương IV, Bài 15: hai cạnh góc vuông, cạnh góc vuông – góc nhọn kề, cạnh huyền – góc nhọn, cạnh huyền – cạnh góc vuông.</p>
         <span><span class="chip">Mã kết quả TV7-</span></span>
@@ -140,5 +161,76 @@ section[id]{scroll-margin-top:12px}
 
   <div class="note"><b>Dành cho giáo viên:</b> điểm kiểm tra của học sinh tự gửi về Google Sheet chung <b>LUYỆN TOÁN THCS</b>; thầy cô xem ở trang tính <b>Xem điểm</b> và <b>Sổ điểm</b>. Khi học sinh không gửi được (mất mạng), các em đưa mã kết quả cho thầy cô; mỗi bài có tiền tố mã riêng (BC6-, SN6-, PC6-, DN6-, TG7-, SH7-, CT7-, LT7-, CC7-, TV7-), thầy cô mở mục Giáo viên của đúng bài rồi dán mã vào.</div>
 </div>
+<script>
+(function(){
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec';
+const HS_KEY='luyentoan-hs'; // cùng khóa với các trang bài: nhập mã ở đâu cũng được nhớ chung
+const body=document.getElementById('me-body');
+const cards=[].slice.call(document.querySelectorAll('a.lesson[data-tab]'));
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function load(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');return o&&o.u&&o.n?o:null;}catch(e){return null;}}
+function save(o){try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+function grade(c){const m=String(c||'').match(/\d+/);return m?m[0]:'';}
+function clearBadges(){cards.forEach(function(a){a.classList.remove('done');const p=a.querySelector('.prog');if(p)p.remove();});}
+function loginView(msg){
+  clearBadges();
+  body.innerHTML='<p class="sum" style="margin:0 0 12px">Nhập mã học sinh để xem điểm cao nhất, số lần làm và phần còn yếu của từng bài.</p>'+
+   '<div class="row"><label for="ma" class="sum" style="margin:0">Mã học sinh</label><input id="ma" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 chữ số"><button id="go">Xem tiến độ</button></div>'+
+   '<p class="err" id="err" role="alert">'+esc(msg||'')+'</p>';
+  const inp=document.getElementById('ma');
+  function go(){
+    const u=inp.value.replace(/\D/g,'');
+    if(u.length!==6){document.getElementById('err').textContent='Mã gồm 6 chữ số.';return;}
+    fetchProg(u,true);
+  }
+  document.getElementById('go').onclick=go;
+  inp.onkeydown=function(e){if(e.key==='Enter')go();};
+}
+function fetchProg(u,fresh){
+  body.innerHTML='<p class="sum" style="margin:0">Đang tải tiến độ…</p>';
+  fetch(SHEET_URL+'?ma='+u+'&tiendo=1').then(function(r){return r.json();}).then(function(o){
+    if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);}
+    else if(o&&o.err){fresh?loginView('Hệ thống đang bận, hãy thử lại sau ít phút.'):showCached('Chưa tải được tiến độ lúc này.');}
+    else{if(!fresh)save(null);loginView('Mã không đúng. Hãy kiểm tra lại hoặc hỏi thầy cô.');}
+  }).catch(function(){fresh?loginView('Không kết nối được. Kiểm tra mạng rồi thử lại.'):showCached('Chưa tải được tiến độ lúc này (mất mạng?).');});
+}
+function showCached(msg){
+  const h=load();clearBadges();
+  if(!h){loginView(msg);return;}
+  body.innerHTML='<p class="sum" style="margin:0">Xin chào, <b>'+esc(h.n)+'</b>'+(h.c?' · Lớp '+esc(h.c):'')+'</p><p class="err">'+esc(msg)+'</p><div class="row"><button id="again">Thử lại</button><button class="ghost" id="out">Đổi học sinh</button></div>';
+  document.getElementById('again').onclick=function(){fetchProg(h.u,false);};
+  document.getElementById('out').onclick=function(){save(null);loginView('');};
+}
+function showProg(o){
+  clearBadges();
+  const g=grade(o.c);let mine=0,done=0,best=0,sum=0;
+  cards.forEach(function(a){
+    const tab=a.getAttribute('data-tab'),tg=grade(tab);
+    const k=o.bai&&o.bai[tab];
+    const own=!g||!tg||g===tg;
+    if(own)mine++;
+    const p=document.createElement('span');p.className='prog';
+    if(k){
+      a.classList.add('done');
+      p.innerHTML='<b>Điểm cao nhất: '+esc(k.d)+'</b> · đã làm '+esc(k.l)+' lần'+(k.t?' · gần nhất '+esc(k.t):'')+(k.y?'<span class="weak">Cần ôn: '+esc(k.y)+'</span>':'');
+      if(own){done++;sum+=Number(k.d)||0;}
+    }else{
+      p.className='prog none';p.textContent=own?'Chưa làm bài kiểm tra':'Bài của lớp '+tg;
+    }
+    a.insertBefore(p,a.querySelector('.go'));
+  });
+  const pct=mine?Math.round(done/mine*100):0;
+  body.innerHTML='<p class="sum" style="margin:0 0 4px">Xin chào, <b>'+esc(o.n)+'</b>'+(o.c?' · Lớp '+esc(o.c):'')+'</p>'+
+   '<p class="sum" style="margin:0">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài của lớp '+esc(g||'mình')+(done?' · điểm trung bình các bài đã làm: <b>'+(Math.round(sum/done*10)/10)+'</b>':'')+'</p>'+
+   '<div class="bar" role="img" aria-label="Đã làm '+pct+'% số bài"><i style="width:'+pct+'%"></i></div>'+
+   '<div class="row" style="margin-top:12px"><button class="ghost" id="rf">Làm mới</button><button class="ghost" id="out">Đổi học sinh</button></div>'+
+   '<p class="sum" style="margin:10px 0 0;font-size:.85rem">Điểm là lần làm cao nhất của em ở mỗi bài (thang 10). Phần ghi "Cần ôn" là chủ đề em làm đúng dưới một nửa ở lần đó.</p>';
+  document.getElementById('rf').onclick=function(){fetchProg(o.n&&load()?load().u:'',false);};
+  document.getElementById('out').onclick=function(){save(null);loginView('');};
+}
+const h=load();
+if(h)fetchProg(h.u,false);else loginView('');
+})();
+</script>
 </body>
 </html>
