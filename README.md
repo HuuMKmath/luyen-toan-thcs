@@ -13,6 +13,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 7 | Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
 | 7 | Tập hợp các số hữu tỉ (Chương I, Bài 1) | `tap-hop-so-huu-ti/` | `SH7-` |
 | 7 | Cộng, trừ, nhân, chia số hữu tỉ (Chương I, Bài 2) | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
+| 7 | Luỹ thừa với số mũ tự nhiên của một số hữu tỉ (Chương I, Bài 3) | `luy-thua-so-huu-ti/` | `LT7-` |
 
 Trang chung liệt kê các bài: `cac-bai/`.
 
@@ -26,6 +27,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Quy tắc dấu ngoặc: `https://huumkmath.github.io/tam-giac-bang-nhau/quy-tac-dau-ngoac/`
 - Tập hợp các số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-huu-ti/`
 - Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/cong-tru-nhan-chia-so-huu-ti/`
+- Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-so-huu-ti/`
 
 ## Cách dùng cho giáo viên
 
