@@ -632,10 +632,117 @@ function saTtTiles(){
   const {s,t,k,A,n}=tilesData();
   return {stem:`Để lát một sân hình vuông có diện tích ${grp(A)} m², người ta dùng những viên gạch hình vuông có cạnh ${t} cm (coi các mạch ghép là không đáng kể). Cần dùng bao nhiêu viên gạch?`,ans:[n],exp:`Cạnh sân là ${s} m = ${grp(100*s)} cm; mỗi hàng có ${grp(100*s)} : ${t} = ${k} viên, nên cần ${k} · ${k} = ${grp(n)} viên.`,meta:{s,t}};
 }
+/* ============ Bổ sung theo tài liệu dạy thêm của giáo viên ============
+   căn của phân số, căn của bình phương số âm, biểu thức nhiều căn, tìm x có √x, giá trị lớn nhất và nhỏ nhất */
+const zQ=(n,d)=>{if(d<0){n=-n;d=-d;}const g=gcd(n,d)||1;return [n/g,d/g];};
+const zA=(a,b)=>zQ(a[0]*b[1]+b[0]*a[1],a[1]*b[1]),zS=(a,b)=>zA(a,[-b[0],b[1]]),zM=(a,b)=>zQ(a[0]*b[0],a[1]*b[1]),zD=(a,b)=>b[0]===0?null:zQ(a[0]*b[1],a[1]*b[0]);
+const zEq=(a,b)=>a&&b&&a[0]*b[1]===b[0]*a[1];
+const zF=q=>q[1]===1?N(q[0]):fr(q[0],q[1]);
+const zP=q=>q[0]<0?`(${zF(q)})`:zF(q);
+const zSq=q=>q[1]===1&&q[0]>=0?`${q[0]}²`:`(${zF(q)})²`;
+const zK=(k,r)=>(k===1?'':k)+r;                                     // hệ số đứng trước căn
+const zW=(good,v,err,pre)=>(!v||zEq(v,good))?null:C((pre||'')+zF(v),err);
+const zR=()=>{for(;;){const b=ri(2,9),a=ri(1,2*b-1);if(gcd(a,b)===1)return [a,b];}};   // phân số tối giản dương, không nguyên
+const ZT=' Nhập kết quả dạng phân số tối giản hoặc số nguyên.';
+/* --- căn của một phân số --- */
+function cbFrData(){
+  for(;;){const [a,b]=zR(),g=[a,b];
+    if(RNG()<.55){const neg=RNG()<.35,G=neg?[-a,b]:g,h=`${neg?'−':''}√${fr(a*a,b*b)}`;
+      return {h,good:G,exp:`${fr(a*a,b*b)} = (${fr(a,b)})² và ${fr(a,b)} > 0 nên √${fr(a*a,b*b)} = ${fr(a,b)}${neg?`; do đó ${h} = ${zF(G)}`:''}.`,
+        wr:[zW(G,zQ((neg?-1:1)*a*a,b),'Phải lấy căn cả tử và mẫu.'),zW(G,zQ((neg?-1:1)*a,b*b),'Phải lấy căn cả tử và mẫu.'),zW(G,[-G[0],G[1]],neg?'Dấu "−" đứng trước căn được giữ lại: kết quả là số âm.':'Căn bậc hai số học là số không âm.'),zW(G,zQ((neg?-1:1)*a*a,b*b),'Bạn quên lấy căn.'),zW(G,zQ((neg?-1:1)*b,a),'Bạn viết ngược tử và mẫu.')]};}
+    const v=a*a,w=b*b,p=Math.floor(v/w),plus=p>=1&&RNG()<.6;let h,ex;
+    if(plus){const r=v-p*w;if(r===0)continue;const q=zQ(r,w);if(q[1]!==w&&RNG()<.5)continue;h=`√(${p} + ${zF(q)})`;ex=`${p} + ${zF(q)}`;}
+    else{const P=p+1,r=P*w-v,q=zQ(r,w);h=`√(${P} − ${zF(q)})`;ex=`${P} − ${zF(q)}`;}
+    return {h,good:g,exp:`Tính trong căn trước: ${ex} = ${fr(v,w)} = (${fr(a,b)})². Vậy ${h} = ${fr(a,b)}.`,
+      wr:[zW(g,zQ(v,w),'Bạn quên lấy căn sau khi tính trong căn.'),zW(g,zQ(a,w),'Phải lấy căn cả tử và mẫu.'),zW(g,zQ(v,b),'Phải lấy căn cả tử và mẫu.'),zW(g,[-a,b],'Căn bậc hai số học là số không âm.')]};}
+}
+const genCbFr=()=>tryGen(()=>{const d=cbFrData();return mk(`Giá trị của ${d.h} là:`,zF(d.good),d.wr,d.exp);});
+/* --- căn của bình phương một số âm --- */
+function genCbNeg(){return tryGen(()=>{
+  const a=ri(2,60),t=ri(1,3),neg=t===2||t===3,inner=t===1||t===2?`(−${a})`:`${a}`,h=`${neg?'−':''}√(${inner}²)`,g=neg?-a:a;
+  return mk(`Giá trị của ${h} là:`,N(g),[C(N(-g),neg?'Dấu "−" đứng trước căn được giữ lại nên kết quả là số âm.':`√((−${a})²) = √${grp(a*a)} = ${a}: căn bậc hai số học là số không âm.`),
+    C(N(neg?-a*a:a*a).replace(/^(−?)(\d+)$/,(m,s,d)=>s+grp(d)),`Bạn quên lấy căn: ${inner}² = ${grp(a*a)} rồi √${grp(a*a)} = ${a}.`),C(N(neg?a*a:-a*a).replace(/^(−?)(\d+)$/,(m,s,d)=>s+grp(d)),'Bạn quên lấy căn và sai dấu.')],
+    `${inner}² = ${grp(a*a)} nên √(${inner}²) = √${grp(a*a)} = ${a}${neg?`; do đó ${h} = −${a}`:''}.`);
+});}
+/* --- biểu thức có nhiều căn --- */
+const TRIP=[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[12,16,20]];
+function cbExprData(){
+  for(;;){const t=ri(1,4);let h,good,exp,wr=[];
+    if(t===1){const x=ri(2,12),y=ri(2,9),k=ri(2,5),z=ri(2,9),m=ri(1,3),op=sel(['+','−']);
+      good=[x*y+(op==='+'?1:-1)*k*z-m*m,1];h=`${SQ(x*x)} · ${SQ(y*y)} ${op} ${zK(k,SQ(z*z))} − ${SQ(m*m*m*m)}`;
+      exp=`${SQ(x*x)} · ${SQ(y*y)} = ${x} · ${y} = ${x*y}; ${zK(k,SQ(z*z))} = ${k} · ${z} = ${k*z}; ${SQ(m**4)} = ${m*m}. Kết quả: ${x*y} ${op} ${k*z} − ${m*m} = ${N(good[0])}.`;
+      wr=[zW(good,[x*y+(op==='+'?1:-1)*z-m*m,1],`${zK(k,SQ(z*z))} nghĩa là ${k} · ${SQ(z*z)} = ${k*z}, bạn quên nhân với ${k}.`),zW(good,[x*y+(op==='+'?1:-1)*k*z-m**4,1],`${SQ(m**4)} = ${m*m}, bạn quên lấy căn.`),zW(good,[x*y+(op==='+'?-1:1)*k*z-m*m,1],'Sai dấu ở một số hạng.'),zW(good,[-good[0],1],'Sai dấu của kết quả.')];}
+    else if(t===2){const T=sel(TRIP),k=ri(2,4),z=ri(2,9),op=sel(['+','−']);good=[T[2]+(op==='+'?1:-1)*k*z,1];h=`√(${T[0]}² + ${T[1]}²) ${op} ${zK(k,SQ(z*z))}`;
+      exp=`√(${T[0]}² + ${T[1]}²) = √(${T[0]*T[0]} + ${T[1]*T[1]}) = √${T[2]*T[2]} = ${T[2]}; ${zK(k,SQ(z*z))} = ${k*z}. Kết quả: ${T[2]} ${op} ${k*z} = ${N(good[0])}.`;
+      wr=[zW(good,[T[0]+T[1]+(op==='+'?1:-1)*k*z,1],`√(${T[0]}² + ${T[1]}²) ≠ ${T[0]} + ${T[1]}: phải tính tổng trong căn trước.`),zW(good,[T[2]*T[2]+(op==='+'?1:-1)*k*z,1],`Bạn quên lấy căn của ${T[2]*T[2]}.`),zW(good,[T[2]+(op==='+'?1:-1)*z,1],`Bạn quên nhân với ${k}.`),zW(good,[-good[0],1],'Sai dấu của kết quả.')];}
+    else if(t===3){const a=ri(1,9),b=ri(1,9),c=ri(4,15),k=ri(2,4);if(a===b)continue;const A=a*a/100,B=b*b/100,Cc=c*c/100;
+      good=zQ(a-k*b+c,10);h=`${SQD(A)} − ${zK(k,SQD(B))} + ${SQD(Cc)}`;
+      exp=`${SQD(A)} = ${dt(a/10)}; ${SQD(B)} = ${dt(b/10)}; ${SQD(Cc)} = ${dt(c/10)}. Kết quả: ${dt(a/10)} − ${k} · ${dt(b/10)} + ${dt(c/10)} = ${dt((a-k*b+c)/10)}.`;
+      const D=q=>q?dt(q[0]/q[1]):'';const W=(v,e)=>zEq(v,good)?null:C(D(v),e);
+      return {h,good,exp,G:D(good),wr:[W(zQ(a-k*b+c,100),`${SQD(A)} = ${dt(a/10)}, không phải ${dt(a/100)} (vì ${dt(a/10)}² = ${dt(A)}).`),W(zQ(a-b+c,10),`Bạn quên nhân với ${k}.`),W(zQ(a+k*b+c,10),'Sai dấu ở một số hạng.'),W(zQ(-(a-k*b+c),10),'Sai dấu của kết quả.'),W(zQ(a-k*b-c,10),'Sai dấu ở số hạng cuối.')]};}
+    else{const [a,b]=zR(),c=ri(1,9),d=ri(2,9),op=sel(['+','−']),A=zQ(a,b),B=zQ(c,d);good=op==='+'?zA([-A[0],A[1]],B):zS([-A[0],A[1]],B);
+      h=`−√${fr(a*a,b*b)} ${op} ${fr(c,`√${d*d}`)}`;
+      exp=`√${fr(a*a,b*b)} = ${fr(a,b)}; ${fr(c,`√${d*d}`)} = ${fr(c,d)}. Kết quả: −${fr(a,b)} ${op} ${zF(B)} = ${zF(good)}.`;
+      const F2=x=>op==='+'?zA(x,B):zS(x,B);
+      wr=[zW(good,F2(zQ(-a*a,b*b)),`Bạn quên lấy căn của ${fr(a*a,b*b)}.`),zW(good,F2(zQ(-a*a,b)),'Phải lấy căn cả tử và mẫu.'),zW(good,(op==='+'?zA:zS)(A,B),'Dấu "−" đứng trước căn được giữ lại.'),zW(good,(op==='+'?zA:zS)([-A[0],A[1]],zQ(c,d*d)),`Mẫu là √${d*d} = ${d}, bạn quên lấy căn.`),zW(good,[-good[0],good[1]],'Sai dấu của kết quả.')];}
+    if(Math.abs(good[0])>500||good[1]>200)continue;
+    return {h,good,exp,G:zF(good),wr};}
+}
+const genCbExpr=()=>tryGen(()=>{const d=cbExprData();return mk(`Giá trị của biểu thức ${d.h} là:`,d.G,d.wr,d.exp);});
+const saCbExpr=()=>{const d=cbExprData();return {stem:`Tính ${d.h}.`+(d.G.includes(',')?' Viết kết quả bằng số thập phân.':ZT),ans:[d.good[0]/d.good[1]],at:d.G,exp:d.exp};};
+/* --- tìm x có √x --- */
+const NOX='Không có giá trị nào của x';
+function findData(){
+  for(;;){const t=RNG()<.5?[ri(1,9),1]:zR(),k=ri(1,4),A=RNG()<.5?[ri(1,9)*sgn(),1]:zR(),minus=RNG()<.5,kt=zM([k,1],t),Cc=minus?zS(A,kt):zA(A,kt);
+    if(Math.abs(Cc[0])>60||Cc[1]>40||Cc[0]===0)continue;
+    const x=zM(t,t),h=`${zF(A)} ${minus?'−':'+'} ${zK(k,'√x')} = ${zF(Cc)}`;
+    const kx=minus?zS(A,Cc):zS(Cc,A);
+    return {h,good:x,exp:`${zK(k,'√x')} = ${minus?`${zF(A)} − ${zP(Cc)}`:`${zF(Cc)} − ${zP(A)}`} = ${zF(kx)}${k===1?'':`, nên √x = ${zF(kx)} : ${k} = ${zF(t)}`}. Vậy x = ${zSq(t)} = ${zF(x)}.`,
+      wr:[zW(x,t,`Đây mới là giá trị của √x; x = (${zF(t)})² = ${zF(x)}.`,'x = '),zW(x,k===1?null:zM(kx,kx),`Bạn mới tìm được ${k}√x = ${zF(kx)}, còn phải chia cho ${k} trước khi bình phương.`,'x = '),
+        zW(x,zM(zD(minus?zA(A,Cc):zA(Cc,A),[k,1]),zD(minus?zA(A,Cc):zA(Cc,A),[k,1])),'Khi chuyển vế phải đổi dấu số hạng.','x = '),zW(x,zM([2,1],t),`x = (${zF(t)})², không phải 2 · ${zP(t)}.`,'x = ')],nox:C(NOX,`√x = ${zF(t)} > 0 nên có x = ${zF(x)}.`)};}
+}
+const genCbFind=()=>tryGen(()=>{const d=findData();return mk(`Tìm x, biết: ${d.h}`,'x = '+zF(d.good),d.wr.concat([d.nox]),d.exp);});
+const saCbFind=()=>{const d=findData();return {stem:`Tìm x, biết: ${d.h}.`+ZT,ans:[d.good[0]/d.good[1]],at:zF(d.good),exp:d.exp};};
+function innerData(){
+  for(;;){const a=sel([1,2,3,4,5,-1,-2]),c=RNG()<.6?[ri(1,9),1]:zR(),c2=zM(c,c),x=RNG()<.6?[ri(-9,15),1]:zR(),b=zS(c2,zM([a,1],x));
+    if(b[0]===0||Math.abs(b[0])>99||b[1]>81)continue;
+    const ax=a===1?'x':a===-1?'−x':`${N(a)}x`,h=`√(${ax} ${b[0]<0?'−':'+'} ${zF([Math.abs(b[0]),b[1]])}) = ${zF(c)}`;
+    return {h,good:x,exp:`Vì √(${ax} ${b[0]<0?'−':'+'} ${zF([Math.abs(b[0]),b[1]])}) = ${zF(c)} nên ${ax} ${b[0]<0?'−':'+'} ${zF([Math.abs(b[0]),b[1]])} = ${zSq(c)} = ${zF(c2)}. Suy ra ${ax} = ${zF(c2)} ${b[0]<0?'+':'−'} ${zF([Math.abs(b[0]),b[1]])} = ${zF(zS(c2,b))}${a===1?'':`, x = ${zF(x)}`}.`,
+      wr:[zW(x,zD(zS(c,b),[a,1]),`Từ √(...) = ${zF(c)} phải bình phương: biểu thức trong căn bằng ${zF(c2)}.`,'x = '),zW(x,zD(zA(c2,b),[a,1]),'Khi chuyển vế phải đổi dấu số hạng.','x = '),
+        zW(x,zM(zS(c2,b),[a,1]),`Từ ${ax} = ${zF(zS(c2,b))} phải chia cho ${a}, không nhân.`,'x = '),zW(x,[-x[0],x[1]],'Sai dấu của kết quả.','x = ')]};}
+}
+const genCbInner=()=>tryGen(()=>{const d=innerData();return mk(`Tìm x, biết: ${d.h}`,'x = '+zF(d.good),d.wr,d.exp);});
+const saCbInner=()=>{const d=innerData();return {stem:`Tìm x, biết: ${d.h}.`+ZT,ans:[d.good[0]/d.good[1]],at:zF(d.good),exp:d.exp};};
+/* --- giá trị nhỏ nhất, lớn nhất --- */
+function extData(){
+  const max=RNG()<.5,a=ri(1,15)*sgn(),b=RNG()<.7?[ri(1,20)*sgn(),1]:zR(),k=sel([1,1,2,3,5]),xin=`x ${a<0?'+':'−'} ${Math.abs(a)}`;
+  const h=max?`B = ${zF(b)} − ${zK(k,`√(${xin})`)}`:`A = ${zK(k,`√(${xin})`)} ${b[0]<0?'−':'+'} ${zF([Math.abs(b[0]),b[1]])}`;
+  return {max,a,b,k,h,exp:`Vì √(${xin}) ≥ 0 với mọi x ≥ ${N(a)} nên ${max?`B ≤ ${zF(b)}`:`A ≥ ${zF(b)}`}. Dấu "=" xảy ra khi ${xin} = 0, tức x = ${N(a)}. Vậy giá trị ${max?'lớn':'nhỏ'} nhất của ${max?'B':'A'} là ${zF(b)}, đạt được khi x = ${N(a)}.`};
+}
+function genCbExt(){return tryGen(()=>{
+  const d=extData(),g=d.b,nm=d.max?'lớn':'nhỏ';
+  return mk(`Giá trị ${nm} nhất của biểu thức ${d.h} là:`,zF(g),[zW(g,[d.a,1],`${d.a} là giá trị của x để biểu thức đạt giá trị ${nm} nhất, không phải giá trị ${nm} nhất.`),zW(g,d.max?zS(g,[d.k,1]):zA(g,[d.k,1]),`Giá trị ${nm} nhất đạt được khi √(...) = 0, không phải bằng 1.`),
+    zW(g,[-g[0],g[1]],'Sai dấu.'),C(`Không có giá trị ${nm} nhất`,`√(...) ≥ 0 nên ${d.max?'B':'A'} ${d.max?'≤':'≥'} ${zF(g)}, dấu "=" xảy ra khi x = ${d.a}.`)],d.exp);
+});}
+const saCbExt=()=>{const d=extData(),ask=RNG()<.5;return ask?{stem:`Tìm giá trị ${d.max?'lớn':'nhỏ'} nhất của biểu thức ${d.h}.`+ZT,ans:[d.b[0]/d.b[1]],at:zF(d.b),exp:d.exp}:{stem:`Biểu thức ${d.h} đạt giá trị ${d.max?'lớn':'nhỏ'} nhất khi x bằng bao nhiêu?`,ans:[d.a],exp:d.exp};};
+/* --- đúng sai --- */
+function cbItem2(){
+  const t=ri(1,4);
+  if(t===1){const [a,b]=zR(),ok=RNG()<.5,alt=[[a*a,b],[a,b*b],[-a,b]].filter(q=>!zEq(zQ(q[0],q[1]),[a,b])),sh=ok?fr(a,b):(w=>zF(zQ(w[0],w[1])))(sel(alt));return IT(`√${fr(a*a,b*b)} = ${sh}`,ok,'cb','VD',`√${fr(a*a,b*b)} = ${fr(a,b)}.`);}
+  if(t===2){const a=ri(2,30),ok=RNG()<.5;return IT(`√((−${a})²) = ${ok?a:'−'+a}`,ok,'cb','VD',`√((−${a})²) = √${grp(a*a)} = ${a}.`);}
+  if(t===3){const k=ri(2,5),m=k*ri(2,6),ok=RNG()<.5,v=m/k;return IT(`Từ ${k}√x = ${m} suy ra x = ${ok?v*v:v}`,ok,'cb','VD',`√x = ${m} : ${k} = ${v} nên x = ${v}² = ${v*v}.`);}
+  const a=ri(1,9),b=ri(1,20),ok=RNG()<.5;return IT(`Giá trị nhỏ nhất của A = √(x − ${a}) + ${b} là ${ok?b:sel([a===b?b+2:a,b+1])}`,ok,'cb','VD',`√(x − ${a}) ≥ 0 nên A ≥ ${b}, dấu "=" khi x = ${a}. Giá trị nhỏ nhất là ${b}.`);
+}
+const tfCb2=()=>{const items=mixed(()=>[cbItem2(),cbItem2(),cbItem2(),cbItem2()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+addMC('g_cbfr','cb','TH',genCbFr);addMC('g_cbneg','cb','TH',genCbNeg);addMC('g_cbexpr','cb','VD',genCbExpr);
+addMC('g_cbfind','cb','VD',genCbFind);addMC('g_cbinner','cb','VD',genCbInner);addMC('g_cbext','cb','VD',genCbExt);
+addTF('tf_cb_vd2','cb','VD',tfCb2);
+
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:'',gen}));
   add('s_vtcnt','vt','TH',saVtCnt);
   add('s_cbval','cb','NB',saCbVal);add('s_cbsum','cb','TH',saCbSum);add('s_cbcnt','cb','VD',saCbCnt);add('s_cbmin','cb','TH',saCbMin);
+  add('s_cbexpr','cb','VD',saCbExpr);add('s_cbfind','cb','VD',saCbFind);add('s_cbinner','cb','VD',saCbInner);add('s_cbext','cb','VD',saCbExt);
   add('s_mtround','mt','TH',saMtRound);add('s_mtacc','mt','TH',saMtAcc);add('s_mtbetw','mt','TH',saMtBetw);add('s_mtest','mt','VD',saMtEst);
   add('s_ttperim','tt','TH',saTtPerim);add('s_ttha','tt','TH',saTtHa);add('s_ttdiag','tt','VD',saTtDiag);add('s_tttiles','tt','VD',saTtTiles);
   return S;
@@ -659,6 +766,10 @@ const HARD={tf:[{id:'h_tf',type:'tf',topic:'cb',level:'VD',gen:tfHard}],sa:[
  {id:'h_irr',topic:'vt',level:'VD',unit:'',gen:()=>{const N0=ri(30,200);return {stem:`Có bao nhiêu số tự nhiên n thỏa mãn 1 ≤ n ≤ ${N0} để ${SQ('n').replace('√n','√n')} là số vô tỉ?`.replace('√n','√n'),ans:[N0-isq(N0)],exp:`√n là số hữu tỉ khi n là số chính phương. Từ 1 đến ${N0} có ${isq(N0)} số chính phương (1², 2², ..., ${isq(N0)}²), nên có ${N0} − ${isq(N0)} = ${N0-isq(N0)} số n để √n là số vô tỉ.`,meta:{N:N0}};}},
  {id:'h_big',topic:'mt',level:'VD',unit:'',gen:()=>{for(;;){const n=nonsq(10000,900000),p=sel([2,3]),R=rdSqrt(n,p);if(R%10===0)continue;return {stem:`Tính ${SQ(n)} rồi làm tròn kết quả với độ chính xác ${ACCP[p]}. Viết kết quả bằng số thập phân.`,ans:[R/Math.pow(10,p)],at:scStr(R,p),exp:`Độ chính xác ${ACCP[p]} ứng với làm tròn đến ${HANGP[p]}. ${SQ(n)} = ${scStr(rdSqrt(n,p+3),p+3)}... ≈ ${scStr(R,p)}.`,meta:{n,p,acc:1}};}}}
 ].map(q=>Object.assign({type:'sa'},q))};
+HARD.sa.push(...[{id:'h_find',topic:'cb',gen:saCbFind},{id:'h_inner',topic:'cb',gen:saCbInner},
+ {id:'h_abs',topic:'cb',gen:()=>{const a=ri(1,12)*sgn(),c=ri(2,12),big=a+c,sm=a-c,xa=`x ${a<0?'+':'−'} ${Math.abs(a)}`;return {stem:`Tìm giá trị lớn hơn của x thỏa mãn √((${xa})²) = ${c}.`,ans:[big],exp:`√((${xa})²) = ${c} nên (${xa})² = ${c}², suy ra ${xa} = ${c} hoặc ${xa} = −${c}. Do đó x = ${N(big)} hoặc x = ${N(sm)}. Giá trị lớn hơn là ${N(big)}.`};}},
+ {id:'h_prod0',topic:'cb',gen:()=>{const p=ri(1,9),q=p+ri(1,7);return {stem:`Tìm tổng các giá trị của x thỏa mãn (√x − ${p}) · (${q} − √x) = 0.`,ans:[p*p+q*q],exp:`Tích bằng 0 khi √x − ${p} = 0 hoặc ${q} − √x = 0, tức √x = ${p} hoặc √x = ${q}. Do đó x = ${p*p} hoặc x = ${q*q}. Tổng là ${p*p} + ${q*q} = ${p*p+q*q}.`};}},
+ {id:'h_ext',topic:'cb',gen:saCbExt}].map(q=>Object.assign({type:'sa',level:'VD',unit:''},q)));
 const money=x=>grp(x);
 const PISA=[
  ()=>{for(;;){
