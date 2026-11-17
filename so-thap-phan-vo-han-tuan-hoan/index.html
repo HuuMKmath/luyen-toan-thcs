@@ -741,12 +741,150 @@ function saLt100(){
   const q=qPer(1,3,{big:true}),e=EQ(q),o=roundTo(q[0],q[1],2);
   return {stem:`Làm tròn số ${fr(q[0],q[1])} đến hàng phần trăm được số y. Tính 100y.`,ans:[o.R],exp:`${fr(q[0],q[1])} = ${longN(e,5)}. ${E_RND} Làm tròn đến hàng phần trăm: y = ${fmtR(o)}, nên 100y = ${o.R}.`,meta:{n:q[0],d:q[1],pos:2}};
 }
+/* ============ Bổ sung theo tài liệu dạy thêm của giáo viên ============
+   viết số thập phân thành phân số, tính toán có số thập phân vô hạn tuần hoàn, so sánh, ước lượng tổng hiệu */
+const p10=k=>Math.pow(10,k);
+const fQ=(n,d)=>{if(d<0){n=-n;d=-d;}const g=gcd(n,d)||1;return [n/g,d/g];};
+const fa=(a,b)=>fQ(a[0]*b[1]+b[0]*a[1],a[1]*b[1]),fs=(a,b)=>fa(a,[-b[0],b[1]]),fm=(a,b)=>fQ(a[0]*b[0],a[1]*b[1]),fdv=(a,b)=>b[0]===0?null:fQ(a[0]*b[1],a[1]*b[0]);
+const fEq=(a,b)=>a&&b&&a[0]*b[1]===b[0]*a[1];
+const fCmp=(a,b)=>Math.sign(a[0]*b[1]-b[0]*a[1]);
+const fS=q=>q[1]===1?N(q[0]):fr(q[0],q[1]);
+const fP=q=>q[0]<0?`(${fS(q)})`:fS(q);
+/* giá trị đúng của số thập phân e, và các giá trị sai thường gặp */
+const eVal=e=>{const p=e.pre.length,L=e.per.length,n9=L?p10(L)-1:1,den=p10(p)*n9,num=e.ip*den+(e.pre?+e.pre*n9:0)+(L?+e.per:0);return fQ((e.neg?-1:1)*num,den);};
+const eTrunc=e=>{const k=e.pre.length+e.per.length;return fQ((e.neg?-1:1)*(e.ip*p10(k)+(k?+(e.pre+e.per):0)),p10(k));};      // viết chu kì một lần rồi coi là hữu hạn
+const eNoPre=e=>{const t=e.pre+e.per,n9=p10(t.length)-1;return fQ((e.neg?-1:1)*(e.ip*n9+(+t)),n9);};                        // coi cả phần không lặp là chu kì
+const eSignIp=e=>{const v=eVal(mkE(false,0,e.pre,e.per));return fa([-e.ip,1],v);};                                                // chỉ đặt dấu trừ cho phần nguyên
+const eFrac=e=>eVal(mkE(e.neg,0,e.pre,e.per));                                                                                    // quên phần nguyên
+const fW=(good,v,err)=>(!v||fEq(v,good))?null:C(fS(v),err);
+const sfx=' Nhập kết quả dạng phân số tối giản hoặc số nguyên.';
+/* --- số thập phân hữu hạn thành phân số tối giản --- */
+function finToFrData(){
+  for(;;){const q=fQ(sgn()*ri(1,60)*sel([1,1,3,7,11,13]),sel([4,5,10,20,25,50,100])),e=EQ(q);if(q[1]===1||e.per||e.pre.length<1||Math.abs(q[0])>900)continue;
+    const k=e.pre.length,raw=(e.neg?-1:1)*(e.ip*p10(k)+(+e.pre));
+    return {q,e,good:q,exp:`${short(e)} = ${fr(raw,p10(k))}${fEq(q,[raw,p10(k)])&&q[1]===p10(k)?'':' = '+fS(q)} (có ${k} chữ số sau dấu phẩy nên mẫu là ${p10(k)}, nếu được thì rút gọn).`,
+      wr:[fW(q,fQ(raw,p10(k===1?2:k-1)),`${short(e)} có ${k} chữ số sau dấu phẩy nên mẫu là ${p10(k)}.`),fW(q,[-q[0],q[1]],'Sai dấu.'),
+        fW(q,fQ(q[1],q[0]),'Bạn đã viết ngược tử và mẫu.'),fW(q,e.ip?eSignIp(e):null,'Dấu trừ đứng trước cả số, không chỉ trước phần nguyên.'),fW(q,e.ip?eFrac(e):fQ(raw,p10(k+1)),e.ip?'Bạn quên phần nguyên.':`Mẫu là ${p10(k)}, không phải ${p10(k+1)}.`)]};}
+}
+const genFinToFr=()=>tryGen(()=>{const d=finToFrData();return mk(`Viết số thập phân ${short(d.e)} dưới dạng phân số tối giản.`,fS(d.good),d.wr,d.exp);});
+const saFinToFr=()=>{const d=finToFrData();return {stem:`Viết số thập phân ${short(d.e)} dưới dạng phân số tối giản.`+sfx,ans:[d.good[0]/d.good[1]],at:fS(d.good),exp:d.exp};};
+/* --- số thập phân vô hạn tuần hoàn thành phân số --- */
+function perExp(e,q){
+  const p=e.pre.length,L=e.per.length,n9='9'.repeat(L),sg=e.neg?'−':'';
+  const pos=mkE(false,e.ip,e.pre,e.per),fp=eVal(mkE(false,0,e.pre,e.per));
+  let s;
+  if(!p)s=`0,(${e.per}) = ${fr(+e.per,+n9)}`;
+  else s=`0,${e.pre}(${e.per}) = ${fr(+e.pre,p10(p))} + ${fr(1,p10(p))} · 0,(${e.per}) = ${fr(+e.pre,p10(p))} + ${fr(1,p10(p))} · ${fr(+e.per,+n9)} = ${fS(fp)}`;
+  return `Ta có ${s}${e.ip?`, nên ${short(pos)} = ${e.ip} + ${fS(fp)} = ${fS(eVal(pos))}`:''}. Vậy ${short(e)} = ${sg?'−':''}${fS(eVal(pos))}${sg?' = '+fS(q):''}.`;
+}
+function perToFrData(maxPre,maxPer){
+  for(;;){const q=qPer(maxPre,maxPer,{neg:true,big:true}),e=EQ(q);if(!e.per||(e.neg&&!e.ip&&RNG()<.5))continue;
+    return {q,e,good:q,exp:perExp(e,q),
+      wr:[fW(q,eTrunc(e),`${short(e)} là số thập phân vô hạn tuần hoàn, lớn hơn ${short(mkE(e.neg,e.ip,e.pre+e.per,''))} về giá trị tuyệt đối; chu kì ${e.per} ứng với phân số có mẫu ${'9'.repeat(e.per.length)}.`),
+        fW(q,e.pre?eNoPre(e):null,`Chữ số ${e.pre} không nằm trong chu kì, chỉ ${e.per} mới lặp lại.`),
+        fW(q,e.neg&&e.ip?eSignIp(e):null,'Dấu trừ đứng trước cả số, không chỉ trước phần nguyên.'),
+        fW(q,e.ip?eFrac(e):null,'Bạn quên phần nguyên.'),
+        fW(q,fQ((e.neg?-1:1)*(+e.per),p10(e.per.length)),`0,(${e.per}) bằng ${fr(+e.per,+'9'.repeat(e.per.length))}, không phải ${fr(+e.per,p10(e.per.length))}.`),
+        fW(q,[-q[0],q[1]],'Sai dấu.')]};}
+}
+const genPerToFr=()=>tryGen(()=>{const d=perToFrData(1,2);return mk(`Viết số thập phân vô hạn tuần hoàn ${short(d.e)} dưới dạng phân số tối giản.`,fS(d.good),d.wr,d.exp);});
+const saPerToFr=()=>{const d=perToFrData(1,2);return {stem:`Viết số thập phân vô hạn tuần hoàn ${short(d.e)} dưới dạng phân số tối giản.`+sfx,ans:[d.good[0]/d.good[1]],at:fS(d.good),exp:d.exp};};
+/* --- tính toán có số thập phân vô hạn tuần hoàn --- */
+function calcData(){
+  for(;;){const qa=qPer(1,2,{neg:RNG()<.4}),eA=EQ(qa);if(!eA.per)continue;const A=eVal(eA),At=eTrunc(eA),k=ri(1,3);
+    let h,good,wr=[],exp;
+    if(k===1){const B=fQ(sgn()*ri(1,9),sel([2,3,4,5,6,7,8])),c=fQ(sel([1,2,3,5,7,9])*sgn(),sel([2,4,5,10])),eC=EQ(c);if(B[1]===1||c[1]===1)continue;
+      const op=sel(['+','−']),opc=sel(['+','−']),F=(a,b,o)=>o==='+'?fa(a,b):fs(a,b),v=(x,o1,o2)=>F(F(x,B,o1),c,o2);
+      good=v(A,op,opc);h=`${short(eA)} ${op} ${fP(B)} ${opc} ${eA.neg?'':''}${c[0]<0?'('+short(eC)+')':short(eC)}`;
+      exp=`Đổi ${short(eA)} = ${fS(A)} và ${short(eC)} = ${fS(c)}. Ta có ${fS(A)} ${op} ${fP(B)} ${opc} ${fP(c)} = ${fS(good)}.`;
+      wr=[fW(good,v(At,op,opc),`${short(eA)} ≠ ${fS(At)}: phải đổi số thập phân vô hạn tuần hoàn ra phân số đúng (chu kì ứng với mẫu gồm toàn chữ số 9).`),
+        fW(good,v(A,op==='+'?'−':'+',opc),'Bạn nhầm phép cộng và phép trừ.'),fW(good,v(A,op,opc==='+'?'−':'+'),'Bạn nhầm dấu của số hạng cuối.'),fW(good,[-good[0],good[1]],'Sai dấu của kết quả.')];}
+    else if(k===2){const B=fQ(sgn()*ri(2,20),ri(1,4));if(Math.abs(B[0])>40)continue;good=fm(A,B);h=`${short(eA)} · ${fP(B)}`;
+      exp=`Đổi ${short(eA)} = ${fS(A)}. Ta có ${fS(A)} · ${fP(B)} = ${fS(good)}.`;
+      wr=[fW(good,fm(At,B),`${short(eA)} ≠ ${fS(At)}: phải đổi số thập phân vô hạn tuần hoàn ra phân số đúng.`),fW(good,fdv(A,B),'Bạn đã chia thay vì nhân.'),fW(good,fa(A,B),'Bạn đã cộng thay vì nhân.'),fW(good,[-good[0],good[1]],'Sai dấu của kết quả.')];}
+    else{const B=fQ(sgn()*ri(1,9),sel([2,3,4,5,9]));if(B[1]===1)continue;good=fdv(A,B);if(!good)continue;h=`${short(eA)} : ${fP(B)}`;
+      exp=`Đổi ${short(eA)} = ${fS(A)}. Ta có ${fS(A)} : ${fP(B)} = ${fS(A)} · ${fP(fQ(B[1],B[0]))} = ${fS(good)}.`;
+      wr=[fW(good,fdv(At,B),`${short(eA)} ≠ ${fS(At)}: phải đổi số thập phân vô hạn tuần hoàn ra phân số đúng.`),fW(good,fm(A,B),'Chia cho một phân số là nhân với nghịch đảo của nó.'),fW(good,fdv(B,A),'Bạn lấy số chia chia cho số bị chia.'),fW(good,[-good[0],good[1]],'Sai dấu của kết quả.')];}
+    if(Math.abs(good[0])>400||good[1]>200)continue;
+    return {h,good,wr,exp};}
+}
+const genPdCalc=()=>tryGen(()=>{const d=calcData();return mk(`Kết quả của phép tính ${d.h} là:`,fS(d.good),d.wr,d.exp);});
+const saPdCalc=()=>{const d=calcData();return {stem:`Tính ${d.h}.`+sfx,ans:[d.good[0]/d.good[1]],at:fS(d.good),exp:d.exp};};
+/* --- so sánh --- */
+const REL={'-1':'<','0':'=','1':'>'};
+const rotS=s=>s.slice(1)+s[0];
+function cmpPair(){
+  for(;;){const neg=RNG()<.35,ip=ri(0,5),L=sel([2,2,3]);let per='';for(let i=0;i<L;i++)per+=ri(0,9);if(new Set(per).size<2||/^0+$/.test(per))continue;
+    const pre=RNG()<.3?String(ri(0,9)):'',e1=mkE(neg,ip,pre,per),t=ri(1,5);let e2;
+    if(t===1)e2=mkE(neg,ip,pre+per,'');                                 // 0,(15) và 0,15
+    else if(t===2)e2=mkE(neg,ip,pre+per[0],rotS(per));                  // 2,(34) và 2,3(43)
+    else if(t===3)e2=mkE(neg,ip,pre+per[0],per);                        // 4,(15) và 4,1(15)
+    else if(t===4)e2=mkE(neg,ip,pre,per.split('').reverse().join('')); // 2,(34) và 2,(43)
+    else e2=mkE(neg,ip,pre,per.slice(0,-1)+((+per.slice(-1)+ri(1,8))%10));
+    if(!e2.per&&!e2.pre)continue;if(e2.per&&new Set(e2.per).size<2&&t!==2)continue;
+    return RNG()<.5?[e1,e2]:[e2,e1];}
+}
+function cmpFrPair(){
+  for(;;){const q=qPer(1,2,{neg:RNG()<.4}),e=EQ(q);if(!e.per)continue;const t=ri(1,4);let e2;
+    if(t===1)e2=e;else if(t===2&&e.per.length===1)e2=mkE(e.neg,e.ip,e.pre+e.per,e.per);
+    else if(t===2)e2=mkE(e.neg,e.ip,e.pre+e.per[0],rotS(e.per));
+    else if(t===3)e2=mkE(e.neg,e.ip,e.pre+e.per,'');
+    else{const s=e.per.slice(0,-1)+((+e.per.slice(-1)+ri(1,8))%10);if(new Set(s).size<1)continue;e2=mkE(e.neg,e.ip,e.pre,s);}
+    return {q,e,e2};}
+}
+const cmpExp=(a,b,ta,tb,r)=>`Viết dạng đầy đủ rồi so sánh từng chữ số: ${ta} và ${tb}. Vậy ${short(a)} ${r} ${short(b)}${r==='='?'':(a.neg?' (với hai số âm, số nào có phần số lớn hơn thì nhỏ hơn)':'')}.`;
+const longK=(e,k)=>SG(e)+grp(e.ip)+','+digs(e,k)+(e.per?'...':'');
+function cmpOpts(Lh,Rh,r,exp,why){
+  const all=['<','>','='],cs=all.filter(x=>x!==r).map(x=>C(`${Lh} ${x} ${Rh}`,why(x)));
+  cs.push(C('Không so sánh được hai số này','Hai số thập phân (hữu hạn hay vô hạn tuần hoàn) luôn so sánh được: viết dạng đầy đủ rồi so sánh từng chữ số.'));
+  return mk('Khẳng định nào sau đây đúng?',`${Lh} ${r} ${Rh}`,cs,exp);
+}
+function genCkCmp(){return tryGen(()=>{
+  const [a,b]=cmpPair(),r=REL[fCmp(eVal(a),eVal(b))],k=Math.max(a.pre.length+a.per.length,b.pre.length+b.per.length)+3;
+  return cmpOpts(short(a),short(b),r,cmpExp(a,b,longK(a,k),longK(b,k),r),x=>x==='='?'Hai số có các chữ số sau dấu phẩy khác nhau khi viết đầy đủ.':(a.neg?'Hai số âm: số nào có phần số lớn hơn thì nhỏ hơn. Hãy viết đầy đủ rồi so sánh.':'Hãy viết dạng đầy đủ (lặp lại chu kì) rồi so sánh từng chữ số.'));
+});}
+function genPdCmp(){return tryGen(()=>{
+  const {q,e,e2}=cmpFrPair(),v2=eVal(e2),r0=fCmp(q,v2),first=RNG()<.5,Lh=first?fS(q):short(e2),Rh=first?short(e2):fS(q),r=REL[first?r0:-r0];
+  const exp=`${fS(q)} = ${short(e)} = ${longK(e,6)}, còn ${short(e2)} = ${longK(e2,6)}. Vậy ${Lh} ${r} ${Rh}.`;
+  return cmpOpts(Lh,Rh,r,exp,x=>x==='='?`${fS(q)} = ${short(e)}, khác ${short(e2)}.`:`Đổi ${fS(q)} ra số thập phân (${short(e)}) rồi so sánh từng chữ số.`);
+});}
+function cmpItem(){
+  if(RNG()<.5){const [a,b]=cmpPair(),r=REL[fCmp(eVal(a),eVal(b))],ok=RNG()<.5,sh=ok?r:sel(['<','>','='].filter(x=>x!==r));
+    const k=Math.max(a.pre.length+a.per.length,b.pre.length+b.per.length)+3;
+    return IT(`${short(a)} ${sh} ${short(b)}`,ok,'ck','TH',cmpExp(a,b,longK(a,k),longK(b,k),r));}
+  const {q,e,e2}=cmpFrPair(),r=REL[fCmp(q,eVal(e2))],ok=RNG()<.5,sh=ok?r:sel(['<','>','='].filter(x=>x!==r));
+  return IT(`${fS(q)} ${sh} ${short(e2)}`,ok,'ck','TH',`${fS(q)} = ${longK(e,6)}, ${short(e2)} = ${longK(e2,6)}, nên ${fS(q)} ${r} ${short(e2)}.`);
+}
+const tfCmp=()=>{const items=mixed(()=>[cmpItem(),cmpItem(),cmpItem(),cmpItem()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+/* --- ước lượng tổng, hiệu --- */
+function sumData(){
+  for(;;){const k=ri(1,3);let A,B,pos,hang;
+    if(k===1){const d=sel([10,100]);A=[ri(d+1,30*d)*sgn(),d];B=[ri(d+1,15*d),sel([10,100])];B=[B[0]*B[1]/d|0,B[1]];if(A[0]%(d/10)===0||B[0]%(B[1]/10)===0)continue;pos=0;}
+    else if(k===2){A=[sgn()*ri(101,2999),1];B=[ri(41,999),1];pos=-1;}
+    else{A=qPer(0,2,{neg:RNG()<.3,big:true});B=qPer(0,2,{big:true});A=[A[0]*ri(1,3)+ (A[0]<0?-1:1)*A[1]*ri(2,9),A[1]];B=[B[0]+B[1]*ri(1,9),B[1]];pos=0;}
+    if(A[0]%A[1]===0||B[0]%B[1]===0)continue;
+    const NG=x=>(x<0?'−':'')+grp(Math.abs(x)),op=sel(['+','−']),eA=EQ(A),eB=EQ(B),oA=roundTo(A[0],A[1],pos),oB=roundTo(B[0],B[1],pos),ra=numR(oA),rb=numR(oB),good=op==='+'?ra+rb:ra-rb;
+    if(oA.nx===oB.nx&&RNG()<.6)continue;
+    const tA=(A[0]<0?-1:1)*oA.T*p10(-pos),tB=oB.T*p10(-pos),T=(x,y)=>op==='+'?x+y:x-y;
+    const BB=B[0]<0?`(${short(eB)})`:short(eB);
+    const H=pos===0?'hàng đơn vị':'hàng chục',stem=`Ước lượng kết quả phép tính ${short(eA)} ${op} ${BB} bằng cách làm tròn các số đến ${H} rồi tính.`;
+    return {stem,good,gt:NG(good),op,exp:`${short(eA)} ≈ ${fmtR(oA)}; ${short(eB)} ≈ ${fmtR(oB)}. Kết quả ước lượng: ${fmtR(oA)} ${op} ${fmtR(oB)} = ${NG(good)}.`,
+      wr:[C(NG(T(tA,tB)),'Làm tròn phải theo quy tắc chữ số kề sau từ 5 trở lên thì tăng 1, không phải bỏ đi phần sau.'),C(NG(T(ra,tB)),`Phải làm tròn ${short(eB)} theo quy tắc (chữ số kề sau từ 5 trở lên thì tăng 1).`),
+        C(NG(T(tA,rb)),`Phải làm tròn ${short(eA)} theo quy tắc (chữ số kề sau từ 5 trở lên thì tăng 1).`),C(NG(op==='+'?ra-rb:ra+rb),'Bạn nhầm phép cộng và phép trừ.'),C(NG(good+p10(-pos)),'Đã làm tròn sai một số.')]};}
+}
+const genLtSum=()=>tryGen(()=>{const d=sumData();return mk(d.stem,d.gt,d.wr,d.exp);});
+const saLtSum=()=>{const d=sumData();return {stem:d.stem+' Kết quả ước lượng là bao nhiêu?',ans:[d.good],at:d.gt,exp:d.exp};};
+addMC('g_fintofr','pd','TH',genFinToFr);addMC('g_pertofr','pd','VD',genPerToFr);addMC('g_pdcalc','pd','VD',genPdCalc);addMC('g_pdcmp','pd','VD',genPdCmp);
+addMC('g_ckcmp','ck','TH',genCkCmp);addMC('g_ltsum','lt','TH',genLtSum);
+addTF('tf_ck_cmp','ck','TH',tfCmp);
+
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:'',gen}));
   add('s_nbcnt','nb','TH',saNbCount);
   add('s_cklen','ck','NB',saCkLen);add('s_ckdig','ck','TH',saCkDig);add('s_cksum','ck','VD',saCkSum);
   add('s_pdlen','pd','TH',saPdLen);add('s_pdcnt','pd','TH',saPdCount);add('s_pddig','pd','VD',saPdDig);add('s_pdmin','pd','VD',saPdMin);
+  add('s_fintofr','pd','TH',saFinToFr);add('s_pertofr','pd','VD',saPerToFr);add('s_pdcalc','pd','VD',saPdCalc);add('s_ltsum','lt','TH',saLtSum);
   add('s_ltacc','lt','NB',saLtAcc);add('s_ltrnd','lt','TH',saLtRound);add('s_ltacc2','lt','TH',saLtAcc2);add('s_ltest','lt','VD',saLtEst);add('s_lt100','lt','VD',saLt100);
   return S;
 }
@@ -768,6 +906,7 @@ const HARD={tf:[{id:'h_tf',type:'tf',topic:'pd',level:'VD',gen:tfHard}],sa:[
  {id:'h_pddig',topic:'pd',level:'VD',unit:'',gen:()=>{const d=sel([7,13]),n=ri(1,d-1),e=expand(n,d),k=ri(100,400),g=ch(e,k);return {stem:`Tìm chữ số thập phân thứ ${k} của số thập phân biểu diễn phân số ${fr(n,d)}.`,ans:[+g],exp:`${fr(n,d)} = ${short(e)}, chu kì ${e.per} gồm ${e.per.length} chữ số. ${k} chia cho ${e.per.length} dư ${k%e.per.length}, nên chữ số thứ ${k} là chữ số thứ ${(k-1)%e.per.length+1} của chu kì, tức là ${g}.`,meta:{n,d,pre:e.pre,per:e.per,k}};}},
  {id:'h_cnt',topic:'pd',level:'VD',unit:'',gen:()=>{const p=sel([3,7,9,11,13]),f=sel([2,4,5,8,10,16,20,25]),D=p*f,M=ri(50,200);return {stem:`Có bao nhiêu số tự nhiên n thỏa mãn 1 ≤ n ≤ ${M} để phân số ${fr('n',D)} viết được dưới dạng số thập phân hữu hạn?`,ans:[Math.floor(M/p)],exp:`Mẫu ${D} = ${p} · ${f}. Phân số ${fr('n',D)} viết được dưới dạng số thập phân hữu hạn khi sau khi rút gọn, mẫu chỉ còn ước nguyên tố 2 và 5, tức là n phải chia hết cho ${p}. Từ 1 đến ${M} có ${Math.floor(M/p)} số chia hết cho ${p}.`,meta:{p,f,D,M}};}}
 ].map(q=>Object.assign({type:'sa'},q))};
+HARD.sa.push(...[{id:'h_pertofr',topic:'pd',gen:()=>{const d=perToFrData(2,3);return {stem:`Viết số thập phân vô hạn tuần hoàn ${short(d.e)} dưới dạng phân số tối giản.`+sfx,ans:[d.good[0]/d.good[1]],at:fS(d.good),exp:d.exp};}},{id:'h_pdcalc',topic:'pd',gen:saPdCalc}].map(q=>Object.assign({type:'sa',level:'VD',unit:''},q)));
 const money=x=>grp(x);
 const PISA=[
  ()=>{for(;;){
