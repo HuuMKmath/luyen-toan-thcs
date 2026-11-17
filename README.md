@@ -14,6 +14,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 7 | Bài 1. Tập hợp các số hữu tỉ | `tap-hop-so-huu-ti/` | `SH7-` |
 | 7 | Bài 2. Cộng, trừ, nhân, chia số hữu tỉ | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
 | 7 | Bài 3. Luỹ thừa với số mũ tự nhiên của một số hữu tỉ | `luy-thua-so-huu-ti/` | `LT7-` |
+| 7 | Bài 4. Thứ tự thực hiện các phép tính. Quy tắc chuyển vế | `thu-tu-phep-tinh-chuyen-ve/` | `TC7-` |
 | 7 | Bài 5. Làm quen với số thập phân vô hạn tuần hoàn | `so-thap-phan-vo-han-tuan-hoan/` | `TP7-` |
 | 7 | Bài 6. Số vô tỉ. Căn bậc hai số học | `so-vo-ti-can-bac-hai/` | `VT7-` |
 | 7 | Bài 7. Tập hợp các số thực | `tap-hop-so-thuc/` | `ST7-` |
@@ -33,6 +34,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Tập hợp các số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-huu-ti/`
 - Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/cong-tru-nhan-chia-so-huu-ti/`
 - Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-so-huu-ti/`
+- Thứ tự thực hiện các phép tính. Quy tắc chuyển vế: `https://huumkmath.github.io/tam-giac-bang-nhau/thu-tu-phep-tinh-chuyen-ve/`
 - Làm quen với số thập phân vô hạn tuần hoàn: `https://huumkmath.github.io/tam-giac-bang-nhau/so-thap-phan-vo-han-tuan-hoan/`
 - Số vô tỉ. Căn bậc hai số học: `https://huumkmath.github.io/tam-giac-bang-nhau/so-vo-ti-can-bac-hai/`
 - Tập hợp các số thực: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-thuc/`
