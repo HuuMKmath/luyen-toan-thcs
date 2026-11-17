@@ -74,3 +74,7 @@ Cả website dùng **một Google Sheet** với script `google-sheet/Code.gs` (d
 ## Thêm một bài mới
 
 Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `boi-chung-nho-nhat/index.html`), đặt tiền tố mã riêng, giữ nguyên `SHEET_URL` của Sheet chung và đặt `SHEET_TAB`, `SHEET_TOPICS` cho bài (không phải làm gì thêm trên Google Sheet), rồi thêm một thẻ vào đúng section lớp (`lop-6` đến `lop-9`) trong `cac-bai/index.html` và một dòng vào bảng trên. Section lớp chưa có bài hiện dòng "Chưa có bài"; khi thêm thẻ đầu tiên thì thay dòng đó bằng khối `<div class="list">` như các lớp khác.
+
+## Điểm thưởng, cấp độ, huy hiệu
+
+`gamify.js` là lớp trò chơi hóa dùng chung (XP, cấp độ, chuỗi ngày học, mục tiêu 5 câu đúng mỗi ngày, huy hiệu). Dữ liệu lưu trong trình duyệt theo mã học sinh, không ảnh hưởng điểm gửi về Google Sheet. Hiện đã gắn vào trang Tam giác bằng nhau (`index.html`); gắn vào bài khác bằng cách thêm `<script src="../gamify.js"></script>` và gọi `GM.onPractice`, `GM.onFinish`, `GM.barHTML`, `GM.resultHTML`, `GM.fx`, `GM.refresh` giống `index.html`.
