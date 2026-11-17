@@ -946,10 +946,12 @@ function tSsAdv(){
   const items=mixed(()=>[item(cmpSameNum),item(cmpViaOne),item(cmpCompl),item(cmpRep)]);
   return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();
 }
+// một hàm cho mỗi dạng, để hai mã _a, _b được tính là cùng một câu gốc
+const genSsSame=()=>genCmpAdv(cmpSameNum),genSsOne=()=>genCmpAdv(cmpViaOne),genSsCompl=()=>genCmpAdv(cmpCompl),genSsRep=()=>genCmpAdv(cmpRep);
 ['a','b'].forEach(x=>{
   addMC('g_knratio_'+x,'kn','TH',genKnRatio);addMC('g_sdform_'+x,'sd','TH',genSdForm);
-  addMC('g_sssame_'+x,'ss','TH',()=>genCmpAdv(cmpSameNum));addMC('g_ssone_'+x,'ss','VD',()=>genCmpAdv(cmpViaOne));
-  addMC('g_sscompl_'+x,'ss','VD',()=>genCmpAdv(cmpCompl));addMC('g_ssrep_'+x,'ss','VD',()=>genCmpAdv(cmpRep));
+  addMC('g_sssame_'+x,'ss','TH',genSsSame);addMC('g_ssone_'+x,'ss','VD',genSsOne);
+  addMC('g_sscompl_'+x,'ss','VD',genSsCompl);addMC('g_ssrep_'+x,'ss','VD',genSsRep);
   addTF('tf_ss_vd2_'+x,'ss','VD',tSsAdv);
 });
 
