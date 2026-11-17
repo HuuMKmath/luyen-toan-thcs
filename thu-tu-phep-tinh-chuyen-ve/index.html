@@ -600,10 +600,152 @@ function saDtEx(){for(let n=0;n<400;n++){
   return {stem:`Biết ${eqS(e.L,e.R)}. Tính ${show(tsx)}.`,ans:[vq(v)],at:v[1]===1?undefined:DEC(v),exp:`Chuyển vế: x = ${VAL(sol)}. Do đó ${show(tsx)} = ${VAL(v)}.`};}}
 function saCvTt(){const A=ri(150,450)/100,B=ri(50,Math.floor(A*100)-10)/100;const a=Rq(Math.round(A*100),100),b=Rq(Math.round(B*100),100),d=qs(a,b);
   return {stem:`Để làm một cái bánh cần ${VAL(a)} cốc bột. Lan đã có ${VAL(b)} cốc bột. Hỏi Lan cần thêm bao nhiêu cốc bột nữa để vừa đủ làm một cái bánh?`,ans:[vq(d)],at:d[1]===1?undefined:DEC(d),exp:`Số cốc bột cần thêm là ${VAL(a)} − ${VAL(b)} = ${VAL(d)} (cốc).`};}
+/* ============ Bổ sung theo các dạng trong tài liệu dạy thêm của giáo viên ============
+   thứ tự phép tính với phân số và luỹ thừa, ngoặc lồng nhau, tìm x có hệ số, x ở cả hai vế, thu gọn x, có dấu ngoặc, nhiều bước */
+const bNeg=q=>[-q[0],q[1]],bPA=(q,h)=>q[0]<0?`(${h})`:h,bS=q=>bPA(q,SH(q)),bSup=n=>`<sup>${n}</sup>`;
+const bFr=()=>{for(;;){const d=ri(2,6),q=Rq(ri(1,2*d-1)*sgn(),d);if(q[1]>1)return q;}};       // phân số không nguyên
+const bPos=()=>{for(;;){const q=bFr();if(q[0]>0)return q;}};
+const bNum=()=>RNG()<.35?[sgn()*ri(1,6),1]:bFr();
+const bPw=(q,n)=>{let r=[1,1];for(let i=0;i<n;i++)r=qm(r,q);return r;};
+const bOk=(g,d,n)=>g&&g[1]<=(d||60)&&Math.abs(g[0])<=(n||300);
+const bW=(good,q,err)=>(!q||q[1]===0||eqQ(Rq(q[0],q[1]),good))?null:C(SH(Rq(q[0],q[1])),err);
+const bSA=(stem,g,exp)=>({stem:stem+' Nhập kết quả dạng phân số tối giản hoặc số nguyên.',ans:[g[0]/g[1]],at:SH(g),exp});
+const bT=(q,first)=>first?SH(q):(q[0]<0?`− ${SH(bNeg(q))}`:`+ ${SH(q)}`);                       // số hạng có dấu trong một tổng
+const bX=(c,first)=>{const a=Math.abs(c[0]),h=(c[1]===1?(a===1?'':String(a)):SH([a,c[1]]))+'x';return first?(c[0]<0?'−'+h:h):(c[0]<0?`− ${h}`:`+ ${h}`);};   // số hạng chứa x
+const bMk=(d,verb)=>{const X=verb.startsWith('Tìm');return mk(`${verb} ${d.h}${X?'':' là:'}`,(X?'x = ':'')+SH(d.good),X?d.wr.map(w=>w&&C('x = '+w.t,w.err)):d.wr,d.exp);};
+/* --- không ngoặc, có phân số --- */
+function ttFrData(){
+  for(;;){const A=bFr(),B=bFr(),Cc=bFr(),pm=sel(['+','−']),md=sel(['·',':']),t=md==='·'?qm(B,Cc):qd(B,Cc),good=pm==='+'?qa(A,t):qs(A,t);
+    if(!bOk(good,48,200)||!bOk(t,48,200))continue;
+    const ab=pm==='+'?qa(A,B):qs(A,B),t2=md==='·'?qd(B,Cc):qm(B,Cc);
+    return {good,h:`${SH(A)} ${pm} ${bS(B)} ${md} ${bS(Cc)}`,exp:`Nhân, chia trước: ${SH(B)} ${md} ${bS(Cc)} = ${SH(t)}. Sau đó ${SH(A)} ${pm} ${bS(t)} = ${SH(good)}.`,
+      wr:[bW(good,md==='·'?qm(ab,Cc):qd(ab,Cc),'Phải thực hiện nhân, chia trước cộng, trừ. Bạn đã tính từ trái sang phải.'),
+        bW(good,pm==='+'?qa(A,t2):qs(A,t2),md==='·'?'Bạn đã chia thay vì nhân.':'Chia cho một phân số là nhân với nghịch đảo của nó.'),
+        bW(good,pm==='+'?qs(A,t):qa(A,t),'Bạn nhầm phép cộng với phép trừ ở bước cuối.'),bW(good,bNeg(good),'Sai dấu của kết quả.')]};}
+}
+const genTtFr=()=>tryGen(()=>bMk(ttFrData(),'Giá trị của biểu thức'));
+const saTtFr=()=>{const d=ttFrData();return bSA(`Tính giá trị của biểu thức ${d.h}.`,d.good,d.exp);};
+/* --- có ngoặc, có phân số --- */
+function nnFrData(){
+  for(;;){const A=bFr(),B=bFr(),Cc=bFr();
+    if(RNG()<.5){const k=ri(2,6),sm=qa(B,Cc),good=qs(A,qm([k,1],sm));if(!bOk(good,36,200)||sm[0]===0)continue;
+      return {good,h:`${SH(A)} − ${k} · (${SH(B)} + ${bS(Cc)})`,exp:`Trong ngoặc trước: ${SH(B)} + ${bS(Cc)} = ${SH(sm)}. Nhân: ${k} · ${bS(sm)} = ${SH(qm([k,1],sm))}. Vậy ${SH(A)} − ${bS(qm([k,1],sm))} = ${SH(good)}.`,
+        wr:[bW(good,qm(qs(A,[k,1]),sm),'Phải tính trong ngoặc rồi nhân, sau đó mới trừ. Bạn đã trừ trước.'),
+          bW(good,qa(qs(A,qm([k,1],B)),Cc),`Phải nhân ${k} với cả tổng trong ngoặc, không chỉ với số hạng đầu.`),
+          bW(good,qa(A,qm([k,1],sm)),'Bạn nhầm phép trừ thành phép cộng.'),bW(good,bNeg(good),'Sai dấu của kết quả.')]};}
+    const n=ri(1,5),df=qs(A,B),t=qd(df,Cc);if(!t||df[0]===0)continue;const good=qa(t,[n,1]);if(!bOk(good,36,200))continue;
+    return {good,h:`(${SH(A)} − ${bS(B)}) : ${bS(Cc)} + ${n}`,exp:`Trong ngoặc trước: ${SH(A)} − ${bS(B)} = ${SH(df)}. Chia: ${SH(df)} : ${bS(Cc)} = ${SH(t)}. Vậy ${SH(t)} + ${n} = ${SH(good)}.`,
+      wr:[bW(good,qa(qs(A,qd(B,Cc)),[n,1]),'Phải thực hiện phép tính trong ngoặc trước.'),
+        bW(good,qd(df,qa(Cc,[n,1])),'Phép chia làm trước phép cộng. Bạn đã cộng trước.'),
+        bW(good,qa(qm(df,Cc),[n,1]),'Chia cho một phân số là nhân với nghịch đảo của nó.'),bW(good,bNeg(good),'Sai dấu của kết quả.')]};}
+}
+const genNnFr=()=>tryGen(()=>bMk(nnFrData(),'Giá trị của biểu thức'));
+const saNnFr=()=>{const d=nnFrData();return bSA(`Tính giá trị của biểu thức ${d.h}.`,d.good,d.exp);};
+/* --- có luỹ thừa của phân số --- */
+function ttPowData(){
+  for(;;){const q=ri(2,4),p=sgn()*ri(1,q-1);if(gcd(p,q)!==1)continue;const B=[p,q],k=q*sel([q,2*q,1,3]),r=bFr(),pm=sel(['+','−']);
+    const sq=bPw(B,2),t=qm([k,1],sq),good=pm==='+'?qa(t,r):qs(t,r);if(!bOk(good,36,300))continue;
+    const fin=v=>pm==='+'?qa(v,r):qs(v,r),P=`(${SH(B)})${bSup(2)}`;
+    return {good,h:`${k} · ${P} ${pm} ${bS(r)}`,exp:`Luỹ thừa trước: ${P} = ${SH(sq)}. Nhân: ${k} · ${SH(sq)} = ${SH(t)}. Vậy ${SH(t)} ${pm} ${bS(r)} = ${SH(good)}.`,
+      wr:[bW(good,fin(bPw(qm([k,1],B),2)),'Luỹ thừa làm trước phép nhân. Bạn đã nhân rồi mới bình phương.'),
+        bW(good,fin(qm([k,1],qm(B,[2,1]))),'Bình phương là nhân số đó với chính nó, không phải nhân với 2.'),
+        bW(good,fin(qm([k,1],[p*p,q])),'Bình phương một phân số thì bình phương cả tử và mẫu.'),
+        bW(good,fin(bNeg(t)),'Bình phương của một số âm là số dương.'),bW(good,bNeg(good),'Sai dấu của kết quả.')]};}
+}
+const genTtPow=()=>tryGen(()=>bMk(ttPowData(),'Giá trị của biểu thức'));
+const saTtPow=()=>{const d=ttPowData();return bSA(`Tính giá trị của biểu thức ${d.h}.`,d.good,d.exp);};
+function genTtPoly(){return tryGen(()=>{
+  const q=sel([2,3,4]),p=sgn()*sel(q===4?[1,3]:q===3?[1,2]:[1]),B=[p,q],a=q*q*q,b=q*q*ri(1,4),c=ri(1,6),P=n=>`(${SH(B)})${bSup(n)}`;
+  const t3=qm([a,1],bPw(B,3)),t2=qm([b,1],bPw(B,2)),good=qs(qa(t3,t2),[c,1]);
+  return mk(`Giá trị của biểu thức ${a} · ${P(3)} + ${b} · ${P(2)} − ${c} · ${P(0)} là:`,SH(good),[
+    bW(good,qa(t3,t2),`${P(0)} = 1 (mọi số khác 0 có luỹ thừa bậc 0 bằng 1), không phải 0.`),
+    bW(good,qs(qa(t3,t2),qm([c,1],B)),`${P(0)} = 1, không phải ${SH(B)}.`),
+    bW(good,qs(qa(bNeg(t3),t2),[c,1]),p<0?'Luỹ thừa bậc lẻ của số âm là số âm.':'Luỹ thừa của số dương là số dương.'),
+    bW(good,qs(qa(t3,bNeg(t2)),[c,1]),'Luỹ thừa bậc chẵn luôn là số dương.'),bW(good,bNeg(good),'Sai dấu của kết quả.')],
+    `${P(3)} = ${SH(bPw(B,3))}, ${P(2)} = ${SH(bPw(B,2))}, ${P(0)} = 1. Biểu thức bằng ${SH(t3)} + ${SH(t2)} − ${c} = ${SH(good)}.`);
+});}
+/* --- ngoặc lồng nhau --- */
+function nnNestData(){
+  for(;;){const A=bFr(),B=bFr(),m=ri(2,6),c1=ri(1,2*m-1),c2=ri(1,2*m-1);if(gcd(c1,m)!==1||gcd(c2,m)!==1)continue;
+    const Cc=[c1,m],D=Rq(c2,m),inn=qa(Cc,D),mid=qs(B,inn),good=qs(A,mid);if(!bOk(good,36,200)||mid[0]===0)continue;
+    return {good,h:`${SH(A)} − [${SH(B)} − (${fr(c1,m)} + ${fr(c2,m)})]`,exp:`Ngoặc tròn trước: ${fr(c1,m)} + ${fr(c2,m)} = ${SH(inn)}. Ngoặc vuông: ${SH(B)} − ${bS(inn)} = ${SH(mid)}. Vậy ${SH(A)} − ${bS(mid)} = ${SH(good)}.`,
+      wr:[bW(good,qs(qs(A,B),inn),'Trước ngoặc vuông có dấu "−", trong ngoặc vuông lại có dấu "−" trước ngoặc tròn, nên tổng trong ngoặc tròn được cộng vào.'),
+        bW(good,qs(qa(qs(A,B),Cc),D),'Khi bỏ ngoặc phải đổi dấu tất cả các số hạng trong ngoặc, không chỉ số hạng đầu.'),
+        bW(good,qa(qs(A,B),qs(D,Cc)),'Khi bỏ ngoặc phải đổi dấu tất cả các số hạng trong ngoặc, không chỉ số hạng đầu.'),
+        bW(good,qs(qa(A,B),inn),'Bạn đổi dấu sai khi bỏ ngoặc vuông.'),bW(good,bNeg(good),'Sai dấu của kết quả.')]};}
+}
+const genNnNest=()=>tryGen(()=>bMk(nnNestData(),'Giá trị của biểu thức'));
+const saNnNest=()=>{const d=nnNestData();return bSA(`Tính giá trị của biểu thức ${d.h}.`,d.good,d.exp);};
+/* --- tìm x có hệ số --- */
+function cvLinData(){
+  for(;;){const x0=bNum(),c=RNG()<.6?[ri(2,5),1]:bPos(),A=bNum(),plus=RNG()<.5,B=plus?qa(A,qm(c,x0)):qs(A,qm(c,x0));if(!bOk(B,48,200))continue;
+    const t=plus?qs(B,A):qs(A,B),cx=bX(c,true);
+    return {good:x0,h:`${SH(A)} ${plus?'+':'−'} ${cx} = ${SH(B)}`,exp:`Chuyển vế: ${cx} = ${plus?`${SH(B)} − ${bS(A)}`:`${SH(A)} − ${bS(B)}`} = ${SH(t)}. Vậy x = ${SH(t)} : ${SH(c)} = ${SH(x0)}.`,
+      wr:[bW(x0,t,`Bạn mới tìm được ${cx} = ${SH(t)}, còn phải chia cho ${SH(c)}.`),bW(x0,qd(plus?qa(B,A):qa(A,B),c),'Khi chuyển vế phải đổi dấu số hạng.'),
+        bW(x0,qm(t,c),`Từ ${cx} = ${SH(t)} phải chia cho ${SH(c)}, không nhân.`),bW(x0,bNeg(x0),'Sai dấu của kết quả.')]};}
+}
+const genCvLin=()=>tryGen(()=>bMk(cvLinData(),'Tìm x, biết:'));
+const saCvLin=()=>{const d=cvLinData();return bSA(`Tìm x, biết: ${d.h}.`,d.good,d.exp);};
+/* --- x ở cả hai vế --- */
+function cvBothData(){
+  for(;;){const a=ri(2,6),c=ri(1,5);if(a===c)continue;const x0=bNum(),b=bNum(),d=qa(qm([a-c,1],x0),b);if(!bOk(d,36,200)||d[0]===0)continue;
+    const A=[a,1],Cc=[c,1],k=[a-c,1],t=qs(d,b);
+    return {a,c,b,d,good:x0,h:`${bX(A,true)} ${bT(b)} = ${bX(Cc,true)} ${bT(d)}`,exp:`Chuyển các số hạng chứa x sang vế trái, các số sang vế phải: ${bX(A,true)} ${bX(bNeg(Cc))} = ${SH(d)} ${bT(bNeg(b))}, tức là ${bX(k,true)} = ${SH(t)}.${a-c===1?'':` Vậy x = ${SH(x0)}.`}`,
+      wr:[bW(x0,qd(qa(d,b),k),'Khi chuyển một số hạng sang vế kia phải đổi dấu số hạng đó.'),bW(x0,qd(t,[a+c,1]),`Chuyển ${bX(Cc,true)} sang vế trái phải đổi dấu thành ${bX(bNeg(Cc))}.`),
+        bW(x0,t,`Bạn mới tìm được ${bX(k,true)} = ${SH(t)}, còn phải chia cho ${N(a-c)}.`),bW(x0,bNeg(x0),'Sai dấu của kết quả.')]};}
+}
+const genCvBoth=()=>tryGen(()=>bMk(cvBothData(),'Tìm x, biết:'));
+const saCvBoth=()=>{const d=cvBothData();return bSA(`Tìm x, biết: ${d.h}.`,d.good,d.exp);};
+/* --- thu gọn các số hạng chứa x --- */
+function cvColData(){
+  for(;;){const p=bPos(),q=bFr();if(p[1]===q[1])continue;const sm=qa(p,q);if(sm[0]===0)continue;const x0=RNG()<.5?[sgn()*ri(1,6),1]:bFr(),r=qm(sm,x0);if(!bOk(r,60,300)||!bOk(sm,36,100))continue;
+    return {p,q,sm,r,good:x0,h:`${bX(p,true)} ${bX(q)} = ${SH(r)}`,exp:`Thu gọn vế trái: (${SH(p)} ${bT(q)})x = ${bX(sm,true)}. Do đó ${bX(sm,true)} = ${SH(r)}, suy ra x = ${SH(r)} : ${bS(sm)} = ${SH(x0)}.`,
+      wr:[bW(x0,qd(r,qm(p,q)),'Thu gọn hai số hạng chứa x là cộng hai hệ số, không phải nhân.'),bW(x0,qm(r,sm),`Từ ${bX(sm,true)} = ${SH(r)} phải chia cho ${SH(sm)}, không nhân.`),
+        bW(x0,qd(r,qs(p,q)),'Bạn cộng hai hệ số sai dấu.'),bW(x0,bNeg(x0),'Sai dấu của kết quả.')]};}
+}
+const genCvCol=()=>tryGen(()=>bMk(cvColData(),'Tìm x, biết:'));
+const saCvCol=()=>{const d=cvColData();return bSA(`Tìm x, biết: ${d.h}.`,d.good,d.exp);};
+/* --- có dấu ngoặc chứa x --- */
+function cvBrData(){
+  for(;;){const b=ri(1,4),a=b+ri(1,4),c=bNum(),x0=bNum(),d=qs(qm([a-b,1],x0),c);if(!bOk(d,36,200))continue;
+    const A=[a,1],B=[b,1],k=[a-b,1],t=qa(d,c);
+    return {a,b,c,d,good:x0,h:`${bX(A,true)} − (${bX(B,true)} ${bT(c)}) = ${SH(d)}`,exp:`Bỏ ngoặc (đổi dấu các số hạng trong ngoặc): ${bX(A,true)} ${bX(bNeg(B))} ${bT(bNeg(c))} = ${SH(d)}, tức là ${bX(k,true)} = ${SH(d)} ${bT(c)} = ${SH(t)}. Vậy x = ${SH(x0)}.`,
+      wr:[bW(x0,qd(qs(d,c),k),'Bỏ ngoặc có dấu "−" đằng trước phải đổi dấu tất cả các số hạng trong ngoặc.'),bW(x0,qd(t,[a+b,1]),`Bỏ ngoặc thì ${bX(B,true)} đổi dấu thành ${bX(bNeg(B))}.`),
+        bW(x0,t,`Bạn mới tìm được ${bX(k,true)} = ${SH(t)}${a-b===1?'':', còn phải chia cho '+(a-b)}.`),bW(x0,bNeg(x0),'Sai dấu của kết quả.'),bW(x0,qa(x0,[1,1]),'Hãy thay lại vào đẳng thức để kiểm tra.')]};}
+}
+const genCvBr=()=>tryGen(()=>bMk(cvBrData(),'Tìm x, biết:'));
+/* --- tìm x qua nhiều bước --- */
+function cvChainData(){
+  for(;;){const p=bNum(),q=RNG()<.5?[ri(2,4),1]:bPos(),r=bNum(),x0=bNum(),u=qd(qs(x0,p),q);if(!u||u[0]===0)continue;const s2=qa(u,r);if(!bOk(s2,48,200))continue;
+    return {good:x0,h:`(x ${bT(bNeg(p))}) : ${SH(q)} ${bT(r)} = ${SH(s2)}`,exp:`(x ${bT(bNeg(p))}) : ${SH(q)} = ${SH(s2)} ${bT(bNeg(r))} = ${SH(u)}. Suy ra x ${bT(bNeg(p))} = ${SH(u)} · ${SH(q)} = ${SH(qm(u,q))}. Vậy x = ${SH(x0)}.`,
+      wr:[bW(x0,qa(qd(u,q),p),`Từ (x ${bT(bNeg(p))}) : ${SH(q)} = ${SH(u)} phải nhân ${SH(u)} với ${SH(q)}, không chia.`),bW(x0,qa(qm(qa(s2,r),q),p),'Khi chuyển vế phải đổi dấu số hạng.'),
+        bW(x0,qs(qm(u,q),p),`Từ x ${bT(bNeg(p))} = ${SH(qm(u,q))} khi chuyển vế phải đổi dấu.`),bW(x0,qm(u,q),`${SH(qm(u,q))} là giá trị của x ${bT(bNeg(p))}, chưa phải x.`),bW(x0,bNeg(x0),'Sai dấu của kết quả.')]};}
+}
+const genCvChain=()=>tryGen(()=>bMk(cvChainData(),'Tìm x, biết:'));
+const saCvChain=()=>{const d=cvChainData();return bSA(`Tìm x, biết: ${d.h}.`,d.good,d.exp);};
+/* --- đúng sai: bước biến đổi nào đúng --- */
+function tCvSteps(){
+  const both=()=>{const a=ri(3,7),c=ri(1,a-1),b=ri(1,9),d=ri(1,9),ok=RNG()<.5;
+    return IT(`Từ ${a}x + ${b} = ${bX([c,1],true)} + ${d} suy ra ${a}x − ${bX([c,1],true)} = ${d} ${ok?'−':'+'} ${b}`,ok,'cv','VD',`Chuyển ${bX([c,1],true)} sang vế trái và ${b} sang vế phải, mỗi số hạng đổi dấu: ${a}x − ${bX([c,1],true)} = ${d} − ${b}.`);};
+  const br=()=>{const b=ri(1,4),a=b+ri(1,4),c=ri(1,9),d=ri(1,9),ok=RNG()<.5;
+    return IT(`Từ ${a}x − (${bX([b,1],true)} + ${c}) = ${d} suy ra ${a}x − ${bX([b,1],true)} ${ok?'−':'+'} ${c} = ${d}`,ok,'cv','VD',`Bỏ ngoặc có dấu "−" đằng trước thì đổi dấu mọi số hạng trong ngoặc: ${a}x − ${bX([b,1],true)} − ${c} = ${d}.`);};
+  const col=()=>{const p=bPos(),q=bPos();if(p[1]===q[1])return null;const r=ri(1,9),ok=RNG()<.5,sm=qa(p,q),w=qm(p,q);
+    return IT(`Từ ${bX(p,true)} + ${bX(q,true)} = ${r} suy ra ${bX(ok?sm:w,true)} = ${r}`,ok,'cv','VD',`Thu gọn bằng cách cộng hai hệ số: ${SH(p)} + ${SH(q)} = ${SH(sm)}, nên ${bX(sm,true)} = ${r}.`);};
+  const coef=()=>{const k=ri(2,6),m=bFr(),ok=RNG()<.5,g=qd(m,[k,1]),w=sel([qm(m,[k,1]),qs(m,[k,1])]);
+    return IT(`Từ ${k}x = ${SH(m)} suy ra x = ${SH(ok?g:w)}`,ok,'cv','VD',`Chia hai vế cho ${k}: x = ${SH(m)} : ${k} = ${SH(g)}.`);};
+  const items=mixed(()=>[both(),br(),col(),coef()]);
+  return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();
+}
+addMC('g_ttfr','tt','TH',genTtFr);addMC('g_nnfr','nn','TH',genNnFr);addMC('g_ttpow','tt','TH',genTtPow);addMC('g_ttpoly','tt','VD',genTtPoly);addMC('g_nnnest','nn','VD',genNnNest);
+addMC('g_cvlin','cv','VD',genCvLin);addMC('g_cvboth','cv','VD',genCvBoth);addMC('g_cvcol','cv','VD',genCvCol);addMC('g_cvbr','cv','VD',genCvBr);addMC('g_cvchain','cv','VD',genCvChain);
+addTF('tf_cv_vd2','cv','VD',tCvSteps);
+
 function SA_BUILD(){const S=[];const add=(id,topic,level,gen)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:'',gen}));
   add('s_ttnb','tt','NB',saTtNb);add('s_ttval','tt','TH',saTtVal);
   add('s_nnval','nn','TH',saNnVal);add('s_nnbig','nn','VD',saNnBig);
   add('s_dtfind','dt','NB',saDtFind);add('s_dtex','dt','TH',saDtEx);
+  add('s_ttfr','tt','TH',saTtFr);add('s_nnfr','nn','TH',saNnFr);add('s_ttpow','tt','TH',saTtPow);add('s_nnnest','nn','VD',saNnNest);
+  add('s_cvlin','cv','VD',saCvLin);add('s_cvboth','cv','VD',saCvBoth);add('s_cvcol','cv','VD',saCvCol);add('s_cvchain','cv','VD',saCvChain);
   add('s_cvx','cv','TH',saCvx);add('s_cvvd','cv','VD',saCvVd);add('s_cvtt','cv','VD',saCvTt);
   return S;}
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
@@ -622,6 +764,7 @@ const HARD={tf:[{id:'h_tf',type:'tf',topic:'cv',level:'VD',gen:tfHard}],sa:[
  {id:'h_x',topic:'cv',level:'VD',unit:'',gen:()=>eqSA(['x-(a-b)','a-x=b-(c)'],['dec'],e=>`Tìm x, biết: ${eqS(e.L,e.R)}`)},
  {id:'h_ex',topic:'dt',level:'VD',unit:'',gen:()=>{for(let n=0;n<400;n++){const e=eqForm(sel(['x+a','x-a']),'int');if(!eqOK(e))continue;const sol=solveEq(e.L,e.R),c=ri(1,9),d=sel([2,3,4,5]),tsx=['(','x','−',NI(c),')','·',NI(d)];const v=evalX(tsx,sol);if(!v||v[1]!==1)continue;return {stem:`Biết ${eqS(e.L,e.R)}. Tính ${show(tsx)}.`,ans:[v[0]],exp:`Chuyển vế: x = ${VAL(sol)}. Do đó ${show(tsx)} = ${VAL(v)}.`};}}}
 ].map(q=>Object.assign({type:'sa'},q))};
+HARD.sa.push(...[{id:'h_nest',topic:'nn',gen:saNnNest},{id:'h_both',topic:'cv',gen:saCvBoth},{id:'h_col',topic:'cv',gen:saCvCol},{id:'h_chain',topic:'cv',gen:saCvChain}].map(q=>Object.assign({type:'sa',level:'VD',unit:''},q)));
 const PISA=[
  ()=>{for(;;){
   const A=ri(10,30)/10,B=ri(40,90)/10,a=Rq(Math.round(A*10),10),b=Rq(Math.round(B*10),10),x=qs(b,a);
