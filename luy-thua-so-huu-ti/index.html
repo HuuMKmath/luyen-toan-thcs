@@ -818,6 +818,125 @@ function saVdQuot(){const c=ri(2,4),a=c+ri(1,3),b=ri(2,3),d=2*b-ri(1,2),v=Math.p
   addMC('g_vdcmp_'+x,'lt','VD',genVdCmp);addMC('g_vdbase_'+x,'lt','VD',genVdBase);
 });
 
+/* ============ Bổ sung theo các dạng trong tài liệu dạy thêm của giáo viên ============
+   tìm x với cơ số là phân số, tìm số mũ, hai luỹ thừa cùng số mũ, rút gọn biểu thức luỹ thừa dạng phân số,
+   so sánh hai luỹ thừa có cơ số nhỏ hơn 1 */
+const FRH=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;      // phân số có tử, mẫu là biểu thức
+const rbase=()=>{for(;;){const q=ri(2,5),p=ri(1,q-1);if(gcd(p,q)===1)return [sgn()*p,q];}};   // cơ số là phân số, giá trị tuyệt đối nhỏ hơn 1
+/* --- tìm x, cơ số là phân số --- */
+function findXqData(){
+  const B=rbase(),mul=RNG()<.5,m=mul?ri(2,5):ri(2,3),e=ri(2,3);
+  if(mul){const good=pw(B,e);return {B,m,e,mul,good,h:`${PW(B,m)} · x = ${PW(B,m+e)}`,exp:`x = ${PW(B,m+e)} : ${PW(B,m)} = ${PW(B,`${m+e} − ${m}`)} = ${PW(B,e)} = ${SH(good)}.`};}
+  const k=ri(1,2),good=pw(B,m+k);if(m+k>5)return null;
+  return {B,m,e:m+k,k,mul,good,h:`x : ${PW(B,m)} = ${PW(B,k)}`,exp:`x = ${PW(B,k)} · ${PW(B,m)} = ${PW(B,`${k} + ${m}`)} = ${PW(B,m+k)} = ${SH(good)}.`};
+}
+function genNcFindXq(){return tryGen(()=>{const d=findXqData();if(!d)return null;const {B,e,good}=d;
+  return mk(`Tìm x, biết ${E(d.h)}.`,show(good),[
+    Wq(good,pw(B,e+1),'Bạn tính sai số mũ của kết quả.'),
+    e>1?Wq(good,pw(B,e-1),'Bạn tính sai số mũ của kết quả.'):null,
+    Wq(good,negQ(good),`Sai dấu: ${PW(B,e)} = ${SH(good)}.`),
+    Wq(good,qinv(good),'Bạn đã viết ngược tử số và mẫu số của kết quả.'),
+    Wq(good,[good[0]*e,good[1]],'Luỹ thừa không phải là nhân cơ số với số mũ.')],d.exp);
+});}
+const saNcFindXq=()=>{for(;;){const d=findXqData();if(d)return saF(`Tìm x, biết ${E(d.h)}. Nhập dạng phân số tối giản hoặc số nguyên.`,d.good,d.exp);}};
+/* --- tìm số mũ --- */
+function findExpData(){const B=rbase(),n=ri(2,5),V=pw(B,n);return {B,n,V,h:`${PW(B,'x')} = ${SH(V)}`,exp:`${SH(V)} = ${PW(B,n)} nên x = ${n}.`};}
+function genDnFindExp(){return tryGen(()=>{const d=findExpData(),{B,n,V}=d;
+  return mk(`Tìm số tự nhiên x, biết ${E(d.h)}.`,String(n),[
+    C(String(n+1),`${PW(B,n+1)} = ${SH(pw(B,n+1))}, khác ${SH(V)}.`),
+    C(String(n-1),`${PW(B,n-1)} = ${SH(pw(B,n-1))}, khác ${SH(V)}.`),
+    C(String(V[1]/B[1]),`Bạn đã lấy mẫu số ${V[1]} chia cho ${B[1]}. Phải viết ${SH(V)} thành luỹ thừa của ${SH(B)}.`),
+    C(String(n*2),'Bạn tính sai số mũ.')],d.exp);
+});}
+const saDnFindExp=()=>{const d=findExpData();return {stem:`Tìm số tự nhiên x, biết ${E(d.h)}.`,ans:[d.n],exp:d.exp};};
+function expEqData(){
+  for(;;){const B=rbase(),c=ri(2,3),x0=ri(1,3),dd=ri(-2,3),e=c*x0+dd;if(e<2||e>6||dd===0)continue;
+    const V=pw(B,e),ex=`${c}x ${dd<0?'−':'+'} ${Math.abs(dd)}`;
+    return {B,c,x0,dd,e,V,h:`${PW(B,ex)} = ${SH(V)}`,exp:`${SH(V)} = ${PW(B,e)} nên ${ex} = ${e}, suy ra ${c}x = ${e-dd} và x = ${x0}.`};}
+}
+function genVdExpEq(){return tryGen(()=>{const d=expEqData(),{c,x0,dd,e}=d;
+  return mk(`Tìm số tự nhiên x, biết ${E(d.h)}.`,String(x0),[
+    C(String(e),`${e} là giá trị của cả số mũ ${c}x ${dd<0?'−':'+'} ${Math.abs(dd)}, chưa phải x.`),
+    C(String(e-dd),`${e-dd} là giá trị của ${c}x, còn phải chia cho ${c}.`),
+    C(String(x0+1),'Hãy thay lại vào số mũ để kiểm tra.'),
+    C(String(Math.abs(x0-1)),'Hãy thay lại vào số mũ để kiểm tra.')],d.exp);
+});}
+const saVdExpEq=()=>{const d=expEqData();return {stem:`Tìm số tự nhiên x, biết ${E(d.h)}.`,ans:[d.x0],exp:d.exp};};
+/* --- hai luỹ thừa cùng số mũ --- */
+function pow3Data(){
+  for(;;){const r=Rq(sgn()*ri(1,3),ri(1,3)),c=sel([1,1,2,3]),p=RNG()<.5?[ri(1,4),1]:Rq(ri(1,3),ri(2,4)),good=qd(qa(r,p),[c,1]),V=pw(r,3);
+    if(good[1]>24||good[0]===0||Math.abs(r[0])===r[1])continue;
+    const cx=c===1?'x':`${c}x`;
+    return {r,c,p,good,V,cx,h:`(${cx} − ${SH(p)})${SUP(3)} = ${SH(V)}`,exp:`${SH(V)} = ${PW(r,3)} nên ${cx} − ${SH(p)} = ${SH(r)}. Suy ra ${cx} = ${SH(qa(r,p))}${c===1?'':` và x = ${SH(good)}`}.`};}
+}
+function genVdPow3(){return tryGen(()=>{const d=pow3Data(),{r,c,p,good,V}=d;
+  return mk(`Tìm x, biết ${E(d.h)}.`,show(good),[
+    Wq(good,qd(qa(V,p),[c,1]),`Phải viết ${SH(V)} = ${PW(r,3)} để suy ra ${d.cx} − ${SH(p)} = ${SH(r)}. Bạn chưa đưa về cùng số mũ.`),
+    Wq(good,qd(qs(r,p),[c,1]),`Từ ${d.cx} − ${SH(p)} = ${SH(r)} suy ra ${d.cx} = ${SH(r)} + ${SH(p)}. Bạn đã trừ.`),
+    Wq(good,r,`${SH(r)} là giá trị của ${d.cx} − ${SH(p)}, chưa phải x.`),
+    c>1?Wq(good,qa(r,p),`${SH(qa(r,p))} là giá trị của ${d.cx}, còn phải chia cho ${c}.`):null,
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saVdPow3=()=>{const d=pow3Data();return saF(`Tìm x, biết ${E(d.h)}. Nhập dạng phân số tối giản hoặc số nguyên.`,d.good,d.exp);};
+function genVdPow2(){return tryGen(()=>{
+  const r=Rq(ri(1,5),ri(1,4)),p=RNG()<.5?[sgn()*ri(1,4),1]:Rq(sgn()*ri(1,3),ri(2,4)),V=pw(r,2),x1=qs(r,p),x2=qs(negQ(r),p);
+  if(x1[1]>24)return null;
+  const f=p[0]<0?`x − ${SH(negQ(p))}`:`x + ${SH(p)}`,T=(a,b)=>`x = ${SH(a)} hoặc x = ${SH(b)}`,h=qm(V,[1,2]);
+  return mk(`Tìm x, biết ${E(`(${f})${SUP(2)} = ${SH(V)}`)}.`,T(x1,x2),[
+    C(`Chỉ có x = ${SH(x1)}`,`Hai số đối nhau có bình phương bằng nhau, nên ${f} = ${SH(r)} hoặc ${f} = ${SH(negQ(r))}.`),
+    C(T(qa(r,p),qa(negQ(r),p)),`Từ ${f} = ${SH(r)} suy ra x = ${SH(x1)}. Bạn đã chuyển vế sai dấu.`),
+    C(T(qs(h,p),qs(negQ(h),p)),`${SH(V)} = ${PW(r,2)}, không phải ${SH(h)} · 2. Bình phương không phải là nhân với 2.`),
+    C(T(qs(V,p),qs(negQ(V),p)),`Phải viết ${SH(V)} = ${PW(r,2)} rồi mới suy ra ${f} = ${SH(r)} hoặc ${f} = ${SH(negQ(r))}.`)],
+    `${SH(V)} = ${PW(r,2)} = ${PW(negQ(r),2)} nên ${f} = ${SH(r)} hoặc ${f} = ${SH(negQ(r))}. Vậy x = ${SH(x1)} hoặc x = ${SH(x2)}.`);
+});}
+/* --- rút gọn biểu thức luỹ thừa dạng phân số --- */
+function fracData(){
+  for(;;){const c=ri(2,6),d=ri(2,3),u=ri(-3,3),v=ri(-2,3);if((c+v)%2!==0||(u===0&&v===0))continue;const b=(c+v)/2,a=u+c+3*d;if(b<2||a<2||a>18)continue;
+    const P=(x,y)=>Rq(Math.pow(2,Math.max(x,0))*Math.pow(3,Math.max(y,0)),Math.pow(2,Math.max(-x,0))*Math.pow(3,Math.max(-y,0)));
+    const h=FRH(`2${SUP(a)} · 9${SUP(b)}`,`6${SUP(c)} · 8${SUP(d)}`);
+    const mid=FRH(`2${SUP(a)} · 3${SUP(2*b)}`,`2${SUP(c+3*d)} · 3${SUP(c)}`);
+    return {a,b,c,d,u,v,P,good:P(u,v),h,exp:`Đưa về cơ số 2 và 3: 9${SUP(b)} = 3${SUP(2*b)}, 6${SUP(c)} = 2${SUP(c)} · 3${SUP(c)}, 8${SUP(d)} = 2${SUP(3*d)}. Biểu thức bằng ${mid} = ${SH(P(u,v))}.`};}
+}
+function genVdFrac(){return tryGen(()=>{const D=fracData(),{a,b,c,d,u,v,P,good}=D;
+  return mk(`Rút gọn biểu thức ${E(D.h)}.`,show(good),[
+    Wq(good,P(u,b-c),`9${SUP(b)} = (3${SUP(2)})${SUP(b)} = 3${SUP(2*b)}, không phải 3${SUP(b)}.`),
+    Wq(good,P(a-c-d,v),`8${SUP(d)} = (2${SUP(3)})${SUP(d)} = 2${SUP(3*d)}, không phải 2${SUP(d)}.`),
+    Wq(good,P(a-3*d,v),`6${SUP(c)} = 2${SUP(c)} · 3${SUP(c)}: bạn quên thừa số 2${SUP(c)} ở mẫu.`),
+    Wq(good,qinv(good),'Bạn đã viết ngược tử số và mẫu số của kết quả.'),
+    Wq(good,P(u+1,v),'Bạn tính sai số mũ của 2.')],D.exp);
+});}
+const saVdFrac=()=>{const D=fracData();return saF(`Rút gọn biểu thức ${E(D.h)}. Nhập dạng phân số tối giản hoặc số nguyên.`,D.good,D.exp);};
+/* --- so sánh hai luỹ thừa có cơ số nhỏ hơn 1 --- */
+function cmpQData(){
+  if(RNG()<.55){let [a,p,b,q]=sel(CMP_VD);const k=ri(4,20);if(RNG()<.5)[a,p,b,q]=[b,q,a,p];
+    const u=Math.pow(a,p),v=Math.pow(b,q),A=PW([1,a],p*k),B=PW([1,b],q*k),sym=u<v?'>':'<';
+    return {A,B,sym,exp:`Đưa về cùng số mũ ${k}: ${A} = ${PW([1,u],k)} và ${B} = ${PW([1,v],k)}. Vì ${fr(1,u)} ${sym} ${fr(1,v)} (cùng tử, mẫu nhỏ hơn thì lớn hơn) nên ${A} ${sym} ${B}.`,hint:`Hãy đưa về cùng số mũ ${k} rồi so sánh hai cơ số ${fr(1,u)} và ${fr(1,v)}.`};}
+  for(;;){const t=sel([2,3]),[i,j]=sample(2,2,5),m=ri(3,12),n=ri(3,12),e1=i*m,e2=j*n;if(e1===e2)continue;
+    const A=PW([1,Math.pow(t,i)],m),B=PW([1,Math.pow(t,j)],n),sym=e1<e2?'>':'<';
+    return {A,B,sym,exp:`Đưa về cùng cơ số ${fr(1,t)}: ${A} = ${PW([1,t],e1)} và ${B} = ${PW([1,t],e2)}. Cơ số ${fr(1,t)} nhỏ hơn 1 nên số mũ càng lớn thì luỹ thừa càng nhỏ. Vì ${e1} ${e1<e2?'<':'>'} ${e2} nên ${A} ${sym} ${B}.`,hint:`Hãy đưa về cùng cơ số ${fr(1,t)}. Cơ số nhỏ hơn 1 thì số mũ càng lớn, luỹ thừa càng nhỏ.`};}
+}
+function genVdCmpQ(){return tryGen(()=>{const d=cmpQData(),txt=s=>`${d.A} ${s} ${d.B}`,op=d.sym==='<'?'>':'<';
+  return {stem:`So sánh ${E(d.A)} và ${E(d.B)}.`,opts:[{t:txt(d.sym)},{t:txt(op),err:d.hint},{t:txt('='),err:'Hai luỹ thừa này không bằng nhau. '+d.hint},{t:'Không so sánh được',err:d.hint}],ans:0,exp:d.exp};
+});}
+/* --- đúng sai tổng hợp --- */
+function tLtAdv(){
+  const cmp=()=>{const d=cmpQData(),claim=sel(['<','>']);return IT(`${d.A} ${claim} ${d.B}`,claim===d.sym,'lt','VD',d.exp);};
+  const sq=()=>{const r=Rq(ri(1,4),ri(2,5)),odd=RNG()<.5,rr=odd&&RNG()<.5?negQ(r):r,V=pw(rr,odd?3:2);
+    return odd?IT(`Nếu x${SUP(3)} = ${SH(V)} thì x = ${SH(rr)}`,true,'dn','VD',`${SH(V)} = ${PW(rr,3)} và số mũ lẻ nên chỉ có x = ${SH(rr)}.`)
+      :IT(`Nếu x${SUP(2)} = ${SH(V)} thì chỉ có x = ${SH(r)}`,false,'dn','VD',`Còn x = ${SH(negQ(r))} nữa, vì ${PW(negQ(r),2)} = ${SH(V)}.`);};
+  const ex=()=>{const d=findExpData(),lie=RNG()<.5,n=lie?d.n+sel([-1,1]):d.n;return IT(`Nếu ${d.h} thì x = ${n}`,!lie,'nc','VD',d.exp);};
+  const items=mixed(()=>[cmp(),cmp(),sq(),ex()]);
+  return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();
+}
+['a','b'].forEach(x=>{
+  addMC('g_ncfindxq_'+x,'nc','TH',genNcFindXq);addMC('g_dnfindexp_'+x,'dn','TH',genDnFindExp);addMC('g_vdexpeq_'+x,'nc','VD',genVdExpEq);
+  addMC('g_vdpow3_'+x,'dn','VD',genVdPow3);addMC('g_vdpow2_'+x,'dn','VD',genVdPow2);addMC('g_vdfrac_'+x,'tt','VD',genVdFrac);addMC('g_vdcmpq_'+x,'lt','VD',genVdCmpQ);
+});
+addTF('tf_lt_vd2','lt','VD',tLtAdv);
+// Thử thách: tổng hai luỹ thừa cùng cơ số có số mũ chứa x
+HARD.sa.push({id:'h_expsum',type:'sa',topic:'nc',level:'VD',unit:'',gen:()=>{const a=sel([2,3,5]),x0=ri(1,4),plus=RNG()<.5,V=plus?Math.pow(a,x0)*(a+1):Math.pow(a,x0)*(a*a-1);
+  return {stem:`Tìm số tự nhiên x, biết ${E(plus?`${X1(a,'x + 1')} + ${X1(a,'x')} = ${V}`:`${X1(a,'x + 2')} − ${X1(a,'x')} = ${V}`)}.`,ans:[x0],exp:plus?`${X1(a,'x + 1')} + ${X1(a,'x')} = ${X1(a,'x')} · (${a} + 1) = ${a+1} · ${X1(a,'x')}. Do đó ${X1(a,'x')} = ${V} : ${a+1} = ${Math.pow(a,x0)} = ${X1(a,x0)}, vậy x = ${x0}.`:`${X1(a,'x + 2')} − ${X1(a,'x')} = ${X1(a,'x')} · (${X1(a,2)} − 1) = ${a*a-1} · ${X1(a,'x')}. Do đó ${X1(a,'x')} = ${V} : ${a*a-1} = ${Math.pow(a,x0)} = ${X1(a,x0)}, vậy x = ${x0}.`};}});
+
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
@@ -825,6 +944,7 @@ function SA_BUILD(){
   add('s_ttprod','tt','NB',saTtProd);add('s_ttmul','tt','TH',saTtMul);add('s_ttdiv','tt','TH',saTtDiv);add('s_ttcombo','tt','TH',saTtCombo);add('s_ttdec','tt','VD',saTtDec);
   add('s_ncmul','nc','NB',saNcMul);add('s_ncdiv','nc','NB',saNcDiv);add('s_ncval','nc','TH',saNcVal);add('s_nceval','nc','TH',saNcEval);
   add('s_vdgrow','dn','VD',saVdGrow);add('s_vdten','tt','VD',saVdTen);add('s_vdquot','tt','VD',saVdQuot);add('s_vdfindn','nc','VD',saVdFindN);add('s_vdfindn2','lt','VD',saVdFindN2);
+  add('s_ncfindxq','nc','TH',saNcFindXq);add('s_dnfindexp','dn','TH',saDnFindExp);add('s_vdexpeq','nc','VD',saVdExpEq);add('s_vdpow3','dn','VD',saVdPow3);add('s_vdfrac','tt','VD',saVdFrac);
   add('s_ltexp','lt','NB',saLtExp);add('s_ltval','lt','TH',saLtVal);add('s_ltbase','lt','VD',saLtBase);add('s_ltmix','lt','VD',saLtMix);
   return S;
 }
