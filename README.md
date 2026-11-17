@@ -63,6 +63,10 @@ Cả website dùng **một Google Sheet** với script `google-sheet/Code.gs` (d
 - Mỗi lần sửa `Code.gs`: dán lại toàn bộ vào Apps Script, rồi Triển khai > Quản lí các bản triển khai > biểu tượng bút chì > Phiên bản: **Phiên bản mới** > Triển khai. Làm như vậy địa chỉ `/exec` giữ nguyên, không phải sửa các trang bài.
 - Tiêu đề bài trên trang chung ghi số bài như sách giáo khoa ("Bài 5. Làm quen với số thập phân vô hạn tuần hoàn"); trong mỗi lớp, các bài xếp theo thứ tự sách.
 
+## Xuất câu hỏi gốc ra Word
+
+`cong-cu/xuat-cau-hoi-goc/xuat.py` xuất câu hỏi gốc của một bài ra tệp Word: mỗi câu ghi mức độ, nội dung, loại (cố định hay tự đổi số liệu), đáp án, lời giải; câu tự đổi số liệu in kèm một ví dụ; hình vẽ được chèn dưới đề. Cách dùng ghi ở đầu tệp. Giáo viên lưu các tệp này ở `D:\DỰ ÁN LÀM WEB LUYỆN TOÁN\BÀI TẬP XUẤT RA TỪ WEB\LỚP N\`, tên tệp dạng `Bài 07. Tên bài - Câu hỏi gốc.docx`.
+
 ## Thêm một bài mới
 
 Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `boi-chung-nho-nhat/index.html`), đặt tiền tố mã riêng, giữ nguyên `SHEET_URL` của Sheet chung và đặt `SHEET_TAB`, `SHEET_TOPICS` cho bài (không phải làm gì thêm trên Google Sheet), rồi thêm một thẻ vào đúng section lớp (`lop-6` đến `lop-9`) trong `cac-bai/index.html` và một dòng vào bảng trên. Section lớp chưa có bài hiện dòng "Chưa có bài"; khi thêm thẻ đầu tiên thì thay dòng đó bằng khối `<div class="list">` như các lớp khác.
