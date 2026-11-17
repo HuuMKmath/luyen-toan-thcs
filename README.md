@@ -21,6 +21,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 7 | Bài tập cuối chương II | `bai-tap-cuoi-chuong-2-toan-7/` | `C27-` |
 | 7 | Bài tập cuối chương I | `bai-tap-cuoi-chuong-1-toan-7/` | `CC7-` |
 | 7 | Bài 15. Các trường hợp bằng nhau của tam giác vuông | `tam-giac-vuong-bang-nhau/` | `TV7-` |
+| 7 | Bài 17. Thu thập và phân loại dữ liệu | `thu-thap-phan-loai-du-lieu/` | `DL7-` |
 
 Trang chung liệt kê các bài: `cac-bai/`.
 
@@ -42,6 +43,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Bài tập cuối chương II: `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-2-toan-7/`
 - Bài tập cuối chương I: `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-1-toan-7/`
 - Các trường hợp bằng nhau của tam giác vuông: `https://huumkmath.github.io/tam-giac-bang-nhau/tam-giac-vuong-bang-nhau/`
+- Thu thập và phân loại dữ liệu: `https://huumkmath.github.io/tam-giac-bang-nhau/thu-thap-phan-loai-du-lieu/`
 
 ## Cách dùng cho giáo viên
 
