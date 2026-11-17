@@ -10,6 +10,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
 | 6 | Bài 15. Quy tắc dấu ngoặc | `quy-tac-dau-ngoac/` | `DN6-` |
+| 6 | Luyện tập chung (sau Bài 15) | `luyen-tap-chung-so-nguyen/` | `LT6-` |
 | 7 | Bài 13, 14. Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
 | 7 | Bài 1. Tập hợp các số hữu tỉ | `tap-hop-so-huu-ti/` | `SH7-` |
 | 7 | Bài 2. Cộng, trừ, nhân, chia số hữu tỉ | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
@@ -33,6 +34,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
 - Quy tắc dấu ngoặc: `https://huumkmath.github.io/tam-giac-bang-nhau/quy-tac-dau-ngoac/`
+- Luyện tập chung (sau Bài 15): `https://huumkmath.github.io/tam-giac-bang-nhau/luyen-tap-chung-so-nguyen/`
 - Tập hợp các số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-huu-ti/`
 - Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/cong-tru-nhan-chia-so-huu-ti/`
 - Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-so-huu-ti/`
@@ -77,4 +79,4 @@ Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `bo
 
 ## Điểm thưởng, cấp độ, huy hiệu
 
-`gamify.js` là lớp trò chơi hóa dùng chung (XP, cấp độ, chuỗi ngày học, mục tiêu 5 câu đúng mỗi ngày, huy hiệu). Dữ liệu lưu trong trình duyệt theo mã học sinh và tự đồng bộ lên trang tính "Thưởng" của Google Sheet chung (cần dán lại `google-sheet/Code.gs` và triển khai phiên bản mới), nên đổi máy vẫn giữ được; không ảnh hưởng điểm kiểm tra. Hiện đã gắn vào trang Tam giác bằng nhau (`index.html`); gắn vào bài khác bằng cách thêm `<script src="../gamify.js"></script>` và gọi `GM.onPractice`, `GM.onFinish`, `GM.barHTML`, `GM.resultHTML`, `GM.fx`, `GM.refresh` giống `index.html`.
+`gamify.js` là lớp trò chơi hóa dùng chung (XP, cấp độ, chuỗi ngày học, mục tiêu 5 câu đúng mỗi ngày, huy hiệu). Dữ liệu lưu trong trình duyệt theo mã học sinh và tự đồng bộ lên trang tính "Thưởng" của Google Sheet chung (cần dán lại `google-sheet/Code.gs` và triển khai phiên bản mới), nên đổi máy vẫn giữ được; không ảnh hưởng điểm kiểm tra. Hiện đã gắn vào trang Tam giác bằng nhau (`index.html`) và bài Luyện tập chung sau Bài 15 (`luyen-tap-chung-so-nguyen/`); gắn vào bài khác bằng cách thêm `<script src="../gamify.js"></script>` và gọi `GM.onPractice`, `GM.onFinish`, `GM.barHTML`, `GM.resultHTML`, `GM.fx`, `GM.refresh` giống `index.html`.
