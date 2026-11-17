@@ -955,6 +955,8 @@ const genSsSame=()=>genCmpAdv(cmpSameNum),genSsOne=()=>genCmpAdv(cmpViaOne),genS
   addTF('tf_ss_vd2_'+x,'ss','VD',tSsAdv);
 });
 
+// Dạng phân số có nhóm chữ số lặp cũng có trong bài Thử thách (phần trả lời ngắn)
+HARD.sa.push({id:'h_rep',type:'sa',topic:'kn',level:'VD',unit:'',gen:saKnRep});
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
