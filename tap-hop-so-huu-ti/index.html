@@ -680,7 +680,7 @@ const TOPICS={
   ss:{short:'So sánh',name:'So sánh hai số hữu tỉ',rule:'Viết hai số dưới dạng phân số cùng mẫu dương rồi so sánh các tử số. Số hữu tỉ dương lớn hơn 0, số hữu tỉ âm nhỏ hơn 0, số dương lớn hơn số âm. Trên trục số, nếu a < b thì điểm a nằm trước điểm b.',tip:'Với hai số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ. Quy đồng về mẫu dương trước khi so sánh các tử.'}
 };
 const TKEYS=['kn','ts','sd','ss'];
-const TDESC={kn:'Khái niệm số hữu tỉ, kí hiệu ∈ ∉ ℚ, số thập phân và hỗn số',ts:'Đọc và biểu diễn số hữu tỉ trên trục số, chia đoạn thẳng đơn vị',sd:'Tìm số đối, hai điểm đối xứng qua gốc O',ss:'So sánh, sắp xếp các số hữu tỉ, số nằm giữa hai số'};
+const TDESC={kn:'Khái niệm số hữu tỉ, kí hiệu ∈ ∉ ℚ, số thập phân và hỗn số',ts:'Đọc và biểu diễn số hữu tỉ trên trục số, chia đoạn thẳng đơn vị',sd:'Tìm số đối, hai điểm đối xứng qua gốc O',ss:'So sánh, sắp xếp các số hữu tỉ, số nằm giữa hai số, so sánh cùng tử, qua số 1 và bằng phần bù'};
 const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
 const LEVEL_DESC={NB:'Nhớ khái niệm số hữu tỉ, nhận ra số dương, số âm, tìm số đối đơn giản, so sánh hai số cùng mẫu.',TH:'Đổi số thập phân và hỗn số ra phân số, đọc điểm trên trục số, so sánh hai số khác mẫu.',VD:'Số hữu tỉ nằm giữa hai số, sắp xếp ba số, số đối của số đối, suy luận nhiều bước.'};
 
@@ -848,10 +848,120 @@ const PISA=[
    mcq(`Điểm biểu diễn độ cao của ${nm[c]} (${DEC(hh)} m) trên trục số nằm giữa hai điểm biểu diễn hai số nguyên liên tiếp nào?`,nb(`${N(k)} và ${N(k+1)}`),[[nb(`${N(k+1)} và ${N(k+2)}`),`${DEC(hh)} nhỏ hơn ${N(k+1)} nên không nằm giữa ${N(k+1)} và ${N(k+2)}.`],[nb(`${N(k-1)} và ${N(k)}`),`${DEC(hh)} lớn hơn ${N(k)} nên không nằm giữa ${N(k-1)} và ${N(k)}.`],[nb(`${N(-k-1)} và ${N(-k)}`),'Đó là hai số nguyên kề với số đối của độ cao này.']],`${N(k)} < ${DEC(hh)} < ${N(k+1)}.`,'ts','VD')]};}}
 ];
 
+/* ============ Bổ sung theo các dạng trong tài liệu dạy thêm của giáo viên ============
+   tỉ số có số thập phân, số có giá trị nguyên, số đối của phân số có mẫu âm,
+   so sánh hai phân số cùng tử, so sánh qua số 1, so sánh bằng phần bù, phân số có nhóm chữ số lặp */
+const FRS=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;       // phân số với tử, mẫu là chuỗi (số thập phân)
+const D1=t=>(t<0?'−':'')+Math.floor(Math.abs(t)/10)+','+Math.abs(t)%10;              // t phần mười (t không chia hết cho 10)
+const TENTHS=[1,2,3,4,6,7,8,9,12,14,15,16,18,21,22,24,25,28,32,34,35,36,42,45,48];
+function genKnRatio(){return tryGen(()=>{
+  const t=sgn()*sel(TENTHS),n=ri(2,9),top=RNG()<.5,q=top?Rq(t,10*n):Rq(10*n,t);
+  if(q[1]===1)return null;
+  const h=top?FRS(D1(t),n):FRS(n,D1(t)),dv=D1(t);
+  return mk(`Tỉ số ${h} viết dưới dạng phân số tối giản (tử và mẫu là số nguyên) là:`,SH(q),top?[
+    C(SH(Rq(t,n)),`Bỏ dấu phẩy ở tử số tức là nhân tử với 10, nên phải nhân cả mẫu với 10: ${h} = ${fr(t,10*n)}.`),
+    C(SH(Rq(t*n,10)),`Bạn đã nhân ${dv} với ${n}. Tỉ số là phép chia ${dv} cho ${n}.`),
+    C(SH(Rq(10*n,t)),'Bạn viết ngược tử số và mẫu số.'),
+    C(SH(negQ(q)),'Bạn sai dấu của kết quả.')]:[
+    C(SH(Rq(n,t)),`Bỏ dấu phẩy ở mẫu số tức là nhân mẫu với 10, nên phải nhân cả tử với 10: ${h} = ${fr(10*n,t)}.`),
+    C(SH(Rq(n*t,10)),`Bạn đã nhân ${n} với ${dv}. Tỉ số là phép chia ${n} cho ${dv}.`),
+    C(SH(Rq(t,10*n)),'Bạn viết ngược tử số và mẫu số.'),
+    C(SH(negQ(q)),'Bạn sai dấu của kết quả.')],
+    `Nhân cả tử và mẫu với 10: ${h} = ${top?fr(t,10*n):fr(10*n,t)} = ${SH(q)}.`);
+});}
+function saKnRatio(){
+  for(;;){const d=sel(TENTHS),k=sgn()*ri(2,9);if((k*d)%10===0)continue;
+    const h=FRS(D1(k*d),D1(d));
+    return {stem:`Tỉ số ${h} bằng một số nguyên. Hãy nhập số nguyên đó.`,ans:[k],exp:`Nhân cả tử và mẫu với 10: ${h} = ${fr(k*d,d)} = ${N(k)}.`};}
+}
+function saKnInt(){
+  const used=new Set(),ints=[],others=[],nI=ri(2,4);
+  const push=(arr,h,why)=>{if(used.has(h))return false;used.add(h);arr.push({h,why});return true;};
+  while(ints.length<nI){const k=ri(2,6)*sgn(),z=sel([0,ri(1,9)*sgn(),ri(1,9)*sgn()]);
+    if(z===0)push(ints,fr(0,k),`${fr(0,k)} = 0`);else push(ints,fr(z*k,k),`${fr(z*k,k)} = ${N(z)}`);}
+  while(others.length<6-nI){const q=qr(19,9);push(others,sel([SH(q),canDec(q)?DEC(q):SH(q),fr(-q[0],-q[1])]),'');}
+  const all=shuffle(ints.concat(others));
+  return {stem:`Trong các số sau, có bao nhiêu số thuộc tập hợp ℤ? ${all.map(x=>x.h).join('; ')}.`,ans:[nI],exp:`Các số có giá trị là số nguyên: ${ints.map(x=>x.why).join('; ')}. Các số còn lại không bằng số nguyên nào. Có ${nI} số thuộc ℤ.`};
+}
+function repData(){
+  for(;;){const p=ri(11,97),q=ri(12,98),R=sel([101,10101]);if(p===q||p%10===0||q%10===0)continue;
+    return {p,q,R,X:fr(p*R,q*R),red:Rq(p,q),why:`${p*R} = ${p} · ${R} và ${q*R} = ${q} · ${R}`};}
+}
+function saKnRep(){const d=repData();
+  return {stem:`Rút gọn ${d.X} về phân số tối giản ${FRS('a','b')} (b > 0). Tính a + b.`,ans:[d.red[0]+d.red[1]],exp:`${d.why} nên ${d.X} = ${fr(d.p,d.q)}${d.red[0]!==d.p?' = '+SH(d.red):''}. Vậy a + b = ${d.red[0]} + ${d.red[1]} = ${d.red[0]+d.red[1]}.`};
+}
+function genSdForm(){return tryGen(()=>{
+  const b=ri(2,9),a=ri(1,12);if(gcd(a,b)!==1)return null;
+  if(RNG()<.5){const h=fr(a,-b);
+    return mk(`Số đối của ${h} là:`,fr(a,b),[
+      C(fr(-a,b),`${h} = ${fr(-a,b)} chính là số đã cho, bạn chưa lấy số đối.`),
+      C(fr(b,a),'Đó là số nghịch đảo (và sai dấu). Số đối chỉ đổi dấu, không đổi chỗ tử và mẫu.'),
+      C(fr(-b,a),'Số đối chỉ đổi dấu, không đổi chỗ tử số và mẫu số.')],
+      `${h} = ${fr(-a,b)} nên số đối của nó là ${fr(a,b)}.`);}
+  const h=fr(-a,-b);
+  return mk(`Số đối của ${h} là:`,fr(-a,b),[
+    C(fr(a,b),`${h} = ${fr(a,b)} chính là số đã cho, bạn chưa lấy số đối.`),
+    C(fr(b,a),'Số đối chỉ đổi dấu, không đổi chỗ tử số và mẫu số.'),
+    C(fr(-b,a),'Số đối chỉ đổi dấu, không đổi chỗ tử số và mẫu số.')],
+    `${h} = ${fr(a,b)} (tử và mẫu cùng âm) nên số đối của nó là ${fr(-a,b)}.`);
+});}
+/* Bốn cách so sánh: mỗi hàm trả về {A,B,sym,exp,hint}, sym là dấu đúng giữa A và B */
+function cmpSameNum(){
+  const a=ri(2,9),neg=RNG()<.5,[b,c]=sample(2,2,15);if(gcd(a,b)!==1||gcd(a,c)!==1)return null;
+  const s=neg?-1:1,A=fr(s*a,b),B=fr(s*a,c);
+  const big=b<c?A:B,small=b<c?B:A;      // khi dương: mẫu nhỏ hơn thì lớn hơn
+  const sym=(b<c)!==neg?'>':'<';
+  const exp=neg?`Trước hết so sánh hai phân số dương cùng tử ${fr(a,b)} và ${fr(a,c)}: mẫu nhỏ hơn thì phân số lớn hơn nên ${fr(a,Math.min(b,c))} > ${fr(a,Math.max(b,c))}. Đổi dấu thì đổi chiều: ${fr(-a,Math.min(b,c))} < ${fr(-a,Math.max(b,c))}. Vậy ${A} ${sym} ${B}.`
+    :`Hai phân số dương có cùng tử số ${a}: phân số nào có mẫu nhỏ hơn thì lớn hơn. Vì ${Math.min(b,c)} < ${Math.max(b,c)} nên ${fr(a,Math.min(b,c))} > ${fr(a,Math.max(b,c))}. Vậy ${A} ${sym} ${B}.`;
+  return {A,B,sym,exp,hint:neg?'Hai số âm cùng tử: so sánh hai phân số dương tương ứng rồi đổi chiều.':'Hai phân số dương cùng tử: mẫu lớn hơn thì phân số nhỏ hơn.',eq:'Hai phân số cùng tử, khác mẫu nên không bằng nhau.'};
+}
+function cmpViaOne(){
+  const n=ri(5,20),k=ri(1,3),m=ri(5,20),j=ri(1,3),neg=RNG()<.4,s=neg?-1:1;if(n+k===m)return null;
+  const lo=fr(s*n,n+k),hi=fr(s*(m+j),m),first=RNG()<.5,A=first?lo:hi,B=first?hi:lo;
+  const sym=(first!==neg)?'<':'>',one=neg?'−1':'1';
+  const exp=neg?`${fr(n,n+k)} < 1 nên ${lo} > −1; ${fr(m+j,m)} > 1 nên ${hi} < −1. Vậy ${hi} < −1 < ${lo}, tức là ${A} ${sym} ${B}.`
+    :`${lo} < 1 vì tử số nhỏ hơn mẫu số; ${hi} > 1 vì tử số lớn hơn mẫu số. Vậy ${lo} < 1 < ${hi}, tức là ${A} ${sym} ${B}.`;
+  return {A,B,sym,exp,hint:`Hãy so sánh mỗi số với ${one}: một số nhỏ hơn ${one}, số kia lớn hơn ${one}.`,eq:`Một số nhỏ hơn ${one}, số kia lớn hơn ${one} nên hai số không bằng nhau.`};
+}
+function cmpCompl(){
+  const k=ri(1,3),[x,y]=sample(2,8,60),a=Math.min(x,y),b=Math.max(x,y),lo=fr(a,a+k),hi=fr(b,b+k),first=RNG()<.5,A=first?lo:hi,B=first?hi:lo,sym=first?'<':'>';
+  const exp=`Phần bù đến 1: 1 − ${lo} = ${fr(k,a+k)} và 1 − ${hi} = ${fr(k,b+k)}. Vì ${fr(k,a+k)} > ${fr(k,b+k)} (cùng tử, mẫu nhỏ hơn thì lớn hơn) nên ${lo} < ${hi}. Vậy ${A} ${sym} ${B}.`;
+  return {A,B,sym,exp,hint:'Hãy so sánh phần bù đến 1 của hai số: số nào có phần bù lớn hơn thì số đó nhỏ hơn.',eq:`Phần bù đến 1 của hai số là ${fr(k,a+k)} và ${fr(k,b+k)}, khác nhau nên hai số không bằng nhau.`};
+}
+function cmpRep(){
+  const d=repData(),kind=sel(['eq','eq','lt','gt']),dd=kind==='eq'?0:kind==='lt'?ri(1,3):-ri(1,3),p2=d.p+dd;
+  if(p2<1)return null;
+  const Y=fr(p2,d.q),first=RNG()<.5,A=first?d.X:Y,B=first?Y:d.X;
+  const c=d.p-p2,symXY=c<0?'<':c>0?'>':'=',sym=first?symXY:(symXY==='<'?'>':symXY==='>'?'<':'=');
+  const exp=`${d.why} nên ${d.X} = ${fr(d.p,d.q)}. `+(c===0?`Vậy ${A} = ${B}.`:`So sánh ${fr(d.p,d.q)} và ${Y} (cùng mẫu dương): ${d.p} ${symXY} ${p2}. Vậy ${A} ${sym} ${B}.`);
+  return {A,B,sym,exp,hint:`Hãy rút gọn ${d.X} trước: ${d.why}.`,eq:`Sau khi rút gọn, ${d.X} = ${fr(d.p,d.q)}, khác ${Y}.`};
+}
+function genCmpAdv(make){return tryGen(()=>{
+  const d=make();if(!d)return null;const txt=s=>`${d.A} ${s} ${d.B}`;
+  const opts=[{t:txt(d.sym)}].concat(['<','>','='].filter(s=>s!==d.sym).map(s=>({t:txt(s),err:s==='='?d.eq:d.hint})),[{t:'Không so sánh được',err:'Hai số hữu tỉ bất kì đều so sánh được.'}]);
+  return {stem:`So sánh hai số hữu tỉ ${d.A} và ${d.B}. Khẳng định nào đúng?`,opts,ans:0,exp:d.exp};
+});}
+function tSsAdv(){
+  const item=make=>{const d=make();if(!d)return null;const claim=d.sym==='='?sel(['=','=','<']):sel(['<','>']);return IT(`${d.A} ${claim} ${d.B}`,claim===d.sym,'ss','VD',d.exp);};
+  const items=mixed(()=>[item(cmpSameNum),item(cmpViaOne),item(cmpCompl),item(cmpRep)]);
+  return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();
+}
+// một hàm cho mỗi dạng, để hai mã _a, _b được tính là cùng một câu gốc
+const genSsSame=()=>genCmpAdv(cmpSameNum),genSsOne=()=>genCmpAdv(cmpViaOne),genSsCompl=()=>genCmpAdv(cmpCompl),genSsRep=()=>genCmpAdv(cmpRep);
+['a','b'].forEach(x=>{
+  addMC('g_knratio_'+x,'kn','TH',genKnRatio);addMC('g_sdform_'+x,'sd','TH',genSdForm);
+  addMC('g_sssame_'+x,'ss','TH',genSsSame);addMC('g_ssone_'+x,'ss','VD',genSsOne);
+  addMC('g_sscompl_'+x,'ss','VD',genSsCompl);addMC('g_ssrep_'+x,'ss','VD',genSsRep);
+  addTF('tf_ss_vd2_'+x,'ss','VD',tSsAdv);
+});
+
+// Dạng phân số có nhóm chữ số lặp cũng có trong bài Thử thách (phần trả lời ngắn)
+HARD.sa.push({id:'h_rep',type:'sa',topic:'kn',level:'VD',unit:'',gen:saKnRep});
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
   add('s_kncnt','kn','NB',saKnCount);add('s_knsum','kn','TH',saKnSum);add('s_knmix','kn','TH',saKnMix);add('s_knform','kn','VD',saKnForm);
+  add('s_knratio','kn','TH',saKnRatio);add('s_knint','kn','TH',saKnInt);add('s_knrep','kn','VD',saKnRep);
   add('s_tsnum','ts','NB',()=>saTsNum(false));add('s_tsnum2','ts','TH',()=>saTsNum(true));add('s_tsflr','ts','TH',saTsFloor);add('s_tspos','ts','VD',saTsPos);
   add('s_sdnum','sd','NB',saSdNum);add('s_sddec','sd','TH',saSdDec);add('s_sdeq','sd','TH',saSdEq);add('s_sdbnd','sd','VD',saSdBound);
   add('s_sspos','ss','NB',saSsPos);add('s_sslcm','ss','TH',saSsLcm);add('s_ssrank','ss','TH',saSsRank);add('s_ssmax','ss','VD',saSsMax);add('s_sscnt','ss','VD',saSsCount);
