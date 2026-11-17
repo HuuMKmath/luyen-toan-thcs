@@ -782,12 +782,172 @@ const saTcBr1=saBr(br1),saTcBr2=saBr(br2),saTcBr3=saBr(br3);
 function saTcDist(){for(;;){const A=rfr(),k=sgn()*ri(1,3),B=rfr(),Cc=qs([k,1],B),R=qm(A,[k,1]);if(Cc[1]===1||Cc[0]===0||R[1]>60)continue;const f=qm(A,B),g=qm(A,Cc);
   return {stem:`Tính một cách hợp lí ${E(X([{q:f,h:`${PA(A,SH(A))} · ${PA(B,SH(B))}`,n:1},{q:g,h:`${PA(A,SH(A))} · ${PA(Cc,SH(Cc))}`,n:1}],['+']).replace(/^\((.*?)\) ·/,'$1 ·'))}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[R[0]/R[1]],at:SH(R),exp:`Đặt thừa số chung: ${SH(A)} · [${SH(B)} + ${PA(Cc,SH(Cc))}] = ${SH(A)} · ${N(k)} = ${SH(R)}.`};}}
 
+/* ============ Bổ sung theo các dạng trong tài liệu dạy thêm của giáo viên ============
+   số nguyên cộng trừ phân số, phép tính với hỗn số, tìm x (một bước, hai bước, tích bằng 0),
+   bỏ ngoặc rồi nhóm các phân số cùng mẫu, thừa số chung với hỗn số, chia một tổng cho một số */
+const rmix=()=>{for(;;){const d=ri(2,7),r=ri(1,d-1),w=ri(1,5);if(gcd(r,d)===1)return [sgn()*(w*d+r),d];}};   // hỗn số (không nguyên)
+const MX=q=>PA(q,MIXD(q));
+const okQ=(g,maxD,maxN)=>g[1]<=(maxD||90)&&Math.abs(g[0])<=(maxN||300);
+const saOf=(d,verb)=>({stem:`${verb||'Tính'} ${E(d.h)}. Nhập kết quả dạng phân số tối giản hoặc số nguyên.`,ans:[d.good[0]/d.good[1]],at:SH(d.good),exp:d.exp});
+/* --- số nguyên cộng, trừ phân số --- */
+function genCtInt(){return tryGen(()=>{
+  const z=sgn()*ri(1,6),B=rfr(),plus=RNG()<.5,Z=[z,1],good=plus?qa(Z,B):qs(Z,B),op=plus?'+':'−';
+  return mk(`Tính ${E(`${N(z)} ${op} ${PA(B,SH(B))}`)}.`,show(good),[
+    Wq(good,[plus?z+B[0]:z-B[0],B[1]],`Phải viết ${N(z)} = ${fr(z*B[1],B[1])} rồi mới cộng, trừ các tử số. Bạn đã cộng, trừ số nguyên thẳng vào tử số.`),
+    Wq(good,plus?qs(Z,B):qa(Z,B),'Bạn nhầm phép cộng với phép trừ.'),
+    Wq(good,qm(Z,B),'Bạn đã nhân hai số thay vì cộng, trừ.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `${N(z)} = ${fr(z*B[1],B[1])} nên ${N(z)} ${op} ${PA(B,SH(B))} = ${SH(good)}.`);
+});}
+/* --- phép tính với hỗn số --- */
+function mixData(op){
+  for(;;){const A=rmix(),B=(op==='+'||op==='−'||RNG()<.6)?rmix():rfr(),bm=Math.abs(B[0])>B[1];
+    const good=op==='+'?qa(A,B):op==='−'?qs(A,B):op==='·'?qm(A,B):qd(A,B);if(!okQ(good,60,400)||good[0]===0)continue;
+    const hb=bm?MX(B):PA(B,SH(B));
+    return {A,B,bm,good,h:`${MIXD(A)} ${op} ${hb}`,exp:`Đổi hỗn số ra phân số: ${MIXD(A)} = ${SH(A)}${bm?`, ${MIXD(B)} = ${SH(B)}`:''}. Khi đó ${SH(A)} ${op} ${PA(B,SH(B))} = ${SH(good)}.`};}
+}
+function genMix(op){return tryGen(()=>{
+  const d=mixData(op),{A,B,good}=d,a=Math.abs(A[0]),b=Math.abs(B[0]),wa=Math.floor(a/A[1]),wb=Math.floor(b/B[1]);
+  const wrongNeg=A[0]<0?[-(wa*A[1])+(a%A[1]),A[1]]:null;      // hiểu −w r/d là −w + r/d
+  const c=(op==='+'||op==='−')?[
+    wrongNeg?Wq(good,op==='+'?qa(wrongNeg,B):qs(wrongNeg,B),`${MIXD(A)} = −(${wa} + ${fr(a%A[1],A[1])}), không phải −${wa} + ${fr(a%A[1],A[1])}.`):null,
+    Wq(good,op==='+'?qs(A,B):qa(A,B),'Bạn nhầm phép cộng với phép trừ.'),
+    Wq(good,qa(good,[1,1]),'Bạn tính sai phần nguyên.'),
+    Wq(good,qs(good,[1,1]),'Bạn tính sai phần nguyên.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')]:[
+    d.bm?Wq(good,qa([Math.sign(A[0]*B[0])*wa*wb,1],[Math.sign(A[0]*B[0])*(a%A[1])*(b%B[1]),A[1]*B[1]]),'Không nhân riêng phần nguyên với phần nguyên, phần phân số với phần phân số. Phải đổi hỗn số ra phân số trước.'):null,
+    Wq(good,op==='·'?qd(A,B):qm(A,B),op==='·'?'Bạn đã chia thay vì nhân.':'Chia cho một số là nhân với nghịch đảo của số đó. Bạn đã nhân thẳng với số chia.'),
+    op===':'?Wq(good,qd(B,A),'Bạn đã chia ngược thứ tự.'):null,
+    Wq(good,negQ(good),'Sai dấu của kết quả.'),
+    Wq(good,qa(good,[1,1]),'Bạn tính sai kết quả.')];
+  return mk(`Tính ${E(d.h)}.`,show(good),c,d.exp);
+});}
+const genCtMix=()=>genMix(sel(['+','−'])),genNhMix=()=>genMix('·'),genChMix=()=>genMix(':');
+const saCtMix=()=>saOf(mixData(sel(['+','−']))),saNhMix=()=>saOf(mixData(sel(['·',':'])));
+/* --- tìm x một bước --- */
+function findData(kind){
+  for(;;){const A=rfr(),B=rfr(),t=kind==='ct'?ri(0,2):ri(3,4);let h,good,exp,lies;
+    if(t===0){good=qs(B,A);h=`x + ${PA(A,SH(A))} = ${SH(B)}`;exp=`x = ${SH(B)} − ${PA(A,SH(A))} = ${SH(good)}.`;lies=[[qa(B,A),'Muốn tìm số hạng chưa biết, ta lấy tổng trừ đi số hạng đã biết. Bạn đã cộng.'],[qs(A,B),'Bạn đã trừ ngược thứ tự.']];}
+    else if(t===1){good=qa(B,A);h=`x − ${PA(A,SH(A))} = ${SH(B)}`;exp=`x = ${SH(B)} + ${PA(A,SH(A))} = ${SH(good)}.`;lies=[[qs(B,A),'Muốn tìm số bị trừ, ta lấy hiệu cộng với số trừ. Bạn đã trừ.'],[qs(A,B),'Muốn tìm số bị trừ, ta lấy hiệu cộng với số trừ.']];}
+    else if(t===2){good=qs(A,B);h=`${SH(A)} − x = ${SH(B)}`;exp=`x = ${SH(A)} − ${PA(B,SH(B))} = ${SH(good)}.`;lies=[[qs(B,A),'Muốn tìm số trừ, ta lấy số bị trừ trừ đi hiệu. Bạn đã trừ ngược thứ tự.'],[qa(A,B),'Muốn tìm số trừ, ta lấy số bị trừ trừ đi hiệu. Bạn đã cộng.']];}
+    else if(t===3){good=qm(B,A);h=`x : ${PA(A,SH(A))} = ${SH(B)}`;exp=`x = ${SH(B)} · ${PA(A,SH(A))} = ${SH(good)}.`;lies=[[qd(B,A),'Muốn tìm số bị chia, ta lấy thương nhân với số chia. Bạn đã chia.'],[qd(A,B),'Muốn tìm số bị chia, ta lấy thương nhân với số chia.']];}
+    else{good=qd(A,B);h=`${SH(A)} : x = ${SH(B)}`;exp=`x = ${SH(A)} : ${PA(B,SH(B))} = ${SH(good)}.`;lies=[[qd(B,A),'Muốn tìm số chia, ta lấy số bị chia chia cho thương. Bạn đã chia ngược thứ tự.'],[qm(A,B),'Muốn tìm số chia, ta lấy số bị chia chia cho thương. Bạn đã nhân.']];}
+    if(!okQ(good,72,200)||good[0]===0)continue;
+    return {h,good,exp,lies};}
+}
+function genFind(kind){return tryGen(()=>{const d=findData(kind);
+  return mk(`Tìm x biết ${E(d.h)}.`,show(d.good),d.lies.map(l=>Wq(d.good,l[0],l[1])).concat([Wq(d.good,negQ(d.good),'Sai dấu của kết quả.'),Wq(d.good,qinv(d.good),'Bạn đã lấy nghịch đảo của kết quả.')]),d.exp);
+});}
+const genCtFind=()=>genFind('ct'),genChFind2=()=>genFind('ch');
+const saCtFind=()=>saOf(findData('ct'),'Tìm x biết'),saChFind2=()=>saOf(findData('ch'),'Tìm x biết');
+/* --- tìm x hai bước --- */
+function find2Data(){
+  for(;;){const x0=rnz(),A=RNG()<.5?[sgn()*ri(2,5),1]:rfr(),B=rfr(),first=RNG()<.5,Cc=first?qa(qm(A,x0),B):qs(B,qm(A,x0));
+    if(!okQ(Cc,60,200)||!okQ(x0,30,60))continue;
+    const ha=`${SH(A)} · x`,t=first?qs(Cc,B):qs(B,Cc);
+    const h=first?`${ha} + ${PA(B,SH(B))} = ${SH(Cc)}`:`${SH(B)} − ${PA(A,SH(A))} · x = ${SH(Cc)}`;
+    const exp=first?`${ha} = ${SH(Cc)} − ${PA(B,SH(B))} = ${SH(t)}, nên x = ${SH(t)} : ${PA(A,SH(A))} = ${SH(x0)}.`:`${ha} = ${SH(B)} − ${PA(Cc,SH(Cc))} = ${SH(t)}, nên x = ${SH(t)} : ${PA(A,SH(A))} = ${SH(x0)}.`;
+    return {h,good:x0,exp,A,B,Cc,first,t};}
+}
+function genTcFind2(){return tryGen(()=>{const d=find2Data(),{A,B,Cc,t,good}=d;
+  return mk(`Tìm x biết ${E(d.h)}.`,show(good),[
+    Wq(good,t,`Bạn mới tìm được ${SH(A)} · x = ${SH(t)}, còn phải chia cho ${SH(A)}.`),
+    Wq(good,qd(d.first?qa(Cc,B):qa(B,Cc),A),'Bước đầu bạn đã cộng thay vì trừ.'),
+    Wq(good,qm(t,A),`Sau khi có ${SH(A)} · x = ${SH(t)}, phải chia cho ${SH(A)}, không nhân.`),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saTcFind2=()=>saOf(find2Data(),'Tìm x biết');
+/* --- tích bằng 0 --- */
+function genTcZero(){return tryGen(()=>{
+  const p=rnz(),q=rfr(),r=sgn()*ri(2,5),r1=negQ(p),r2=qd(q,[r,1]);
+  if(eqQ(r1,r2)||eqQ(r1,negQ(r2))||!okQ(r2,40,60))return null;
+  const f1=p[0]<0?`x − ${SH(negQ(p))}`:`x + ${SH(p)}`,f2=`${SH(q)} − ${PA([r,1],N(r))} · x`;
+  const T=(a,b)=>`x = ${SH(a)} hoặc x = ${SH(b)}`;
+  return mk(`Tìm x biết ${E(`(${f1}) · (${f2}) = 0`)}.`,T(r1,r2),[
+    C(T(negQ(r1),r2),`Từ ${f1} = 0 suy ra x = ${SH(r1)}, không phải ${SH(negQ(r1))}.`),
+    C(T(r1,negQ(r2)),`Từ ${f2} = 0 suy ra ${N(r)} · x = ${SH(q)} nên x = ${SH(r2)}.`),
+    C(`Chỉ có x = ${SH(r1)}`,'Tích bằng 0 khi một trong hai thừa số bằng 0, nên còn phải xét thừa số thứ hai.'),
+    C(T(r1,qm(q,[r,1])),`Từ ${N(r)} · x = ${SH(q)} phải chia ${SH(q)} cho ${N(r)}, không nhân.`)],
+    `Tích bằng 0 khi một trong hai thừa số bằng 0. ${f1} = 0 cho x = ${SH(r1)}; ${f2} = 0 cho ${N(r)} · x = ${SH(q)} nên x = ${SH(r2)}.`);
+});}
+/* --- bỏ ngoặc rồi nhóm các phân số cùng mẫu --- */
+function groupData(){
+  for(;;){const [m,n]=sample(2,2,7),a=ri(1,9),b=ri(1,9),p=ri(1,2*m-1),k1=ri(1,2),r=k1*m-p,q=ri(1,3*n-1),k2=sel([-1,1,2]),s2=q-k2*n;
+    if(r<=0||s2<=0||gcd(p,m)!==1||gcd(r,m)!==1||gcd(q,n)!==1||gcd(s2,n)!==1||gcd(m,n)!==1)continue;
+    const G=a-b-k1+k2;
+    const h=`(${a} − ${fr(p,m)} + ${fr(q,n)}) − (${b} + ${fr(r,m)} + ${fr(s2,n)})`;
+    const exp=`Bỏ ngoặc (đổi dấu các số hạng trong ngoặc thứ hai) rồi nhóm các phân số cùng mẫu: (${a} − ${b}) − (${fr(p,m)} + ${fr(r,m)}) + (${fr(q,n)} − ${fr(s2,n)}) = ${N(a-b)} − ${k1} + ${PA([k2,1],N(k2))} = ${N(G)}.`;
+    return {h,good:[G,1],exp,a,b,p,r,q,s2,m,n};}
+}
+function genTcGroup(){return tryGen(()=>{const d=groupData(),{a,b,p,r,q,s2,m,n,good}=d;
+  return mk(`Tính một cách hợp lí ${E(d.h)}.`,show(good),[
+    Wq(good,qa(qa([a-b,1],Rq(r-p,m)),Rq(q+s2,n)),'Khi bỏ ngoặc có dấu "−" đằng trước, phải đổi dấu tất cả các số hạng trong ngoặc. Bạn chỉ đổi dấu số hạng đầu tiên.'),
+    Wq(good,qa(qa([a+b,1],Rq(r-p,m)),Rq(q+s2,n)),'Khi bỏ ngoặc có dấu "−" đằng trước, phải đổi dấu tất cả các số hạng trong ngoặc.'),
+    Wq(good,[good[0]+1,1],'Bạn tính sai một nhóm phân số cùng mẫu.'),
+    Wq(good,[good[0]-1,1],'Bạn tính sai một nhóm phân số cùng mẫu.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saTcGroup=()=>saOf(groupData(),'Tính một cách hợp lí');
+/* --- thừa số chung với hai hỗn số có cùng phần phân số --- */
+function mixDistData(){
+  for(;;){const A=rfr();if(Math.abs(A[0])>A[1]||A[0]<0)continue;const d=ri(2,5),r=ri(1,d-1);if(gcd(r,d)!==1)continue;
+    const k=sgn()*ri(1,3),m2=ri(3,30),m1=m2+k*A[1];if(m1<1)continue;
+    const M1=[m1*d+r,d],M2=[m2*d+r,d],good=[A[0]*k,1];
+    return {A,M1,M2,m1,m2,good,h:`${SH(A)} · ${MIXD(M1)} − ${SH(A)} · ${MIXD(M2)}`,exp:`Đặt thừa số chung: ${SH(A)} · (${MIXD(M1)} − ${MIXD(M2)}) = ${SH(A)} · ${PA([m1-m2,1],N(m1-m2))} = ${N(good[0])}.`};}
+}
+function genTcMixDist(){return tryGen(()=>{const d=mixDistData(),{A,M1,M2,m1,m2,good}=d;
+  return mk(`Tính một cách hợp lí ${E(d.h)}.`,show(good),[
+    Wq(good,qm(A,qa(M1,M2)),'Hai tích nối với nhau bằng dấu "−" nên trong ngoặc là hiệu của hai hỗn số, không phải tổng.'),
+    Wq(good,[m1-m2,1],`Bạn mới tính hiệu hai hỗn số, còn phải nhân với ${SH(A)}.`),
+    Wq(good,negQ(good),'Sai dấu của kết quả.'),
+    Wq(good,qa(good,[1,1]),'Hai hỗn số có cùng phần phân số nên hiệu của chúng là một số nguyên. Hãy tính lại hiệu đó.')],d.exp);
+});}
+const saTcMixDist=()=>saOf(mixDistData(),'Tính một cách hợp lí');
+/* --- chia một tổng cho một số --- */
+function divDistData(){
+  for(;;){const [m,n]=sample(2,2,7);if(gcd(m,n)!==1)continue;
+    const p1=sgn()*ri(1,2*m-1),k1=sel([-1,1]),p3=k1*m-p1,p2=sgn()*ri(1,2*n-1),k2=sel([1,2]),p4=k2*n-p2;
+    if(gcd(p1,m)!==1||gcd(p3,m)!==1||gcd(p2,n)!==1||gcd(p4,n)!==1||k1+k2===0)continue;
+    const c=rfr();if(c[0]<0)continue;const T=k1+k2,good=qd([T,1],c);
+    const S=(x,y)=>`${fr(x,m)} + ${PA([y,1],fr(y,n))}`;
+    return {good,T,c,h:`(${S(p1,p2)}) : ${SH(c)} + (${S(p3,p4)}) : ${SH(c)}`,
+      exp:`Hai phép chia có cùng số chia nên gộp lại: [(${fr(p1,m)} + ${PA([p3,1],fr(p3,m))}) + (${fr(p2,n)} + ${PA([p4,1],fr(p4,n))})] : ${SH(c)} = (${N(k1)} + ${k2}) : ${SH(c)} = ${N(T)} · ${SH(qinv(c))} = ${SH(good)}.`};}
+}
+function genTcDivDist(){return tryGen(()=>{const d=divDistData(),{good,T,c}=d;
+  return mk(`Tính một cách hợp lí ${E(d.h)}.`,show(good),[
+    Wq(good,qm([T,1],c),`Sau khi gộp được ${N(T)} : ${SH(c)}, phải nhân với nghịch đảo của ${SH(c)}.`),
+    Wq(good,[T,1],`Bạn mới tính tổng trong ngoặc, còn phải chia cho ${SH(c)}.`),
+    Wq(good,qd(c,[T,1]),'Bạn đã chia ngược thứ tự.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saTcDivDist=()=>saOf(divDistData(),'Tính một cách hợp lí');
+/* --- đúng sai: phép biến đổi nào đúng với mọi số hữu tỉ --- */
+function tTcRules(){
+  const Ts=[IT('a : c + b : c = (a + b) : c với mọi số hữu tỉ a, b, c (c ≠ 0)',true,'tc','VD','Chia cho c là nhân với 1/c, nên a : c + b : c = (a + b) : c theo tính chất phân phối.'),
+    IT('a − (b − c) = a − b + c với mọi số hữu tỉ a, b, c',true,'tc','VD','Bỏ ngoặc có dấu "−" đằng trước thì đổi dấu các số hạng trong ngoặc.'),
+    IT('a · b − a · c = a · (b − c) với mọi số hữu tỉ a, b, c',true,'tc','VD','Đây là tính chất phân phối của phép nhân đối với phép trừ.'),
+    IT('a − b − c = a − (b + c) với mọi số hữu tỉ a, b, c',true,'tc','VD','Đặt dấu ngoặc có dấu "−" đằng trước thì đổi dấu các số hạng đưa vào ngoặc.')];
+  const Fs=[IT('a : b + a : c = a : (b + c) với mọi số hữu tỉ a, b, c khác 0 (b + c ≠ 0)',false,'tc','VD','Chẳng hạn 6 : 2 + 6 : 1 = 9 nhưng 6 : (2 + 1) = 2. Chỉ gộp được khi hai phép chia có cùng số chia.'),
+    IT('a − (b + c) = a − b + c với mọi số hữu tỉ a, b, c',false,'tc','VD','Chẳng hạn 5 − (2 + 1) = 2 nhưng 5 − 2 + 1 = 4. Phải đổi dấu cả c.'),
+    IT('a · (b + c) = a · b + c với mọi số hữu tỉ a, b, c',false,'tc','VD','Chẳng hạn 2 · (3 + 1) = 8 nhưng 2 · 3 + 1 = 7. Phải nhân a với cả c.'),
+    IT('a : (b · c) = (a : b) · c với mọi số hữu tỉ a, b, c khác 0',false,'tc','VD','Chẳng hạn 12 : (2 · 3) = 2 nhưng (12 : 2) · 3 = 18.')];
+  return {stem:'Xét các phát biểu sau:',items:pick4(Ts,Fs)};
+}
+['a','b'].forEach(x=>{
+  addMC('g_ctint_'+x,'ct','NB',genCtInt);addMC('g_ctmix_'+x,'ct','TH',genCtMix);addMC('g_nhmix_'+x,'nh','TH',genNhMix);addMC('g_chmix_'+x,'ch','TH',genChMix);
+  addMC('g_ctfind_'+x,'ct','TH',genCtFind);addMC('g_chfind2_'+x,'ch','TH',genChFind2);addMC('g_tcfind2_'+x,'tc','VD',genTcFind2);addMC('g_tczero_'+x,'tc','VD',genTcZero);
+  addMC('g_tcgroup_'+x,'tc','VD',genTcGroup);addMC('g_tcmixdist_'+x,'tc','VD',genTcMixDist);addMC('g_tcdivdist_'+x,'tc','VD',genTcDivDist);
+});
+addTF('tf_tc_vd2','tc','VD',tTcRules);
+
 const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
 function SA_BUILD(){
   const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
   add('s_ctadd','ct','NB',saCtAdd);add('s_ctdec','ct','TH',saCtDec);add('s_ctnum','ct','TH',saCtNum);add('s_ctthree','ct','TH',saCtThree);
   add('s_nhfr','nh','NB',saNhFr);add('s_nhdec','nh','TH',saNhDec);add('s_nhnum','nh','TH',saNhNum);add('s_nharea','nh','VD',saNhArea);
   add('s_chinv','ch','NB',saChInv);add('s_chfr','ch','TH',saChFr);add('s_chfind','ch','TH',saChFind);add('s_chchain','ch','TH',saChChain);add('s_chctx','ch','VD',saChCtx);
+  add('s_ctmix','ct','TH',saCtMix);add('s_nhmix','nh','TH',saNhMix);add('s_ctfind','ct','TH',saCtFind);add('s_chfind2','ch','TH',saChFind2);
+  add('s_tcfind2','tc','VD',saTcFind2);add('s_tcgroup','tc','VD',saTcGroup);add('s_tcmixdist','tc','VD',saTcMixDist);add('s_tcdivdist','tc','VD',saTcDivDist);
   add('s_tcbr1','tc','NB',saTcBr1);add('s_tcbr2','tc','TH',saTcBr2);add('s_tcbr3','tc','VD',saTcBr3);add('s_tcdist','tc','VD',saTcDist);
   return S;
 }
