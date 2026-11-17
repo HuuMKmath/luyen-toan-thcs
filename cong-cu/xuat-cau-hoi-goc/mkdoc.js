@@ -1,14 +1,18 @@
 const fs=require('fs');const D=require('docx');
-const {Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType,Math:DMath,MathFraction,MathRun,Footer,PageNumber,BorderStyle,ImageRun}=D;
+const {Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType,Math:DMath,MathFraction,MathRun,MathSuperScript,Footer,PageNumber,BorderStyle,ImageRun}=D;
 const [,, inp,out,title,sub]=process.argv;const R=JSON.parse(fs.readFileSync(inp,'utf8'));
 const FONT='Times New Roman';
 const dec=s=>s.replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
 // HTML ngắn -> các run của Word: phân số thành phân số thật, <sup> thành chỉ số trên
+// tử số, mẫu số của phân số: chữ thường và luỹ thừa (cơ số liền trước thẻ <sup>)
+function mparts(html){const out=[],re=/([^\s<·:+]+)<sup>([\s\S]*?)<\/sup>/g;let i=0,m;const clean=t=>dec(String(t).replace(/<\/?[a-zA-Z][^<>]*>/g,''));
+  while((m=re.exec(html))){const pre=clean(html.slice(i,m.index));if(pre)out.push(new MathRun(pre));out.push(new MathSuperScript({children:[new MathRun(clean(m[1]))],superScript:[new MathRun(clean(m[2]))]}));i=re.lastIndex;}
+  const rest=clean(html.slice(i));if(rest)out.push(new MathRun(rest));return out.length?out:[new MathRun('')];}
 function runs(html,base){base=base||{};const out=[];let s=String(html==null?'':html);
   const re=/<span class="fr"><span>([\s\S]*?)<\/span>\s*<span>([\s\S]*?)<\/span><\/span>|<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<\/?[a-zA-Z][^<>]*>/g;let i=0,m;
   const txt=t=>{t=dec(t.replace(/<\/?[a-zA-Z][^<>]*>/g,''));if(t)out.push(new TextRun(Object.assign({text:t,font:FONT},base)));};
   while((m=re.exec(s))){txt(s.slice(i,m.index));i=re.lastIndex;
-    if(m[1]!==undefined)out.push(new DMath({children:[new MathFraction({numerator:[new MathRun(dec(m[1].replace(/<\/?[a-zA-Z][^<>]*>/g,'')))],denominator:[new MathRun(dec(m[2].replace(/<\/?[a-zA-Z][^<>]*>/g,'')))]})]}));
+    if(m[1]!==undefined)out.push(new DMath({children:[new MathFraction({numerator:mparts(m[1]),denominator:mparts(m[2])})]}));
     else if(m[3]!==undefined)out.push(new TextRun(Object.assign({text:dec(m[3].replace(/<\/?[a-zA-Z][^<>]*>/g,'')),font:FONT,superScript:true},base)));
     else if(m[4]!==undefined)out.push(new TextRun(Object.assign({text:dec(m[4].replace(/<\/?[a-zA-Z][^<>]*>/g,'')),font:FONT},base,{bold:true})));}
   txt(s.slice(i));return out;}
