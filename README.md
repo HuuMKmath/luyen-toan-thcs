@@ -6,19 +6,19 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 
 | Lớp | Bài | Thư mục | Mã kết quả |
 |---|---|---|---|
-| 6 | Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
-| 6 | Tập hợp các số nguyên (Chương III, Bài 13) | `tap-hop-so-nguyen/` | `SN6-` |
-| 6 | Phép cộng và phép trừ số nguyên (Chương III, Bài 14) | `phep-cong-tru-so-nguyen/` | `PC6-` |
-| 6 | Quy tắc dấu ngoặc (Chương III, Bài 15) | `quy-tac-dau-ngoac/` | `DN6-` |
-| 7 | Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
-| 7 | Tập hợp các số hữu tỉ (Chương I, Bài 1) | `tap-hop-so-huu-ti/` | `SH7-` |
-| 7 | Cộng, trừ, nhân, chia số hữu tỉ (Chương I, Bài 2) | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
-| 7 | Luỹ thừa với số mũ tự nhiên của một số hữu tỉ (Chương I, Bài 3) | `luy-thua-so-huu-ti/` | `LT7-` |
-| 7 | Làm quen với số thập phân vô hạn tuần hoàn (Chương II, Bài 5) | `so-thap-phan-vo-han-tuan-hoan/` | `TP7-` |
-| 7 | Số vô tỉ. Căn bậc hai số học (Chương II, Bài 6) | `so-vo-ti-can-bac-hai/` | `VT7-` |
-| 7 | Tập hợp các số thực (Chương II, Bài 7) | `tap-hop-so-thuc/` | `ST7-` |
+| 6 | Bài 12. Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
+| 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
+| 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
+| 6 | Bài 15. Quy tắc dấu ngoặc | `quy-tac-dau-ngoac/` | `DN6-` |
+| 7 | Bài 13, 14. Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
+| 7 | Bài 1. Tập hợp các số hữu tỉ | `tap-hop-so-huu-ti/` | `SH7-` |
+| 7 | Bài 2. Cộng, trừ, nhân, chia số hữu tỉ | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
+| 7 | Bài 3. Luỹ thừa với số mũ tự nhiên của một số hữu tỉ | `luy-thua-so-huu-ti/` | `LT7-` |
+| 7 | Bài 5. Làm quen với số thập phân vô hạn tuần hoàn | `so-thap-phan-vo-han-tuan-hoan/` | `TP7-` |
+| 7 | Bài 6. Số vô tỉ. Căn bậc hai số học | `so-vo-ti-can-bac-hai/` | `VT7-` |
+| 7 | Bài 7. Tập hợp các số thực | `tap-hop-so-thuc/` | `ST7-` |
 | 7 | Bài tập cuối chương I | `bai-tap-cuoi-chuong-1-toan-7/` | `CC7-` |
-| 7 | Các trường hợp bằng nhau của tam giác vuông (Chương IV, Bài 15) | `tam-giac-vuong-bang-nhau/` | `TV7-` |
+| 7 | Bài 15. Các trường hợp bằng nhau của tam giác vuông | `tam-giac-vuong-bang-nhau/` | `TV7-` |
 
 Trang chung liệt kê các bài: `cac-bai/`.
 
@@ -59,6 +59,7 @@ Cả website dùng **một Google Sheet** với script `google-sheet/Code.gs` (d
 - Script chỉ ghi điểm ở bài đúng khối của học sinh (số đầu tên lớp phải trùng số đầu tên trang tính của bài).
 - Chống dò mã: nếu trong 10 phút có quá 40 lần nhập mã sai (tính chung mọi máy), script tạm ngừng tra mã cho đến hết 10 phút đó. Học sinh đã đăng nhập và việc nộp bài không bị ảnh hưởng. Đổi hai số này ở `SAI_TOI_DA`, `SAI_PHUT` trong `Code.gs`.
 - Mỗi lần sửa `Code.gs`: dán lại toàn bộ vào Apps Script, rồi Triển khai > Quản lí các bản triển khai > biểu tượng bút chì > Phiên bản: **Phiên bản mới** > Triển khai. Làm như vậy địa chỉ `/exec` giữ nguyên, không phải sửa các trang bài.
+- Tiêu đề bài trên trang chung ghi số bài như sách giáo khoa ("Bài 5. Làm quen với số thập phân vô hạn tuần hoàn"); trong mỗi lớp, các bài xếp theo thứ tự sách.
 
 ## Thêm một bài mới
 
