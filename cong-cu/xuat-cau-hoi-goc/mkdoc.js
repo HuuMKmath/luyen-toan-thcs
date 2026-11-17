@@ -5,12 +5,12 @@ const FONT='Times New Roman';
 const dec=s=>s.replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
 // HTML ngắn -> các run của Word: phân số thành phân số thật, <sup> thành chỉ số trên
 function runs(html,base){base=base||{};const out=[];let s=String(html==null?'':html);
-  const re=/<span class="fr"><span>([\s\S]*?)<\/span>\s*<span>([\s\S]*?)<\/span><\/span>|<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<[^>]+>/g;let i=0,m;
-  const txt=t=>{t=dec(t.replace(/<[^>]+>/g,''));if(t)out.push(new TextRun(Object.assign({text:t,font:FONT},base)));};
+  const re=/<span class="fr"><span>([\s\S]*?)<\/span>\s*<span>([\s\S]*?)<\/span><\/span>|<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<\/?[a-zA-Z][^<>]*>/g;let i=0,m;
+  const txt=t=>{t=dec(t.replace(/<\/?[a-zA-Z][^<>]*>/g,''));if(t)out.push(new TextRun(Object.assign({text:t,font:FONT},base)));};
   while((m=re.exec(s))){txt(s.slice(i,m.index));i=re.lastIndex;
-    if(m[1]!==undefined)out.push(new DMath({children:[new MathFraction({numerator:[new MathRun(dec(m[1].replace(/<[^>]+>/g,'')))],denominator:[new MathRun(dec(m[2].replace(/<[^>]+>/g,'')))]})]}));
-    else if(m[3]!==undefined)out.push(new TextRun(Object.assign({text:dec(m[3].replace(/<[^>]+>/g,'')),font:FONT,superScript:true},base)));
-    else if(m[4]!==undefined)out.push(new TextRun(Object.assign({text:dec(m[4].replace(/<[^>]+>/g,'')),font:FONT},base,{bold:true})));}
+    if(m[1]!==undefined)out.push(new DMath({children:[new MathFraction({numerator:[new MathRun(dec(m[1].replace(/<\/?[a-zA-Z][^<>]*>/g,'')))],denominator:[new MathRun(dec(m[2].replace(/<\/?[a-zA-Z][^<>]*>/g,'')))]})]}));
+    else if(m[3]!==undefined)out.push(new TextRun(Object.assign({text:dec(m[3].replace(/<\/?[a-zA-Z][^<>]*>/g,'')),font:FONT,superScript:true},base)));
+    else if(m[4]!==undefined)out.push(new TextRun(Object.assign({text:dec(m[4].replace(/<\/?[a-zA-Z][^<>]*>/g,'')),font:FONT},base,{bold:true})));}
   txt(s.slice(i));return out;}
 const P=(children,o)=>new Paragraph(Object.assign({children,spacing:{before:0,after:80,line:300}},o||{}));
 const T=(text,o)=>new TextRun(Object.assign({text,font:FONT},o||{}));
@@ -20,7 +20,7 @@ function fmtAns(q){const v=q.ans[0],neg=v<0?'−':'',a=Math.abs(v);if(Number.isI
   const dec=String(Math.round(a*1e8)/1e8).replace('.',',');if(!best)return neg+dec;
   let d=best[1];while(d%2===0)d/=2;while(d%5===0)d/=5;const fr=best[0]+'/'+best[1];
   if(d!==1)return neg+fr;
-  return /phân số/.test(String(q.stem).replace(/<[^>]+>/g,''))&&!/số thập phân/.test(String(q.stem).replace(/<[^>]+>/g,''))?neg+fr+' (= '+neg+dec+')':neg+dec;}
+  return /phân số/.test(String(q.stem).replace(/<\/?[a-zA-Z][^<>]*>/g,''))&&!/số thập phân/.test(String(q.stem).replace(/<\/?[a-zA-Z][^<>]*>/g,''))?neg+fr+' (= '+neg+dec+')':neg+dec;}
 const body=[];
 body.push(new Paragraph({heading:HeadingLevel.TITLE,alignment:AlignmentType.CENTER,children:[T(title)]}));
 body.push(P([T(sub,{italics:true})],{alignment:AlignmentType.CENTER}));
