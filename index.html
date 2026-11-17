@@ -205,7 +205,7 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
 <script src="gamify.js"></script>
 <script>
 "use strict";
-if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){}}; // gamify.js không tải được thì trang vẫn chạy bình thường
 /* ============ Hình vẽ ============ */
 const PT={A:[20,118],B:[150,118],C:[70,26]};
 const f1=n=>(Math.round(n*10)/10);
@@ -873,6 +873,7 @@ const SHEET_TAB='7 - Tam giác bằng nhau'; // tên trang tính của bài này
 const SHEET_TOPICS=['Tổng quan tam giác','Cạnh-cạnh-cạnh','Cạnh-góc-cạnh','Góc-cạnh-góc']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
 let tick=null;
 GM.user=()=>state.stu&&state.stu.u||'';
+GM.sheet=SHEET_URL;
 function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
 function updateTimer(){
@@ -1437,7 +1438,7 @@ function render(){
   if(state.view==='home'){stopTimer();$app.innerHTML=homeHTML();}
   else if(state.view==='quiz'){$app.innerHTML=quizHTML();updateProgress();startTimer();}
   else{stopTimer();$app.innerHTML=resultHTML();if(SHEET_URL&&S.mode!=='practice'&&state.sentCode!==makeCode(state.result))sendResult();else if(SHEET_URL&&S.mode!=='practice')setSent('Đã gửi kết quả cho giáo viên.');}
-  GM.refresh();
+  GM.refresh();GM.sync();
   window.scrollTo(0,0);
 }
 function normCode(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'');}

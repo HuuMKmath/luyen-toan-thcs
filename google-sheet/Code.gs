@@ -3,12 +3,14 @@
 //  - Mỗi bài học có một trang tính riêng, script tự tạo khi có kết quả đầu tiên của bài đó.
 //  - Chỉ ghi điểm khi mã học sinh có trong trang tính "Học sinh".
 //  - Chỉ ghi điểm ở bài đúng khối lớp của học sinh; tạm ngừng tra mã khi có quá nhiều lần nhập mã sai (chống dò mã).
+//  - Trang tính "Thưởng": script tự tạo, lưu XP, chuỗi ngày và huy hiệu của từng học sinh để đổi máy vẫn giữ được.
 //  - Menu "Bảng điểm" tạo hai trang tính "Xem điểm" (một lớp, một bài) và "Sổ điểm" (một lớp, mọi bài).
 // Thêm bài mới trên website KHÔNG cần sửa script này.
 
 const TAB_HS = 'Học sinh';
 const TAB_XEM = 'Xem điểm'; // một lớp, một bài
 const TAB_SO = 'Sổ điểm';   // một lớp, tất cả các bài
+const TAB_THUONG = 'Thưởng'; // XP, chuỗi ngày, huy hiệu
 const COT_DAU = ['Thời điểm nộp', 'Mã HS', 'Họ tên', 'Lớp', 'Ngày', 'Loại bài', 'Mã đề', 'Điểm', 'Trắc nghiệm', 'Đúng sai', 'Trả lời ngắn',
   'Thời gian (phút)', 'Giới hạn (phút)'];
 const COT_CUOI = ['Ghi chú', 'Mã kết quả'];
@@ -150,12 +152,13 @@ function doPost(e) {
   lock.waitLock(20000);
   try {
     const body = JSON.parse(e.postData.contents);
+    if (body.gm) return thuongDongBo(body);
     const code = String(body.code || '');
     const cut = code.indexOf('-');
     const tab = tenTab(body.bai);
     const keys = Array.isArray(body.tk) ? body.tk.slice(0, 12).map(String) : [];
     const names = Array.isArray(body.tn) ? body.tn.slice(0, 12).map(function (s) { return String(s).slice(0, 60); }) : [];
-    if (cut < 1 || !tab || tab === TAB_HS || tab === TAB_XEM || tab === TAB_SO || keys.length !== names.length) return ok('bad');
+    if (cut < 1 || !tab || tab === TAB_HS || tab === TAB_XEM || tab === TAB_SO || tab === TAB_THUONG || keys.length !== names.length) return ok('bad');
     const text = Utilities.newBlob(Utilities.base64Decode(code.slice(cut + 1))).getDataAsString('UTF-8');
     const o = JSON.parse(text);
 
@@ -353,4 +356,84 @@ function onEdit(e) {
   if (e.range.getColumn() !== 2) return;
   if (ten === TAB_XEM && e.range.getRow() <= 3) capNhatXemDiem();
   else if (ten === TAB_SO && e.range.getRow() === 1) capNhatSoDiem();
+}
+
+
+/* ---------- Điểm thưởng (XP, chuỗi ngày, huy hiệu) ---------- */
+// Trang web gửi: { gm:1, u:<mã HS>, dx:<XP mới thêm>, pid:<mã gói>, g:{streak,last,day,dayCorrect,goalDay,badges,stats} }.
+// XP được cộng dồn theo dx (mỗi pid chỉ cộng một lần), nên học sinh dùng hai máy vẫn không mất XP.
+// Các trường còn lại được gộp: ngày mới hơn thắng, huy hiệu lấy hợp của hai bên, số liệu lấy giá trị lớn hơn.
+// Mã sai tính vào bộ đếm chống dò mã như khi đăng nhập.
+// Chú ý: XP chỉ là phần thưởng, không phải điểm. Máy học sinh gửi gì thì lưu nấy (có giới hạn mỗi lần).
+
+const COT_THUONG = ['Mã HS', 'Họ tên', 'Lớp', 'XP', 'Chuỗi ngày', 'Ngày gần nhất', 'Số huy hiệu', 'Dữ liệu', 'Cập nhật'];
+const DX_TOI_DA = 3000; // XP tối đa được cộng trong một lần gửi
+
+function gMacDinh() {
+  return { xp: 0, streak: 0, last: '', day: '', dayCorrect: 0, goalDay: '', badges: {}, stats: { retry: 0, bestCombo: 0 }, pids: [] };
+}
+
+function soDuong(x, max) { const n = Math.floor(Number(x)); return isFinite(n) && n > 0 ? Math.min(n, max) : 0; }
+function ngayChuoi(x) { const t = String(x || ''); return /^\d{4}-\d{2}-\d{2}$/.test(t) ? t : ''; }
+
+// Gộp phần "không phải XP" của hai bản
+function gopThuong(a, b) {
+  const o = gMacDinh();
+  const lastA = ngayChuoi(a.last), lastB = ngayChuoi(b.last);
+  if (lastA > lastB || (lastA === lastB && soDuong(a.streak, 10000) >= soDuong(b.streak, 10000))) { o.last = lastA; o.streak = soDuong(a.streak, 10000); }
+  else { o.last = lastB; o.streak = soDuong(b.streak, 10000); }
+  const dA = ngayChuoi(a.day), dB = ngayChuoi(b.day);
+  if (dA > dB || (dA === dB && soDuong(a.dayCorrect, 1000) >= soDuong(b.dayCorrect, 1000))) { o.day = dA; o.dayCorrect = soDuong(a.dayCorrect, 1000); }
+  else { o.day = dB; o.dayCorrect = soDuong(b.dayCorrect, 1000); }
+  const gA = ngayChuoi(a.goalDay), gB = ngayChuoi(b.goalDay);
+  o.goalDay = gA > gB ? gA : gB;
+  [a.badges, b.badges].forEach(function (bd) {
+    Object.keys(bd || {}).slice(0, 40).forEach(function (id) {
+      const d = ngayChuoi(bd[id]);
+      if (/^\w{1,20}$/.test(id) && d && (!o.badges[id] || d < o.badges[id])) o.badges[id] = d;
+    });
+  });
+  o.stats.retry = Math.max(soDuong((a.stats || {}).retry, 100000), soDuong((b.stats || {}).retry, 100000));
+  o.stats.bestCombo = Math.max(soDuong((a.stats || {}).bestCombo, 100000), soDuong((b.stats || {}).bestCombo, 100000));
+  return o;
+}
+
+function thuongDongBo(body) {
+  try {
+    if (soLanSai().n >= SAI_TOI_DA) return json({ ok: false, err: 1 });
+    const hs = timHocSinh(body.u);
+    if (!hs) { ghiLanSai(); return json({ ok: false }); }
+    const ma = soMa(body.u);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(TAB_THUONG);
+    if (!sh) {
+      sh = ss.insertSheet(TAB_THUONG, ss.getNumSheets());
+      sh.getRange(1, 1, 1, COT_THUONG.length).setValues([COT_THUONG]).setFontWeight('bold');
+      sh.getRange(2, 1, 998, 1).setNumberFormat('@');
+      sh.setFrozenRows(1);
+    }
+    // Tìm dòng của học sinh
+    let row = 0, cu = gMacDinh();
+    const last = sh.getLastRow();
+    if (last > 1) {
+      const maCot = sh.getRange(2, 1, last - 1, 1).getValues();
+      for (let i = 0; i < maCot.length; i++) if (soMa(maCot[i][0]) === ma) { row = i + 2; break; }
+    }
+    if (row) {
+      try { cu = Object.assign(gMacDinh(), JSON.parse(sh.getRange(row, 8).getValue() || '{}')); } catch (err) { cu = gMacDinh(); }
+    }
+    const g = gopThuong(cu, body.g || {});
+    g.xp = soDuong(cu.xp, 100000000);
+    g.pids = Array.isArray(cu.pids) ? cu.pids.slice(-30).map(String) : [];
+    const pid = String(body.pid || '').slice(0, 40);
+    const dx = soDuong(body.dx, DX_TOI_DA);
+    if (dx && pid && g.pids.indexOf(pid) < 0) { g.xp += dx; g.pids.push(pid); g.pids = g.pids.slice(-30); }
+    const hang = [ma, hs.n, hs.c, g.xp, g.streak, g.last, Object.keys(g.badges).length, JSON.stringify(g), new Date()];
+    if (row) sh.getRange(row, 1, 1, COT_THUONG.length).setValues([hang]);
+    else { sh.appendRow(hang); sh.getRange(sh.getLastRow(), 1).setNumberFormat('@').setValue(ma); }
+    delete g.pids;
+    return json({ ok: true, g: g });
+  } catch (err) {
+    return json({ ok: false, err: 1 });
+  }
 }

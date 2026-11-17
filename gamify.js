@@ -36,13 +36,57 @@
   function load() {
     var k = key(), o = null;
     try { o = JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { o = mem[k] || null; }
-    if (!o) o = { xp: 0, streak: 0, last: "", day: "", dayCorrect: 0, goalDay: "", badges: {}, stats: { retry: 0, bestCombo: 0 } };
+    if (!o) o = { xp: 0, streak: 0, last: "", day: "", dayCorrect: 0, goalDay: "", badges: {}, stats: { retry: 0, bestCombo: 0 }, sx: 0, pend: null };
+    o.sx = o.sx || 0;
     o.badges = o.badges || {}; o.stats = o.stats || { retry: 0, bestCombo: 0 };
     return o;
   }
-  function save(o) {
+  function saveLocal(o) {
     var k = key(); mem[k] = o;
     try { localStorage.setItem(k, JSON.stringify(o)); } catch (e) {}
+  }
+  function save(o) { saveLocal(o); schedule(2500); }
+
+  /* ---- Đồng bộ với Google Sheet (nếu trang đặt GM.sheet): đổi máy vẫn giữ XP, chuỗi ngày, huy hiệu ---- */
+  var timer = null, busy = false, tried = {};
+  function schedule(ms) {
+    if (!GM.sheet || !GM.user || !GM.user()) return;
+    clearTimeout(timer); timer = setTimeout(function () { timer = null; push(false); }, ms);
+  }
+  function meta(o) { return { streak: o.streak, last: o.last, day: o.day, dayCorrect: o.dayCorrect, goalDay: o.goalDay, badges: o.badges, stats: o.stats }; }
+  function mergeMeta(a, b) {   // cùng quy tắc với gopThuong trong Code.gs
+    var r = {}, n = function (x) { return Number(x) || 0; };
+    if ((a.last || "") > (b.last || "") || ((a.last || "") === (b.last || "") && n(a.streak) >= n(b.streak))) { r.last = a.last || ""; r.streak = n(a.streak); } else { r.last = b.last || ""; r.streak = n(b.streak); }
+    if ((a.day || "") > (b.day || "") || ((a.day || "") === (b.day || "") && n(a.dayCorrect) >= n(b.dayCorrect))) { r.day = a.day || ""; r.dayCorrect = n(a.dayCorrect); } else { r.day = b.day || ""; r.dayCorrect = n(b.dayCorrect); }
+    r.goalDay = (a.goalDay || "") > (b.goalDay || "") ? a.goalDay || "" : b.goalDay || "";
+    r.badges = {};
+    [a.badges, b.badges].forEach(function (bd) { for (var id in (bd || {})) if (!r.badges[id] || bd[id] < r.badges[id]) r.badges[id] = bd[id]; });
+    r.stats = { retry: Math.max(n((a.stats || {}).retry), n((b.stats || {}).retry)), bestCombo: Math.max(n((a.stats || {}).bestCombo), n((b.stats || {}).bestCombo)) };
+    return r;
+  }
+  function push(leaving) {
+    var u = GM.user && GM.user();
+    if (!GM.sheet || !u || busy) return;
+    var k = key(), o = load();
+    if (!o.pend) { o.pend = { pid: Math.random().toString(36).slice(2) + Date.now().toString(36), dx: Math.max(0, o.xp - o.sx) }; saveLocal(o); }
+    var body = { gm: 1, u: u, dx: o.pend.dx, pid: o.pend.pid, g: meta(o) };
+    busy = true; tried[u] = Date.now();
+    var fail = function () { busy = false; if (!leaving) schedule(30000); };
+    fetch(GM.sheet, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body), keepalive: !!leaving })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        busy = false;
+        if (!res || !res.ok || !res.g) { if (res && res.ok === false && !res.err) return; fail(); return; }   // mã không có trong danh sách: bỏ qua
+        if (key() !== k) return;                                   // đã đổi học sinh trong lúc chờ
+        var o2 = load(), g = res.g, m = mergeMeta(o2, g);
+        var unsent = Math.max(0, o2.xp - o2.sx - (o2.pend ? o2.pend.dx : 0));
+        o2.xp = (Number(g.xp) || 0) + unsent; o2.sx = Number(g.xp) || 0; o2.pend = null;
+        o2.streak = m.streak; o2.last = m.last; o2.day = m.day; o2.dayCorrect = m.dayCorrect; o2.goalDay = m.goalDay; o2.badges = m.badges; o2.stats = m.stats;
+        saveLocal(o2);
+        GM.rebar();
+        if (unsent) schedule(2500);
+      })
+      .catch(fail);
   }
   function touch(o) {          // ghi nhận có học hôm nay, cập nhật chuỗi ngày
     var t = ymd();
@@ -152,6 +196,19 @@
       if (g.ok && !reduce) burst(el, g.levelUp || g.badges.length ? 26 : 12);
     },
 
+    sheet: "",
+    /* Gọi khi vào trang: lấy dữ liệu của học sinh từ Google Sheet (mỗi lần mở trang một lần, thử lại sau 30 giây nếu lỗi). */
+    sync: function () {
+      var u = GM.user && GM.user();
+      if (!GM.sheet || !u || busy || Date.now() - (tried[u] || 0) < 30000) return;
+      push(false);
+    },
+    rebar: function () {
+      var b = document.querySelector(".gm-bar");
+      if (b) { var d = b.querySelector("details"), open = d && d.open; b.outerHTML = GM.barHTML(); if (open) { var d2 = document.querySelector(".gm-bar details"); if (d2) d2.open = true; } }
+      GM.refresh();
+    },
+
     /* Thanh nhỏ cố định ở góc màn hình. */
     refresh: function () {
       var h = document.getElementById("gm-hud");
@@ -207,5 +264,6 @@
     "@media (max-width:520px){.gm-lab{min-width:0}.gm-row small{min-width:72px}}";
   var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
+  window.addEventListener("pagehide", function () { if (timer) { clearTimeout(timer); timer = null; push(true); } });
   window.GM = GM;
 })();
