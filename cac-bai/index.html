@@ -6,58 +6,111 @@
 <title>Luyện toán THCS – Các bài</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#f2f6fc; --card:#ffffff; --ink:#13203a; --muted:#54627f; --line:#cdd7e9;
-  --grid:rgba(52,96,170,.08); --accent:#1f4fd8; --mark:#d9342b;
-  --display:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --bg:#FFF7EC; --card:#ffffff; --ink:#1E2238; --muted:#4A5170; --line:#E3E1EA; --paper:#F6F3EE;
+  --accent:#2F5BEA; --hero:#2F5BEA; --hero-ink:#ffffff; --hero-sub:#DCE5FF; --err:#C0262D;
+  --warn:#8A3B00; --warn-bg:#FFE3CC; --new:#1F47C8; --new-bg:#E3EAFF; --star:#F5A400; --star-off:#DCE0EC;
+  --t-lv:#EEF2FF; --t-st:#FFF1E3; --t-dc:#E6F7EF; --i-st:#F07B12; --i-dc:#14955C; --onc:#ffffff;
+  --rank:#FFE9A8; --rank-ink:#3B2A00; --rank-ic:#B07A00; --shadow:0 8px 24px rgba(47,91,234,.14);
+  --display:'Baloo 2','Be Vietnam Pro',system-ui,sans-serif;
   --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
-  :root{--paper:#0d1730;--card:#142245;--ink:#e8eefc;--muted:#9fb0d4;--line:#2b3c6b;--grid:rgba(140,170,255,.07);--accent:#8aa9ff;--mark:#ff7f72;color-scheme:dark;}
+  :root{--bg:#0E1428;--card:#18203D;--ink:#E9EDFB;--muted:#A5AECB;--line:#2C3760;--paper:#111933;
+  --accent:#8AA9FF;--hero:#22398F;--hero-sub:#C7D3FF;--err:#FF8A80;
+  --warn:#FFB27A;--warn-bg:#3A2416;--new:#A9BEFF;--new-bg:#1E2B57;--star-off:#3A4468;
+  --t-lv:#1E2B57;--t-st:#3A2416;--t-dc:#13301F;--i-st:#FF9A5C;--i-dc:#4FD38A;--onc:#10162A;
+  --rank:#3A2E0A;--rank-ink:#FFE3A0;--rank-ic:#FFC94D;--shadow:0 8px 24px rgba(0,0,0,.35);color-scheme:dark;}
+}
+.ch-a{--c:#1D4ED8;--t:#DCE6FF}.ch-b{--c:#BE185D;--t:#FCE1EE}.ch-c{--c:#C2410C;--t:#FFE3CC}
+.ch-d{--c:#0F7A6B;--t:#D3F2EC}.ch-e{--c:#6D3FD6;--t:#E9E1FF}.ch-f{--c:#15803D;--t:#DCF5E3}
+@media (prefers-color-scheme:dark){
+  .ch-a{--c:#8EA8FF;--t:#1C2A55}.ch-b{--c:#FF8CC0;--t:#3A1A2B}.ch-c{--c:#FF9A5C;--t:#3A2416}
+  .ch-d{--c:#4FD3BE;--t:#12332E}.ch-e{--c:#B39AFF;--t:#2A2148}.ch-f{--c:#5FD38A;--t:#15301F}
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;color:var(--ink);font:16px/1.65 var(--body);-webkit-text-size-adjust:100%}
-.wrap{max-width:760px;margin:0 auto;padding:0 16px 72px}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--body);-webkit-text-size-adjust:100%}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
-h1{font-size:clamp(2.3rem,8vw,3.6rem);font-weight:700;letter-spacing:-.01em;padding-top:40px}
-h1 em{color:var(--accent);font-weight:600}
-h2{font-size:.78rem;font-family:var(--body);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark);margin:34px 0 10px}
-.lead{font-size:1.08rem;color:var(--muted);max-width:56ch;margin:14px 0 0}
-.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-a.lesson{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px;min-height:130px}
-a.lesson:hover{border-color:var(--accent)}
-a.lesson h3{font-size:1.2rem}
-a.lesson p{margin:0;font-size:.92rem;color:var(--muted)}
-.go{margin-top:auto;font-weight:600;font-size:.9rem;color:var(--accent)}
-.soon{border:1.5px dashed var(--line);border-radius:12px;padding:16px 18px;color:var(--muted);font-size:.92rem}
-.note{margin-top:34px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:.92rem;color:var(--muted)}
-.note b{color:var(--ink)}
-.chip{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--paper)}
-.jump{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}
-.jump a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font-weight:600;font-size:.95rem;text-decoration:none}
-.jump a:hover{border-color:var(--accent);color:var(--accent)}
-section[id]{scroll-margin-top:12px}
 [hidden]{display:none!important}
-.me{margin-top:26px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}
-.me h2{margin:0 0 8px}
-.me input{font:inherit;min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);width:11ch}
-.me button{font:inherit;font-weight:600;min-height:44px;padding:0 18px;border-radius:10px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
-.me button.ghost{background:transparent;color:var(--accent)}
-.me .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.me .err{color:var(--mark);font-size:.9rem;margin:8px 0 0;min-height:1.2em}
-.me .sum{margin:6px 0 0;color:var(--muted);font-size:.95rem}
-.me .bar{height:10px;border-radius:99px;background:var(--paper);border:1px solid var(--line);overflow:hidden;margin-top:10px}
-.me .bar i{display:block;height:100%;background:var(--accent)}
-.prog{display:block;margin-top:2px;font-size:.84rem;color:var(--muted)}
-.prog b{color:var(--ink)}
-.prog.none{font-style:italic}
-.prog .weak{display:block}
-a.lesson.done{border-color:var(--accent)}
+.hero{background:var(--hero);color:var(--hero-ink);padding:22px 0 70px;border-radius:0 0 28px 28px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.hero .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font:800 1.4rem/1.1 var(--display)}
+.cls{background:var(--card);color:var(--accent);font-weight:700;font-size:.88rem;padding:6px 12px;border-radius:99px}
+.hi{display:flex;flex-direction:column;margin-top:14px}
+.hi span{font-size:.95rem;color:var(--hero-sub)}
+.hi b{font:800 clamp(1.9rem,7vw,2.6rem)/1.1 var(--display)}
+.me{position:relative;margin-top:-50px;background:var(--card);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+.me h2{margin:0 0 8px;font:800 1.2rem/1.2 var(--display)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{border-radius:16px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.tile svg{width:28px;height:28px}
+.tile b{font:800 1.35rem/1 var(--display)}
+.tile small{font-size:.76rem;color:var(--muted);line-height:1.3}
+.t-lv{background:var(--t-lv)}.t-st{background:var(--t-st)}.t-dc{background:var(--t-dc)}
+.xpl{display:flex;justify-content:space-between;gap:8px;font-size:.84rem;margin-top:14px}
+.xpl span{color:var(--muted)}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s}
+.sum{margin:10px 0 0;font-size:.86rem;color:var(--muted)}
+.sum b{color:var(--ink)}
+.sum.over{color:var(--warn)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.me input{font:inherit;min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);width:11ch}
+.btn{font:inherit;font-weight:600;min-height:44px;padding:0 18px;border-radius:12px;border:1.5px solid var(--accent);background:var(--accent);color:var(--card);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.err{color:var(--err);font-size:.9rem;margin:8px 0 0;min-height:1.2em}
+.rank{display:flex;align-items:center;gap:12px;margin-top:14px;background:var(--rank);color:var(--rank-ink);border-radius:18px;padding:12px 16px;text-decoration:none;min-height:44px}
+.rank svg{width:34px;height:34px;flex:none;color:var(--rank-ic)}
+.rank span{flex:1;display:flex;flex-direction:column;line-height:1.35}
+.rank b{font-size:.98rem}.rank small{font-size:.84rem}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}
+.jump a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:99px;background:var(--card);border:1.5px solid var(--line);color:var(--ink);font-weight:600;text-decoration:none}
+.jump a:hover{border-color:var(--accent);color:var(--accent)}
+.grade{scroll-margin-top:12px}
+.grade>h2{margin:30px 0 0;font:800 1.6rem/1.2 var(--display)}
+.grade>h2 small{display:block;font:500 .82rem var(--body);color:var(--muted)}
+.chap{margin-top:20px}
+.chap h3{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:0 0 12px;font:800 1.3rem/1.2 var(--display)}
+.tag{font:700 .76rem var(--body);padding:4px 10px;border-radius:99px;background:var(--t);color:var(--c)}
+.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+a.lesson{display:flex;align-items:center;gap:14px;background:var(--card);border:2px solid var(--card);border-radius:20px;padding:14px;text-decoration:none;color:inherit;box-shadow:0 2px 0 rgba(30,34,56,.06)}
+a.lesson:hover{border-color:var(--c)}
+a.lesson.new{border:2px dashed var(--new-bg)}
+a.lesson.new:hover{border-color:var(--c)}
+.ic{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--c)}
+.ic svg{width:30px;height:30px;color:var(--onc);stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.tx h4{margin:0;font-size:1rem;line-height:1.3}
+.ds{font-size:.84rem;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.st{display:flex;flex-direction:column;gap:4px}
+.st:empty{display:none}
+.stars{display:flex;align-items:center;gap:2px;font-size:.84rem;color:var(--muted)}
+.stars svg{width:18px;height:18px}
+.stars b{color:var(--ink)}
+.stars .sc{margin-left:6px}
+.chip{align-self:flex-start;font-size:.76rem;font-weight:600;padding:2px 10px;border-radius:99px}
+.chip.weak{color:var(--warn);background:var(--warn-bg)}
+.chip.new{color:var(--new);background:var(--new-bg)}
+.chev{flex:none;color:var(--muted)}
+.chev svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.soon{border:2px dashed var(--line);border-radius:20px;padding:16px 18px;color:var(--muted);font-size:.92rem;margin-top:12px}
+.box{margin-top:28px;background:var(--card);border-radius:22px;padding:16px 18px}
+.box h2{margin:0 0 10px;font:800 1.2rem/1.2 var(--display);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.box h2 small{font:500 .84rem var(--body);color:var(--muted)}
+.badges{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:12px 8px}
+.badges li{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:.72rem;line-height:1.25;color:var(--muted)}
+.badges .g{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1rem;background:var(--paper);color:var(--muted);border:3px dashed var(--line)}
+.badges li.on{color:var(--ink)}
+.badges li.on .g{background:#FFD66B;color:#5A3B00;border:3px solid var(--star)}
+#bxh.box{margin-top:16px}
+.note{margin-top:28px;background:var(--card);border-radius:16px;padding:14px 16px;font-size:.88rem;color:var(--muted)}
+.note b{color:var(--ink)}
+.foot{height:48px}
 .bxh-tabs{display:flex;gap:8px;margin:4px 0 12px}
 .bxh-tabs button{font:inherit;font-weight:600;min-height:40px;padding:0 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
 .bxh-tabs button[aria-selected="true"]{border-color:var(--accent);background:var(--accent);color:var(--card)}
@@ -74,205 +127,284 @@ a.lesson.done{border-color:var(--accent)}
 .bxh-tabs [data-s]{border-radius:10px}
 .bxh-l{color:var(--muted);font-size:.82rem}
 .bxh-gap{text-align:center;color:var(--muted);padding:2px 0!important;border-top:none!important}
-
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+@media (max-width:420px){.list{grid-template-columns:minmax(0,1fr)}.tile b{font-size:1.15rem}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Luyện toán <em>THCS</em></h1>
-  <p class="lead">Chọn bài để luyện tập hoặc làm bài kiểm tra. Mỗi bài chấm tự động ngay trên trình duyệt, phân tích phần kiến thức còn yếu và có mã kết quả để gửi giáo viên.</p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-div" viewBox="0 0 24 24"><circle cx="6" cy="6" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="12" cy="6" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="18" cy="6" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="6" cy="18" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="12" cy="18" r="1.6" fill="currentColor" stroke="none"></circle><circle cx="18" cy="18" r="1.6" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-int" viewBox="0 0 24 24"><path d="M2 14h20M19 11l3 3-3 3M6 11.5v5M12 11.5v5M17 11.5v5"></path><path d="M4 6h4M14 6h4M16 4v4"></path></symbol>
+  <symbol id="i-frac" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2" fill="currentColor" stroke="none"></circle><path d="M4 12h16"></path><circle cx="12" cy="18.5" r="2" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-root" viewBox="0 0 24 24"><path d="M3 13h3l3 7 5-16h7"></path></symbol>
+  <symbol id="i-tri" viewBox="0 0 24 24"><path d="M12 3l9 17H3z"></path><path d="M7.6 12.6l1.6.9M16.4 12.6l-1.6.9"></path></symbol>
+  <symbol id="i-data" viewBox="0 0 24 24"><path d="M4 20h16M6 20v-6M11 20V8M16 20v-9"></path></symbol>
+</svg>
 
-  <nav class="jump" aria-label="Chọn lớp">
+<header class="hero">
+  <div class="wrap">
+    <div class="top"><span class="brand">Luyện toán THCS</span><span class="cls" id="hero-cls" hidden></span></div>
+    <div class="hi"><span id="hero-hi">Chào em,</span><b id="hero-name">cùng luyện toán nào!</b></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="me" id="me" aria-labelledby="h-me">
+    <h2 id="h-me" hidden>Tiến độ của em</h2>
+    <div id="me-body"></div>
+  </section>
+
+  <a class="rank" id="rank" href="#bxh" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z" fill="currentColor"></path><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4" stroke="currentColor" stroke-width="1.8" fill="none"></path><path d="M10 12h4v4h-4zM8 18h8v2H8z" fill="currentColor"></path></svg>
+    <span><b id="rank-1"></b><small id="rank-2"></small></span>
+    <span aria-hidden="true" style="flex:none;font-size:1.3rem;font-weight:700">›</span>
+  </a>
+
+  <nav class="jump" id="jump" aria-label="Chọn lớp">
     <a href="#lop-6">Lớp 6</a>
     <a href="#lop-7">Lớp 7</a>
     <a href="#lop-8">Lớp 8</a>
     <a href="#lop-9">Lớp 9</a>
   </nav>
 
-  <section class="me" id="me" aria-labelledby="h-me">
-    <h2 id="h-me">Tiến độ của em</h2>
-    <div id="me-body"></div>
+  <section class="grade" id="lop-6" aria-labelledby="h-lop-6">
+    <h2 id="h-lop-6">Lớp 6 <small>Toán 6 Kết nối tri thức</small></h2>
+    <div class="chap ch-a">
+      <h3><span class="tag">Chương II</span><span>Tính chia hết trong tập hợp các số tự nhiên</span></h3>
+      <div class="list">
+      <a class="lesson" href="../boi-chung-nho-nhat/" data-tab="6 - Bội chung, bội chung nhỏ nhất">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-div"></use></svg></span>
+        <span class="tx"><h4>Bài 12. Bội chung, bội chung nhỏ nhất</h4><span class="ds">Bội chung, tìm BCNN bằng phân tích ra thừa số nguyên tố, suy ra bội chung, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      </div>
+    </div>
+    <div class="chap ch-b">
+      <h3><span class="tag">Chương III</span><span>Số nguyên</span></h3>
+      <div class="list">
+      <a class="lesson" href="../tap-hop-so-nguyen/" data-tab="6 - Tập hợp các số nguyên">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Bài 13. Tập hợp các số nguyên</h4><span class="ds">Số nguyên âm và tập hợp ℤ, số nguyên trong thực tế, trục số, so sánh hai số nguyên.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../phep-cong-tru-so-nguyen/" data-tab="6 - Phép cộng và phép trừ số nguyên">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Bài 14. Phép cộng và phép trừ số nguyên</h4><span class="ds">Cộng hai số nguyên, tính chất của phép cộng, trừ hai số nguyên, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../quy-tac-dau-ngoac/" data-tab="6 - Quy tắc dấu ngoặc">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Bài 15. Quy tắc dấu ngoặc</h4><span class="ds">Viết gọn một tổng, bỏ dấu ngoặc, đặt dấu ngoặc và đổi chỗ số hạng, tính hợp lí, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../luyen-tap-chung-so-nguyen/" data-tab="6 - Luyện tập chung (Chương III)">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Luyện tập chung (sau Bài 15)</h4><span class="ds">SGK trang 69: số nguyên và tập hợp ℤ, ngoặc tròn và ngoặc vuông, tính hợp lí, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../phep-nhan-so-nguyen/" data-tab="6 - Phép nhân số nguyên">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Bài 16. Phép nhân số nguyên</h4><span class="ds">Nhân hai số nguyên khác dấu, cùng dấu, tính chất của phép nhân, tính hợp lí, so sánh tích, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../phep-chia-het-uoc-boi/" data-tab="6 - Phép chia hết, ước và bội">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Bài 17. Phép chia hết. Ước và bội của một số nguyên</h4><span class="ds">Phép chia hết, dấu của thương, tìm ước và bội, ước chung, tìm x và n, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../luyen-tap-chung-sau-bai-17/" data-tab="6 - Luyện tập chung (sau Bài 17)">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Luyện tập chung (sau Bài 17)</h4><span class="ds">SGK trang 75: nhân, chia số nguyên, tính hợp lí, giá trị biểu thức, ước và bội, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../bai-tap-cuoi-chuong-3/" data-tab="6 - Bài tập cuối chương III">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-int"></use></svg></span>
+        <span class="tx"><h4>Bài tập cuối chương III</h4><span class="ds">Ôn tập cả chương (SGK trang 76): số nguyên, so sánh, tập hợp ℤ, cộng trừ, quy tắc dấu ngoặc, nhân chia, ước và bội, bài toán thực tế.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      </div>
+    </div>
   </section>
 
-  <section class="me" id="bxh" aria-labelledby="h-bxh" hidden>
+  <section class="grade" id="lop-7" aria-labelledby="h-lop-7">
+    <h2 id="h-lop-7">Lớp 7 <small>Toán 7 Kết nối tri thức</small></h2>
+    <div class="chap ch-c">
+      <h3><span class="tag">Chương I</span><span>Số hữu tỉ</span></h3>
+      <div class="list">
+      <a class="lesson" href="../tap-hop-so-huu-ti/" data-tab="7 - Tập hợp các số hữu tỉ">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-frac"></use></svg></span>
+        <span class="tx"><h4>Bài 1. Tập hợp các số hữu tỉ</h4><span class="ds">Số hữu tỉ, biểu diễn trên trục số, số đối và so sánh hai số hữu tỉ.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../cong-tru-nhan-chia-so-huu-ti/" data-tab="7 - Cộng, trừ, nhân, chia số hữu tỉ">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-frac"></use></svg></span>
+        <span class="tx"><h4>Bài 2. Cộng, trừ, nhân, chia số hữu tỉ</h4><span class="ds">Cộng, trừ, nhân, chia số hữu tỉ, quy tắc dấu ngoặc và tính một cách hợp lí.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../luy-thua-so-huu-ti/" data-tab="7 - Luỹ thừa của số hữu tỉ">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-frac"></use></svg></span>
+        <span class="tx"><h4>Bài 3. Luỹ thừa với số mũ tự nhiên của một số hữu tỉ</h4><span class="ds">Luỹ thừa, luỹ thừa của tích và thương, nhân chia luỹ thừa cùng cơ số, luỹ thừa của luỹ thừa.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../thu-tu-phep-tinh-chuyen-ve/" data-tab="7 - Thứ tự phép tính và quy tắc chuyển vế">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-frac"></use></svg></span>
+        <span class="tx"><h4>Bài 4. Thứ tự thực hiện các phép tính. Quy tắc chuyển vế</h4><span class="ds">Thứ tự thực hiện phép tính có và không có dấu ngoặc, đẳng thức, quy tắc chuyển vế và tìm x.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../bai-tap-cuoi-chuong-1-toan-7/" data-tab="7 - Bài tập cuối chương I">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-frac"></use></svg></span>
+        <span class="tx"><h4>Bài tập cuối chương I</h4><span class="ds">Ôn tập cả Chương I: số hữu tỉ và so sánh, cộng trừ nhân chia, luỹ thừa, quy tắc dấu ngoặc và chuyển vế, tìm x.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      </div>
+    </div>
+    <div class="chap ch-d">
+      <h3><span class="tag">Chương II</span><span>Số thực</span></h3>
+      <div class="list">
+      <a class="lesson" href="../so-thap-phan-vo-han-tuan-hoan/" data-tab="7 - Số thập phân vô hạn tuần hoàn">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-root"></use></svg></span>
+        <span class="tx"><h4>Bài 5. Làm quen với số thập phân vô hạn tuần hoàn</h4><span class="ds">Số thập phân hữu hạn và vô hạn tuần hoàn, chu kì, viết phân số dưới dạng số thập phân, làm tròn số và độ chính xác.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../so-vo-ti-can-bac-hai/" data-tab="7 - Số vô tỉ và căn bậc hai số học">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-root"></use></svg></span>
+        <span class="tx"><h4>Bài 6. Số vô tỉ. Căn bậc hai số học</h4><span class="ds">Số vô tỉ, căn bậc hai số học, tính căn bằng máy tính và làm tròn, cạnh hình vuông và đường chéo hình chữ nhật.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../tap-hop-so-thuc/" data-tab="7 - Tập hợp các số thực">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-root"></use></svg></span>
+        <span class="tx"><h4>Bài 7. Tập hợp các số thực</h4><span class="ds">Số thực và tập ℝ, biểu diễn số thực trên trục số, so sánh hai số thực, giá trị tuyệt đối của một số thực.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../bai-tap-cuoi-chuong-2-toan-7/" data-tab="7 - Bài tập cuối chương II">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-root"></use></svg></span>
+        <span class="tx"><h4>Bài tập cuối chương II</h4><span class="ds">Ôn tập Chương II (Số thực): số thập phân vô hạn tuần hoàn, số vô tỉ và căn bậc hai, số thực, so sánh và giá trị tuyệt đối.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      </div>
+    </div>
+    <div class="chap ch-e">
+      <h3><span class="tag">Chương IV</span><span>Tam giác bằng nhau</span></h3>
+      <div class="list">
+      <a class="lesson" href="../" data-tab="7 - Tam giác bằng nhau">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-tri"></use></svg></span>
+        <span class="tx"><h4>Bài 13, 14. Tam giác bằng nhau</h4><span class="ds">Hai tam giác bằng nhau và ba trường hợp bằng nhau: c.c.c, c.g.c, g.c.g.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a class="lesson" href="../tam-giac-vuong-bang-nhau/" data-tab="7 - Tam giác vuông bằng nhau">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-tri"></use></svg></span>
+        <span class="tx"><h4>Bài 15. Các trường hợp bằng nhau của tam giác vuông</h4><span class="ds">Hai cạnh góc vuông, cạnh góc vuông – góc nhọn kề, cạnh huyền – góc nhọn, cạnh huyền – cạnh góc vuông.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      </div>
+    </div>
+    <div class="chap ch-f">
+      <h3><span class="tag">Chương V</span><span>Thu thập và biểu diễn dữ liệu</span></h3>
+      <div class="list">
+      <a class="lesson" href="../thu-thap-phan-loai-du-lieu/" data-tab="7 - Thu thập và phân loại dữ liệu">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-data"></use></svg></span>
+        <span class="tx"><h4>Bài 17. Thu thập và phân loại dữ liệu</h4><span class="ds">Dữ liệu là số và không là số, thu thập dữ liệu, bảng thống kê, tính đại diện của dữ liệu.</span><span class="st"></span></span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grade" id="lop-8" aria-labelledby="h-lop-8">
+    <h2 id="h-lop-8">Lớp 8 <small>Toán 8 Kết nối tri thức</small></h2>
+    <div class="soon">Chưa có bài. Các bài của lớp 8 sẽ được thêm dần.</div>
+  </section>
+
+  <section class="grade" id="lop-9" aria-labelledby="h-lop-9">
+    <h2 id="h-lop-9">Lớp 9 <small>Toán 9 Kết nối tri thức</small></h2>
+    <div class="soon">Chưa có bài. Các bài của lớp 9 sẽ được thêm dần.</div>
+  </section>
+
+  <section class="box" id="badges" aria-labelledby="h-badges" hidden>
+    <h2 id="h-badges">Huy hiệu <small id="badges-n"></small></h2>
+    <ul class="badges" id="badges-list"></ul>
+  </section>
+
+  <section class="box" id="bxh" aria-labelledby="h-bxh" hidden>
     <h2 id="h-bxh">Bảng xếp hạng</h2>
     <div id="bxh-body"></div>
   </section>
 
-  <section id="lop-6" aria-labelledby="h-lop-6">
-    <h2 id="h-lop-6">Lớp 6 · Toán 6 Kết nối tri thức</h2>
-    <div class="list">
-      <a class="lesson" href="../boi-chung-nho-nhat/" data-tab="6 - Bội chung, bội chung nhỏ nhất">
-        <h3>Bài 12. Bội chung, bội chung nhỏ nhất</h3>
-        <p>Chương II: bội chung, tìm BCNN bằng phân tích ra thừa số nguyên tố, suy ra bội chung, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả BC6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../tap-hop-so-nguyen/" data-tab="6 - Tập hợp các số nguyên">
-        <h3>Bài 13. Tập hợp các số nguyên</h3>
-        <p>Chương III: số nguyên âm và tập hợp ℤ, số nguyên trong thực tế, trục số, so sánh hai số nguyên.</p>
-        <span><span class="chip">Mã kết quả SN6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../phep-cong-tru-so-nguyen/" data-tab="6 - Phép cộng và phép trừ số nguyên">
-        <h3>Bài 14. Phép cộng và phép trừ số nguyên</h3>
-        <p>Chương III: cộng hai số nguyên, tính chất của phép cộng, trừ hai số nguyên, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả PC6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../quy-tac-dau-ngoac/" data-tab="6 - Quy tắc dấu ngoặc">
-        <h3>Bài 15. Quy tắc dấu ngoặc</h3>
-        <p>Chương III: viết gọn một tổng, bỏ dấu ngoặc, đặt dấu ngoặc và đổi chỗ số hạng, tính hợp lí, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả DN6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../phep-chia-het-uoc-boi/" data-tab="6 - Phép chia hết, ước và bội">
-        <h3>Bài 17. Phép chia hết. Ước và bội của một số nguyên</h3>
-        <p>Chương III: phép chia hết, dấu của thương, tìm ước và bội, ước chung, tìm x và n, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả UB6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../luyen-tap-chung-sau-bai-17/" data-tab="6 - Luyện tập chung (sau Bài 17)">
-        <h3>Luyện tập chung (sau Bài 17)</h3>
-        <p>Chương III (SGK trang 75): nhân, chia số nguyên, tính hợp lí, giá trị biểu thức, ước và bội, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả LC6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../bai-tap-cuoi-chuong-3/" data-tab="6 - Bài tập cuối chương III">
-        <h3>Bài tập cuối chương III</h3>
-        <p>Ôn tập cả chương (SGK trang 76): số nguyên, so sánh, tập hợp ℤ, cộng trừ, quy tắc dấu ngoặc, nhân chia, ước và bội, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả CC3-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../phep-nhan-so-nguyen/" data-tab="6 - Phép nhân số nguyên">
-        <h3>Bài 16. Phép nhân số nguyên</h3>
-        <p>Chương III: nhân hai số nguyên khác dấu, cùng dấu, tính chất của phép nhân, tính hợp lí, so sánh tích, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả NH6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../luyen-tap-chung-so-nguyen/" data-tab="6 - Luyện tập chung (Chương III)">
-        <h3>Luyện tập chung (sau Bài 15)</h3>
-        <p>Chương III, SGK trang 69: số nguyên và tập hợp ℤ, ngoặc tròn và ngoặc vuông, tính hợp lí, bài toán thực tế.</p>
-        <span><span class="chip">Mã kết quả LT6-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-    </div>
-  </section>
+  <div class="note"><b>Dành cho giáo viên:</b> điểm kiểm tra của học sinh tự gửi về Google Sheet chung <b>LUYỆN TOÁN THCS</b>; thầy cô xem ở trang tính <b>Xem điểm</b> và <b>Sổ điểm</b>. Khi học sinh không gửi được (mất mạng), các em đưa mã kết quả cho thầy cô; mỗi bài có tiền tố mã riêng, hiện ở trang kết quả của bài; thầy cô mở mục Giáo viên của đúng bài rồi dán mã vào.</div>
+  <div class="foot"></div>
+</main>
 
-  <section id="lop-7" aria-labelledby="h-lop-7">
-    <h2 id="h-lop-7">Lớp 7 · Toán 7 Kết nối tri thức</h2>
-    <div class="list">
-      <a class="lesson" href="../tap-hop-so-huu-ti/" data-tab="7 - Tập hợp các số hữu tỉ">
-        <h3>Bài 1. Tập hợp các số hữu tỉ</h3>
-        <p>Chương I: số hữu tỉ, biểu diễn trên trục số, số đối và so sánh hai số hữu tỉ.</p>
-        <span><span class="chip">Mã kết quả SH7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../cong-tru-nhan-chia-so-huu-ti/" data-tab="7 - Cộng, trừ, nhân, chia số hữu tỉ">
-        <h3>Bài 2. Cộng, trừ, nhân, chia số hữu tỉ</h3>
-        <p>Chương I: cộng, trừ, nhân, chia số hữu tỉ, quy tắc dấu ngoặc và tính một cách hợp lí.</p>
-        <span><span class="chip">Mã kết quả CT7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../luy-thua-so-huu-ti/" data-tab="7 - Luỹ thừa của số hữu tỉ">
-        <h3>Bài 3. Luỹ thừa với số mũ tự nhiên của một số hữu tỉ</h3>
-        <p>Chương I: luỹ thừa, luỹ thừa của tích và thương, nhân chia luỹ thừa cùng cơ số, luỹ thừa của luỹ thừa.</p>
-        <span><span class="chip">Mã kết quả LT7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../thu-tu-phep-tinh-chuyen-ve/" data-tab="7 - Thứ tự phép tính và quy tắc chuyển vế">
-        <h3>Bài 4. Thứ tự thực hiện các phép tính. Quy tắc chuyển vế</h3>
-        <p>Chương I, Bài 4: thứ tự thực hiện phép tính có và không có dấu ngoặc, đẳng thức, quy tắc chuyển vế và tìm x.</p>
-        <span><span class="chip">Mã kết quả TC7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../bai-tap-cuoi-chuong-1-toan-7/" data-tab="7 - Bài tập cuối chương I">
-        <h3>Bài tập cuối chương I</h3>
-        <p>Ôn tập cả Chương I: số hữu tỉ và so sánh, cộng trừ nhân chia, luỹ thừa, quy tắc dấu ngoặc và chuyển vế, tìm x.</p>
-        <span><span class="chip">Mã kết quả CC7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../so-thap-phan-vo-han-tuan-hoan/" data-tab="7 - Số thập phân vô hạn tuần hoàn">
-        <h3>Bài 5. Làm quen với số thập phân vô hạn tuần hoàn</h3>
-        <p>Chương II: số thập phân hữu hạn và vô hạn tuần hoàn, chu kì, viết phân số dưới dạng số thập phân, làm tròn số và độ chính xác.</p>
-        <span><span class="chip">Mã kết quả TP7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../so-vo-ti-can-bac-hai/" data-tab="7 - Số vô tỉ và căn bậc hai số học">
-        <h3>Bài 6. Số vô tỉ. Căn bậc hai số học</h3>
-        <p>Chương II: số vô tỉ, căn bậc hai số học, tính căn bằng máy tính và làm tròn, cạnh hình vuông và đường chéo hình chữ nhật.</p>
-        <span><span class="chip">Mã kết quả VT7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../tap-hop-so-thuc/" data-tab="7 - Tập hợp các số thực">
-        <h3>Bài 7. Tập hợp các số thực</h3>
-        <p>Chương II: số thực và tập ℝ, biểu diễn số thực trên trục số, so sánh hai số thực, giá trị tuyệt đối của một số thực.</p>
-        <span><span class="chip">Mã kết quả ST7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../bai-tap-cuoi-chuong-2-toan-7/" data-tab="7 - Bài tập cuối chương II">
-        <h3>Bài tập cuối chương II</h3>
-        <p>Ôn tập Chương II (Số thực): số thập phân vô hạn tuần hoàn, số vô tỉ và căn bậc hai, số thực, so sánh và giá trị tuyệt đối.</p>
-        <span><span class="chip">Mã kết quả C27-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../" data-tab="7 - Tam giác bằng nhau">
-        <h3>Bài 13, 14. Tam giác bằng nhau</h3>
-        <p>Chương IV: hai tam giác bằng nhau và ba trường hợp bằng nhau: c.c.c, c.g.c, g.c.g.</p>
-        <span><span class="chip">Mã kết quả TG7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-      <a class="lesson" href="../tam-giac-vuong-bang-nhau/" data-tab="7 - Tam giác vuông bằng nhau">
-        <h3>Bài 15. Các trường hợp bằng nhau của tam giác vuông</h3>
-        <p>Chương IV: hai cạnh góc vuông, cạnh góc vuông – góc nhọn kề, cạnh huyền – góc nhọn, cạnh huyền – cạnh góc vuông.</p>
-        <span><span class="chip">Mã kết quả TV7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-
-      <a class="lesson" href="../thu-thap-phan-loai-du-lieu/" data-tab="7 - Thu thập và phân loại dữ liệu">
-        <h3>Bài 17. Thu thập và phân loại dữ liệu</h3>
-        <p>Chương V: dữ liệu là số và không là số, thu thập dữ liệu, bảng thống kê, tính đại diện của dữ liệu.</p>
-        <span><span class="chip">Mã kết quả DL7-</span></span>
-        <span class="go">Mở bài →</span>
-      </a>
-    </div>
-  </section>
-
-  <section id="lop-8" aria-labelledby="h-lop-8">
-    <h2 id="h-lop-8">Lớp 8 · Toán 8 Kết nối tri thức</h2>
-    <div class="soon">Chưa có bài. Các bài của lớp 8 sẽ được thêm dần.</div>
-  </section>
-
-  <section id="lop-9" aria-labelledby="h-lop-9">
-    <h2 id="h-lop-9">Lớp 9 · Toán 9 Kết nối tri thức</h2>
-    <div class="soon">Chưa có bài. Các bài của lớp 9 sẽ được thêm dần.</div>
-  </section>
-
-  <div class="note"><b>Dành cho giáo viên:</b> điểm kiểm tra của học sinh tự gửi về Google Sheet chung <b>LUYỆN TOÁN THCS</b>; thầy cô xem ở trang tính <b>Xem điểm</b> và <b>Sổ điểm</b>. Khi học sinh không gửi được (mất mạng), các em đưa mã kết quả cho thầy cô; mỗi bài có tiền tố mã riêng (BC6-, SN6-, PC6-, DN6-, TG7-, SH7-, CT7-, LT7-, CC7-, TV7-), thầy cô mở mục Giáo viên của đúng bài rồi dán mã vào.</div>
-</div>
+<script src="../gamify.js"></script>
 <script>
 (function(){
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec';
 const HS_KEY='luyentoan-hs'; // cùng khóa với các trang bài: nhập mã ở đâu cũng được nhớ chung
 const body=document.getElementById('me-body');
 const cards=[].slice.call(document.querySelectorAll('a.lesson[data-tab]'));
+const GMok=!!(window.GM&&GM.stats);
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function load(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');return o&&o.u&&o.n?o:null;}catch(e){return null;}}
 function save(o){try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
 function grade(c){const m=String(c||'').match(/\d+/);return m?m[0]:'';}
+function lastName(n){const p=String(n||'').trim().split(/\s+/);return p.length>1?p.slice(-2).join(' '):p[0]||'';}
+if(GMok){GM.noHud=true;GM.sheet=SHEET_URL;GM.user=function(){const h=load();return h?h.u:'';};GM.onChange=function(){if(load())drawStats();};}
+
 // Học sinh đã đăng nhập chỉ thấy các bài của đúng khối lớp mình; chưa đăng nhập thì thấy tất cả để chọn.
 function applyGrade(g){
-  ['6','7','8','9'].forEach(function(n){
-    const hide=!!g&&n!==g;
-    const sec=document.getElementById('lop-'+n);if(sec)sec.hidden=hide;
-    const nav=document.querySelector('a[href="#lop-'+n+'"]');if(nav)nav.hidden=hide;
-  });
+  ['6','7','8','9'].forEach(function(n){const sec=document.getElementById('lop-'+n);if(sec)sec.hidden=!!g&&n!==g;});
+  document.getElementById('jump').hidden=!!g;
 }
-function clearBadges(){cards.forEach(function(a){a.classList.remove('done');const p=a.querySelector('.prog');if(p)p.remove();});}
+function hero(h){
+  document.getElementById('hero-name').textContent=h?lastName(h.n)+'!':'cùng luyện toán nào!';
+  const c=document.getElementById('hero-cls');c.hidden=!(h&&h.c);c.textContent=h&&h.c?'Lớp '+h.c:'';
+}
+function clearCards(){cards.forEach(function(a){a.classList.remove('done','new');a.querySelector('.st').innerHTML='';});}
+
+const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z" fill="%F"></path></svg>';
+function vn(d){return String(d==null?'':d).replace('.',',');}
+function stars(d){
+  const x=parseFloat(String(d).replace(',','.'))||0,n=x>=9?3:x>=7?2:1;
+  let s='';for(let i=0;i<3;i++)s+=STAR.replace('%F',i<n?'var(--star)':'var(--star-off)');
+  return '<span class="stars" role="img" aria-label="'+n+' trên 3 sao, điểm cao nhất '+esc(vn(d))+'">'+s+'<span class="sc">Điểm cao nhất <b>'+esc(vn(d))+'</b></span></span>';
+}
+
+// Ô cấp độ, chuỗi ngày, mục tiêu, thanh XP (lấy từ gamify.js; đã đồng bộ với Sheet)
+function statsHTML(){
+  if(!GMok)return '';
+  const s=GM.stats();
+  return '<div class="tiles">'+
+    '<div class="tile t-lv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z" fill="var(--accent)"></path></svg><b>Cấp '+s.level+'</b><small>'+esc(s.title)+'</small></div>'+
+    '<div class="tile t-st"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.6 1.4-4 2.4-5 .2 1.8 1 2.8 2 3.2C11 8.5 11.3 5 12 2z" fill="var(--i-st)"></path></svg><b>'+s.streak+' ngày</b><small>liên tiếp</small></div>'+
+    '<div class="tile t-dc"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="var(--i-dc)"></circle><path d="M8 12.5l2.6 2.6L16 9.7" stroke="var(--card)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg><b>'+Math.min(s.dc,s.goal)+'/'+s.goal+'</b><small>câu đúng hôm nay</small></div></div>'+
+    '<div class="xpl"><b>'+s.xp.toLocaleString('vi-VN')+' XP</b><span>còn '+s.toNext+' XP lên Cấp '+(s.level+1)+'</span></div>'+
+    '<div class="bar" role="progressbar" aria-label="Tiến tới cấp tiếp theo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.pct+'"><i style="width:'+s.pct+'%"></i></div>'+
+    '<p class="sum'+(s.over?' over':'')+'">Hôm nay đã học <b>'+s.mins+'/'+s.minMax+' phút</b> · <b>'+s.packs+'/'+s.packMax+' gói</b>'+(s.over?' · đủ rồi, nghỉ ngơi nhé!':'')+'</p>';
+}
+function drawStats(){
+  const el=document.getElementById('me-stats');if(el)el.innerHTML=statsHTML();
+  if(!GMok)return;
+  const s=GM.stats(),on=s.badges.filter(function(b){return b.on;}).length;
+  document.getElementById('badges').hidden=false;
+  document.getElementById('badges-n').textContent=on+'/'+s.badges.length;
+  document.getElementById('badges-list').innerHTML=s.badges.map(function(b){
+    return '<li class="'+(b.on?'on':'')+'" title="'+esc(b.n+': '+b.d+(b.on?'':' (chưa đạt)'))+'"><span class="g" aria-hidden="true">'+esc(b.g)+'</span><span>'+esc(b.n)+(b.on?'':'<span class="vh" style="position:absolute;left:-9999px"> (chưa đạt)</span>')+'</span></li>';
+  }).join('');
+}
+function drawRank(o){
+  const r=document.getElementById('rank');
+  if(!o||!o.tuanNay||!o.tuanNay.toi){r.hidden=true;return;}
+  const me=o.tuanNay.toi,k=o.khoi&&o.khoi.tuanNay&&o.khoi.tuanNay.toi;
+  document.getElementById('rank-1').textContent=me.x>0?'Hạng '+me.r+' lớp '+o.c+' tuần này':'Tuần này em chưa có XP';
+  document.getElementById('rank-2').textContent=(me.x>0&&k?'Hạng '+k.r+' khối '+o.khoi.k+' · ':(me.x>0?'':'Luyện tập để vào bảng · '))+'xem bảng xếp hạng';
+  r.hidden=false;
+}
+
 function loginView(msg){
-  clearBadges();applyGrade('');bxhHide();
-  body.innerHTML='<p class="sum" style="margin:0 0 12px">Nhập mã học sinh để xem điểm cao nhất, số lần làm và phần còn yếu của từng bài.</p>'+
-   '<div class="row"><label for="ma" class="sum" style="margin:0">Mã học sinh</label><input id="ma" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 chữ số"><button id="go">Xem tiến độ</button></div>'+
+  clearCards();applyGrade('');bxhHide();hero(null);
+  document.getElementById('badges').hidden=true;
+  document.getElementById('h-me').hidden=false;
+  body.innerHTML='<p class="sum" style="margin:0">Nhập mã học sinh để xem cấp độ, XP, điểm cao nhất và phần còn yếu của từng bài.</p>'+
+   '<div class="row"><label for="ma" class="sum" style="margin:0">Mã học sinh</label><input id="ma" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 chữ số"><button class="btn" id="go">Bắt đầu</button></div>'+
    '<p class="err" id="err" role="alert">'+esc(msg||'')+'</p>';
   const inp=document.getElementById('ma');
   function go(){
@@ -284,58 +416,52 @@ function loginView(msg){
   inp.onkeydown=function(e){if(e.key==='Enter')go();};
 }
 function fetchProg(u,fresh){
-  body.innerHTML='<p class="sum" style="margin:0">Đang tải tiến độ…</p>';
+  if(fresh)body.innerHTML='<p class="sum" style="margin:0">Đang tải tiến độ…</p>';
   fetch(SHEET_URL+'?ma='+u+'&tiendo=1').then(function(r){return r.json();}).then(function(o){
-    if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);bxhLoad(u);}
+    if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);bxhLoad(u);if(GMok)GM.sync();}
     else if(o&&o.err){fresh?loginView('Hệ thống đang bận, hãy thử lại sau ít phút.'):showCached('Chưa tải được tiến độ lúc này.');}
     else{if(!fresh)save(null);loginView('Mã không đúng. Hãy kiểm tra lại hoặc hỏi thầy cô.');}
   }).catch(function(){fresh?loginView('Không kết nối được. Kiểm tra mạng rồi thử lại.'):showCached('Chưa tải được tiến độ lúc này (mất mạng?).');});
 }
-function showCached(msg){
-  const h=load();clearBadges();applyGrade(h?grade(h.c):'');
-  if(!h){loginView(msg);return;}
-  body.innerHTML='<p class="sum" style="margin:0">Xin chào, <b>'+esc(h.n)+'</b>'+(h.c?' · Lớp '+esc(h.c):'')+'</p><p class="err">'+esc(msg)+'</p><div class="row"><button id="again">Thử lại</button><button class="ghost" id="out">Đổi học sinh</button></div>';
-  document.getElementById('again').onclick=function(){fetchProg(h.u,false);};
+function shell(h,extra){
+  hero(h);document.getElementById('h-me').hidden=true;
+  body.innerHTML='<div id="me-stats"></div>'+extra+
+   '<div class="row"><button class="btn ghost" id="rf">Làm mới</button><button class="btn ghost" id="out">Đổi học sinh</button></div>';
+  drawStats();
+  document.getElementById('rf').onclick=function(){const x=load();if(x)fetchProg(x.u,false);};
   document.getElementById('out').onclick=function(){save(null);loginView('');};
 }
+function showCached(msg){
+  const h=load();clearCards();applyGrade(h?grade(h.c):'');
+  if(!h){loginView(msg);return;}
+  shell(h,'<p class="err" role="status">'+esc(msg)+'</p>');
+}
 function showProg(o){
-  clearBadges();
-  const g=grade(o.c);applyGrade(g);let mine=0,done=0,best=0,sum=0;
+  clearCards();
+  const g=grade(o.c);applyGrade(g);let mine=0,done=0,sum=0;
   cards.forEach(function(a){
-    const tab=a.getAttribute('data-tab'),tg=grade(tab);
-    const k=o.bai&&o.bai[tab];
-    const own=!g||!tg||g===tg;
+    const tab=a.getAttribute('data-tab'),tg=grade(tab),k=o.bai&&o.bai[tab],own=!g||!tg||g===tg,st=a.querySelector('.st');
     if(own)mine++;
-    const p=document.createElement('span');p.className='prog';
     if(k){
       a.classList.add('done');
-      p.innerHTML='<b>Điểm cao nhất: '+esc(k.d)+'</b> · đã làm '+esc(k.l)+' lần'+(k.t?' · gần nhất '+esc(k.t):'')+(k.y?'<span class="weak">Cần ôn: '+esc(k.y)+'</span>':'');
-      if(own){done++;sum+=Number(k.d)||0;}
-    }else{
-      p.className='prog none';p.textContent=own?'Chưa làm bài kiểm tra':'Bài của lớp '+tg;
-    }
-    a.insertBefore(p,a.querySelector('.go'));
+      st.innerHTML=stars(k.d)+(k.y?'<span class="chip weak">Cần ôn: '+esc(k.y)+'</span>':'');
+      a.title='Đã làm '+k.l+' lần'+(k.t?', gần nhất '+k.t:'');
+      if(own){done++;sum+=parseFloat(String(k.d).replace(',','.'))||0;}
+    }else if(own){a.classList.add('new');st.innerHTML='<span class="chip new">Mới · chưa làm</span>';}
   });
-  const pct=mine?Math.round(done/mine*100):0;
-  body.innerHTML='<p class="sum" style="margin:0 0 4px">Xin chào, <b>'+esc(o.n)+'</b>'+(o.c?' · Lớp '+esc(o.c):'')+'</p>'+
-   '<p class="sum" style="margin:0">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài của lớp '+esc(g||'mình')+(done?' · điểm trung bình các bài đã làm: <b>'+(Math.round(sum/done*10)/10)+'</b>':'')+'</p>'+
-   '<div class="bar" role="img" aria-label="Đã làm '+pct+'% số bài"><i style="width:'+pct+'%"></i></div>'+
-   '<div class="row" style="margin-top:12px"><button class="ghost" id="rf">Làm mới</button><button class="ghost" id="out">Đổi học sinh</button></div>'+
-   '<p class="sum" style="margin:10px 0 0;font-size:.85rem">Điểm là lần làm cao nhất của em ở mỗi bài (thang 10). Phần ghi "Cần ôn" là chủ đề em làm đúng dưới một nửa ở lần đó.</p>';
-  document.getElementById('rf').onclick=function(){fetchProg(o.n&&load()?load().u:'',false);};
-  document.getElementById('out').onclick=function(){save(null);loginView('');};
+  shell({n:o.n,c:o.c},'<p class="sum">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài lớp '+esc(g||'mình')+(done?' · điểm trung bình <b>'+(Math.round(sum/done*10)/10).toString().replace('.',',')+'</b>':'')+'</p>');
 }
 
 // ---- Bảng xếp hạng lớp (XP từ trang tính "Thưởng"; chỉ thấy lớp mình, tên viết tắt) ----
 const bxhSec=document.getElementById('bxh'),bxhBody=document.getElementById('bxh-body');
 let bxhData=null,bxhTab='tuanNay',bxhScope='lop';
-function bxhHide(){bxhSec.hidden=true;bxhData=null;}
+function bxhHide(){bxhSec.hidden=true;bxhData=null;drawRank(null);}
 function bxhLoad(u){
   if(!u){bxhHide();return;}
   bxhSec.hidden=false;bxhBody.innerHTML='<p class="sum" style="margin:0">Đang tải bảng xếp hạng…</p>';
   fetch(SHEET_URL+'?ma='+u+'&bxh=1').then(function(r){return r.json();}).then(function(o){
     if(!o||!o.ok||o.off||o.gv||!o.tuanNay){bxhHide();return;}
-    bxhData=o;bxhDraw();
+    bxhData=o;bxhDraw();drawRank(o);
     if(location.hash==='#bxh'&&!bxhSec.dataset.seen){bxhSec.dataset.seen='1';bxhSec.scrollIntoView();}
   }).catch(function(){bxhBody.innerHTML='<p class="sum" style="margin:0">Chưa tải được bảng xếp hạng.</p>';});
 }
@@ -364,8 +490,9 @@ function bxhDraw(){
     const s=btn.getAttribute('data-s'),t=btn.getAttribute('data-t');if(s)bxhScope=s;if(t)bxhTab=t;bxhDraw();
     const f=bxhBody.querySelector(s?'[data-s="'+s+'"]':'[data-t="'+t+'"]');if(f)f.focus();};});
 }
+
 const h=load();
-if(h){applyGrade(grade(h.c));fetchProg(h.u,false);}else loginView('');
+if(h){applyGrade(grade(h.c));showCached('');document.querySelector('#me-body .err').remove();fetchProg(h.u,false);}else loginView('');
 })();
 </script>
 </body>

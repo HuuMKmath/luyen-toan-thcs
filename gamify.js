@@ -23,8 +23,8 @@
 
   var BADGES = [
     { id: "first", g: "★", n: "Khởi đầu", d: "Trả lời đúng câu đầu tiên" },
-    { id: "combo5", g: "⚡", n: "Chính xác", d: "5 câu đúng liên tiếp ngay lần đầu" },
-    { id: "combo10", g: "✦", n: "Không thể cản", d: "10 câu đúng liên tiếp ngay lần đầu" },
+    { id: "combo5", g: "×5", n: "Chính xác", d: "5 câu đúng liên tiếp ngay lần đầu" },
+    { id: "combo10", g: "×10", n: "Không thể cản", d: "10 câu đúng liên tiếp ngay lần đầu" },
     { id: "retry", g: "↺", n: "Không bỏ cuộc", d: "Sửa lại và làm đúng ở lần thử thứ hai, 5 lần" },
     { id: "goal", g: "◎", n: "Đủ mục tiêu", d: "Hoàn thành mục tiêu của một ngày" },
     { id: "streak3", g: "3", n: "Chăm chỉ", d: "Học 3 ngày liên tiếp" },
@@ -225,6 +225,19 @@
       return true;
     },
 
+    /* Số liệu cho trang Các bài (tự vẽ giao diện riêng). */
+    stats: function () {
+      var o = load(), l = lvOf(o.xp), a = xpAt(l), b = xpAt(l + 1), lim = dayRoll(o);
+      return {
+        xp: o.xp, level: l, title: title(l), toNext: b - o.xp, pct: Math.round(100 * (o.xp - a) / (b - a)),
+        streak: effStreak(o), dc: o.day === ymd() ? o.dayCorrect : 0, goal: GOAL,
+        mins: Math.floor(lim.sec / 60), minMax: LIM.dayMin, packs: lim.packs, packMax: LIM.dayPacks, over: dayOver(o),
+        badges: BADGES.map(function (x) { return { g: x.g, n: x.n, d: x.d, on: !!o.badges[x.id] }; })
+      };
+    },
+    onChange: null,   // trang có thể đặt hàm này để vẽ lại khi XP đổi (sau đồng bộ)
+    noHud: false,     // true: không hiện thanh nhỏ ở góc màn hình
+
     /* Thẻ trạng thái ở trang đầu. */
     barHTML: function () {
       var o = load(), l = lvOf(o.xp), a = xpAt(l), b = xpAt(l + 1), p = Math.round(100 * (o.xp - a) / (b - a));
@@ -278,12 +291,14 @@
     },
     rebar: function () {
       var b = document.querySelector(".gm-bar");
+      if (GM.onChange) try { GM.onChange(); } catch (e) {}
       if (b) { var d = b.querySelector("details"), open = d && d.open; b.outerHTML = GM.barHTML(); if (open) { var d2 = document.querySelector(".gm-bar details"); if (d2) d2.open = true; } }
       GM.refresh();
     },
 
     /* Thanh nhỏ cố định ở góc màn hình. */
     refresh: function () {
+      if (GM.noHud) return;
       var h = document.getElementById("gm-hud");
       if (!h) { h = document.createElement("div"); h.id = "gm-hud"; h.setAttribute("aria-hidden", "true"); document.body.appendChild(h); }
       if (location.hash === "#giao-vien") { h.hidden = true; return; }
@@ -318,7 +333,10 @@
       dialog("Đã " + LIM.dayMin + " phút rồi!", "Hôm nay em đã học đủ <b>" + LIM.dayMin + " phút</b>. Hãy nghỉ ngơi, vận động một chút nhé. Từ giờ đến hết ngày, làm bài vẫn được chấm nhưng <b>không cộng XP</b>.", [["Đã hiểu", null]]);
     }
     saveLocal(o);
-    if (Math.floor(l.sec) % 60 === 0) GM.rebar && document.querySelector(".gm-bar") && !document.querySelector(".gm-bar details[open]") && GM.rebar();
+    if (Math.floor(l.sec) % 60 === 0) {
+      if (document.querySelector(".gm-bar") && !document.querySelector(".gm-bar details[open]")) GM.rebar();
+      else if (GM.onChange) try { GM.onChange(); } catch (e) {}
+    }
   }, LIM.tick);
 
   function toast(list) {
