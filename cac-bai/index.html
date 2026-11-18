@@ -70,6 +70,9 @@ a.lesson.done{border-color:var(--accent)}
 .bxh-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bxh-x{font-weight:700;font-variant-numeric:tabular-nums}
 .bxh-x small{font-weight:400;color:var(--muted)}
+.bxh-tabs+.bxh-tabs{margin-top:-4px}
+.bxh-tabs [data-s]{border-radius:10px}
+.bxh-l{color:var(--muted);font-size:.82rem}
 .bxh-gap{text-align:center;color:var(--muted);padding:2px 0!important;border-top:none!important}
 
 </style>
@@ -92,7 +95,7 @@ a.lesson.done{border-color:var(--accent)}
   </section>
 
   <section class="me" id="bxh" aria-labelledby="h-bxh" hidden>
-    <h2 id="h-bxh">Bảng xếp hạng lớp</h2>
+    <h2 id="h-bxh">Bảng xếp hạng</h2>
     <div id="bxh-body"></div>
   </section>
 
@@ -325,7 +328,7 @@ function showProg(o){
 
 // ---- Bảng xếp hạng lớp (XP từ trang tính "Thưởng"; chỉ thấy lớp mình, tên viết tắt) ----
 const bxhSec=document.getElementById('bxh'),bxhBody=document.getElementById('bxh-body');
-let bxhData=null,bxhTab='tuanNay';
+let bxhData=null,bxhTab='tuanNay',bxhScope='lop';
 function bxhHide(){bxhSec.hidden=true;bxhData=null;}
 function bxhLoad(u){
   if(!u){bxhHide();return;}
@@ -337,21 +340,29 @@ function bxhLoad(u){
   }).catch(function(){bxhBody.innerHTML='<p class="sum" style="margin:0">Chưa tải được bảng xếp hạng.</p>';});
 }
 function bxhRow(e){
-  return '<li'+(e.me?' class="me" aria-current="true"':'')+'><span class="bxh-r'+(e.r<=3?' t'+e.r:'')+'">'+e.r+'</span><span class="bxh-n">'+esc(e.n)+(e.me?' <b>(em)</b>':'')+'</span><span class="bxh-x">'+esc(e.x)+' <small>XP</small></span></li>';
+  return '<li'+(e.me?' class="me" aria-current="true"':'')+'><span class="bxh-r'+(e.r<=3?' t'+e.r:'')+'">'+e.r+'</span><span class="bxh-n">'+esc(e.n)+(e.l?' <small class="bxh-l">· '+esc(e.l)+'</small>':'')+(e.me?' <b>(em)</b>':'')+'</span><span class="bxh-x">'+esc(e.x)+' <small>XP</small></span></li>';
+}
+function bxhTabs(name,items,cur){
+  return '<div class="bxh-tabs" role="tablist" aria-label="'+name+'">'+items.map(function(it){return '<button role="tab" aria-selected="'+(it[0]===cur)+'" data-'+(name==='Phạm vi'?'s':'t')+'="'+it[0]+'">'+esc(it[1])+'</button>';}).join('')+'</div>';
 }
 function bxhDraw(){
-  const o=bxhData,b=o[bxhTab],week=bxhTab==='tuanNay';
+  const o=bxhData,khoi=o.khoi&&o.khoi.tuanNay?o.khoi:null;
+  if(!khoi)bxhScope='lop';
+  const src=bxhScope==='khoi'?khoi:o,b=src[bxhTab],week=bxhTab==='tuanNay';
+  const who=bxhScope==='khoi'?'khối '+khoi.k:'lớp';
   let list=b.top.map(bxhRow).join('');
   if(b.toi&&!b.top.some(function(e){return e.me;}))list+='<li class="bxh-gap" aria-hidden="true">⋯</li>'+bxhRow(b.toi);
   const d=String(o.tuan||'').split('-');
   const note=week?'XP kiếm được từ thứ Hai'+(d.length===3?' ('+d[2]+'/'+d[1]+')':'')+'; sang tuần mới bảng tính lại từ đầu.':'Tổng XP từ trước đến nay.';
-  const lead=b.toi?(b.toi.r===1&&b.toi.x>0?'Em đang đứng đầu lớp!':b.toi.x>0?'Em đang đứng thứ <b>'+b.toi.r+'</b>/'+o.so+' bạn.':(week?'Tuần này em chưa có XP. Làm vài câu luyện tập để vào bảng nhé!':'Làm bài luyện tập để có XP và vào bảng nhé!')):'';
-  bxhBody.innerHTML='<div class="bxh-tabs" role="tablist" aria-label="Chọn bảng">'+
-    '<button role="tab" aria-selected="'+week+'" data-t="tuanNay">Tuần này</button><button role="tab" aria-selected="'+(!week)+'" data-t="tatCa">Tất cả</button></div>'+
-    '<p class="sum" style="margin:0 0 8px">Lớp '+esc(o.c)+(lead?' · '+lead:'')+'</p>'+
+  const lead=b.toi?(b.toi.r===1&&b.toi.x>0?'Em đang đứng đầu '+who+'!':b.toi.x>0?'Em đang đứng thứ <b>'+b.toi.r+'</b>/'+src.so+' bạn '+who+'.':(week?'Tuần này em chưa có XP. Làm vài câu luyện tập để vào bảng nhé!':'Làm bài luyện tập để có XP và vào bảng nhé!')):'';
+  bxhBody.innerHTML=(khoi?bxhTabs('Phạm vi',[['lop','Lớp '+o.c],['khoi','Khối '+khoi.k]],bxhScope):'')+
+    bxhTabs('Thời gian',[['tuanNay','Tuần này'],['tatCa','Tất cả']],bxhTab)+
+    '<p class="sum" style="margin:0 0 8px">'+(bxhScope==='khoi'?'Khối '+esc(khoi.k):'Lớp '+esc(o.c))+(lead?' · '+lead:'')+'</p>'+
     '<ol class="bxh-list">'+list+'</ol>'+
     '<p class="sum" style="margin:10px 0 0;font-size:.85rem">'+note+' XP là điểm thưởng khi luyện tập, không phải điểm kiểm tra.</p>';
-  [].forEach.call(bxhBody.querySelectorAll('[data-t]'),function(btn){btn.onclick=function(){bxhTab=btn.getAttribute('data-t');bxhDraw();const f=bxhBody.querySelector('[data-t="'+bxhTab+'"]');if(f)f.focus();};});
+  [].forEach.call(bxhBody.querySelectorAll('[data-t],[data-s]'),function(btn){btn.onclick=function(){
+    const s=btn.getAttribute('data-s'),t=btn.getAttribute('data-t');if(s)bxhScope=s;if(t)bxhTab=t;bxhDraw();
+    const f=bxhBody.querySelector(s?'[data-s="'+s+'"]':'[data-t="'+t+'"]');if(f)f.focus();};});
 }
 const h=load();
 if(h){applyGrade(grade(h.c));fetchProg(h.u,false);}else loginView('');
