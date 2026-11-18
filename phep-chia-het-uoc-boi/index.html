@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài 17. Phép chia hết. Ước và bội của một số nguyên – Toán 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Worksheet on graph paper. Blue ink for text, red pencil for the marked points. */
+:root{
+  --paper:#f2f6fc; --card:#ffffff; --ink:#13203a; --muted:#54627f; --line:#cdd7e9;
+  --grid:rgba(52,96,170,.08); --accent:#1f4fd8; --accent-ink:#ffffff; --mark:#d9342b; --tri:#eaf0fc;
+  --good:#17754a; --good-bg:#e4f4ea; --warn:#9a5b00; --warn-bg:#fff0d4; --bad:#b3261e; --bad-bg:#fde8e6;
+  --display:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1730; --card:#142245; --ink:#e8eefc; --muted:#9fb0d4; --line:#2b3c6b;
+    --grid:rgba(140,170,255,.07); --accent:#8aa9ff; --accent-ink:#0d1730; --mark:#ff7f72; --tri:#1a2b57;
+    --good:#58d19a; --good-bg:#12372d; --warn:#f3b955; --warn-bg:#3b2d10; --bad:#ff8a80; --bad-bg:#40191b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1730; --card:#142245; --ink:#e8eefc; --muted:#9fb0d4; --line:#2b3c6b;
+  --grid:rgba(140,170,255,.07); --accent:#8aa9ff; --accent-ink:#0d1730; --mark:#ff7f72; --tri:#1a2b57;
+  --good:#58d19a; --good-bg:#12372d; --warn:#f3b955; --warn-bg:#3b2d10; --bad:#ff8a80; --bad-bg:#40191b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink); font:16px/1.65 var(--body); -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 72px}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+sup{font-size:.72em;line-height:0}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;font-size:.82rem;color:var(--muted);flex-wrap:wrap}
+.top b{color:var(--ink);font-weight:600;letter-spacing:.02em}
+.top nav{display:flex;gap:16px;flex-wrap:wrap}
+.top nav a{color:var(--muted);text-decoration:none;border-bottom:1.5px solid transparent;padding-bottom:1px}
+.top nav a[aria-current="page"]{color:var(--ink);border-color:var(--mark)}
+
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.3rem,8vw,3.9rem);font-weight:700;letter-spacing:-.01em}
+h1 em{color:var(--accent);font-weight:600}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.15rem;font-weight:700}
+.lead{font-size:1.08rem;color:var(--muted);max-width:56ch;margin:14px 0 0}
+
+.hero{padding:12px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+
+.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;padding:12px 22px;border-radius:10px;cursor:pointer;min-height:46px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{padding:8px 14px;min-height:38px;font-size:.9rem}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:140px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+
+.dt{border-collapse:collapse;margin:10px 0 2px;font-size:.95rem}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 14px;text-align:left}
+.dt th{background:var(--paper)}
+.figbox{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;max-width:400px;margin:10px 0}
+.figbox.ms{max-width:none}
+.figbox p{margin:2px 0}
+.ms{display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.ms .r{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.ms .r b{min-width:54px;font-family:var(--display)}
+.ms i{font-style:normal;min-width:30px;text-align:center;padding:2px 4px;border-radius:6px;border:1px solid var(--line);background:var(--card);font-variant-numeric:tabular-nums}
+.ms i.c{border-color:var(--mark);color:var(--mark);font-weight:700}
+
+.grp{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark);margin:18px 0 8px}
+.grp:first-of-type{margin-top:6px}
+.pack{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.pk{appearance:none;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:68px}
+.pk:hover{border-color:var(--accent)}
+.pk b{font-family:var(--display);font-size:1.02rem}
+.pk span{font-size:.84rem;color:var(--muted);line-height:1.4}
+.pk[disabled]{opacity:.55;cursor:not-allowed}
+.pk[disabled]:hover{border-color:var(--line)}
+.recap{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.recap{grid-template-columns:1fr 1fr}}
+.recap .card{display:flex;flex-direction:column;gap:6px}
+.recap h3{font-size:1.02rem}
+.recap p{margin:0;font-size:.93rem}
+.chip{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--paper);white-space:nowrap}
+
+.bar-sticky{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:10px 16px}
+.timer{font-variant-numeric:tabular-nums;font-size:.95rem}
+.timer.low{color:var(--bad)}
+.prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.part{margin:28px 0 12px}
+.part .kicker{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mark)}
+.part p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.q{margin-bottom:14px}
+.qh{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}
+.qn{font-weight:700;font-family:var(--display);font-size:1.08rem}
+.stem{margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.opt{position:relative;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;background:var(--card)}
+.opt:hover{border-color:var(--accent)}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opt .ol{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:600;font-size:.85rem}
+.opt:has(input:checked){border-color:var(--accent);background:var(--tri)}
+.opt:has(input:checked) .ol{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.opt:has(input:disabled){cursor:default}
+.opt:has(input:disabled):hover{border-color:var(--line)}
+.opt.is-right,.opt.is-right:hover{border-color:var(--good);background:var(--good-bg)}
+.opt.is-right .ol{background:var(--good);color:var(--paper);border-color:var(--good)}
+.opt.is-wrong,.opt.is-wrong:hover{border-color:var(--bad);background:var(--bad-bg)}
+.opt.is-wrong .ol{background:var(--bad);color:var(--paper);border-color:var(--bad)}
+.tf{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.tfr{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 0;border-top:1px dashed var(--line)}
+.tfr .tx{flex:1 1 260px}
+.tfr .tx b{font-family:var(--display);margin-right:6px}
+.tfr .exp{flex-basis:100%;margin-top:0}
+.tfb{display:flex;gap:8px}
+.tfb .opt{padding:7px 16px;border-radius:99px;font-weight:600;font-size:.92rem}
+.sa{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.sa input{max-width:180px}
+.warnbar{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:12px 14px;margin-top:16px}
+.feed{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:.94rem}
+.feed.ok{background:var(--good-bg);color:var(--good)}
+.feed.bad{background:var(--bad-bg);color:var(--bad)}
+.feed.info{background:var(--warn-bg);color:var(--warn)}
+.exp{background:var(--paper);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:.94rem}
+
+.score{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.big{font-family:var(--display);font-weight:700;font-size:clamp(3rem,14vw,4.6rem);line-height:1;letter-spacing:-.02em}
+.big small{font-size:.4em;color:var(--muted);font-weight:600}
+.parts{display:flex;gap:8px;flex-wrap:wrap}
+.parts .chip{font-size:.85rem;padding:5px 12px}
+.topic{padding:14px 0;border-top:1px solid var(--line)}
+.topic:first-child{border-top:0;padding-top:0}
+.trow{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.track{height:12px;border-radius:99px;background:var(--line);margin:8px 0 6px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px}
+.st{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.st.good{background:var(--good-bg);color:var(--good)}
+.st.warn{background:var(--warn-bg);color:var(--warn)}
+.st.bad{background:var(--bad-bg);color:var(--bad)}
+.fill-good{background:var(--good)} .fill-warn{background:var(--warn)} .fill-bad{background:var(--bad)}
+.advice{border-left:4px solid var(--mark);padding:2px 0 2px 14px;margin:10px 0}
+.advice p{margin:4px 0}
+ul.plain{margin:6px 0 0;padding-left:20px}
+ul.plain li{margin:3px 0}
+details.rv{border:1px solid var(--line);border-radius:10px;background:var(--card);margin-bottom:8px}
+details.rv summary{cursor:pointer;padding:11px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;list-style:none}
+details.rv summary::-webkit-details-marker{display:none}
+details.rv .body{padding:0 14px 14px;border-top:1px dashed var(--line)}
+.mark-ok{color:var(--good);font-weight:700} .mark-no{color:var(--bad);font-weight:700}
+.ans-line{margin:6px 0;font-size:.94rem}
+.codebox{display:flex;flex-direction:column;gap:8px}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.cell{font-weight:600;text-align:center}
+td.cell.good{color:var(--good)} td.cell.warn{color:var(--warn)} td.cell.bad{color:var(--bad)}
+.tablewrap{overflow-x:auto}
+[hidden]{display:none!important}
+footer{margin-top:40px;color:var(--muted);font-size:.8rem}
+.ax{stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.ah{fill:var(--ink)}
+.tl{fill:var(--ink);font-size:15px;font-family:var(--body);font-variant-numeric:tabular-nums}
+.ol0{fill:var(--muted);font:italic 600 15px var(--display)}
+.pt{fill:var(--mark)}
+.pl{fill:var(--mark);font:italic 700 17px var(--display)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <b>Toán 6 · Kết nối tri thức · Bài 17. Phép chia hết. Ước và bội của một số nguyên</b>
+    <nav aria-label="Chọn chế độ">
+      <a href="../cac-bai/" id="nav-hub">Tất cả các bài</a>
+      <a href="#" id="nav-hs" aria-current="page">Học sinh</a>
+      <a href="#giao-vien" id="nav-gv">Giáo viên</a>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+
+  <footer>Bài luyện chấm tự động ngay trên trình duyệt. Kết quả không được lưu trên máy chủ; học sinh gửi mã kết quả của bài kiểm tra cho giáo viên để tổng hợp.</footer>
+</div>
+
+<script src="../gamify.js"></script>
+<script>
+"use strict";
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Số nguyên: cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;          // viết số nguyên, số âm dùng dấu trừ "−"
+const L=a=>a.map(N).join('; ');
+const P=x=>x<0?'('+N(x)+')':N(x);       // số âm đặt trong ngoặc khi đứng sau dấu phép tính
+const nb=s=>s.replace(/ /g,' ');   // khoảng trắng không ngắt dòng, để phép tính không bị tách đôi
+const ADD=(a,b)=>nb(N(a)+' + '+P(b));
+const SUB=(a,b)=>nb(N(a)+' − '+P(b));
+const SUMX=v=>nb(v.map((x,i)=>i===0?N(x):'+ '+P(x)).join(' '));   // 3 + (−5) + 7
+function EX(v0,ops){let s=N(v0),val=v0;for(const [g,v] of ops){s+=(g>0?' + ':' − ')+P(v);val+=g*v;}return {txt:nb(s),val};}
+const sum=v=>v.reduce((s,x)=>s+x,0);
+const sgn=()=>RNG()<.5?-1:1;
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const asc=a=>a.slice().sort((x,y)=>x-y);
+
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const C=(t,err)=>({t,err});
+const mk=(stem,good,cands,exp)=>({stem,opts:[{t:good}].concat(pickOpts(good,cands)),ans:0,exp});
+function tryGen(f){
+  for(let n=0;n<100;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>o.t)).size===4)return r;}
+  return FB_MC();
+}
+
+
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+
+/* ============ Dữ liệu dùng chung cho Bài 17 ============ */
+const NN=x=>(x<0?'−':'')+String(Math.abs(x)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');   // 45 000
+const nz=(lo,hi)=>ri(lo,hi)*sgn();
+const O=(t,err)=>err?{t,err}:{t};
+const DV=(a,b)=>nb(`${P(a)} : ${P(b)}`);              // (−45) : 5
+const LST=a=>a.map(N).join('; ');
+const ab=Math.abs;
+const divsP=n=>{n=ab(n);const r=[];for(let d=1;d<=n;d++)if(n%d===0)r.push(d);return r;};
+const divsAll=n=>{const p=divsP(n);return p.map(d=>-d).reverse().concat(p);};          // tăng dần: −n; …; −1; 1; …; n
+const gcd=(a,b)=>{a=ab(a);b=ab(b);while(b){[a,b]=[b,a%b];}return a;};
+const lcm=(a,b)=>ab(a*b)/gcd(a,b);
+const SMALLN=[6,8,9,10,12,14,15,16,18,20,21,24,25,28,30,35,40,42,45];
+const E_DSGN='Thương của hai số cùng dấu là số dương, thương của hai số khác dấu là số âm.';
+const E_MUL='Đề yêu cầu chia, bạn đã nhân hai số.';
+const FB_MC=()=>({stem:`Tính ${DV(-36,4)}.`,opts:[{t:'−9'},{t:'9',err:E_DSGN},{t:'−144',err:E_MUL},{t:'−32',err:'Đề yêu cầu chia, bạn đã trừ hai số.'}],ans:0,exp:'Hai số khác dấu nên thương âm: 36 : 4 = 9, vậy (−36) : 4 = −9.'});
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
+  IT('Thương của hai số nguyên khác dấu (khi chia hết) là một số nguyên âm.',true,'ch','NB','Ví dụ 12 : (−3) = −4.'),
+  IT('Thương của hai số nguyên âm (khi chia hết) là một số nguyên âm.',false,'ch','NB','Thương của hai số nguyên cùng dấu là số dương. Ví dụ (−12) : (−3) = 4.'),
+  IT('Nếu a chia hết cho b thì a là một bội của b.',true,'ub','NB','Khi a chia hết cho b ta gọi a là một bội của b và b là một ước của a.'),
+  IT('Số 0 là ước của mọi số nguyên.',false,'ub','NB','Không thể chia cho 0 nên 0 không là ước của số nào.')]});
+function pick4(Ts,Fs){const nT=ri(1,3);return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));}
+function mixed(make){for(let n=0;n<80;n++){const items=make();if(items.some(i=>!i))continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}return null;}
+const four=f=>()=>{const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+
+/* --- phép chia hết (SGK Ví dụ 1, Luyện tập 1, 3.39) --- */
+function divData(){const b=nz(2,15),q=nz(2,30);return {a:b*q,b,q};}
+function sameSg(a,b){return (a<0)===(b<0);}
+const divWhy=(a,b,q)=>`${sameSg(a,b)?'Hai số cùng dấu nên thương dương':'Hai số khác dấu nên thương âm'}: ${nb(`${ab(a)} : ${ab(b)} = ${ab(q)}`)}. Vậy ${DV(a,b)} = ${N(q)}.`;
+function genChDiv(){return tryGen(()=>{const {a,b,q}=divData();
+  return mk(`Tính ${DV(a,b)}.`,N(q),[C(N(-q),E_DSGN),C(N(a*b),E_MUL),C(N(q+sgn()*sel([1,10])),`Tính nhẩm sai: ${ab(a)} : ${ab(b)} = ${ab(q)}.`)],divWhy(a,b,q));
+});}
+function genChSign(){return tryGen(()=>{const {a,b,q}=divData(),good=q<0?'số nguyên âm':'số nguyên dương';
+  const all=[['số nguyên dương','Hai số khác dấu thì thương âm.'],['số nguyên âm','Hai số cùng dấu thì thương dương.']].filter(x=>x[0]!==good);
+  return mk(`Thương ${DV(a,b)} là:`,good,[C(all[0][0],all[0][1]),C('bằng 0','Thương bằng 0 chỉ khi số bị chia bằng 0.'),C('không thực hiện được','Vì '+N(a)+' = '+P(b)+' · '+P(q)+' nên phép chia thực hiện được.')],`${N(a)} = ${P(b)} · ${P(q)}, nên thương là ${N(q)}, một ${good}.`);
+});}
+function genChFrom(){return tryGen(()=>{
+  const y=ri(2,12),q=ri(2,20),x=y*q,k=sel([[ -x,y,-q,`(−${x}) : ${y}`],[x,-y,-q,`${x} : (−${y})`],[-x,-y,q,`(−${x}) : (−${y})`]]),v=k[2];
+  return mk(`Biết ${nb(`${x} : ${y} = ${q}`)}. Thương ${nb(k[3])} bằng:`,N(v),[C(N(-v),E_DSGN),C(N(x*y),E_MUL),C(N(v+sgn()*y),'Đổi dấu số bị chia hoặc số chia chỉ làm đổi dấu của thương, không đổi độ lớn.')],
+    `Độ lớn của thương vẫn là ${x} : ${y} = ${q}. ${sameSg(k[0],k[1])?'Hai số cùng dấu nên thương dương':'Hai số khác dấu nên thương âm'}: ${nb(k[3])} = ${N(v)}.`);
+});}
+function divStmt(){const b=nz(2,15),isT=RNG()<.5;let a;if(isT)a=b*nz(2,30);else{do{a=nz(5,300);}while(a%b===0);}
+  return {t:`${N(a)} chia hết cho ${N(b)}`,v:isT,a,b};}
+function genChStmt(){return tryGen(()=>{
+  const T=[],F=[];for(let i=0;i<80&&(!T.length||F.length<3);i++){const x=divStmt();if(x.v){if(!T.length)T.push(x);}else if(F.length<3)F.push(x);}
+  if(!T.length||F.length<3)return null;
+  return mk('Trong các phát biểu sau, phát biểu nào đúng?',T[0].t+'.',F.map(f=>C(f.t+'.',`${ab(f.a)} không chia hết cho ${ab(f.b)} nên không có số nguyên q để ${N(f.a)} = ${P(f.b)} · q.`)),`${N(T[0].a)} = ${P(T[0].b)} · ${P(T[0].a/T[0].b)} nên ${N(T[0].a)} chia hết cho ${N(T[0].b)}.`);
+});}
+function exprData(){
+  const c=ri(2,9),t=nz(2,12),diff=c*t,a=ri(20,60),b=a-diff,d=ri(10,40),e=ri(10,40),f=ri(2,9);if(d===e)return exprData();
+  const u=diff/(-c),v=(d-e)*f;
+  return {a,b,c,d,e,f,u,v,val:u+v,txt:nb(`(${a} − ${P(b)}) : (−${c}) + (${d} − ${e}) · ${f}`),
+    exp:`${nb(`(${a} − ${P(b)}) : (−${c}) + (${d} − ${e}) · ${f} = ${P(diff)} : (−${c}) + ${P(d-e)} · ${f} = ${N(u)} + ${P(v)} = ${N(u+v)}`)}.`};}
+function genChExpr(){return tryGen(()=>{const o=exprData();
+  return mk(`Tính giá trị của biểu thức ${o.txt}.`,N(o.val),[C(N(-o.u+o.v),'Hiệu '+N(o.a-o.b)+' chia cho (−'+o.c+') là số '+(o.u<0?'âm':'dương')+'.'),C(N(o.u-o.v),'Dấu của tích (d − e) · f bị đổi sai.'),C(N(-o.val),'Bạn đã đảo dấu kết quả.')],o.exp);
+});}
+const CMPW=['lớn hơn','nhỏ hơn','bằng'];
+function cmpDivData(){const k=ri(0,4),m=ri(2,12),n=ri(2,9),p=ri(2,12),x=m*n;
+  const T=[[DV(-x,n),'0','<','Thương của hai số khác dấu là số âm, mà số âm nhỏ hơn 0.'],
+    [DV(-x,-n),'0','>','Thương của hai số cùng dấu là số dương, mà số dương lớn hơn 0.'],
+    [DV(x,-n),N(-m),'=','Thương của hai số khác dấu là số âm: '+nb(`${x} : (−${n}) = −${m}`)+'.'],
+    [DV(-x,-n),DV(-p*n,n),'>','Thương (−'+x+') : (−'+n+') là số dương, thương (−'+p*n+') : '+n+' là số âm.'],
+    [DV(-x,n),DV(x,-n),'=','Hai thương đều bằng −'+m+'.']][k];
+  return {l:T[0],r:T[1],rel:T[2],why:T[3]};}
+function genChCmp(){return tryGen(()=>{const o=cmpDivData(),name=o.rel==='>'?'lớn hơn':o.rel==='<'?'nhỏ hơn':'bằng';
+  return mk(`Không cần tính hết, hãy so sánh ${o.l} với ${o.r}. Số thứ nhất so với số thứ hai là:`,name,CMPW.filter(t=>t!==name).map(t=>C(t,'Hãy xét dấu của mỗi thương: '+o.why)).concat([C('không so sánh được','Biết dấu và độ lớn của các thương thì so sánh được.')]),o.why);
+});}
+
+/* --- ước và bội (SGK Ví dụ 2, 3, 4, Luyện tập 2, 3.40, 3.41) --- */
+function genUbList(){return tryGen(()=>{const n=sgn()*sel(SMALLN.filter(x=>x<=30)),all=divsAll(n),p=divsP(n);
+  const noSelf=all.filter(d=>ab(d)!==ab(n));
+  return mk(`Tập hợp tất cả các ước của ${N(n)} là:`,'{'+LST(all)+'}',[C('{'+LST(p)+'}','Mỗi ước dương d luôn đi cùng số đối −d, vì −d cũng là ước.'),C('{'+LST(noSelf)+'}',`${N(n)} và ${N(-n)} cũng là ước của chính ${N(n)}.`),C('{'+LST(all.filter(d=>d<0).concat([0],all.filter(d=>d>0)))+'}','Không có phép chia cho 0 nên 0 không là ước của số nào.')],
+    `Các ước dương của ${ab(n)} là ${LST(p)}. Lấy thêm các số đối của chúng, ta được tất cả các ước: ${LST(all)}.`);
+});}
+function genUbIs(){return tryGen(()=>{const n=sgn()*sel(SMALLN),good=sel(divsAll(n).filter(d=>ab(d)>1&&ab(d)<ab(n))),W=[];
+  for(let i=0;i<60&&W.length<3;i++){const w=sgn()*ri(2,ab(n)-1);if(n%w!==0&&!W.includes(w))W.push(w);}
+  if(W.length<3)return null;
+  return mk(`Số nào sau đây là ước của ${N(n)}?`,N(good),W.map(w=>C(N(w),`${N(n)} không chia hết cho ${N(w)}.`)),`${DV(n,good)} = ${N(n/good)} nên ${N(good)} là ước của ${N(n)}.`);
+});}
+function genUbMult(){return tryGen(()=>{const n=nz(3,15),k=nz(2,12),good=n*k;
+  const W=[n*sgn()*ri(2,12)+sel([1,-1,2,-2])].concat([good+sel([1,-1]),good+sel([2,-2])]);
+  return mk(`Số nào sau đây là một bội của ${N(n)}?`,N(good),W.map(w=>C(N(w),`${DV(w,n)} không là số nguyên nên ${N(w)} không là bội của ${N(n)}.`)),`${N(good)} = ${P(n)} · ${P(k)} nên ${N(good)} là một bội của ${N(n)}.`);
+});}
+function cntMultData(){const n=ri(3,9),a=ri(2,6),b=ri(2,6);return {n,a,b,L:n*a,R:n*b,cnt:a+b-1,txt:nb(`−${n*a} < x < ${n*b}`)};}
+function genUbCntMult(){return tryGen(()=>{const o=cntMultData();
+  return mk(`Có bao nhiêu số nguyên x là bội của ${o.n} và thỏa mãn ${o.txt}?`,''+o.cnt,[C(''+(o.cnt+1),'Điều kiện chặt (dấu <) nên không lấy hai đầu mút.'),C(''+(o.cnt-1),'Số 0 cũng là bội của '+o.n+' (0 = '+o.n+' · 0).'),C(''+(o.b-1),'Phải đếm cả các bội âm và số 0.')],
+    `Các bội của ${o.n} thỏa mãn: ${LST(Array.from({length:o.cnt},(_,i)=>(i-(o.a-1))*o.n))}. Có ${o.cnt} số.`);
+});}
+function cntDivData(){const n=sel(SMALLN),d=divsP(n).length;return {n,d,cnt:2*d};}
+function genUbCntDiv(){return tryGen(()=>{const o=cntDivData(),n=o.n*sgn();
+  return mk(`Có bao nhiêu số nguyên là ước của ${N(n)}?`,''+o.cnt,[C(''+o.d,'Mỗi ước dương d còn có ước âm −d, nên số ước nguyên gấp đôi.'),C(''+(o.cnt+1),'0 không là ước của số nào, không đếm số 0.'),C(''+(o.cnt-2),`1, −1 và cả ${o.n}, −${o.n} đều là ước của ${ab(n)}.`)],
+    `${ab(n)} có ${o.d} ước dương (${LST(divsP(n))}), cùng với ${o.d} số đối của chúng, tổng cộng ${o.cnt} ước.`);
+});}
+function genUbCommon(){return tryGen(()=>{
+  const d=nz(2,9),u=ri(2,9),v=ri(2,9);if(u===v||gcd(u,v)!==1)return null;const a=d*u*sgn(),b=d*v*sgn();
+  const A=divsAll(a).filter(x=>ab(x)>1&&b%x!==0),B=divsAll(b).filter(x=>ab(x)>1&&a%x!==0);if(!A.length||!B.length)return null;
+  let w3;for(let i=0;i<60;i++){const w=nz(2,9);if(a%w!==0&&b%w!==0){w3=w;break;}}if(w3===undefined)return null;
+  return mk(`Số nào sau đây là ước chung của ${N(a)} và ${N(b)}?`,N(d),[C(N(sel(A)),`Số này là ước của ${N(a)} nhưng không là ước của ${N(b)}.`),C(N(sel(B)),`Số này là ước của ${N(b)} nhưng không là ước của ${N(a)}.`),C(N(w3),`Số này không là ước của ${N(a)} và ${N(b)}.`)],
+    `${DV(a,d)} = ${N(a/d)} và ${DV(b,d)} = ${N(b/d)} nên ${N(d)} là ước của cả ${N(a)} và ${N(b)}.`);
+});}
+function setData(){const m=ri(3,7),L=ri(8,30),R=ri(8,30),lo=-L,els=[];for(let x=lo;x<R;x++)if(x%m===0)els.push(x+0);
+  return {m,L,R,els,cnt:els.length,s:els.reduce((p,x)=>p+x,0),txt:nb(`−${L} ≤ x < ${R}`)};}
+function genUbSetCnt(){return tryGen(()=>{const o=setData();
+  return mk(`Cho ${nb(`M = {x ∈ ℤ | x ⋮ ${o.m} và ${o.txt}}`)}. Tập hợp M có bao nhiêu phần tử?`,''+o.cnt,[C(''+(o.cnt-1),'Bạn bỏ sót một phần tử. Hãy kiểm tra số 0 và đầu mút −'+o.L+' (dấu ≤ lấy đầu mút).'),C(''+(o.cnt+1),'Bạn đếm thừa một phần tử. Hãy kiểm tra đầu mút '+o.R+' (dấu < không lấy đầu mút).'),C(''+(o.cnt+2),'Bạn đếm thừa. Chỉ lấy các bội của '+o.m+' nằm trong khoảng đã cho.')],
+    `Các bội của ${o.m} trong khoảng đó: ${LST(o.els)}. Có ${o.cnt} phần tử.`);
+});}
+function genUbSetSum(){return tryGen(()=>{const o=setData();
+  return mk(`Cho ${nb(`M = {x ∈ ℤ | x ⋮ ${o.m} và ${o.txt}}`)}. Tổng các phần tử của M bằng:`,N(o.s),[C(N(-o.s),'Bạn đã đảo dấu của tổng.'),C(N(o.s+o.m),'Bạn đếm thừa hoặc thiếu một phần tử.'),C(N(o.s-o.m),'Bạn đếm thừa hoặc thiếu một phần tử.')],
+    `M = {${LST(o.els)}}. Các cặp số đối nhau có tổng 0, phần còn lại cộng lại được ${N(o.s)}.`);
+});}
+
+/* --- tìm x, tìm n (SGK Bài 24, 27; tài liệu ổ D dạng 3, 4) --- */
+function mulData(){const m=nz(2,12),x=nz(2,25);return {m,x,p:m*x};}
+function genTxMul(){return tryGen(()=>{const {m,x,p}=mulData();
+  return mk(`Tìm số nguyên x, biết ${nb(`${P(m)} · x = ${N(p)}`)}.`,N(x),[C(N(-x),E_DSGN),C(N(m*p),'Muốn tìm thừa số chưa biết, ta lấy tích chia cho thừa số đã biết.'),C(N(p-m),'Muốn tìm thừa số chưa biết, ta lấy tích chia cho thừa số đã biết.')],
+    `${nb(`x = ${N(p)} : ${P(m)} = ${N(x)}`)}.`);
+});}
+function lin1Data(){const a=nz(2,15),x=nz(-9,12),c=ri(2,9),p=a*(x-c);if(x===0)return lin1Data();return {a,x,c,p,t:p/a,txt:nb(`${a} · (x − ${c}) = ${N(p)}`)};}
+function genTxLin1(){return tryGen(()=>{const o=lin1Data();
+  return mk(`Tìm số nguyên x, biết ${o.txt}.`,N(o.x),[C(N(o.t),`${o.t} là giá trị của x − ${o.c}, chưa phải x.`),C(N(o.t-o.c),`Từ x − ${o.c} = ${N(o.t)} suy ra x = ${N(o.t)} + ${o.c}, không phải ${N(o.t)} − ${o.c}.`),C(N(-o.x),'Bạn đã đảo dấu kết quả.')],
+    `${nb(`x − ${o.c} = ${N(o.p)} : ${P(o.a)} = ${N(o.t)}`)}, suy ra ${nb(`x = ${N(o.t)} + ${o.c} = ${N(o.x)}`)}.`);
+});}
+function divEqData(){const q=nz(2,12),s=nz(2,20),c=ri(2,9),p=q*s,x=s-c;return {q,s,c,p,x,txt:nb(`${N(p)} : (x + ${c}) = ${N(q)}`)};}
+function genTxDiv(){return tryGen(()=>{const o=divEqData();
+  return mk(`Tìm số nguyên x, biết ${o.txt}.`,N(o.x),[C(N(o.s),`${N(o.s)} là giá trị của x + ${o.c}, chưa phải x.`),C(N(o.s+o.c),`Từ x + ${o.c} = ${N(o.s)} suy ra x = ${N(o.s)} − ${o.c}, không phải ${N(o.s)} + ${o.c}.`),C(N(-o.x),'Bạn đã đảo dấu kết quả.')],
+    `Số chia: ${nb(`x + ${o.c} = ${N(o.p)} : ${P(o.q)} = ${N(o.s)}`)}, suy ra ${nb(`x = ${N(o.s)} − ${o.c} = ${N(o.x)}`)}.`);
+});}
+function lin2Data(){const a=nz(2,9),x=nz(-9,12),c=ri(1,6),d=ri(1,9),p=a*(x-c)-d;if(x===0)return lin2Data();const t=(p+d)/a;
+  return {a,x,c,d,p,t,txt:nb(`${a} · (x − ${c}) − ${d} = ${N(p)}`)};}
+function genTxLin2(){return tryGen(()=>{const o=lin2Data();
+  return mk(`Tìm số nguyên x, biết ${o.txt}.`,N(o.x),[C(N(o.t),'Bạn quên cộng '+o.c+' sau khi tìm x − '+o.c+'.'),C(N(o.t-o.c),'Từ x − '+o.c+' = '+N(o.t)+' suy ra x = '+N(o.t)+' + '+o.c+'.'),C(N(-o.x),'Bạn đã đảo dấu kết quả.')],
+    `${nb(`${o.a} · (x − ${o.c}) = ${N(o.p)} + ${o.d} = ${N(o.p+o.d)}`)}, nên ${nb(`x − ${o.c} = ${N(o.t)}`)} và ${nb(`x = ${N(o.t)} + ${o.c} = ${N(o.x)}`)}.`);
+});}
+const NEX=(c)=>`n ${c>=0?'+':'−'} ${ab(c)}`;
+function nData(){const p=sgn()*sel([6,8,9,10,12,15]),c=nz(1,5),all=divsAll(p),ns=all.map(d=>d-c);
+  return {p,c,all,ns,cnt:all.length,sum:ns.reduce((s,x)=>s+x,0)};}
+function genTxN(){return tryGen(()=>{const o=nData(),isBoi=RNG()<.5,pos=divsP(o.p);
+  const stem=isBoi?`Các số nguyên n sao cho ${N(o.p)} là bội của (${NEX(o.c)}) là:`:`Các số nguyên n sao cho (${NEX(o.c)}) là ước của ${N(o.p)} là:`;
+  return mk(stem,LST(o.ns),[C(LST(pos.map(d=>d-o.c)),'(n + c) có thể là ước dương hoặc ước âm của '+N(o.p)+'. Hãy xét cả các ước âm.'),C(LST(o.all.map(d=>d+o.c)),`Từ n ${o.c>=0?'+':'−'} ${ab(o.c)} = d suy ra n = d ${o.c>=0?'−':'+'} ${ab(o.c)}.`),C(LST(o.all),`Đây là các ước của ${N(o.p)}, nhưng ${NEX(o.c)} mới là ước, nên phải tính n.`)],
+    `${NEX(o.c)} là ước của ${N(o.p)} nên ${NEX(o.c)} ∈ {${LST(o.all)}}. Suy ra n ∈ {${LST(o.ns)}}.`);
+});}
+function genTxNCnt(){return tryGen(()=>{const o=nData();
+  return mk(`Có bao nhiêu số nguyên n để (${NEX(o.c)}) là ước của ${N(o.p)}?`,''+o.cnt,[C(''+o.cnt/2,'Mỗi ước dương d còn có ước âm −d nên số ước gấp đôi.'),C(''+(o.cnt+1),'0 không là ước của số nào.'),C(''+(o.cnt-2),'Cả 1, −1 và '+ab(o.p)+', −'+ab(o.p)+' đều là ước của '+ab(o.p)+'.')],
+    `${N(o.p)} có ${o.cnt} ước nguyên, mỗi ước cho đúng một giá trị của n. Vậy có ${o.cnt} số n.`);
+});}
+function plusData(){const k=sel([6,8,9,10,12,14,15]),d=divsP(k).length;return {k,d,cnt:2*d,vals:divsAll(k)};}
+function genTxPlus(){return tryGen(()=>{const o=plusData();
+  return mk(`Có bao nhiêu số nguyên x để ${nb(`x + ${o.k}`)} chia hết cho x?`,''+o.cnt,[C(''+o.d,'x có thể là ước âm hoặc ước dương của '+o.k+'.'),C(''+(o.cnt+1),'x khác 0 vì không chia cho 0.'),C(''+(o.cnt-2),'1, −1 và '+o.k+', −'+o.k+' đều thỏa mãn.')],
+    `Vì x chia hết cho x nên x + ${o.k} chia hết cho x khi và chỉ khi ${o.k} chia hết cho x. Vậy x là ước của ${o.k}: ${LST(o.vals)}. Có ${o.cnt} số.`);
+});}
+function linDivData(){const a=ri(2,4),c=nz(1,3),r=sel([3,5,7,9,11,13,15]),b=r+a*c,all=divsAll(r),ns=all.map(d=>d-c);
+  return {a,c,b,r,all,ns,cnt:all.length,sum:ns.reduce((s,x)=>s+x,0),txt:nb(`${a}n ${b>=0?'+':'−'} ${ab(b)}`)};}
+function genTxLinDiv(){return tryGen(()=>{const o=linDivData();
+  return mk(`Tìm các số nguyên n sao cho ${o.txt} chia hết cho ${nb(NEX(o.c))}. Các số n đó là:`,LST(o.ns),[C(LST(o.all.map(d=>d+o.c)),'Từ '+NEX(o.c)+' = d suy ra n = d '+(o.c>=0?'−':'+')+' '+ab(o.c)+'.'),C(LST(divsP(o.r).map(d=>d-o.c)),'Phải xét cả các ước âm của '+o.r+'.'),C(LST(o.all),'Đây là các ước của '+o.r+', nhưng '+NEX(o.c)+' mới là ước.')],
+    `${nb(`${o.txt} = ${o.a} · (${NEX(o.c)}) + ${N(o.r)}`)}. Vì ${NEX(o.c)} chia hết cho ${NEX(o.c)} nên cần ${N(o.r)} chia hết cho ${NEX(o.c)}. Suy ra ${NEX(o.c)} ∈ {${LST(o.all)}}, tức n ∈ {${LST(o.ns)}}.`);
+});}
+
+/* --- vận dụng thực tế (SGK Bài 25, 28, 3.49, Ví dụ 2 luyện tập chung) --- */
+function avgData(){for(;;){const n=sel([3,4,5,6]),avg=ri(-6,4),t=[];if(avg===0)continue;let s=0;for(let i=0;i<n-1;i++){const v=ri(-9,9);t.push(v);s+=v;}const last=n*avg-s;
+  if(ab(last)>12||new Set(t.concat([last])).size<3)continue;t.push(last);const T=shuffle(t);
+  return {n,avg,T,sum:n*avg,stem:`Nhiệt độ lúc 6 giờ sáng của ${n} ngày liên tiếp lần lượt là ${T.map(v=>N(v)+' °C').join('; ')}.`,
+    exp:`Tổng nhiệt độ: ${nb(`${T.map((v,i)=>i?'+ '+P(v):N(v)).join(' ')} = ${N(n*avg)}`)} (°C). Nhiệt độ trung bình: ${DV(n*avg,n)} = ${N(avg)} (°C).`};}}
+function genVdAvg(){return tryGen(()=>{const o=avgData();
+  return mk(`${o.stem} Nhiệt độ trung bình lúc 6 giờ sáng của ${o.n} ngày đó là bao nhiêu °C?`,N(o.avg),[C(N(o.sum),`Đó mới là tổng các nhiệt độ, còn phải chia cho ${o.n}.`),C(N(-o.avg),E_DSGN),C(N(o.avg+sel([1,-1])),'Tính tổng sai. Hãy cộng lại từng số, chú ý dấu.')],o.exp);
+});}
+function debtData(){const n=ri(3,8),e=ri(5,40)*5,D=n*e;return {n,e,D,stem:`Một nhóm ${n} bạn cùng vay tổng cộng ${NN(D)} nghìn đồng để mua quà. Tiền nợ được ghi bằng số nguyên âm. Nếu chia đều số nợ cho các bạn thì số ghi của mỗi bạn là bao nhiêu nghìn đồng?`,
+  exp:`Số nợ cả nhóm ghi là −${NN(D)} nghìn đồng. Mỗi bạn: ${nb(`(−${NN(D)}) : ${n} = −${NN(e)}`)} (nghìn đồng).`};}
+function genVdDebt(){return tryGen(()=>{const o=debtData();
+  return mk(o.stem,NN(-o.e),[C(NN(o.e),'Khoản nợ được ghi bằng số âm nên số ghi của mỗi bạn cũng là số âm.'),C(NN(-o.D*o.n),'Chia đều là phép chia, không phải phép nhân.'),C(NN(-o.D),'Đó là số nợ cả nhóm, còn phải chia đều cho '+o.n+' bạn.')],o.exp);
+});}
+function profitData(){for(;;){const a=ri(10,60),b=ri(10,60);if((b-a)%2||a===b)continue;const T=3*(b-a),avg=T/6;
+  return {a,b,T,avg,stem:`Công ty Ánh Dương có lợi nhuận mỗi tháng của Quý I là −${a} triệu đồng, mỗi tháng của Quý II là ${b} triệu đồng. Sau 6 tháng đầu năm, lợi nhuận trung bình mỗi tháng của công ty là bao nhiêu triệu đồng (số âm là lỗ)?`,
+    exp:`Tổng lợi nhuận: ${nb(`3 · (−${a}) + 3 · ${b} = ${N(-3*a)} + ${3*b} = ${N(T)}`)} (triệu đồng). Trung bình mỗi tháng: ${DV(T,6)} = ${N(avg)} (triệu đồng).`};}}
+function genVdProfit(){return tryGen(()=>{const o=profitData();
+  return mk(o.stem,N(o.avg),[C(N(o.T),'Đó là tổng lợi nhuận 6 tháng, còn phải chia cho 6.'),C(N(-o.avg),E_DSGN),C(N(o.avg*2),'Tổng của 6 tháng phải chia cho 6, bạn đã chia cho 3.')],o.exp);
+});}
+function wageData(){const g=sel([30000,40000,50000]),f=sel([5000,10000,20000]),c=ri(150,300),w=ri(3,12),val=c*g-w*f;
+  return {g,f,c,w,val,stem:`Công nhân làm ra một sản phẩm đạt chất lượng thì được ${NN(g)} đồng, làm ra một sản phẩm không đạt thì bị phạt ${NN(f)} đồng. Tháng vừa qua một công nhân làm được ${c} sản phẩm đạt và ${w} sản phẩm không đạt. Công nhân đó được lĩnh bao nhiêu đồng?`,
+    exp:`Tiền thưởng: ${nb(`${c} · ${NN(g)} = ${NN(c*g)}`)} (đồng). Tiền phạt: ${nb(`${w} · (−${NN(f)}) = −${NN(w*f)}`)} (đồng). Tiền lĩnh: ${nb(`${NN(c*g)} − ${NN(w*f)} = ${NN(val)}`)} (đồng).`};}
+function genVdWage(){return tryGen(()=>{const o=wageData();
+  return mk(o.stem,NN(o.val),[C(NN(o.c*o.g+o.w*o.f),'Sản phẩm không đạt bị phạt nên phải trừ đi, không cộng.'),C(NN(o.c*o.g),'Bạn quên trừ tiền phạt của các sản phẩm không đạt.'),C(NN(o.val-10*o.f),'Tính nhẩm sai khi nhân hoặc trừ.')],o.exp);
+});}
+function snailData(){const a=ri(3,6),b=ri(1,a-1),k=ri(3,8),H=k*(a-b)+a,n=ri(2,6);
+  return {a,b,k,H,n,h:24*k+12,stem1:`Một con ốc sên leo cây. Mỗi ngày, ban ngày nó leo lên ${a} m rồi ban đêm tụt xuống ${b} m. Quy ước quãng đường leo lên là số dương, quãng đường tụt xuống là số âm. Sau ${n} ngày liên tiếp, ốc sên cách gốc cây bao nhiêu mét?`,
+    exp1:`Mỗi ngày ốc sên đi được ${nb(`${a} + (−${b}) = ${a-b}`)} (m). Sau ${n} ngày: ${nb(`${n} · ${a-b} = ${n*(a-b)}`)} (m).`,
+    stem2:`Một con ốc sên leo lên một cây cao ${H} m. Trong mỗi ngày (24 giờ), 12 giờ đầu ốc sên leo lên ${a} m, 12 giờ sau tụt xuống ${b} m. Lúc 0 giờ ốc sên ở gốc cây và bắt đầu leo lên. Sau bao nhiêu giờ thì ốc sên chạm tới ngọn cây?`,
+    exp2:`Mỗi ngày ốc sên tiến thêm ${a-b} m. Sau ${k} ngày ốc sên cách gốc ${nb(`${k} · ${a-b} = ${k*(a-b)}`)} (m). Ngày thứ ${k+1}, trong 12 giờ đầu ốc sên leo thêm ${a} m và tới ${H} m, chạm ngọn. Thời gian: ${nb(`${k} · 24 + 12 = ${24*k+12}`)} (giờ).`};}
+function genVdSnail(){return tryGen(()=>{const o=snailData();
+  return mk(o.stem1,''+o.n*(o.a-o.b),[C(''+o.n*o.a,'Ban đêm ốc sên tụt xuống, phải trừ quãng đường tụt: '+o.a+' + (−'+o.b+').'),C(''+o.n*(o.a+o.b),'Quãng đường tụt xuống là số âm, phải cộng (−'+o.b+') chứ không cộng '+o.b+'.'),C(''+(o.n*(o.a-o.b)+o.a),'Chỉ tính '+o.n+' ngày trọn vẹn, không cộng thêm quãng đường leo của ngày sau.')],o.exp1);
+});}
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  ch:{short:'Phép chia hết',name:'Phép chia hết trong tập số nguyên',rule:'Với a, b ∈ ℤ, b ≠ 0: nếu có số nguyên q sao cho a = b · q thì a : b = q và ta nói a chia hết cho b. Thương của hai số cùng dấu là số dương, thương của hai số khác dấu là số âm: (−12) : (−3) = 4, 12 : (−3) = −4. Số 0 chia cho số khác 0 bằng 0, không chia cho 0.',tip:'Hay nhầm dấu của thương: cùng dấu thì dương, khác dấu thì âm. Chia hết chỉ khi tìm được số nguyên q.'},
+  ub:{short:'Ước và bội',name:'Ước và bội của một số nguyên',rule:'Nếu a chia hết cho b thì a là một bội của b và b là một ước của a. Nếu a là một bội của b thì −a cũng là một bội của b; nếu b là một ước của a thì −b cũng là một ước của a. Muốn tìm tất cả các ước của a, lấy các ước dương của a cùng với các số đối của chúng. Ước chung của a và b là số vừa là ước của a vừa là ước của b.',tip:'Số nguyên có cả ước âm và ước dương (ước của 6 là −6; −3; −2; −1; 1; 2; 3; 6). Số 0 không là ước của số nào, nhưng là bội của mọi số khác 0.'},
+  tx:{short:'Tìm x, tìm n',name:'Tìm số nguyên x, n thỏa mãn điều kiện',rule:'Muốn tìm thừa số chưa biết, lấy tích chia cho thừa số đã biết: từ a · x = p suy ra x = p : a. Muốn tìm số chia, lấy số bị chia chia cho thương. Điều kiện (n + c) là ước của p, hoặc p là bội của (n + c): liệt kê các ước của p (cả âm và dương) rồi tìm n. Nếu a ⋮ c và b ⋮ c thì (a + b) ⋮ c và (a − b) ⋮ c.',tip:'Sau khi tìm được giá trị của biểu thức trong ngoặc, đừng quên bước tìm x hoặc n. Với điều kiện ước, nhớ xét cả các ước âm.'},
+  vd:{short:'Vận dụng thực tế',name:'Vận dụng vào bài toán thực tế',rule:'Số âm dùng để ghi khoản nợ, khoản lỗ, nhiệt độ dưới 0 °C, quãng đường đi xuống. Trung bình cộng bằng tổng các số chia cho số số hạng; chia đều một khoản nợ cho n người là (−D) : n. Viết thành biểu thức rồi tính, chú ý dấu của tích và của thương.',tip:'Đọc kĩ đề để biết đại lượng nào là số âm, tính tổng trước rồi mới chia để lấy trung bình.'}
+};
+const TKEYS=['ch','ub','tx','vd'];
+const TDESC={ch:'Thực hiện phép chia hết, dấu của thương, so sánh thương',ub:'Tìm ước, bội, ước chung, liệt kê tập hợp các bội',tx:'Tìm x từ phép nhân, phép chia; tìm n để a là bội, là ước',vd:'Nhiệt độ trung bình, nợ chia đều, lợi nhuận, thưởng phạt, ốc sên'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhớ định nghĩa chia hết, ước, bội, dấu của thương, chia hai số nguyên một bước.',TH:'Tính thương, tìm ước và bội, tìm x trong phép nhân và phép chia, tính trung bình, bài toán thực tế một đến hai bước.',VD:'Tìm n để một biểu thức là ước, tính tổng các phần tử của tập hợp, bài toán thực tế nhiều bước.'};
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const MC=[
+ {id:'m1',topic:'ch',level:'NB',stem:'Với a, b ∈ ℤ, b ≠ 0, ta nói a chia hết cho b khi:',ans:0,opts:[
+   O('có số nguyên q sao cho a = b · q'),O('có số nguyên q sao cho b = a · q','Đây là điều kiện để b chia hết cho a.'),O('a lớn hơn b','Chia hết không liên quan đến việc số nào lớn hơn.'),O('a + b là số chẵn','Chia hết được định nghĩa bằng tích a = b · q.')],
+  exp:'Nếu có số nguyên q sao cho a = b · q thì a : b = q, ta nói a chia hết cho b. Ví dụ 12 = (−3) · (−4) nên 12 chia hết cho −3.'},
+ {id:'m2',topic:'ch',level:'NB',stem:'Thương của hai số nguyên khác dấu (khi chia hết) là:',ans:0,opts:[
+   O('một số nguyên âm'),O('một số nguyên dương','Hai số khác dấu thì thương âm. Ví dụ 12 : (−3) = −4.'),O('bằng 0','Thương bằng 0 chỉ khi số bị chia bằng 0.'),O('có thể âm, có thể dương','Hai số khác dấu thì thương luôn là số âm.')],
+  exp:'Thương của hai số nguyên cùng dấu là số dương, của hai số khác dấu là số âm.'},
+ {id:'m3',topic:'ch',level:'NB',stem:'Từ '+nb('12 : 3 = 4')+', suy ra đẳng thức nào sau đây đúng?',ans:0,opts:[
+   O(nb('12 : (−3) = −4')),O(nb('(−12) : 3 = 4'),'Hai số khác dấu thì thương âm: (−12) : 3 = −4.'),O(nb('(−12) : (−3) = −4'),'Hai số cùng dấu thì thương dương: (−12) : (−3) = 4.'),O(nb('12 : (−3) = 4'),'Hai số khác dấu thì thương âm.')],
+  exp:'Độ lớn của thương không đổi, chỉ có dấu thay đổi: 12 : (−3) = −4; (−12) : 3 = −4; (−12) : (−3) = 4.'},
+ {id:'m4',topic:'ub',level:'NB',stem:'Khi a chia hết cho b (a, b ∈ ℤ, b ≠ 0), ta nói:',ans:0,opts:[
+   O('a là một bội của b và b là một ước của a'),O('a là một ước của b và b là một bội của a','Ngược lại: bội là số bị chia, ước là số chia.'),O('a và b đều là ước của nhau','Chỉ có b là ước của a; a là bội của b.'),O('a và b đều là bội của nhau','Chỉ có a là bội của b; b là ước của a.')],
+  exp:'Ví dụ (−35) chia hết cho (−7) nên −35 là một bội của −7 và −7 là một ước của −35.'},
+ {id:'m5',topic:'ub',level:'NB',stem:'Nếu a là một bội của b thì:',ans:0,opts:[
+   O('−a cũng là một bội của b'),O('−a không là bội của b','Nếu a = b · q thì −a = b · (−q).'),O('a + 1 cũng là một bội của b','Chỉ a và các số đối a, −a hay tích với số nguyên mới là bội của b.'),O('b là một bội của a','Ví dụ 6 là bội của 3 nhưng 3 không là bội của 6.')],
+  exp:'Nếu a = b · q thì −a = b · (−q) nên −a cũng là bội của b.'},
+ {id:'m6',topic:'ub',level:'NB',stem:'Hai số nguyên nào sau đây là ước của mọi số nguyên?',ans:0,opts:[
+   O('1 và −1'),O('0 và 1','0 không là ước của số nào vì không chia được cho 0.'),O('0 và −1','0 không là ước của số nào vì không chia được cho 0.'),O('1 và 10','Số 7 không chia hết cho 10 nên 10 không là ước của mọi số.')],
+  exp:'a = 1 · a = (−1) · (−a) với mọi a, nên 1 và −1 là ước của mọi số nguyên a.'},
+ {id:'m7',topic:'ub',level:'TH',stem:'Các ước chung của 6 và 4 là:',ans:0,opts:[
+   O('−2; −1; 1; 2'),O('1; 2','Ước chung cũng gồm các số âm −1 và −2.'),O('−4; −2; −1; 1; 2; 4','4 là ước của 4 nhưng không là ước của 6.'),O('−6; −4; −3; −2; −1; 1; 2; 3; 4; 6','Ước chung phải là ước của cả hai số, đây là các ước của 6 và các ước của 4 gộp lại.')],
+  exp:'Các ước của 6: ±1; ±2; ±3; ±6. Các ước của 4: ±1; ±2; ±4. Các số xuất hiện ở cả hai: −2; −1; 1; 2.'},
+ {id:'m8',topic:'ub',level:'TH',stem:'Các bội của 7 là:',ans:0,opts:[
+   O('0; 7; −7; 14; −14; 21; −21; …'),O('7; 14; 21; …','Thiếu số 0 và các bội âm −7; −14; …'),O('0; 7; 14; 21; …','Thiếu các bội âm: nếu a là bội của 7 thì −a cũng là bội của 7.'),O('1; 7; 49; 343; …','Bội của 7 là các số 7 · k với k nguyên, không phải lũy thừa của 7.')],
+  exp:'Các bội của 7 là 7 · k với k ∈ ℤ: 0; ±7; ±14; ±21; …'},
+ {id:'m9',topic:'tx',level:'TH',stem:'Số nguyên x thỏa mãn '+nb('15 · (x − 3) = −75')+' là:',ans:0,opts:[
+   O('−2'),O('−5','−5 là giá trị của x − 3, chưa phải x.'),O('−8','Từ x − 3 = −5 suy ra x = −5 + 3, không phải −5 − 3.'),O('2','Bạn đã đảo dấu kết quả.')],
+  exp:'x − 3 = (−75) : 15 = −5. Suy ra x = −5 + 3 = −2.'},
+ {id:'m10',topic:'ch',level:'VD',stem:'Có hai số nguyên a, b khác nhau mà a chia hết cho b và b chia hết cho a. Khẳng định nào sau đây đúng?',ans:0,opts:[
+   O('a và b là hai số đối nhau'),O('a = b','Đề cho a, b khác nhau.'),O('a = 2b','Nếu a = 2b thì b chia hết cho a chỉ khi b = a · q, không có số nguyên q nào (trừ b = 0).'),O('Không có hai số như vậy','Ví dụ a = 5, b = −5: 5 = (−5) · (−1) và −5 = 5 · (−1).')],
+  exp:'a = b · q và b = a · q′ nên q · q′ = 1, tức q = 1 hoặc q = −1. Vì a ≠ b nên q = −1, tức a = −b. Ví dụ 5 và −5.'},
+ {id:'m11',topic:'ch',level:'TH',stem:'Biết 12 và 21 đều chia hết cho −3. Khẳng định nào sau đây đúng?',ans:0,opts:[
+   O('Tổng 12 + 21 và hiệu 12 − 21 đều chia hết cho −3'),O('Chỉ tổng 12 + 21 chia hết cho −3','Hiệu 12 − 21 = −9 cũng chia hết cho −3.'),O('Chỉ hiệu 12 − 21 chia hết cho −3','Tổng 12 + 21 = 33 cũng chia hết cho −3.'),O('Tổng và hiệu đều không chia hết cho −3','12 + 21 = 33 = (−3) · (−11) nên chia hết cho −3.')],
+  exp:'Nếu a = (−3) · m và b = (−3) · n thì a + b = (−3) · (m + n) và a − b = (−3) · (m − n). Vậy tổng và hiệu đều chia hết cho −3.'},
+ {id:'m12',topic:'ub',level:'NB',stem:'Phát biểu nào sau đây đúng?',ans:0,opts:[
+   O('Số 0 là một bội của mọi số nguyên khác 0'),O('Số 0 là ước của mọi số nguyên','Không thể chia cho 0 nên 0 không là ước của số nào.'),O('Số 0 không là bội của số nào','0 = b · 0 nên 0 là bội của mọi số nguyên b khác 0.'),O('Số 1 là bội của mọi số nguyên','1 chỉ là bội của 1 và −1.')],
+  exp:'0 = b · 0 với mọi b ≠ 0, nên 0 là bội của mọi số nguyên khác 0.'},
+ {id:'m13',topic:'vd',level:'TH',stem:'Nhiệt độ lúc 8 giờ sáng trong 5 ngày liên tiếp lần lượt là −6 °C; −5 °C; −4 °C; 2 °C; 3 °C. Nhiệt độ trung bình lúc 8 giờ sáng của 5 ngày đó là:',ans:0,opts:[
+   O('−2 °C'),O('−10 °C','Đó là tổng nhiệt độ, còn phải chia cho 5.'),O('2 °C','Tổng là −10 nên trung bình là số âm.'),O('−3 °C','Tính tổng sai: −6 − 5 − 4 + 2 + 3 = −10.')],
+  exp:'Tổng: (−6) + (−5) + (−4) + 2 + 3 = −10. Trung bình: (−10) : 5 = −2 (°C).'},
+ {id:'m14',topic:'tx',level:'VD',stem:'Số nguyên x thỏa mãn '+nb('−64 : (−2x + 6) = 4')+' là:',ans:0,opts:[
+   O('11'),O('−11','Từ −2x = −22 suy ra x = (−22) : (−2) = 11.'),O('5','Sai khi tính −2x + 6 = −16, hãy tính lại: (−64) : 4 = −16.'),O('−5','Sai dấu khi tìm x từ −2x = −22.')],
+  exp:'Số chia: −2x + 6 = (−64) : 4 = −16. Suy ra −2x = −16 − 6 = −22 và x = (−22) : (−2) = 11.'},
+ {id:'m15',topic:'tx',level:'VD',stem:'Các số nguyên a sao cho (a + 3) là ước của 7 là:',ans:0,opts:[
+   O('−10; −4; −2; 4'),O('−7; −1; 1; 7','Đây là các ước của 7, nhưng a + 3 mới là ước nên phải tìm a.'),O('−10; −4; −2','Bỏ sót ước dương 7: a + 3 = 7 cho a = 4.'),O('−7; −1','Phải xét cả các ước dương 1 và 7.')],
+  exp:'a + 3 ∈ {−7; −1; 1; 7} nên a ∈ {−10; −4; −2; 4}.'},
+ {id:'m16',topic:'vd',level:'TH',stem:'Một xí nghiệp may gia công thưởng 50 nghìn đồng cho mỗi sản phẩm tốt và phạt 40 nghìn đồng cho mỗi sản phẩm có lỗi. Chị Lan làm được 45 sản phẩm tốt và 5 sản phẩm có lỗi. Số tiền chị Lan nhận được (đơn vị: nghìn đồng) là:',ans:0,opts:[
+   O('2 050'),O('2 250','Bạn quên trừ tiền phạt của các sản phẩm có lỗi.'),O('2 500','Tiền phạt phải trừ đi, không cộng thêm.'),O('−2 050','Bạn đã đảo dấu kết quả.')],
+  exp:'45 · 50 + 5 · (−40) = 2 250 − 200 = 2 050 (nghìn đồng).'},
+ {id:'m17',topic:'ch',level:'TH',stem:'Trong các phát biểu sau, phát biểu nào đúng?',ans:0,opts:[
+   O('234 chia hết cho (−6)'),O('−135 chia hết cho 13','−135 không là bội của 13 vì 13 · 10 = 130 và 13 · 11 = 143.'),O('137 chia hết cho (−7)','137 không là bội của 7 vì 7 · 19 = 133 và 7 · 20 = 140.'),O('−234 chia hết cho 35','−234 không là bội của 35 vì 35 · 6 = 210 và 35 · 7 = 245.')],
+  exp:'234 = (−6) · (−39) nên 234 chia hết cho −6.'},
+ {id:'m18',topic:'tx',level:'VD',stem:'Biết '+nb('(−5) · x = 15')+' và '+nb('22 · y = −44')+'. Giá trị của x + y là:',ans:0,opts:[
+   O('−5'),O('1','Bạn đã tính sai dấu của x: x = 15 : (−5) = −3.'),O('−1','Bạn đã tính sai dấu của y: y = (−44) : 22 = −2.'),O('5','Bạn đã đảo dấu kết quả.')],
+  exp:'x = 15 : (−5) = −3; y = (−44) : 22 = −2. Vậy x + y = (−3) + (−2) = −5.'}
+].map(q=>Object.assign({type:'mc'},q));
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+const rep=(n,f)=>[...Array(n).keys()].map(i=>f('abcdef'[i]));
+rep(2,x=>addMC('g_chsign_'+x,'ch','NB',genChSign));
+rep(3,x=>addMC('g_ubis_'+x,'ub','NB',genUbIs));
+rep(2,x=>addMC('g_ubmult_'+x,'ub','NB',genUbMult));
+rep(2,x=>addMC('g_vddebt_'+x,'vd','NB',genVdDebt));
+rep(3,x=>addMC('g_chdiv_'+x,'ch',x==='c'?'TH':'NB',genChDiv));
+rep(2,x=>addMC('g_chfrom_'+x,'ch','TH',genChFrom));
+rep(3,x=>addMC('g_chstmt_'+x,'ch','TH',genChStmt));
+rep(2,x=>addMC('g_chexpr_'+x,'ch','TH',genChExpr));
+rep(2,x=>addMC('g_chcmp_'+x,'ch','NB',genChCmp));
+rep(3,x=>addMC('g_ublist_'+x,'ub','TH',genUbList));
+rep(2,x=>addMC('g_ubcommon_'+x,'ub','TH',genUbCommon));
+rep(2,x=>addMC('g_ubcntmult_'+x,'ub','TH',genUbCntMult));
+rep(2,x=>addMC('g_ubcntdiv_'+x,'ub','TH',genUbCntDiv));
+rep(2,x=>addMC('g_ubsetcnt_'+x,'ub','TH',genUbSetCnt));
+rep(2,x=>addMC('g_txmul_'+x,'tx','NB',genTxMul));
+rep(3,x=>addMC('g_txlin1_'+x,'tx','TH',genTxLin1));
+rep(2,x=>addMC('g_txdiv_'+x,'tx','TH',genTxDiv));
+rep(3,x=>addMC('g_vdavg_'+x,'vd','TH',genVdAvg));
+rep(2,x=>addMC('g_vdwage_'+x,'vd','TH',genVdWage));
+rep(2,x=>addMC('g_vdsnail_'+x,'vd','TH',genVdSnail));
+rep(2,x=>addMC('g_ubsetsum_'+x,'ub','VD',genUbSetSum));
+rep(2,x=>addMC('g_txlin2_'+x,'tx','VD',genTxLin2));
+rep(3,x=>addMC('g_txn_'+x,'tx','VD',genTxN));
+rep(2,x=>addMC('g_txncnt_'+x,'tx','VD',genTxNCnt));
+rep(2,x=>addMC('g_txplus_'+x,'tx','VD',genTxPlus));
+rep(2,x=>addMC('g_txlindiv_'+x,'tx','VD',genTxLinDiv));
+rep(2,x=>addMC('g_vdprofit_'+x,'vd','VD',genVdProfit));
+
+/* ============ Đúng sai ============ */
+function tfDivQ(){const {a,b,q}=divData(),t=RNG()<.5,shown=t?q:sel([-q,q+sel([1,-1,2]),a*b].filter(v=>v!==q));
+  return IT(`${DV(a,b)} = ${N(shown)}`,t,'ch','TH',divWhy(a,b,q).replace(/\.$/,'')+(t?'.':`, không phải ${N(shown)}.`));}
+function tfDivBy(){const s=divStmt();
+  return IT(s.t+'.',s.v,'ch','TH',s.v?`${N(s.a)} = ${P(s.b)} · ${P(s.a/s.b)} nên chia hết.`:`${ab(s.a)} không chia hết cho ${ab(s.b)} nên ${N(s.a)} không chia hết cho ${N(s.b)}.`);}
+function tfUoc(){const n=sgn()*sel(SMALLN),t=RNG()<.5;let d;
+  if(t)d=sel(divsAll(n));else{do{d=nz(2,ab(n));}while(n%d===0);}
+  return IT(`${N(d)} là một ước của ${N(n)}.`,t,'ub','TH',t?`${DV(n,d)} = ${N(n/d)} nên ${N(d)} là ước của ${N(n)}.`:`${N(n)} không chia hết cho ${N(d)} nên ${N(d)} không là ước của ${N(n)}.`);}
+function tfBoi(){const n=nz(3,15),t=RNG()<.5,k=nz(2,12),m=t?n*k:n*k+sel([1,-1,2,-2]);
+  return IT(`${N(m)} là một bội của ${N(n)}.`,t,'ub','TH',t?`${N(m)} = ${P(n)} · ${P(k)} nên là một bội của ${N(n)}.`:`${N(m)} không chia hết cho ${N(n)} nên không là bội của ${N(n)}.`);}
+function tfCommon(){const d=nz(2,9),a=d*nz(2,9),t=RNG()<.5;let b;
+  if(t)b=d*nz(2,9);else{do{b=nz(5,60);}while(b%d===0);}
+  return IT(`${N(d)} là ước chung của ${N(a)} và ${N(b)}.`,t,'ub','VD',t?`${DV(a,d)} = ${N(a/d)} và ${DV(b,d)} = ${N(b/d)}, nên ${N(d)} là ước của cả hai số.`:`${N(d)} là ước của ${N(a)} nhưng ${N(b)} không chia hết cho ${N(d)}, nên ${N(d)} không là ước chung.`);}
+function tfTx(){const {m,x,p}=mulData(),t=RNG()<.5,shown=t?x:sel([-x,x+sel([1,-1,2]),p*m].filter(v=>v!==x));
+  return IT(`${nb(`x = ${N(shown)}`)} thỏa mãn ${nb(`${P(m)} · x = ${N(p)}`)}.`,t,'tx','TH',`${nb(`x = ${N(p)} : ${P(m)} = ${N(x)}`)}${t?'.':`, không phải ${N(shown)}.`}`);}
+function tfNVal(){const o=nData(),t=RNG()<.5,v=t?sel(o.ns):sel(o.all.concat([0,1,2]).filter(x=>!o.ns.includes(x))),w=v+o.c;
+  return IT(`${nb(`n = ${N(v)}`)} thỏa mãn (${NEX(o.c)}) là ước của ${N(o.p)}.`,t,'tx','VD',`Với ${nb(`n = ${N(v)}`)} thì ${NEX(o.c)} = ${N(w)}. ${t?`${N(w)} là ước của ${N(o.p)}.`:`${N(o.p)} không chia hết cho ${N(w)}${w===0?' (không chia cho 0)':''}, nên ${N(w)} không là ước của ${N(o.p)}.`}`);}
+function tfPlus(){const o=plusData(),t=RNG()<.5;let v;if(t)v=sel(o.vals);else{do{v=nz(2,o.k+3);}while(o.k%v===0);}
+  return IT(`${nb(`x = ${N(v)}`)} thỏa mãn ${nb(`x + ${o.k}`)} chia hết cho x.`,t,'tx','VD',t?`${nb(`x + ${o.k} = ${N(v+o.k)}`)}, và ${N(v+o.k)} chia hết cho ${N(v)} vì ${o.k} chia hết cho ${N(v)}.`:`${N(v+o.k)} không chia hết cho ${N(v)} vì ${o.k} không chia hết cho ${N(v)}.`);}
+const PTV=[IT('Nếu a chia hết cho b và b chia hết cho c (b, c ≠ 0) thì a chia hết cho c.',true,'ch','VD','a = b · m, b = c · n nên a = c · (n · m).'),
+  IT('Hai số đối nhau (khác 0) chia hết cho nhau.',true,'ch','VD','a = (−a) · (−1) nên a chia hết cho −a và ngược lại.'),
+  IT('Nếu a chia hết cho 5 và b chia hết cho 5 thì a − b chia hết cho 5.',true,'ch','VD','a = 5m, b = 5n nên a − b = 5(m − n).'),
+  IT('Nếu a chia hết cho b thì −a chia hết cho −b (b ≠ 0).',true,'ch','VD','a = b · q nên −a = (−b) · q.'),
+  IT('Nếu a chia hết cho b thì tích a · c chia hết cho b với mọi số nguyên c.',true,'ch','VD','a = b · q nên a · c = b · (q · c).')];
+const PFV=[IT('Nếu a + b chia hết cho 6 thì cả a và b đều chia hết cho 6.',false,'ch','VD','Ví dụ 4 + 8 = 12 chia hết cho 6 nhưng 4 và 8 không chia hết cho 6.'),
+  IT('Nếu a chia hết cho b thì b chia hết cho a.',false,'ch','VD','Ví dụ 6 chia hết cho 3 nhưng 3 không chia hết cho 6.'),
+  IT('Tích của hai số nguyên chia hết cho 4 thì chỉ có thể chia hết cho 8.',false,'ch','VD','Ví dụ 4 · 4 = 16 nhưng 4 · 1 = 4 chia hết cho 4 mà không chia hết cho 8.'),
+  IT('Thương của hai số nguyên âm chia hết là một số nguyên âm.',false,'ch','VD','Hai số cùng dấu thì thương dương.'),
+  IT('Nếu a chia hết cho 2 và b chia hết cho 3 thì a + b chia hết cho 6.',false,'ch','VD','Ví dụ 4 + 3 = 7 không chia hết cho 6.')];
+const tfChVD=()=>({stem:'Xét các phát biểu sau:',items:pick4(PTV,PFV)});
+const PT={
+ ch:[IT('Với a, b ∈ ℤ, b ≠ 0: nếu a = b · q với q ∈ ℤ thì a chia hết cho b.',true,'ch','NB','Đó là định nghĩa phép chia hết.'),
+     IT('Thương của hai số nguyên cùng dấu (khi chia hết) là một số nguyên dương.',true,'ch','NB','Ví dụ (−12) : (−3) = 4.'),
+     IT('Thương của hai số nguyên khác dấu (khi chia hết) là một số nguyên âm.',true,'ch','NB','Ví dụ 12 : (−3) = −4.'),
+     IT(nb('(−12) : (−3) = 4'),true,'ch','NB','Hai số cùng dấu nên thương dương.'),
+     IT(nb('0 : 5 = 0'),true,'ch','NB','0 = 5 · 0 nên 0 : 5 = 0.')],
+ ub:[IT('Nếu a chia hết cho b thì a là một bội của b.',true,'ub','NB','Khi a chia hết cho b ta gọi a là bội của b.'),
+     IT('1 và −1 là ước của mọi số nguyên.',true,'ub','NB','a = 1 · a = (−1) · (−a).'),
+     IT('Nếu 6 là một ước của a thì −6 cũng là một ước của a.',true,'ub','NB','Nếu b là ước của a thì −b cũng là ước của a.'),
+     IT('−35 là một bội của −7.',true,'ub','NB','(−35) : (−7) = 5.'),
+     IT('3 là một ước của −12.',true,'ub','NB','(−12) : 3 = −4.')],
+ tx:[IT(nb('x = −12')+' thỏa mãn '+nb('(−3) · x = 36')+'.',true,'tx','NB','(−3) · (−12) = 36.'),
+     IT(nb('x = −5')+' thỏa mãn '+nb('4 · x = −20')+'.',true,'tx','NB','4 · (−5) = −20.'),
+     IT('Từ '+nb('a · x = p')+' (a ≠ 0) suy ra '+nb('x = p : a')+'.',true,'tx','NB','Muốn tìm thừa số chưa biết, lấy tích chia cho thừa số đã biết.'),
+     IT(nb('x = 15')+' thỏa mãn '+nb('(−100) : (x + 5) = −5')+'.',true,'tx','NB','x + 5 = 20 và (−100) : 20 = −5.'),
+     IT(nb('x = −2')+' thỏa mãn '+nb('15 · (x − 3) = −75')+'.',true,'tx','NB','15 · (−5) = −75.')],
+ vd:[IT('Nhiệt độ trung bình của các ngày −6 °C; −5 °C; −4 °C; 2 °C; 3 °C là −2 °C.',true,'vd','NB','Tổng là −10, chia cho 5 được −2.'),
+     IT('Nợ chung 60 nghìn đồng chia đều cho 3 người thì mỗi người ghi −20 nghìn đồng.',true,'vd','NB','(−60) : 3 = −20.'),
+     IT('Quãng đường tụt xuống 2 m được ghi là −2 m.',true,'vd','NB','Đi xuống được ghi bằng số âm.'),
+     IT('Mỗi tháng lỗ 30 triệu đồng thì lợi nhuận 3 tháng là −90 triệu đồng.',true,'vd','NB','3 · (−30) = −90.'),
+     IT('Muốn tính trung bình của các số, ta lấy tổng chia cho số các số.',true,'vd','NB','Đó là cách tính trung bình cộng.')]};
+const PF={
+ ch:[IT('Không thể chia một số nguyên âm cho một số nguyên âm.',false,'ch','NB','Ví dụ (−12) : (−3) = 4.'),
+     IT(nb('(−12) : 3 = 4'),false,'ch','NB','Hai số khác dấu nên thương âm: (−12) : 3 = −4.'),
+     IT(nb('(−12) : (−3) = −4'),false,'ch','NB','Hai số cùng dấu nên thương dương: (−12) : (−3) = 4.'),
+     IT('Thương của hai số nguyên âm là một số nguyên âm.',false,'ch','NB','Thương của hai số cùng dấu là số dương.'),
+     IT('Có thể thực hiện phép chia cho số 0.',false,'ch','NB','Không có phép chia cho 0.')],
+ ub:[IT('0 là ước của mọi số nguyên.',false,'ub','NB','Không chia được cho 0 nên 0 không là ước của số nào.'),
+     IT('Tất cả các ước của 6 chỉ gồm 1; 2; 3; 6.',false,'ub','NB','Còn các ước âm −1; −2; −3; −6.'),
+     IT('5 là một bội của 10.',false,'ub','NB','5 không chia hết cho 10.'),
+     IT('Nếu a là một bội của b thì −a không là bội của b.',false,'ub','NB','Nếu a = b · q thì −a = b · (−q).'),
+     IT('Số nguyên âm không có ước.',false,'ub','NB','Ví dụ −6 có các ước ±1; ±2; ±3; ±6.')],
+ tx:[IT(nb('x = 12')+' thỏa mãn '+nb('(−3) · x = 36')+'.',false,'tx','NB','(−3) · 12 = −36, phải là x = −12.'),
+     IT(nb('x = −5')+' thỏa mãn '+nb('4 · x = 20')+'.',false,'tx','NB','4 · (−5) = −20, phải là x = 5.'),
+     IT('Từ '+nb('a · x = p')+' (a ≠ 0) suy ra '+nb('x = p · a')+'.',false,'tx','NB','Phải lấy tích chia cho a: x = p : a.'),
+     IT(nb('x = 5')+' thỏa mãn '+nb('(−100) : (x + 5) = −5')+'.',false,'tx','NB','(−100) : 10 = −10, phải là x = 15.'),
+     IT(nb('x = 2')+' thỏa mãn '+nb('15 · (x − 3) = −75')+'.',false,'tx','NB','15 · (−1) = −15, phải là x = −2.')],
+ vd:[IT('Nhiệt độ trung bình của các ngày −6 °C; −5 °C; −4 °C; 2 °C; 3 °C là 2 °C.',false,'vd','NB','Tổng là −10, trung bình là −2.'),
+     IT('Nợ chung 60 nghìn đồng chia đều cho 3 người thì mỗi người ghi 20 nghìn đồng.',false,'vd','NB','Nợ ghi bằng số âm: (−60) : 3 = −20.'),
+     IT('Quãng đường tụt xuống 2 m được ghi là 2 m.',false,'vd','NB','Tụt xuống được ghi là −2 m.'),
+     IT('Mỗi tháng lỗ 30 triệu đồng thì lợi nhuận 3 tháng là 90 triệu đồng.',false,'vd','NB','Lỗ là số âm: 3 · (−30) = −90.'),
+     IT('Muốn tính trung bình của các số, ta nhân tổng các số với số các số.',false,'vd','NB','Phải chia tổng cho số các số.')]};
+const tfNB=k=>()=>({stem:'Xét các phát biểu sau:',items:pick4(PT[k],PF[k])});
+function tfCtx(make){return ()=>{
+  for(let n=0;n<60;n++){const q=make(),k=q.items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(q.items.map(i=>i.t)).size===4)return q;}
+  return FB_TF();};}
+function ctxAvg(){const o=avgData(),v=[0,1,2,3].map(()=>RNG()<.5),lo=Math.min(...o.T),hi=Math.max(...o.T),k=o.T.filter(t=>t<o.avg).length;
+  return {stem:o.stem,items:[
+    IT(`Tổng các nhiệt độ của ${o.n} ngày là ${N(v[0]?o.sum:o.sum+sel([-2,2,5]))} °C.`,v[0],'vd','TH',`${nb(o.T.map((t,i)=>i?'+ '+P(t):N(t)).join(' '))} = ${N(o.sum)} (°C).`),
+    IT(`Nhiệt độ trung bình của ${o.n} ngày là ${N(v[1]?o.avg:-o.avg)} °C.`,v[1],'vd','TH',`${DV(o.sum,o.n)} = ${N(o.avg)} (°C).`),
+    IT(`Có ${v[2]?k:k+1} ngày nhiệt độ thấp hơn nhiệt độ trung bình.`,v[2],'vd','VD',`Nhiệt độ trung bình là ${N(o.avg)} °C. Các ngày thấp hơn mức đó: ${o.T.filter(t=>t<o.avg).map(N).join('; ')||'không có'}. Có ${k} ngày.`),
+    IT(`Ngày nóng nhất cao hơn ngày lạnh nhất ${v[3]?hi-lo:hi-lo+2} °C.`,v[3],'vd','VD',`${nb(`${N(hi)} − ${P(lo)} = ${hi-lo}`)} (°C).`)]};}
+function ctxSnail(){const o=snailData(),v=[0,1,2,3].map(()=>RNG()<.5);
+  return {stem:`Một con ốc sên leo lên một cây cao ${o.H} m. Mỗi ngày (24 giờ), 12 giờ đầu ốc sên leo lên ${o.a} m, 12 giờ sau tụt xuống ${o.b} m. Lúc 0 giờ ốc sên ở gốc cây và bắt đầu leo lên.`,items:[
+    IT(`Sau mỗi ngày (leo rồi tụt) ốc sên tiến thêm ${v[0]?o.a-o.b:o.a+o.b} m.`,v[0],'vd','TH',`${nb(`${o.a} + (−${o.b}) = ${o.a-o.b}`)} (m).`),
+    IT(`Sau ${o.k} ngày đầu ốc sên cách gốc cây ${v[1]?o.k*(o.a-o.b):o.k*o.a-o.b} m.`,v[1],'vd','TH',`${nb(`${o.k} · ${o.a-o.b} = ${o.k*(o.a-o.b)}`)} (m).`),
+    IT(`Ốc sên chạm tới ngọn cây sau ${v[2]?24*o.k+12:24*(o.k+1)} giờ.`,v[2],'vd','VD',`Sau ${o.k} ngày ốc sên cách gốc ${o.k*(o.a-o.b)} m; ngày thứ ${o.k+1} nó leo thêm ${o.a} m trong 12 giờ đầu và đến ${o.H} m. Thời gian: ${nb(`${o.k} · 24 + 12 = ${24*o.k+12}`)} giờ.`),
+    IT(`Sau ${o.k} ngày đầu, ốc sên còn cách ngọn cây ${v[3]?o.a:o.a+o.b} m.`,v[3],'vd','VD',`Cây cao ${o.H} m, ốc sên ở độ cao ${o.k*(o.a-o.b)} m nên còn cách ngọn ${nb(`${o.H} − ${o.k*(o.a-o.b)} = ${o.a}`)} (m).`)]};}
+function ctxWage(){const o=wageData(),v=[0,1,2,3].map(()=>RNG()<.5);
+  return {stem:o.stem.replace(' Công nhân đó được lĩnh bao nhiêu đồng?',''),items:[
+    IT(`Tiền thưởng của các sản phẩm đạt là ${NN(v[0]?o.c*o.g:o.c*o.g+o.g)} đồng.`,v[0],'vd','TH',`${nb(`${o.c} · ${NN(o.g)} = ${NN(o.c*o.g)}`)} (đồng).`),
+    IT(`Tiền phạt của các sản phẩm không đạt là ${NN(v[1]?o.w*o.f:o.w*o.f+o.f)} đồng.`,v[1],'vd','TH',`${nb(`${o.w} · ${NN(o.f)} = ${NN(o.w*o.f)}`)} (đồng).`),
+    IT(`Công nhân đó lĩnh ${NN(v[2]?o.val:o.c*o.g+o.w*o.f)} đồng.`,v[2],'vd','VD',`${nb(`${NN(o.c*o.g)} − ${NN(o.w*o.f)} = ${NN(o.val)}`)} (đồng).`),
+    IT(`Tiền lĩnh ít hơn tiền thưởng ${NN(v[3]?o.w*o.f:o.w*o.f+o.f)} đồng.`,v[3],'vd','VD',`Tiền lĩnh bằng tiền thưởng trừ tiền phạt, nên ít hơn tiền thưởng đúng ${NN(o.w*o.f)} đồng.`)]};}
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+addTF('tf_ch_th_a','ch','TH',four(tfDivQ));addTF('tf_ch_th_b','ch','TH',four(tfDivBy));
+addTF('tf_ch_vd_a','ch','VD',tfChVD);addTF('tf_ch_vd_b','ch','VD',tfChVD);
+addTF('tf_ub_th_a','ub','TH',four(tfUoc));addTF('tf_ub_th_b','ub','TH',four(tfBoi));
+addTF('tf_ub_vd_a','ub','VD',four(tfCommon));addTF('tf_ub_vd_b','ub','VD',four(tfCommon));
+addTF('tf_tx_th_a','tx','TH',four(tfTx));addTF('tf_tx_th_b','tx','TH',four(tfTx));
+addTF('tf_tx_vd_a','tx','VD',four(tfNVal));addTF('tf_tx_vd_b','tx','VD',four(tfPlus));
+addTF('tf_ctx_avg','vd','VD',tfCtx(ctxAvg));addTF('tf_ctx_snail','vd','VD',tfCtx(ctxSnail));addTF('tf_ctx_wage','vd','VD',tfCtx(ctxWage));
+['ch','ub','tx','vd'].forEach(k=>addTF('tf_nb_'+k,k,'NB',tfNB(k)));
+addTF('tf_nb_ch2','ch','NB',tfNB('ch'));addTF('tf_nb_ub2','ub','NB',tfNB('ub'));
+
+/* ============ Trả lời ngắn ============ */
+const sa=(f)=>f;
+function saChDiv(){const {a,b,q}=divData();return{stem:`Tính ${DV(a,b)}.`,ans:[q],exp:divWhy(a,b,q)};}
+function saChTbl(){const {a,b,q}=divData();return{stem:`Cho ${nb('x = '+N(a))} và ${nb('y = '+N(b))}. Tính ${nb('x : y')}.`,ans:[q],exp:divWhy(a,b,q)};}
+function saChFrom(){const y=ri(2,12),q=ri(2,20),x=y*q,k=sel([[-x,y,-q,`(−${x}) : ${y}`],[x,-y,-q,`${x} : (−${y})`],[-x,-y,q,`(−${x}) : (−${y})`]]);
+  return{stem:`Biết ${nb(`${x} : ${y} = ${q}`)}. Tính ${nb(k[3])}.`,ans:[k[2]],exp:`Độ lớn của thương vẫn là ${q}. ${sameSg(k[0],k[1])?'Hai số cùng dấu nên thương dương':'Hai số khác dấu nên thương âm'}: ${nb(k[3])} = ${N(k[2])}.`};}
+function saChExpr(){const o=exprData();return{stem:`Tính giá trị của biểu thức ${o.txt}.`,ans:[o.val],exp:o.exp};}
+function saUbCntDiv(){const o=cntDivData(),n=o.n*sgn();return{stem:`Có bao nhiêu số nguyên là ước của ${N(n)}?`,ans:[o.cnt],exp:`${ab(n)} có ${o.d} ước dương (${LST(divsP(n))}), cùng ${o.d} số đối của chúng, tổng cộng ${o.cnt} ước.`};}
+function saUbCntMult(){const o=cntMultData();return{stem:`Có bao nhiêu số nguyên x là bội của ${o.n} và thỏa mãn ${o.txt}?`,ans:[o.cnt],exp:`Các bội của ${o.n} thỏa mãn: ${LST(Array.from({length:o.cnt},(_,i)=>(i-(o.a-1))*o.n))}. Có ${o.cnt} số.`};}
+function saUbSetCnt(){const o=setData();return{stem:`Cho ${nb(`M = {x ∈ ℤ | x ⋮ ${o.m} và ${o.txt}}`)}. Tập hợp M có bao nhiêu phần tử?`,ans:[o.cnt],exp:`Các bội của ${o.m} trong khoảng đó: ${LST(o.els)}. Có ${o.cnt} phần tử.`};}
+function saUbSetSum(){const o=setData();return{stem:`Cho ${nb(`M = {x ∈ ℤ | x ⋮ ${o.m} và ${o.txt}}`)}. Tính tổng các phần tử của M.`,ans:[o.s],exp:`M = {${LST(o.els)}}. Tổng các phần tử bằng ${N(o.s)}.`};}
+function saTxMul(){const {m,x,p}=mulData();return{stem:`Tìm số nguyên x, biết ${nb(`${P(m)} · x = ${N(p)}`)}.`,ans:[x],exp:`${nb(`x = ${N(p)} : ${P(m)} = ${N(x)}`)}.`};}
+function saTxLin1(){const o=lin1Data();return{stem:`Tìm số nguyên x, biết ${o.txt}.`,ans:[o.x],exp:`${nb(`x − ${o.c} = ${N(o.p)} : ${P(o.a)} = ${N(o.t)}`)}, suy ra ${nb(`x = ${N(o.t)} + ${o.c} = ${N(o.x)}`)}.`};}
+function saTxDiv(){const o=divEqData();return{stem:`Tìm số nguyên x, biết ${o.txt}.`,ans:[o.x],exp:`${nb(`x + ${o.c} = ${N(o.p)} : ${P(o.q)} = ${N(o.s)}`)}, suy ra ${nb(`x = ${N(o.s)} − ${o.c} = ${N(o.x)}`)}.`};}
+function saTxLin2(){const o=lin2Data();return{stem:`Tìm số nguyên x, biết ${o.txt}.`,ans:[o.x],exp:`${nb(`${o.a} · (x − ${o.c}) = ${N(o.p)} + ${o.d} = ${N(o.p+o.d)}`)}, nên ${nb(`x − ${o.c} = ${N(o.t)}`)} và ${nb(`x = ${N(o.t)} + ${o.c} = ${N(o.x)}`)}.`};}
+function saTxNCnt(){const o=nData();return{stem:`Có bao nhiêu số nguyên n để (${NEX(o.c)}) là ước của ${N(o.p)}?`,ans:[o.cnt],exp:`${N(o.p)} có ${o.cnt} ước nguyên, mỗi ước cho đúng một giá trị của n. Vậy có ${o.cnt} số n.`};}
+function saVdDebt(){const o=debtData();return{stem:o.stem,ans:[-o.e],exp:o.exp};}
+function saVdAvg(){const o=avgData();return{stem:`${o.stem} Nhiệt độ trung bình của ${o.n} ngày đó là bao nhiêu °C?`,ans:[o.avg],exp:o.exp};}
+function saVdWage(){const o=wageData();return{stem:o.stem,ans:[o.val],exp:o.exp};}
+function saVdProfit(){const o=profitData();return{stem:o.stem,ans:[o.avg],exp:o.exp};}
+function saVdSnail(){const o=snailData();return{stem:o.stem1,ans:[o.n*(o.a-o.b)],exp:o.exp1};}
+const SA=[
+ {id:'s_ch_nb',topic:'ch',level:'NB',unit:'',gen:saChDiv},
+ {id:'s_ch_nb2',topic:'ch',level:'NB',unit:'',gen:saChTbl},
+ {id:'s_ch_th',topic:'ch',level:'TH',unit:'',gen:saChFrom},
+ {id:'s_ch_th2',topic:'ch',level:'TH',unit:'',gen:saChExpr},
+ {id:'s_ub_nb',topic:'ub',level:'NB',unit:'',gen:saUbCntDiv},
+ {id:'s_ub_th',topic:'ub',level:'TH',unit:'',gen:saUbCntMult},
+ {id:'s_ub_th2',topic:'ub',level:'TH',unit:'',gen:saUbSetCnt},
+ {id:'s_ub_vd',topic:'ub',level:'VD',unit:'',gen:saUbSetSum},
+ {id:'s_tx_th',topic:'tx',level:'TH',unit:'',gen:saTxMul},
+ {id:'s_tx_th2',topic:'tx',level:'TH',unit:'',gen:saTxLin1},
+ {id:'s_tx_th3',topic:'tx',level:'TH',unit:'',gen:saTxDiv},
+ {id:'s_tx_vd',topic:'tx',level:'VD',unit:'',gen:saTxLin2},
+ {id:'s_tx_vd2',topic:'tx',level:'VD',unit:'',gen:saTxNCnt},
+ {id:'s_vd_nb',topic:'vd',level:'NB',unit:'nghìn đồng',gen:saVdDebt},
+ {id:'s_vd_th',topic:'vd',level:'TH',unit:'°C',gen:saVdAvg},
+ {id:'s_vd_th2',topic:'vd',level:'TH',unit:'đồng',gen:saVdWage},
+ {id:'s_vd_vd',topic:'vd',level:'VD',unit:'triệu đồng',gen:saVdProfit},
+ {id:'s_vd_vd2',topic:'vd',level:'VD',unit:'m',gen:saVdSnail}
+].map(q=>Object.assign({type:'sa'},q));
+SA.push(...SA.map(q=>Object.assign({},q,{id:q.id+'b'})));
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+function hardSetData(){const m=ri(3,8),L=ri(20,60),R=ri(20,60),els=[];for(let x=-L+1;x<=R;x++)if(x%m===0)els.push(x+0);
+  return {m,L,R,els,s:els.reduce((p,x)=>p+x,0)};}
+const TWO=[[4,-6],[6,-9],[10,15],[-4,6],[8,12],[-6,10],[9,-12]];
+function twoData(){for(;;){const [a,b]=sel(TWO),l=lcm(a,b),L=-ri(1,60),R=ri(1,60),els=[];for(let x=L+1;x<R;x++)if(x%a===0&&x%b===0)els.push(x+0);
+  if(els.length>=3)return {a,b,l,L,R,els,s:els.reduce((p,x)=>p+x,0)};}}
+function tfHardB(){
+  for(let n=0;n<80;n++){
+    const o=nData(),v=[0,1,2,3].map(()=>RNG()<.5);
+    const items=shuffle([
+      IT(v[0]?'Nếu a chia hết cho b và a chia hết cho c thì a chia hết cho tích b · c (b, c ≠ 0).':'Nếu a chia hết cho b thì a · c chia hết cho b · c (b, c ≠ 0).',!v[0],'ch','VD',v[0]?'Ví dụ 12 chia hết cho 4 và cho 6 nhưng 12 không chia hết cho 24.':'a = b · q nên a · c = (b · c) · q.'),
+      IT(v[1]?'Nếu a và b cùng chia hết cho c (c ≠ 0) thì (a + b) : c = a : c + b : c.':'Với a, b, c nguyên và c ≠ 0 thì (a + b) : c = a : c + b : c.',v[1],'ch','VD',v[1]?'a = c · m, b = c · n nên (a + b) : c = m + n = a : c + b : c.':'Chỉ đúng khi a và b đều chia hết cho c (ví dụ (1 + 1) : 2 = 1 nhưng 1 : 2 không là số nguyên).'),
+      IT(`Số các số nguyên n để (${NEX(o.c)}) là ước của ${N(o.p)} bằng ${v[2]?o.cnt:o.cnt/2}.`,v[2],'tx','VD',`${N(o.p)} có ${o.cnt} ước nguyên, mỗi ước cho một giá trị n.`),
+      IT(`Tổng tất cả các số nguyên n để (${NEX(o.c)}) là ước của ${N(o.p)} bằng ${N(v[3]?-o.c*o.cnt:o.sum+o.c)}.`,v[3],'tx','VD',`Các ước của ${ab(o.p)} xuất hiện từng cặp đối nhau nên tổng các ước bằng 0. Mỗi n = d − (${N(o.c)}) nên tổng bằng ${nb(`${o.cnt} · (${N(-o.c)}) = ${N(-o.c*o.cnt)}`)}.`)]);
+    if(items[0].t===items[1].t)continue;
+    if(tfOK(items))return {stem:'Xét các phát biểu sau:',items};
+  }
+  return FB_TF();
+}
+const HARD={tf:[{id:'h_tf',type:'tf',topic:'tx',level:'VD',gen:tfHardB}],sa:[
+ {id:'h_lin',topic:'tx',level:'VD',unit:'',gen:()=>{const o=linDivData();
+   return{stem:`Tìm các số nguyên n sao cho ${o.txt} chia hết cho ${nb(NEX(o.c))}. Tính tổng tất cả các số n đó.`,ans:[o.sum],exp:`${nb(`${o.txt} = ${o.a} · (${NEX(o.c)}) + ${N(o.r)}`)}, nên ${NEX(o.c)} phải là ước của ${N(o.r)}. Suy ra n ∈ {${LST(o.ns)}}. Tổng: ${N(o.sum)}.`};}},
+ {id:'h_plus',topic:'tx',level:'VD',unit:'',gen:()=>{const o=plusData();
+   return{stem:`Có bao nhiêu số nguyên x để ${nb(`x + ${o.k}`)} chia hết cho x?`,ans:[o.cnt],exp:`x + ${o.k} chia hết cho x khi và chỉ khi ${o.k} chia hết cho x. Các ước của ${o.k}: ${LST(o.vals)}. Có ${o.cnt} số.`};}},
+ {id:'h_set',topic:'ub',level:'VD',unit:'',gen:()=>{const o=hardSetData();
+   return{stem:`Tính tổng các phần tử của tập hợp ${nb(`A = {x ∈ ℤ | x ⋮ ${o.m} và −${o.L} < x ≤ ${o.R}}`)}.`,ans:[o.s],exp:`A = {${LST(o.els)}}. Các cặp số đối nhau có tổng 0, tổng các phần tử còn lại là ${N(o.s)}.`};}},
+ {id:'h_two',topic:'ub',level:'VD',unit:'',gen:()=>{const o=twoData();
+   return{stem:`Tính tổng các số nguyên x thỏa mãn: x chia hết cho ${N(o.a)}, x chia hết cho ${N(o.b)} và ${nb(`${N(o.L)} < x < ${o.R}`)}.`,ans:[o.s],exp:`x là bội chung của ${N(o.a)} và ${N(o.b)}, tức là bội của ${o.l}. Các số thỏa mãn: ${LST(o.els)}. Tổng bằng ${N(o.s)}.`};}},
+ {id:'h_snail',topic:'vd',level:'VD',unit:'giờ',gen:()=>{const o=snailData();return{stem:o.stem2,ans:[o.h],exp:o.exp2};}},
+ {id:'h_ratio',topic:'ch',level:'VD',unit:'',gen:()=>{const m=ri(2,15),k=nz(2,6),val=-m+k;
+   return{stem:`Cho a, b là hai số nguyên (b ≠ 0) sao cho ${nb(`a : b = −${m}`)}. Tính ${nb(`(a ${k>0?'+':'−'} ${ab(k)} · b) : b`)}.`,ans:[val],exp:`Vì ${nb(`a : b = −${m}`)} nên ${nb(`a = b · (−${m})`)}. Khi đó ${nb(`a ${k>0?'+':'−'} ${ab(k)} · b = b · (−${m}) ${k>0?'+':'−'} b · ${ab(k)} = b · ${N(val)}`)}, nên thương bằng ${N(val)}.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+
+const DAYS=['Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'];
+function pisaAvg(){const o=avgData(),rows=o.T.map((t,i)=>[DAYS[i],N(t)+' °C']),lo=Math.min(...o.T),hi=Math.max(...o.T),k=o.T.filter(t=>t<o.avg).length;
+  const pool=[...Array(o.n+1).keys()].filter(x=>x!==k),W=shuffle(pool).slice(0,3);
+  return {title:'Nhiệt độ lúc 6 giờ sáng',ctx:`<p class="stem">Trạm khí tượng ghi nhiệt độ lúc 6 giờ sáng của ${o.n} ngày liên tiếp trong một tuần mùa đông.</p>${tbl(['Ngày','Nhiệt độ lúc 6 giờ'],rows)}`,qs:[
+    saq('Tổng các nhiệt độ của các ngày trong bảng là bao nhiêu °C?',o.sum,'°C',`${nb(o.T.map((t,i)=>i?'+ '+P(t):N(t)).join(' '))} = ${N(o.sum)} (°C).`,'vd','TH'),
+    saq(`Nhiệt độ trung bình lúc 6 giờ sáng của ${o.n} ngày là bao nhiêu °C?`,o.avg,'°C',`${DV(o.sum,o.n)} = ${N(o.avg)} (°C).`,'vd','TH'),
+    mcq('Có bao nhiêu ngày có nhiệt độ thấp hơn nhiệt độ trung bình?',''+k,W.map(w=>[''+w,'Hãy so sánh nhiệt độ từng ngày với nhiệt độ trung bình '+N(o.avg)+' °C.']),`Các ngày thấp hơn ${N(o.avg)} °C: ${o.T.filter(t=>t<o.avg).map(N).join('; ')||'không có'}. Có ${k} ngày.`,'vd','VD'),
+    saq('Ngày nóng nhất cao hơn ngày lạnh nhất bao nhiêu °C?',hi-lo,'°C',`${nb(`${N(hi)} − ${P(lo)} = ${hi-lo}`)} (°C).`,'vd','VD')]};}
+function pisaSnail(){const o=snailData(),rows=[['Ban ngày (12 giờ đầu)','leo lên '+o.a+' m, ghi '+o.a+' m'],['Ban đêm (12 giờ sau)','tụt xuống '+o.b+' m, ghi −'+o.b+' m']],W=new Set([o.k*o.a,o.k*(o.a+o.b)]);
+  return {title:'Ốc sên leo cây',ctx:`<p class="stem">Một con ốc sên leo lên một cây cao ${o.H} m. Lúc 0 giờ ốc sên ở gốc cây và bắt đầu leo lên. Mỗi ngày (24 giờ) nó di chuyển như sau.</p>${tbl(['Thời gian','Di chuyển'],rows)}`,qs:[
+    saq('Sau một ngày (leo rồi tụt), ốc sên tiến thêm bao nhiêu mét?',o.a-o.b,'m',`${nb(`${o.a} + (−${o.b}) = ${o.a-o.b}`)} (m).`,'vd','TH'),
+    saq(`Sau ${o.k} ngày đầu, ốc sên cách gốc cây bao nhiêu mét?`,o.k*(o.a-o.b),'m',`${nb(`${o.k} · ${o.a-o.b} = ${o.k*(o.a-o.b)}`)} (m).`,'vd','TH'),
+    mcq(`Biểu thức nào tính đúng độ cao của ốc sên sau ${o.k} ngày đầu (mét)?`,nb(`${o.k} · (${o.a} + (−${o.b}))`),[
+      [nb(`${o.k} · ${o.a}`),'Ban đêm ốc sên tụt xuống nên phải cộng thêm −'+o.b+'.'],
+      [nb(`${o.k} · (${o.a} + ${o.b})`),'Quãng đường tụt xuống được ghi là −'+o.b+', không phải '+o.b+'.'],
+      [nb(`${o.k} · ${o.a} + ${o.b}`),'Mỗi ngày đều có quãng đường tụt xuống '+o.b+' m, phải tính cho cả '+o.k+' ngày.']],`Mỗi ngày ốc sên đi được ${nb(`${o.a} + (−${o.b})`)} mét, ${o.k} ngày thì nhân với ${o.k}.`,'vd','VD'),
+    saq('Sau bao nhiêu giờ thì ốc sên chạm tới ngọn cây?',o.h,'giờ',o.exp2,'vd','VD')]};}
+function pisaProfit(){const o=profitData(),q1=-3*o.a,q2=3*o.b;
+  return {title:'Lợi nhuận của một công ty',ctx:`<p class="stem">Công ty Ánh Dương ghi lợi nhuận mỗi tháng (đơn vị: triệu đồng). Số âm nghĩa là công ty bị lỗ.</p>${tbl(['Thời gian','Lợi nhuận mỗi tháng'],[['Quý I (3 tháng đầu năm)',N(-o.a)],['Quý II (3 tháng tiếp theo)',N(o.b)]])}`,qs:[
+    saq('Lợi nhuận của cả Quý I là bao nhiêu triệu đồng?',q1,'triệu đồng',`${nb(`3 · (−${o.a}) = ${N(q1)}`)} (triệu đồng).`,'vd','TH'),
+    saq('Lợi nhuận của cả Quý II là bao nhiêu triệu đồng?',q2,'triệu đồng',`${nb(`3 · ${o.b} = ${q2}`)} (triệu đồng).`,'vd','TH'),
+    saq('Lợi nhuận của 6 tháng đầu năm là bao nhiêu triệu đồng?',o.T,'triệu đồng',`${nb(`${N(q1)} + ${q2} = ${N(o.T)}`)} (triệu đồng).`,'vd','VD'),
+    saq('Trung bình mỗi tháng trong 6 tháng đầu năm công ty lãi (lỗ) bao nhiêu triệu đồng? (Số âm là lỗ)',o.avg,'triệu đồng',`${DV(o.T,6)} = ${N(o.avg)} (triệu đồng).`,'vd','VD')]};}
+const PISA=[pisaAvg,pisaSnail,pisaProfit];
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'ch',fig:'<div class="figbox"><p>a = b · q ⟹ a : b = q (a chia hết cho b)</p><p>(−12) : (−3) = 4 · 12 : (−3) = −4</p><p>cùng dấu: thương dương · khác dấu: thương âm</p></div>',extra:'Không chia cho 0. Số 0 chia cho số khác 0 bằng 0.'},
+  {k:'ub',fig:'<div class="figbox"><p>a chia hết cho b ⟹ a là bội của b, b là ước của a</p><p>Ước của 6: −6; −3; −2; −1; 1; 2; 3; 6</p><p>Bội của 7: 0; ±7; ±14; ±21; …</p></div>',extra:'Ước chung của 6 và 4 là −2; −1; 1; 2. Số 0 là bội của mọi số khác 0 nhưng không là ước của số nào.'},
+  {k:'tx',fig:'<div class="figbox"><p>(−3) · x = 36 ⟹ x = 36 : (−3) = −12</p><p>15 · (x − 3) = −75 ⟹ x − 3 = −5 ⟹ x = −2</p><p>(n + 2) là ước của −19 ⟹ n + 2 ∈ {−19; −1; 1; 19}</p></div>',extra:'Từ n + 2 = d suy ra n = d − 2. Xét cả ước âm và ước dương.'},
+  {k:'vd',fig:'<div class="figbox"><p>trung bình = tổng : số số hạng</p><p>(−6 − 5 − 4 + 2 + 3) : 5 = −2</p><p>nợ −60 chia đều 3 người: (−60) : 3 = −20</p></div>',extra:'Tính tổng trước, chia sau. Nợ, lỗ, đi xuống ghi bằng số âm.'}
+];
+
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='ub6_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['ch',['NB','TH']],['ub',['NB','TH']],['ub',['TH','VD']],['tx',['TH','VD']],['vd',['TH','VD']],['ch',['TH','VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['ch','ub','tx'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=['ch','ub','tx','vd'].map(t=>pick(MC.filter(q=>q.topic===t&&q.level!=='VD'),used));
+  const sa=[pick(SA.filter(q=>q.topic==='ch'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='tx'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+/* ============ Màn hình: trang chủ ============ */
+/* ============ Mã học sinh ============ */
+const HS_KEY='luyentoan-hs';
+function needHS(){return !!SHEET_URL;} // có Google Sheet thì phải có mã học sinh mới vào học
+function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
+function saveHS(o){state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+function loginHTML(){
+  return `
+  <section class="hero">
+    <h1>Luyện tập <em>chung</em></h1>
+    <p class="lead">Trang luyện tập dành cho học sinh các lớp của thầy cô. Hãy nhập mã học sinh để bắt đầu.</p>
+  </section>
+  <section class="card stack" style="margin-top:22px">
+    <div><h2>Nhập mã học sinh</h2></div>
+    <div>
+      <label class="fl" for="hsma">Mã học sinh (6 chữ số)</label>
+      <input type="text" id="hsma" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ví dụ: 482913">
+      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)"></p>
+    </div>
+    <div class="row"><button class="btn" id="hsgo">Vào học</button></div>
+    <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
+  </section>`;
+}
+// Học sinh chỉ làm bài đúng khối lớp của mình. Khối của bài lấy từ SHEET_TAB ("7 - ..."), khối của học sinh lấy từ số đầu tiên trong tên lớp (7A, 6T1).
+function lessonGrade(){const m=String(SHEET_TAB||'').match(/^\s*(\d+)/);return m?m[1]:'';}
+function hsGrade(){const m=state.stu&&String(state.stu.c||'').match(/\d+/);return m?m[0]:'';}
+function wrongGrade(){const a=lessonGrade(),b=hsGrade();return !!(needHS()&&state.stu&&a&&b&&a!==b);}
+function wrongGradeHTML(){
+  const a=lessonGrade(),b=hsGrade();
+  return `${hsBarHTML()}
+  <section class="card stack" style="margin-top:22px">
+    <div><h2>Bài này dành cho học sinh lớp ${a}</h2></div>
+    <p style="margin:0">Bạn đang học lớp ${esc(state.stu.c)} nên hãy chọn các bài của lớp ${b}.</p>
+    <div class="row"><a class="btn" style="text-decoration:none;display:inline-flex;align-items:center" href="../cac-bai/#lop-${b}">Xem các bài lớp ${b}</a></div>
+    <p class="small muted" style="margin:0">Nếu tên lớp ở trên không đúng, hãy bấm Đổi học sinh và nhập lại mã, hoặc báo giáo viên.</p>
+  </section>`;
+}
+function hsBarHTML(){
+  if(!state.stu)return '';
+  return `<section class="card" style="margin-top:22px"><div class="row" style="justify-content:space-between;align-items:center"><span>Xin chào, <b>${esc(state.stu.n)}</b>${state.stu.c?' · Lớp '+esc(state.stu.c):''}</span><button class="btn sm ghost" id="hsout">Đổi học sinh</button></div></section>`;
+}
+function checkHS(){
+  const inp=document.getElementById('hsma'),err=document.getElementById('hserr'),btn=document.getElementById('hsgo');
+  const u=inp.value.replace(/\D/g,'');
+  if(u.length!==6){err.textContent='Mã học sinh gồm đúng 6 chữ số. Hãy kiểm tra lại.';inp.focus();return;}
+  err.textContent='Đang kiểm tra mã...';btn.disabled=true;
+  fetch(SHEET_URL+'?ma='+u).then(r=>r.json()).then(o=>{
+    if(o&&o.ok){saveHS({u,n:o.n||'Học sinh',c:o.c||''});render();}
+    else{btn.disabled=false;err.textContent=o&&o.err?'Chưa kiểm tra được mã. Hãy thử lại sau ít phút hoặc báo giáo viên.':'Mã này không có trong danh sách. Hãy xem lại 6 chữ số hoặc hỏi giáo viên.';inp.focus();}
+  }).catch(()=>{btn.disabled=false;err.textContent='Chưa kiểm tra được mã (có thể mất mạng). Hãy thử lại.';});
+}
+
+function homeHTML(){
+  if(needHS()&&!state.stu)return loginHTML();
+  if(wrongGrade())return wrongGradeHTML();
+  const weak=state.weak;
+  return `
+  <section class="hero">
+    <h1>Luyện tập <em>chung</em></h1>
+    <p class="lead">Bài 17. Phép chia hết. Ước và bội của một số nguyên (SGK trang 73 đến 74): phép chia hết, dấu của thương, tìm ước và bội, tìm x và n, bài toán thực tế. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
+  </section>
+
+  ${hsBarHTML()}
+  ${GM.barHTML()}
+
+  <section class="card stack" style="margin-top:22px">
+    <div>
+      <h2>Luyện tập</h2>
+      <p class="muted" style="margin:6px 0 0">Mỗi gói có khoảng 11 câu rút ngẫu nhiên từ ngân hàng ${MC.length+TF.length+SA.length} câu, nhiều câu tự đổi số liệu mỗi lần làm. Làm xong từng câu bấm Kiểm tra để xem lời giải ngay. Nếu chưa đúng, bạn được thử lại một lần. Không giới hạn thời gian, trang chỉ hiện thời gian bạn đã dùng.</p>
+    </div>
+    <div>
+      <div class="grp">Theo mức độ</div>
+      <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Theo nội dung</div>
+      <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
+      <div class="grp">Toán thực tế</div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="grp">Gợi ý cho bạn</div>
+      <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
+    </div>
+  </section>
+
+  <section class="card stack" style="margin-top:16px">
+    <div>
+      <h2>Kiểm tra</h2>
+      <p class="muted" style="margin:6px 0 0">Có ba bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
+    </div>
+    <div class="recap">
+      <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
+      <div class="card"><h3>Kiểm tra nhanh 5 phút</h3><p>6 câu, 10 điểm: 4 câu nhiều lựa chọn và 2 câu trả lời ngắn. Hợp để kiểm tra ngay sau khi học xong một phần.</p></div>
+      <div class="card"><h3>Thử thách 30 phút</h3><p>Dành cho bạn muốn thử sức. 13 câu, 10 điểm, toàn câu vận dụng và nâng cao: 6 câu nhiều lựa chọn, 3 câu đúng sai và 4 câu trả lời ngắn. Điểm được ghi riêng, không tính chung với bài kiểm tra.</p></div>
+    </div>
+    ${needHS()?`<p style="margin:0">Bài làm ghi tên: <b>${esc(state.name)}</b>${state.cls?' · Lớp '+esc(state.cls):''}</p>`:`<div>
+      <label class="fl" for="nm">Họ và tên</label>
+      <input type="text" id="nm" autocomplete="name" placeholder="Ví dụ: Nguyễn Văn An" value="${esc(state.name)}">
+    </div>
+    <div>
+      <label class="fl" for="cls">Lớp</label>
+      <input type="text" id="cls" autocomplete="off" maxlength="8" value="${esc(state.cls)}">
+    </div>`}
+    <div>
+      <label class="fl" for="mcode">Mã đề (không bắt buộc)</label>
+      <input type="text" id="mcode" autocomplete="off" placeholder="Ví dụ: 6A-01" value="${esc(state.code)}">
+      <p class="small muted" style="margin:6px 0 0">Nếu giáo viên cho mã đề, hãy nhập đúng mã đó: các bạn nhập cùng mã sẽ làm cùng một đề. Để trống thì bạn nhận một đề ngẫu nhiên. Thứ tự đáp án A, B, C, D vẫn được xáo riêng cho từng bạn.</p>
+    </div>
+    <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="startq">Bắt đầu kiểm tra nhanh 5 phút</button><button class="btn" id="starth">Bắt đầu Thử thách 30 phút</button></div>
+    <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
+  </section>
+
+  <section style="margin-top:28px">
+    <h2 style="margin-bottom:12px">Ôn nhanh kiến thức</h2>
+    <div class="recap">
+      ${RECAP.map(r=>`<div class="card"><h3>${TOPICS[r.k].name}</h3>${r.fig}<p>${TOPICS[r.k].rule}</p><p class="muted small">${r.extra}</p></div>`).join('')}
+    </div>
+  </section>`;
+}
+
+/* ============ Thẻ câu hỏi ============ */
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+function badge(P){
+  if(P.first&&P.first.every(Boolean))return '<span class="st good">Đúng ngay lần đầu</span>';
+  if(P.final)return '<span class="st warn">Đúng ở lần thứ hai</span>';
+  return '<span class="st bad">Chưa đúng</span>';
+}
+function tail(q,P){
+  let h=`<div class="feedbox">${P.msg?`<div class="feed ${P.cls}" role="status">${P.msg}</div>`:''}</div>`;
+  if(P.done){
+    if(q.type==='mc')h+=`<p class="ans-line">Đáp án đúng: <b>${q.opts[q.ans].t}</b></p><div class="exp">${q.exp}</div>`;
+    else if(q.type==='sa')h+=`<p class="ans-line">Đáp án đúng: <b>${N(q.ans[0])} ${q.unit}</b></p><div class="exp">${q.exp}</div>`;
+  }else h+=`<div class="row" style="margin-top:12px"><button class="btn sm chk" data-q="${q.id}">Kiểm tra</button></div>`;
+  return h;
+}
+function mcHTML(q,i){
+  if(q.no!=null)i=q.no;
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,tried=P.tried||[],cur=state.ans[q.id];
+  const opts=state.perm[q.id].map((oi,j)=>{
+    let cls='opt',dis='';
+    if(pr){
+      if(done){dis='disabled';if(oi===q.ans)cls+=' is-right';else if(cur===oi)cls+=' is-wrong';}
+      else if(tried.includes(oi)){dis='disabled';cls+=' is-wrong';}
+    }
+    return `<label class="${cls}"><input type="radio" name="${q.id}" value="${oi}" ${cur===oi?'checked':''} ${dis}><span class="ol">${'ABCD'[j]}</span><span>${q.opts[oi].t}</span></label>`;
+  }).join('');
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}
+    <div class="opts" role="radiogroup" aria-label="Câu ${i+1}">${opts}</div>${pr?tail(q,P):''}</article>`;
+}
+function tfHTML(q,i){
+  if(q.no!=null)i=q.no;
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done,a=state.ans[q.id]||[];
+  const rows=q.items.map((it,j)=>{
+    const cls=v=>{let c='opt';if(done){if(it.v===v)c+=' is-right';else if(a[j]===v)c+=' is-wrong';}return c;};
+    const dis=done?'disabled':'';
+    return `<div class="tfr"><div class="tx">${q.items.length>1?`<b>${'abcd'[j]})</b>`:''}${it.t}</div>
+      <div class="tfb" role="radiogroup" aria-label="Câu ${i+1}, ý ${'abcd'[j]}">
+        <label class="${cls(true)}"><input type="radio" name="${q.id}-${j}" value="1" ${a[j]===true?'checked':''} ${dis}><span>Đúng</span></label>
+        <label class="${cls(false)}"><input type="radio" name="${q.id}-${j}" value="0" ${a[j]===false?'checked':''} ${dis}><span>Sai</span></label>
+      </div>${done?`<div class="exp"><b>Đáp án: ${it.v?'Đúng':'Sai'}.</b> ${it.exp}</div>`:''}</div>`;
+  }).join('');
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}<div class="tf">${rows}</div>${pr?tail(q,P):''}</article>`;
+}
+function saHTML(q,i){
+  if(q.no!=null)i=q.no;
+  const pr=S.mode==='practice',P=pr?(state.pr[q.id]||{}):{},done=!!P.done;
+  return `<article class="card q" id="q-${q.id}"><div class="qh"><span class="qn">Câu ${i+1}</span>${pr&&done?badge(P):''}</div>
+    <p class="stem">${q.stem}</p>${q.fig||''}
+    <div class="sa"><label class="fl" for="in-${q.id}" style="margin:0">Đáp án:</label>
+    <input type="text" id="in-${q.id}" data-sa="${q.id}" autocomplete="off" placeholder="Nhập số, ví dụ -3" value="${esc(state.ans[q.id]||'')}" ${done?'disabled':''}>
+    <span class="muted">${q.unit}</span></div>${pr?tail(q,P):''}</article>`;
+}
+const CARD={mc:mcHTML,tf:tfHTML,sa:saHTML};
+
+/* ============ Màn hình: làm bài ============ */
+function partHead(k,t,d){return `<div class="part">${k?`<div class="kicker">${k}</div>`:''}<h2>${t}</h2><p>${d}</p></div>`;}
+function quizHTML(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const desc={
+    mc:test?(quick?'Mỗi câu chỉ có một đáp án đúng. 1,25 điểm mỗi câu.':'Mỗi câu chỉ có một đáp án đúng. 0,5 điểm mỗi câu.'):'Chọn một đáp án rồi bấm Kiểm tra.',
+    tf:test?'Mỗi câu có 4 ý, chọn Đúng hoặc Sai cho từng ý. Đúng 1 ý được 0,1 điểm, 2 ý được 0,25, 3 ý được 0,5, cả 4 ý được 1 điểm.':'Chọn Đúng hoặc Sai cho cả 4 ý rồi bấm Kiểm tra.',
+    sa:test?(quick?'Nhập kết quả là một số. Có thể dùng dấu phẩy hoặc dấu chấm. 2,5 điểm mỗi câu.':'Nhập kết quả là một số. Có thể dùng dấu phẩy hoặc dấu chấm. 1 điểm mỗi câu.'):'Nhập kết quả là một số rồi bấm Kiểm tra.'
+  };
+  const heads={mc:['Phần I','Câu hỏi nhiều lựa chọn'],tf:['Phần II','Câu hỏi đúng sai'],sa:[quick?'Phần II':'Phần III','Câu hỏi trả lời ngắn']};
+  let body='';
+  if(S.units)S.units.forEach((u,ui)=>{
+    body+=partHead('Tình huống '+(ui+1),u.title,'Đọc kĩ tình huống rồi trả lời lần lượt từng câu. Làm xong mỗi câu bấm Kiểm tra.');
+    body+=`<div class="stack"><article class="card">${u.ctx}${u.fig||''}</article>${u.qs.map(q=>CARD[q.type](q,q.no)).join('')}</div>`;
+  });
+  else TYPES.forEach(t=>{
+    if(!S.by[t].length)return;
+    body+=partHead(test?heads[t][0]:'',test?heads[t][1]:TYPE_NAME[t],desc[t]);
+    body+=`<div class="stack">${S.by[t].map(CARD[t]).join('')}</div>`;
+  });
+  return `<div class="bar-sticky"><div class="row" style="justify-content:space-between"><b id="plabel"></b><span class="small muted">${test?esc(state.name||'Học sinh'):S.title}</span><b id="timer" class="timer"></b></div><div class="prog"><i id="pbar"></i></div></div>
+  ${body}
+  <div id="warn"></div>
+  <div class="row" style="margin-top:22px"><button class="btn" id="submit">${test?'Nộp bài':'Xem kết quả'}</button><button class="btn ghost" id="back">Quay lại</button></div>`;
+}
+function totalItems(){return S.list.reduce((s,q)=>s+(q.type==='tf'?q.items.length:1),0);}
+function answered(){
+  let n=0;
+  S.by.mc.forEach(q=>{if(state.ans[q.id]!=null)n++;});
+  S.by.tf.forEach(q=>{const a=state.ans[q.id]||[];q.items.forEach((_,j)=>{if(typeof a[j]==='boolean')n++;});});
+  S.by.sa.forEach(q=>{if(String(state.ans[q.id]||'').trim()!=='')n++;});
+  return n;
+}
+function doneCount(){return S.list.filter(q=>state.pr[q.id]&&state.pr[q.id].done).length;}
+function updateProgress(){
+  const l=document.getElementById('plabel'),b=document.getElementById('pbar');if(!l)return;
+  if(S.mode!=='practice'){const n=answered(),t=totalItems();l.textContent=`Đã trả lời ${n}/${t}`;b.style.width=(100*n/t)+'%';}
+  else{const n=doneCount(),t=S.list.length;l.textContent=`Đã hoàn thành ${n}/${t} câu`;b.style.width=(100*n/t)+'%';}
+}
+
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^\d{1,3}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+/* ============ Luyện tập: kiểm tra từng câu ============ */
+function setFeed(id,msg,cls){
+  const box=document.querySelector(`#q-${id} .feedbox`);
+  if(box)box.innerHTML=`<div class="feed ${cls}" role="status">${msg}</div>`;
+}
+function practiceCheck(id){
+  const q=S.list.find(x=>x.id===id);if(!q)return;
+  const P=state.pr[id]||(state.pr[id]={attempts:0,done:false,tried:[]});
+  if(P.done)return;
+  const a=state.ans[id];
+  if(q.type==='mc'&&a==null)return setFeed(id,'Hãy chọn một đáp án trước.','info');
+  if(q.type==='tf'){const arr=a||[];if(q.items.some((_,j)=>typeof arr[j]!=='boolean'))return setFeed(id,'Hãy chọn Đúng hoặc Sai cho cả 4 ý trước.','info');}
+  if(q.type==='sa'&&String(a||'').trim()==='')return setFeed(id,'Hãy nhập đáp án trước.','info');
+  P.attempts++;
+  const oks=evalQ(q,a),all=oks.every(Boolean);
+  if(P.attempts===1){P.first=oks;P.firstAns=JSON.parse(JSON.stringify(a));}
+  if(all){
+    P.done=true;P.final=true;P.cls='ok';
+    P.msg=P.attempts===1?'Đúng rồi!':'Đúng ở lần thử thứ hai.';
+  }else if(P.attempts===1){
+    P.cls='bad';
+    if(q.type==='mc'){
+      const e=q.opts[a].err;P.tried.push(a);delete state.ans[id];
+      P.msg='Chưa đúng.'+(e?' '+e:'')+' Hãy chọn lại một đáp án khác.';
+    }else if(q.type==='tf'){
+      const k=oks.filter(Boolean).length;P.msg=`Mới đúng ${k}/${q.items.length} ý. Hãy xem lại các ý và thử một lần nữa.`;
+    }else P.msg='Đáp án chưa đúng. Hãy kiểm tra lại cách tính và thử một lần nữa.';
+  }else{
+    P.done=true;P.final=false;P.cls='bad';P.msg='Chưa đúng. Đáp án và lời giải ở bên dưới.';
+  }
+  let g=null;
+  if(P.done){g=GM.onPractice(!!P.final,P.attempts,q.level||(q.items&&q.items[0]&&q.items[0].level)||'TH');if(g&&g.xp)P.msg+=' +'+g.xp+' XP';}
+  const el=document.getElementById('q-'+id);
+  el.outerHTML=CARD[q.type](q,S.idx[id]);
+  updateProgress();
+  GM.fx(g,document.getElementById('q-'+id));
+}
+
+/* ============ Màn hình: kết quả ============ */
+function barRow(label,o){
+  const p=pct(o),[cls,txt]=status(p);
+  return `<div class="topic"><div class="trow"><b>${label}</b><span class="st ${cls}">${txt} · ${p}%</span></div>
+    <div class="track" role="img" aria-label="${label}: ${p}%"><i class="fill-${cls}" style="width:${p}%"></i></div>
+    <div class="small muted">${o.c}/${o.n} ý đúng</div></div>`;
+}
+GM.user=()=>state.stu&&state.stu.u||'';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+GM.sheet=SHEET_URL;
+const SHEET_TAB='6 - Phép chia hết, ước và bội'; // tên trang tính của bài này trong Google Sheet chung
+const SHEET_TOPICS=['Phép chia hết','Ước và bội','Tìm x, tìm n','Vận dụng thực tế']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
+const CODE_PREFIX='UB6-';
+function makeCode(r){
+  const t={};TKEYS.forEach(k=>t[k]=[r.topics[k].c,r.topics[k].n]);
+  const o={v:1,l:'uocboi6',n:state.name||'Học sinh',d:new Date().toISOString().slice(0,10),s:r.total,m:state.elapsed,L:LIMIT[S.mode],q:S.mode,k:state.code,p:[r.sc.mc,r.sc.tf,r.sc.sa],t,c:state.cls,u:state.stu?state.stu.u:''};
+  return CODE_PREFIX+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+}
+function setSent(msg,retry){
+  const m=document.getElementById('sent');if(!m)return;
+  m.innerHTML=msg+(retry?' <button class="btn sm ghost" id="resend">Gửi lại</button>':'');
+}
+function sendResult(){
+  if(!SHEET_URL||!state.result)return;
+  const code=makeCode(state.result);
+  setSent('Đang gửi kết quả cho giáo viên...');
+  const opt={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({code,bai:S.mode==='hard'?SHEET_TAB+' - Thử thách':SHEET_TAB,tk:TKEYS,tn:SHEET_TOPICS})};
+  const done=()=>{state.sentCode=code;setSent('Đã gửi kết quả cho giáo viên.');};
+  const fail=()=>setSent('Chưa gửi được (có thể mất mạng). Bấm Gửi lại, hoặc gửi mã bên dưới cho giáo viên.',true);
+  fetch(SHEET_URL,opt).then(r=>r.text()).then(t=>{
+    t=t.trim();
+    if(t==='saved'||t==='dup')done();
+    else if(t==='nocode')setSent('Kết quả chưa được ghi vì mã học sinh không có trong danh sách. Hãy báo giáo viên.');
+    else fail();
+  }).catch(()=>{
+    // Không đọc được trả lời: gửi lại theo cách cũ (bảng tính tự bỏ qua nếu đã nhận rồi)
+    fetch(SHEET_URL,Object.assign({mode:'no-cors'},opt)).then(done).catch(fail);
+  });
+}
+function reviewHTML(r){
+  const sym=ok=>ok?'<span class="mark-ok">✓ Đúng</span>':'<span class="mark-no">✗ Chưa đúng</span>';
+  return r.qres.map(x=>{
+    const tp=x.kind==='tf'?'':TOPICS[x.q.topic].short;
+    let body='';const head=`${partName(x.kind)} · Câu ${x.i+1}`;
+    if(x.kind==='mc'){
+      const chosen=x.a==null?'Chưa trả lời':x.q.opts[x.a].t,right=x.q.opts[x.q.ans].t;
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn chọn: <b>${chosen}</b></p><p class="ans-line">Đáp án đúng: <b>${right}</b></p>`+(x.ok||x.a==null||!x.q.opts[x.a].err?'':`<p class="ans-line mark-no">Lỗi thường gặp: ${x.q.opts[x.a].err}</p>`)+`<div class="exp">${x.q.exp}</div>`;
+    }else if(x.kind==='tf'){
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}`+x.q.items.map((it,j)=>{
+        const a=x.a[j],your=typeof a==='boolean'?(a?'Đúng':'Sai'):'Chưa chọn';
+        return `<div class="exp" style="margin-top:8px">${x.q.items.length>1?`<b>${'abcd'[j]})</b> `:''}${it.t}<br>Bạn chọn: <b>${your}</b> · Đáp án: <b>${it.v?'Đúng':'Sai'}</b> ${sym(x.oks[j])} <span class="chip">${TOPICS[it.topic].short}</span><br><span class="muted">${it.exp}</span></div>`;
+      }).join('');
+    }else{
+      body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn nhập: <b>${x.raw?esc(x.raw):'Chưa trả lời'}</b></p><p class="ans-line">Đáp án đúng: <b>${N(x.q.ans[0])} ${x.q.unit}</b></p><div class="exp">${x.q.exp}</div>`;
+    }
+    const right=x.kind==='tf'?`${x.k}/${x.q.items.length} ý đúng · ${fmt(x.pts)}/${fmt(x.max)} điểm`:`${sym(x.ok)} · ${fmt(x.pts)}/${fmt(x.max)} điểm`;
+    return `<details class="rv"><summary><span><b>${head}</b> ${tp?`<span class="chip">${tp}</span>`:''}</span><span class="small">${right}</span></summary><div class="body">${body}</div></details>`;
+  }).join('');
+}
+function resultHTML(){
+  const r=state.result,test=S.mode!=='practice',quick=S.mode==='quick',ts=TKEYS.filter(k=>r.topics[k].n).map(k=>({k,p:pct(r.topics[k])}));
+  const weak=ts.filter(t=>t.p<80).sort((a,b)=>a.p-b.p),strong=ts.filter(t=>t.p>=80);
+  let comment;
+  if(!weak.length)comment=ts.length>1?'Bạn nắm vững cả bốn nội dung. Có thể chuyển sang các bài toán thực tế nhiều bước hơn.':'Bạn nắm vững nội dung này. Hãy thử gói của nội dung hoặc mức độ khác.';
+  else{
+    comment=`Phần cần ưu tiên ôn trước: <b>${TOPICS[weak[0].k].name}</b> (${weak[0].p}%).`;
+    if(strong.length)comment+=` Bạn làm tốt phần ${strong.map(t=>'<b>'+TOPICS[t.k].short+'</b>').join(', ')}.`;
+  }
+  const missed=k=>r.items.filter(it=>it.topic===k&&!it.ok).map(it=>it.label);
+  const correct=r.items.filter(it=>it.ok).length;
+  const head=test
+    ?`<div class="big">${fmt(r.total)}<small> / 10</small></div><div><div class="muted small" style="margin-bottom:6px">${esc(state.name||'Học sinh')}${state.cls?' · Lớp '+esc(state.cls):''}${quick?' · Kiểm tra nhanh':S.mode==='hard'?' · Thử thách':''}${state.code?' · Mã đề '+esc(state.code):''}</div><div class="parts">${quick?`<span class="chip">Phần I: ${fmt(r.sc.mc)}/5</span><span class="chip">Phần II: ${fmt(r.sc.sa)}/5</span>`:`<span class="chip">Phần I: ${fmt(r.sc.mc)}/3</span><span class="chip">Phần II: ${fmt(r.sc.tf)}/3</span><span class="chip">Phần III: ${fmt(r.sc.sa)}/4</span>`}<span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span></div></div>`
+    :`<div class="big">${correct}<small> / ${r.items.length}</small></div><div><div class="muted small" style="margin-bottom:6px">${S.title}</div><div class="parts"><span class="chip">ý đúng ngay lần đầu</span><span class="chip">Thời gian: ${fmtTime(state.elapsed)}</span><span class="chip">Luyện tập không tính điểm</span></div></div>`;
+  const code=test?makeCode(r):'';
+  return `
+  ${test&&state.timedOut?'<div class="warnbar" role="alert" style="margin:0 0 12px">Đã hết '+(LIMIT[S.mode]/60)+' phút nên bài được nộp tự động. Những ý chưa làm tính là chưa đúng.</div>':''}
+  <section class="card stack" style="margin-top:8px">
+    <div class="score">${head}</div>
+    <p style="margin:0">${comment}</p>
+  </section>
+
+  ${GM.resultHTML(state.gm)}
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo nội dung kiến thức</h2>
+    ${TKEYS.filter(k=>r.topics[k].n).map(k=>barRow(TOPICS[k].name,r.topics[k])).join('')}
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo mức độ</h2>
+    ${Object.keys(LEVELS).filter(k=>r.levels[k].n).map(k=>barRow(LEVELS[k],r.levels[k])).join('')}
+  </section>
+
+  <section class="card" style="margin-top:16px"><h2 style="margin-bottom:6px">Nên ôn gì tiếp theo</h2>
+    ${weak.length?weak.map(t=>`<div class="advice"><h3>${TOPICS[t.k].name}</h3><p><b>Nhớ:</b> ${TOPICS[t.k].rule}</p><p><b>Lưu ý:</b> ${TOPICS[t.k].tip}</p><p class="small muted">Xem lại: ${missed(t.k).join('; ')}.</p></div>`).join(''):'<p class="muted">Không có nội dung nào dưới 80%.</p>'}
+    ${r.errs.length?`<h3 style="margin-top:18px">Những lỗi bạn đã mắc</h3><ul class="plain">${r.errs.map(e=>`<li><b>${e.where}</b> <span class="chip">${TOPICS[e.topic].short}</span><br><span class="muted">${e.text}</span></li>`).join('')}</ul>`:''}
+  </section>
+
+  ${test?`<section style="margin-top:22px"><h2 style="margin-bottom:12px">Xem lại từng câu</h2>${reviewHTML(r)}</section>
+
+  <section class="card codebox" style="margin-top:16px"><h2>Gửi kết quả cho giáo viên</h2>
+    <p class="small" id="sent" role="status" style="margin:0"></p>
+    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả được gửi tự động. Nếu giáo viên chưa nhận được, hãy sao chép mã dưới đây và gửi qua Zalo.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
+    <textarea id="code" readonly rows="3" aria-label="Mã kết quả">${code}</textarea>
+    <div class="row"><button class="btn sm" id="copy">Sao chép mã</button><span class="small muted" id="copied" role="status"></span></div>
+  </section>`:''}
+
+  <div class="row" style="margin-top:22px">
+    ${state.weak.length?`<button class="btn" id="weakpack">Luyện gói ôn điểm yếu</button>`:''}
+    ${nextSpec()?`<button class="btn ${state.weak.length?'ghost':''}" id="nextpack">Luyện tiếp: gói ${specName(nextSpec())}</button>`:''}
+    <button class="btn ${state.weak.length||nextSpec()?'ghost':''}" id="again">${test?(state.code?'Làm lại đề này':'Làm đề kiểm tra khác'):'Làm gói này lần nữa'}</button>
+    <button class="btn ghost" id="home">Về trang đầu</button>
+  </div>`;
+}
+
+/* ============ Màn hình: giáo viên ============ */
+function teacherHTML(){
+  return `<section class="hero"><h1>Bảng <em>tổng hợp</em> lớp</h1>
+    <p class="lead">Điểm kiểm tra của học sinh tự gửi về Google Sheet chung <b>LUYỆN TOÁN THCS</b>. Thầy cô mở trang tính <b>Xem điểm</b> (một lớp, một bài) hoặc <b>Sổ điểm</b> (một lớp, mọi bài) để theo dõi, không cần dán mã.</p>
+    <p class="lead"><b>Dự phòng khi học sinh không gửi được (mất mạng):</b> dán mã kết quả bài kiểm tra Bài 17. Phép chia hết. Ước và bội của học sinh (bắt đầu bằng ${CODE_PREFIX}), mỗi mã một dòng. Bảng cho thấy điểm từng em và nội dung kiến thức cả lớp còn yếu. Mỗi học sinh nhận một đề khác nhau nhưng cùng cấu trúc, nên điểm vẫn so sánh được.</p></section>
+    <section class="card stack" style="margin-top:18px">
+      <div><label class="fl" for="codes">Mã kết quả</label><textarea id="codes" placeholder="${CODE_PREFIX}eyJ2IjoxLC..."></textarea></div>
+      <div class="row"><button class="btn" id="analyze">Tổng hợp</button><button class="btn ghost" id="clearc">Xóa</button></div>
+      <div id="tout" aria-live="polite"></div>
+    </section>`;
+}
+function decodeCode(line){
+  line=line.trim();if(!line.startsWith(CODE_PREFIX))return null;
+  try{const o=JSON.parse(decodeURIComponent(escape(atob(line.slice(CODE_PREFIX.length)))));if(o&&o.t&&typeof o.s==='number')return o;}catch(e){}
+  return null;
+}
+function analyzeCodes(){
+  const lines=document.getElementById('codes').value.split(/\r?\n/).filter(l=>l.trim());
+  const rows=[],bad=[];let other=0;
+  lines.forEach((l,i)=>{const o=decodeCode(l);if(o)rows.push(o);else{bad.push(i+1);if(/^[A-Z0-9]{2,4}-/.test(l.trim())&&!l.trim().startsWith(CODE_PREFIX))other++;}});
+  const out=document.getElementById('tout');
+  if(!rows.length){out.innerHTML=`<div class="warnbar">${lines.length?`Không đọc được mã nào. Hãy kiểm tra mã đã được sao chép đầy đủ, bắt đầu bằng ${CODE_PREFIX}.${other?' Có mã của bài khác (ví dụ Tam giác bằng nhau): hãy dán mã đó ở trang của bài ấy.':''}`:'Hãy dán ít nhất một mã kết quả.'}</div>`;return;}
+  const cell=o=>{if(!o||!o[1])return '<td class="cell">–</td>';const p=Math.round(100*o[0]/o[1]);return `<td class="cell ${status(p)[0]}">${p}%</td>`;};
+  const avg=TKEYS.map(k=>{let c=0,n=0;rows.forEach(r=>{if(r.t[k]){c+=r.t[k][0];n+=r.t[k][1];}});return [c,n];});
+  const mean=rows.reduce((s,r)=>s+r.s,0)/rows.length;
+  const timed=rows.filter(r=>typeof r.m==='number'),meanT=timed.length?timed.reduce((s,r)=>s+r.m,0)/timed.length:null;
+  const tcell=r=>typeof r.m==='number'?fmtTime(r.m):'–';
+  const flag=r=>(typeof r.m==='number'&&r.m<0.25*(r.L||1800)&&r.s<5)?' <span class="chip">Làm nhanh, điểm thấp</span>':'';
+  const chips=r=>(r.c?` <span class="chip">Lớp ${esc(r.c)}</span>`:'')+(r.q==='quick'?' <span class="chip">Nhanh 5 phút</span>':r.q==='hard'?' <span class="chip">Thử thách 30 phút</span>':'')+(r.k?` <span class="chip">Mã đề ${esc(r.k)}</span>`:'');
+  const weakCount=TKEYS.map(k=>rows.filter(r=>r.t[k]&&r.t[k][1]&&100*r.t[k][0]/r.t[k][1]<50).length);
+  const worst=TKEYS.map((k,i)=>({k,p:avg[i][1]?100*avg[i][0]/avg[i][1]:100})).sort((a,b)=>a.p-b.p)[0];
+  out.innerHTML=`${bad.length?`<div class="warnbar" style="margin:0 0 12px">Bỏ qua ${bad.length} dòng không đọc được (dòng ${bad.join(', ')}).${other?' Có mã của bài khác, hãy dán ở trang của bài ấy.':''}</div>`:''}
+    <p style="margin:0 0 10px"><b>${rows.length}</b> học sinh · điểm trung bình <b>${fmt(mean)}</b>. Nội dung cả lớp còn yếu nhất: <b>${TOPICS[worst.k].name}</b> (${Math.round(worst.p)}%).</p>
+    <div class="tablewrap"><table><thead><tr><th>Học sinh</th><th>Điểm</th><th>Thời gian</th>${TKEYS.map(k=>`<th>${TOPICS[k].short}</th>`).join('')}</tr></thead><tbody>
+    ${rows.sort((a,b)=>a.s-b.s).map(r=>`<tr><td>${esc(r.n)}${chips(r)}${flag(r)}</td><td><b>${fmt(r.s)}</b></td><td>${tcell(r)}</td>${TKEYS.map(k=>cell(r.t[k])).join('')}</tr>`).join('')}
+    <tr><td><b>Cả lớp</b></td><td><b>${fmt(mean)}</b></td><td>${meanT===null?'–':fmtTime(meanT)}</td>${avg.map(cell).join('')}</tr>
+    <tr><td class="muted">Số em dưới 50%</td><td></td><td></td>${weakCount.map(n=>`<td class="cell">${n}</td>`).join('')}</tr>
+    </tbody></table></div>
+    <p class="small muted" style="margin:10px 0 0">Màu: xanh từ 80%, vàng từ 50% đến dưới 80%, đỏ dưới 50%. Các em được xếp từ điểm thấp đến cao để dễ thấy em cần hỗ trợ. Nhãn "Làm nhanh, điểm thấp" hiện khi em nộp bài trong chưa đầy một phần tư thời gian cho phép mà dưới 5 điểm, thường là em chưa làm kỹ nên cần hỏi lại.</p>`;
+}
+
+/* ============ Điều hướng và sự kiện ============ */
+function render(){
+  const gv=location.hash==='#giao-vien';
+  document.getElementById('nav-hs').setAttribute('aria-current',gv?'false':'page');
+  document.getElementById('nav-gv').setAttribute('aria-current',gv?'page':'false');
+  if(gv){stopTimer();$app.innerHTML=teacherHTML();GM.refresh();return;}
+  if(state.view==='home'){stopTimer();$app.innerHTML=homeHTML();}
+  else if(state.view==='quiz'){$app.innerHTML=quizHTML();updateProgress();startTimer();}
+  else{stopTimer();$app.innerHTML=resultHTML();if(SHEET_URL&&S.mode!=='practice'&&state.sentCode!==makeCode(state.result))sendResult();else if(SHEET_URL&&S.mode!=='practice')setSent('Đã gửi kết quả cho giáo viên.');}
+  window.scrollTo(0,0);
+  GM.refresh();GM.sync();
+}
+function normCode(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'');}
+function withCode(mode,fn){
+  if(!state.code){fn();return;}
+  RNG=mulberry32(hashStr(mode+'|'+state.code));SEEDED=true;
+  try{fn();}finally{RNG=Math.random;SEEDED=false;}
+}
+function startTest(){withCode('test',buildTest);state.view='quiz';render();}
+function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
+function startHard(){withCode('hard',buildHard);state.view='quiz';render();}
+function startPack(spec){if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
+// Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
+function nextSpec(){
+  if(!S||S.mode!=='practice'||!S.spec)return null;
+  const sp=S.spec,list=sp.kind==='level'?Object.keys(LEVELS):sp.kind==='topic'?TKEYS:[],i=list.indexOf(sp.val);
+  return i>=0&&i<list.length-1?{kind:sp.kind,val:list[i+1]}:null;
+}
+const specName=sp=>sp.kind==='level'?LEVELS[sp.val]:TOPICS[sp.val].short;
+function parsePack(s){
+  if(s==='weak')return {kind:'weak',topics:state.weak.slice()};
+  const [kind,val]=s.split(':');return {kind,val};
+}
+function finish(force){
+  const test=S.mode!=='practice';
+  const left=test?totalItems()-answered():S.list.length-doneCount();
+  if(left>0&&!force){
+    const w=document.getElementById('warn');
+    w.innerHTML=test
+      ?`<div class="warnbar" role="alert">Còn <b>${left}</b> ý chưa trả lời. Những ý này sẽ tính là chưa đúng.<div class="row" style="margin-top:10px"><button class="btn sm" id="force">Vẫn nộp bài</button><button class="btn ghost sm" id="keep">Làm tiếp</button></div></div>`
+      :`<div class="warnbar" role="alert">Còn <b>${left}</b> câu chưa kiểm tra xong. Những câu này sẽ tính là chưa đúng ngay lần đầu.<div class="row" style="margin-top:10px"><button class="btn sm" id="force">Vẫn xem kết quả</button><button class="btn ghost sm" id="keep">Làm tiếp</button></div></div>`;
+    w.scrollIntoView({block:'center'});return;
+  }
+  stopTimer();
+  state.elapsed=Math.floor((Date.now()-state.t0)/1000);
+  if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
+  state.result=grade();updateWeak(state.result);state.gm=GM.onFinish(state.result,S.mode);state.view='result';render();
+}
+loadHS();
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
+document.addEventListener('click',e=>{
+  const pk=e.target.closest('[data-pack]');
+  if(pk&&!pk.disabled){startPack(parsePack(pk.dataset.pack));return;}
+  const ck=e.target.closest('.chk');
+  if(ck){practiceCheck(ck.dataset.q);return;}
+  const id=e.target.id;
+  if(id==='start'||id==='startq'||id==='starth'){if(!needHS()){state.name=document.getElementById('nm').value.trim();state.cls=normCode(document.getElementById('cls').value);}state.code=normCode(document.getElementById('mcode').value);
+    if(id==='start')startTest();else if(id==='starth')startHard();else startQuick();}
+  else if(id==='hsgo')checkHS();
+  else if(id==='hsout'){saveHS(null);state.view='home';render();}
+  else if(id==='submit')finish(false);
+  else if(id==='force')finish(true);
+  else if(id==='keep')document.getElementById('warn').innerHTML='';
+  else if(id==='back'){state.view='home';render();}
+  else if(id==='again'){if(S.mode==='test')startTest();else if(S.mode==='quick')startQuick();else if(S.mode==='hard')startHard();else startPack(S.spec.kind==='weak'?{kind:'weak',topics:state.weak.length?state.weak.slice():S.spec.topics}:S.spec);}
+  else if(id==='weakpack')startPack({kind:'weak',topics:state.weak.slice()});
+  else if(id==='nextpack'){const n=nextSpec();if(n)startPack(n);}
+  else if(id==='home'){state.view='home';render();}
+  else if(id==='copy'){
+    const t=document.getElementById('code'),m=document.getElementById('copied');
+    t.focus();t.select();
+    (navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>{m.textContent='Đã sao chép.';}).catch(()=>{m.textContent='Hãy nhấn giữ vùng chọn rồi chọn Sao chép.';});
+  }
+  else if(id==='resend')sendResult();
+  else if(id==='analyze')analyzeCodes();
+  else if(id==='clearc'){document.getElementById('codes').value='';document.getElementById('tout').innerHTML='';}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;if(t.type!=='radio')return;
+  const m=t.name.match(/^(.+)-(\d)$/);
+  if(m){const a=state.ans[m[1]]||(state.ans[m[1]]=[]);a[+m[2]]=t.value==='1';}
+  else state.ans[t.name]=+t.value;
+  updateProgress();
+});
+document.addEventListener('input',e=>{
+  const id=e.target.dataset&&e.target.dataset.sa;
+  if(id){state.ans[id]=e.target.value;updateProgress();}
+});
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>
