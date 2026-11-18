@@ -202,8 +202,10 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
   <footer>Bài luyện chấm tự động ngay trên trình duyệt. Kết quả không được lưu trên máy chủ; học sinh gửi mã kết quả của bài kiểm tra cho giáo viên để tổng hợp.</footer>
 </div>
 
+<script src="../gamify.js"></script>
 <script>
 "use strict";
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){}}; // gamify.js không tải được thì trang vẫn chạy bình thường
 /* ============ Hình vẽ ============ */
 const f1=n=>(Math.round(n*10)/10);
 function ticks(p,q,n){
@@ -689,7 +691,9 @@ const RECAP=[
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60}; // giây
+GM.user=()=>state.stu&&state.stu.u||'';
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+GM.sheet=SHEET_URL;
 const SHEET_TAB='7 - Tam giác vuông bằng nhau'; // tên trang tính của bài này trong Google Sheet chung
 const SHEET_TOPICS=['Hai cạnh góc vuông','Cạnh góc vuông-góc nhọn kề','Cạnh huyền-góc nhọn','Cạnh huyền-cạnh góc vuông']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
 let tick=null;
@@ -844,6 +848,7 @@ function homeHTML(){
   </section>
 
   ${hsBarHTML()}
+  ${GM.barHTML()}
 
   <section class="card stack" style="margin-top:22px">
     <div>
@@ -1085,9 +1090,12 @@ function practiceCheck(id){
   }else{
     P.done=true;P.final=false;P.cls='bad';P.msg='Chưa đúng. Đáp án và lời giải ở bên dưới.';
   }
+  let g=null;
+  if(P.done){g=GM.onPractice(!!P.final,P.attempts,q.level||(q.items&&q.items[0]&&q.items[0].level)||'TH');if(g&&g.xp)P.msg+=' +'+g.xp+' XP';}
   const el=document.getElementById('q-'+id);
   el.outerHTML=CARD[q.type](q,S.idx[id]);
   updateProgress();
+  GM.fx(g,document.getElementById('q-'+id));
 }
 
 /* ============ Màn hình: kết quả ============ */
@@ -1165,6 +1173,7 @@ function resultHTML(){
     <p style="margin:0">${comment}</p>
   </section>
 
+  ${GM.resultHTML(state.gm)}
   <section class="card" style="margin-top:16px"><h2 style="margin-bottom:14px">Kết quả theo nội dung kiến thức</h2>
     ${TKEYS.filter(k=>r.topics[k].n).map(k=>barRow(TOPICS[k].name,r.topics[k])).join('')}
   </section>
@@ -1241,11 +1250,12 @@ function render(){
   const gv=location.hash==='#giao-vien';
   document.getElementById('nav-hs').setAttribute('aria-current',gv?'false':'page');
   document.getElementById('nav-gv').setAttribute('aria-current',gv?'page':'false');
-  if(gv){stopTimer();$app.innerHTML=teacherHTML();return;}
+  if(gv){stopTimer();$app.innerHTML=teacherHTML();GM.refresh();return;}
   if(state.view==='home'){stopTimer();$app.innerHTML=homeHTML();}
   else if(state.view==='quiz'){$app.innerHTML=quizHTML();updateProgress();startTimer();}
   else{stopTimer();$app.innerHTML=resultHTML();if(SHEET_URL&&S.mode!=='practice'&&state.sentCode!==makeCode(state.result))sendResult();else if(SHEET_URL&&S.mode!=='practice')setSent('Đã gửi kết quả cho giáo viên.');}
   window.scrollTo(0,0);
+  GM.refresh();GM.sync();
 }
 function normCode(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'');}
 function withCode(mode,fn){
@@ -1281,7 +1291,7 @@ function finish(force){
   stopTimer();
   state.elapsed=Math.floor((Date.now()-state.t0)/1000);
   if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
-  state.result=grade();updateWeak(state.result);state.view='result';render();
+  state.result=grade();updateWeak(state.result);state.gm=GM.onFinish(state.result,S.mode);state.view='result';render();
 }
 loadHS();
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
