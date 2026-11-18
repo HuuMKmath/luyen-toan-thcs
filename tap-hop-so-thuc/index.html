@@ -775,6 +775,29 @@ const HARD={tf:[{id:'h_tf',type:'tf',topic:'ss',level:'VD',gen:tfHard}],sa:[
 HARD.sa.push(...[{id:'h_gtfind',topic:'gt',gen:saGtFindOf(6)},{id:'h_gtcalc',topic:'gt',gen:saGtCalc},{id:'h_gtext',topic:'gt',gen:saGtExt},
  {id:'h_xy',topic:'gt',gen:()=>{const A=zN(),B=zN();if(RNG()<.5)A[0]=-A[0];if(RNG()<.5)B[0]=-B[0];const s2=zS(zNeg(A),B);
   return {stem:`Tìm x + y, biết |${xPlus(A)}| + (${xPlus(B).replace('x','y')})² = 0.`+ZT,ans:[s2[0]/s2[1]],at:zF(s2),exp:`Vì |${xPlus(A)}| ≥ 0 và (${xPlus(B).replace('x','y')})² ≥ 0 nên tổng bằng 0 khi cả hai cùng bằng 0: x = ${zF(zNeg(A))}, y = ${zF(zNeg(B))}. Vậy x + y = ${zF(s2)}.`};}}].map(q=>Object.assign({type:'sa',level:'VD',unit:''},q)));
+/* Thử thách: tổng hai giá trị tuyệt đối; tích bằng 0 có giá trị tuyệt đối */
+function saAbs2(){
+  for(;;){const a=zN(),b=zN();if(RNG()<.5)a[0]=-a[0];if(RNG()<.5)b[0]=-b[0];if(zEq(a,b))continue;
+    const lo=zS(a,b)[0]<0?a:b,hi=zS(a,b)[0]<0?b:a,d=zS(hi,lo),rev=RNG()<.5;
+    const t1=`|${xPlus(zNeg(a))}|`,t2=rev?`|${zF(b)} − x|`:`|${xPlus(zNeg(b))}|`,h=`A = ${t1} + ${t2}`;
+    const ask=RNG()<.7;
+    const exp=`${rev?`Vì |${zF(b)} − x| = |x ${b[0]<0?'+':'−'} ${zF(zAbs(b))}| nên `:''}A = |x − ${zP(a)}| + |x − ${zP(b)}| là tổng khoảng cách từ x đến ${zF(lo)} và ${zF(hi)} trên trục số. Khi ${zF(lo)} ≤ x ≤ ${zF(hi)} thì A = (x − ${zP(lo)}) + (${zF(hi)} − x) = ${zF(d)}; khi x nằm ngoài đoạn đó thì A > ${zF(d)}. Vậy giá trị nhỏ nhất của A là ${zF(d)}, đạt được khi ${zF(lo)} ≤ x ≤ ${zF(hi)}.`;
+    if(ask)return {stem:`Tìm giá trị nhỏ nhất của biểu thức ${h}.`+ZT,ans:[d[0]/d[1]],at:zF(d),exp};
+    if(lo[1]!==1||hi[1]!==1||d[0]>12)continue;
+    const n=d[0]+1;return {stem:`Biểu thức ${h} đạt giá trị nhỏ nhất. Có bao nhiêu số nguyên x để A đạt giá trị nhỏ nhất đó?`,ans:[n],exp:exp+` Các số nguyên từ ${N(lo[0])} đến ${N(hi[0])} có ${n} số.`};}
+}
+function saProd0(){
+  for(;;){const A=zN(),B=zN();if(RNG()<.5)A[0]=-A[0];
+    if(RNG()<.35){const c=ri(1,9),big=zA(zNeg(A),B);
+      return {stem:`Tìm giá trị lớn nhất của x thỏa mãn (x² + ${c}) · (|${xPlus(A)}| − ${zF(B)}) = 0.`+ZT,ans:[big[0]/big[1]],at:zF(big),
+        exp:`Vì x² ≥ 0 nên x² + ${c} > 0, do đó |${xPlus(A)}| − ${zF(B)} = 0, tức ${xPlus(A)} = ${zF(B)} hoặc ${xPlus(A)} = ${zF(zNeg(B))}. Suy ra x = ${zF(zS(B,A))} hoặc x = ${zF(zS(zNeg(B),A))}. Giá trị lớn nhất là ${zF(big)}.`};}
+    const p=zN(),q=sel([1,2,3,4]);if(RNG()<.5)p[0]=-p[0];const x1=zD(p,[q,1]),x2=zS(B,A),x3=zS(zNeg(B),A);
+    if(zEq(x1,x2)||zEq(x1,x3))continue;const sum=zA(zA(x1,x2),x3);if(sum[1]>60||Math.abs(sum[0])>200)continue;
+    const f1=`${zF(p)} − ${q===1?'':q}x`;
+    return {stem:`Tìm tổng các giá trị của x thỏa mãn (${f1}) · (|${xPlus(A)}| − ${zF(B)}) = 0.`+ZT,ans:[sum[0]/sum[1]],at:zF(sum),
+      exp:`Tích bằng 0 khi ${f1} = 0 hoặc |${xPlus(A)}| = ${zF(B)}. Từ ${f1} = 0 được x = ${zF(x1)}. Từ |${xPlus(A)}| = ${zF(B)} được x = ${zF(x2)} hoặc x = ${zF(x3)}. Tổng các giá trị của x là ${zF(sum)}.`};}
+}
+HARD.sa.push({id:'h_abs2',type:'sa',topic:'gt',level:'VD',unit:'',gen:saAbs2},{id:'h_prod0',type:'sa',topic:'gt',level:'VD',unit:'',gen:saProd0});
 const PISA=[
  ()=>{for(;;){
   const a=ri(30,150)/10,c=ri(30,150)/10,b=ri(10,90)/10;if(a===c)continue;
