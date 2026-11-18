@@ -42,6 +42,7 @@ a.lesson p{margin:0;font-size:.92rem;color:var(--muted)}
 .jump a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font-weight:600;font-size:.95rem;text-decoration:none}
 .jump a:hover{border-color:var(--accent);color:var(--accent)}
 section[id]{scroll-margin-top:12px}
+[hidden]{display:none!important}
 .me{margin-top:26px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}
 .me h2{margin:0 0 8px}
 .me input{font:inherit;min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);width:11ch}
@@ -238,9 +239,17 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 function load(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');return o&&o.u&&o.n?o:null;}catch(e){return null;}}
 function save(o){try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
 function grade(c){const m=String(c||'').match(/\d+/);return m?m[0]:'';}
+// Học sinh đã đăng nhập chỉ thấy các bài của đúng khối lớp mình; chưa đăng nhập thì thấy tất cả để chọn.
+function applyGrade(g){
+  ['6','7','8','9'].forEach(function(n){
+    const hide=!!g&&n!==g;
+    const sec=document.getElementById('lop-'+n);if(sec)sec.hidden=hide;
+    const nav=document.querySelector('a[href="#lop-'+n+'"]');if(nav)nav.hidden=hide;
+  });
+}
 function clearBadges(){cards.forEach(function(a){a.classList.remove('done');const p=a.querySelector('.prog');if(p)p.remove();});}
 function loginView(msg){
-  clearBadges();
+  clearBadges();applyGrade('');
   body.innerHTML='<p class="sum" style="margin:0 0 12px">Nhập mã học sinh để xem điểm cao nhất, số lần làm và phần còn yếu của từng bài.</p>'+
    '<div class="row"><label for="ma" class="sum" style="margin:0">Mã học sinh</label><input id="ma" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 chữ số"><button id="go">Xem tiến độ</button></div>'+
    '<p class="err" id="err" role="alert">'+esc(msg||'')+'</p>';
@@ -262,7 +271,7 @@ function fetchProg(u,fresh){
   }).catch(function(){fresh?loginView('Không kết nối được. Kiểm tra mạng rồi thử lại.'):showCached('Chưa tải được tiến độ lúc này (mất mạng?).');});
 }
 function showCached(msg){
-  const h=load();clearBadges();
+  const h=load();clearBadges();applyGrade(h?grade(h.c):'');
   if(!h){loginView(msg);return;}
   body.innerHTML='<p class="sum" style="margin:0">Xin chào, <b>'+esc(h.n)+'</b>'+(h.c?' · Lớp '+esc(h.c):'')+'</p><p class="err">'+esc(msg)+'</p><div class="row"><button id="again">Thử lại</button><button class="ghost" id="out">Đổi học sinh</button></div>';
   document.getElementById('again').onclick=function(){fetchProg(h.u,false);};
@@ -270,7 +279,7 @@ function showCached(msg){
 }
 function showProg(o){
   clearBadges();
-  const g=grade(o.c);let mine=0,done=0,best=0,sum=0;
+  const g=grade(o.c);applyGrade(g);let mine=0,done=0,best=0,sum=0;
   cards.forEach(function(a){
     const tab=a.getAttribute('data-tab'),tg=grade(tab);
     const k=o.bai&&o.bai[tab];
@@ -296,7 +305,7 @@ function showProg(o){
   document.getElementById('out').onclick=function(){save(null);loginView('');};
 }
 const h=load();
-if(h)fetchProg(h.u,false);else loginView('');
+if(h){applyGrade(grade(h.c));fetchProg(h.u,false);}else loginView('');
 })();
 </script>
 </body>
