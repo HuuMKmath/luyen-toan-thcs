@@ -11,6 +11,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
 | 6 | Bài 15. Quy tắc dấu ngoặc | `quy-tac-dau-ngoac/` | `DN6-` |
 | 6 | Bài 17. Phép chia hết. Ước và bội của một số nguyên | `phep-chia-het-uoc-boi/` | `UB6-` |
+| 6 | Luyện tập chung (sau Bài 17) | `luyen-tap-chung-sau-bai-17/` | `LC6-` |
 | 6 | Bài 16. Phép nhân số nguyên | `phep-nhan-so-nguyen/` | `NH6-` |
 | 6 | Luyện tập chung (sau Bài 15) | `luyen-tap-chung-so-nguyen/` | `LT6-` |
 | 7 | Bài 13, 14. Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
@@ -37,6 +38,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
 - Quy tắc dấu ngoặc: `https://huumkmath.github.io/tam-giac-bang-nhau/quy-tac-dau-ngoac/`
 - Phép chia hết, ước và bội: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-chia-het-uoc-boi/`
+- Luyện tập chung (sau Bài 17): `https://huumkmath.github.io/tam-giac-bang-nhau/luyen-tap-chung-sau-bai-17/`
 - Phép nhân số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-nhan-so-nguyen/`
 - Luyện tập chung (sau Bài 15): `https://huumkmath.github.io/tam-giac-bang-nhau/luyen-tap-chung-so-nguyen/`
 - Tập hợp các số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-huu-ti/`
