@@ -371,6 +371,9 @@ function onEdit(e) {
 
 const COT_THUONG = ['Mã HS', 'Họ tên', 'Lớp', 'XP', 'Chuỗi ngày', 'Ngày gần nhất', 'Số huy hiệu', 'Dữ liệu', 'Cập nhật', 'XP tuần', 'Tuần (từ thứ Hai)'];
 const DX_TOI_DA = 3000; // XP tối đa được cộng trong một lần gửi
+// XP tối đa được cộng trong một ngày (giờ Việt Nam). Website đã giới hạn 3 lần mỗi gói và 8 gói hoặc 120 phút mỗi ngày;
+// mức này chặn thêm ở Sheet để em nào vượt giới hạn trên máy (ví dụ dùng trình duyệt ẩn danh) cũng không cộng XP quá mức.
+const XP_NGAY_TOI_DA = 2500;
 
 function gMacDinh() {
   return { xp: 0, streak: 0, last: '', day: '', dayCorrect: 0, goalDay: '', badges: {}, stats: { retry: 0, bestCombo: 0 }, pids: [] };
@@ -433,7 +436,10 @@ function thuongDongBo(body) {
     const dx = soDuong(body.dx, DX_TOI_DA);
     const tuan = tuanNay();
     g.wk = tuan; g.wxp = cu.wk === tuan ? soDuong(cu.wxp, 100000000) : 0; // XP tuần: sang tuần mới thì tính lại từ 0
-    if (dx && pid && g.pids.indexOf(pid) < 0) { g.xp += dx; g.wxp += dx; g.pids.push(pid); g.pids = g.pids.slice(-30); }
+    const homNay = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+    g.dn = homNay; g.dxn = cu.dn === homNay ? soDuong(cu.dxn, 100000000) : 0; // XP đã cộng trong hôm nay
+    const nhan = Math.min(dx, Math.max(0, XP_NGAY_TOI_DA - g.dxn));
+    if (dx && pid && g.pids.indexOf(pid) < 0) { g.xp += nhan; g.wxp += nhan; g.dxn += nhan; g.pids.push(pid); g.pids = g.pids.slice(-30); }
     const hang = [ma, hs.n, hs.c, g.xp, g.streak, g.last, Object.keys(g.badges).length, JSON.stringify(g), new Date(), g.wxp, tuan];
     if (row) sh.getRange(row, 1, 1, COT_THUONG.length).setValues([hang]);
     else { sh.appendRow(hang); sh.getRange(sh.getLastRow(), 1).setNumberFormat('@').setValue(ma); }

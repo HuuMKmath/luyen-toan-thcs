@@ -209,7 +209,7 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
 <script src="../gamify.js"></script>
 <script>
 "use strict";
-if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
 
 /* ============ Hàm dùng chung ============ */
 const N=x=>x<0?'−'+(-x):''+x;
@@ -1373,10 +1373,10 @@ function withCode(mode,fn){
   RNG=mulberry32(hashStr(mode+'|'+state.code));SEEDED=true;
   try{fn();}finally{RNG=Math.random;SEEDED=false;}
 }
-function startTest(){withCode('test',buildTest);state.view='quiz';render();}
-function startQuick(){withCode('quick',buildQuick);state.view='quiz';render();}
-function startHard(){withCode('hard',buildHard);state.view='quiz';render();}
-function startPack(spec){if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
+function startTest(){if(!GM.gate('test',null,state.code,startTest))return;withCode('test',buildTest);state.view='quiz';render();}
+function startQuick(){if(!GM.gate('quick',null,state.code,startQuick))return;withCode('quick',buildQuick);state.view='quiz';render();}
+function startHard(){if(!GM.gate('hard',null,state.code,startHard))return;withCode('hard',buildHard);state.view='quiz';render();}
+function startPack(spec){if(!GM.gate('practice',spec,'',function(){startPack(spec);}))return;if(spec.kind==='pisa')buildPisa();else buildPractice(spec);state.view='quiz';render();}
 // Gói kế tiếp sau khi luyện xong: mức độ kế tiếp hoặc nội dung kế tiếp (gói cuối thì không có)
 function nextSpec(){
   if(!S||S.mode!=='practice'||!S.spec)return null;
