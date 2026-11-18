@@ -173,7 +173,7 @@
         '<div class="gm-row"><span class="gm-lab">Lên cấp ' + (l + 1) + '</span><div class="gm-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"><i style="width:' + p + '%"></i></div><small>' + (o.xp - a) + " / " + (b - a) + " XP</small></div>" +
         '<div class="gm-row"><span class="gm-lab">Hôm nay</span><div class="gm-track goal" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + gp + '"><i style="width:' + gp + '%"></i></div><small>' + Math.min(dc, GOAL) + " / " + GOAL + " câu đúng" + (dc >= GOAL ? " ✓" : "") + "</small></div>" +
         '<details class="gm-det"><summary>Huy hiệu (' + nb + " / " + BADGES.length + ')</summary><ul class="gm-badges">' + badges + "</ul></details>" +
-        (BXH && GM.sheet && GM.user && GM.user() ? '<a class="gm-bxh" href="' + BXH + '">Xem bảng xếp hạng lớp →</a>' : "") + "</section>";
+        (BXH && GM.sheet && GM.user && GM.user() ? '<a class="gm-bxh" href="' + BXH + '">Xem bảng xếp hạng lớp và khối →</a>' : "") + "</section>";
     },
 
     /* Khung thưởng ở trang kết quả. */
