@@ -4,6 +4,7 @@
 //  - Chỉ ghi điểm khi mã học sinh có trong trang tính "Học sinh".
 //  - Chỉ ghi điểm ở bài đúng khối lớp của học sinh; tạm ngừng tra mã khi có quá nhiều lần nhập mã sai (chống dò mã).
 //  - Trang tính "Thưởng": script tự tạo, lưu XP, chuỗi ngày và huy hiệu của từng học sinh để đổi máy vẫn giữ được.
+//  - Bảng xếp hạng lớp: học sinh chỉ thấy lớp mình (XP tuần này và tổng XP, tên viết tắt). Tắt bằng BXH_BAT = false.
 //  - Menu "Bảng điểm" tạo hai trang tính "Xem điểm" (một lớp, một bài) và "Sổ điểm" (một lớp, mọi bài).
 // Thêm bài mới trên website KHÔNG cần sửa script này.
 
@@ -114,6 +115,7 @@ function doGet(e) {
     const hs = timHocSinh(ma);
     if (!hs) ghiLanSai();
     if (hs && e.parameter.tiendo) return json(tienDo(hs, ma)); // trang chung: tiến độ cá nhân
+    if (hs && e.parameter.bxh) return json(bangXepHang(hs, ma)); // bảng xếp hạng của lớp học sinh
     return json(hs ? { ok: true, n: hs.n, c: hs.c } : { ok: false });
   } catch (err) {
     return json({ ok: false, err: 1 });
@@ -366,7 +368,7 @@ function onEdit(e) {
 // Mã sai tính vào bộ đếm chống dò mã như khi đăng nhập.
 // Chú ý: XP chỉ là phần thưởng, không phải điểm. Máy học sinh gửi gì thì lưu nấy (có giới hạn mỗi lần).
 
-const COT_THUONG = ['Mã HS', 'Họ tên', 'Lớp', 'XP', 'Chuỗi ngày', 'Ngày gần nhất', 'Số huy hiệu', 'Dữ liệu', 'Cập nhật'];
+const COT_THUONG = ['Mã HS', 'Họ tên', 'Lớp', 'XP', 'Chuỗi ngày', 'Ngày gần nhất', 'Số huy hiệu', 'Dữ liệu', 'Cập nhật', 'XP tuần', 'Tuần (từ thứ Hai)'];
 const DX_TOI_DA = 3000; // XP tối đa được cộng trong một lần gửi
 
 function gMacDinh() {
@@ -412,6 +414,7 @@ function thuongDongBo(body) {
       sh.getRange(2, 1, 998, 1).setNumberFormat('@');
       sh.setFrozenRows(1);
     }
+    if (sh.getLastColumn() < COT_THUONG.length) sh.getRange(1, 1, 1, COT_THUONG.length).setValues([COT_THUONG]).setFontWeight('bold');
     // Tìm dòng của học sinh
     let row = 0, cu = gMacDinh();
     const last = sh.getLastRow();
@@ -427,13 +430,78 @@ function thuongDongBo(body) {
     g.pids = Array.isArray(cu.pids) ? cu.pids.slice(-30).map(String) : [];
     const pid = String(body.pid || '').slice(0, 40);
     const dx = soDuong(body.dx, DX_TOI_DA);
-    if (dx && pid && g.pids.indexOf(pid) < 0) { g.xp += dx; g.pids.push(pid); g.pids = g.pids.slice(-30); }
-    const hang = [ma, hs.n, hs.c, g.xp, g.streak, g.last, Object.keys(g.badges).length, JSON.stringify(g), new Date()];
+    const tuan = tuanNay();
+    g.wk = tuan; g.wxp = cu.wk === tuan ? soDuong(cu.wxp, 100000000) : 0; // XP tuần: sang tuần mới thì tính lại từ 0
+    if (dx && pid && g.pids.indexOf(pid) < 0) { g.xp += dx; g.wxp += dx; g.pids.push(pid); g.pids = g.pids.slice(-30); }
+    const hang = [ma, hs.n, hs.c, g.xp, g.streak, g.last, Object.keys(g.badges).length, JSON.stringify(g), new Date(), g.wxp, tuan];
     if (row) sh.getRange(row, 1, 1, COT_THUONG.length).setValues([hang]);
     else { sh.appendRow(hang); sh.getRange(sh.getLastRow(), 1).setNumberFormat('@').setValue(ma); }
     delete g.pids;
+    CacheService.getScriptCache().remove(khoaBxh(hs.c));
     return json({ ok: true, g: g });
   } catch (err) {
     return json({ ok: false, err: 1 });
   }
+}
+
+/* ---------- Bảng xếp hạng lớp ---------- */
+// Học sinh (đã qua bước tra mã) chỉ nhận bảng của chính lớp mình: 10 bạn đứng đầu theo XP tuần này và theo tổng XP,
+// tên viết tắt (ví dụ "N.V. An"), kèm thứ hạng của chính em. Lớp "GV" (mã giáo viên) không được xếp hạng.
+const BXH_BAT = true;   // đặt false để tắt bảng xếp hạng trên website
+const BXH_SO = 10;      // số bạn hiện trong bảng
+
+// Ngày thứ Hai của tuần hiện tại (giờ Việt Nam), dạng yyyy-MM-dd
+function tuanNay() {
+  const tz = 'Asia/Ho_Chi_Minh', now = new Date();
+  const thu = Number(Utilities.formatDate(now, tz, 'u')); // 1 = thứ Hai ... 7 = Chủ nhật
+  return Utilities.formatDate(new Date(now.getTime() - (thu - 1) * 86400000), tz, 'yyyy-MM-dd');
+}
+function khoaBxh(lop) { return 'bxh:' + String(lop || '').slice(0, 40); }
+function laLopGV(lop) { return /^\s*gv\s*$/i.test(String(lop || '')); }
+
+function tenTat(ten) {
+  const p = String(ten || '').trim().split(/\s+/).filter(String);
+  if (p.length < 2) return p[0] || '';
+  return p.slice(0, -1).map(function (w) { return w.charAt(0).toUpperCase() + '.'; }).join('') + ' ' + p[p.length - 1];
+}
+
+function xepHang(ds, truong, ma) {
+  const s = ds.slice().sort(function (a, b) { return b[truong] - a[truong] || (a.t < b.t ? -1 : a.t > b.t ? 1 : 0); });
+  let hang = 0, truoc = -1, toi = null;
+  const out = s.map(function (h, i) {
+    if (h[truong] !== truoc) { hang = i + 1; truoc = h[truong]; }
+    const o = { r: hang, n: h.t, x: h[truong], me: h.u === ma ? 1 : 0 };
+    if (o.me) toi = o;
+    return o;
+  });
+  return { top: out.slice(0, BXH_SO), toi: toi };
+}
+
+function bangXepHang(hs, ma) {
+  if (!BXH_BAT) return { ok: true, off: 1 };
+  if (laLopGV(hs.c)) return { ok: true, gv: 1 };
+  const u = soMa(ma), cache = CacheService.getScriptCache(), k = khoaBxh(hs.c);
+  let ds = null;
+  try { ds = JSON.parse(cache.get(k) || 'null'); } catch (err) { ds = null; }
+  if (!ds) {
+    // Lớp lấy theo trang tính "Học sinh" hiện tại (học sinh chuyển lớp thì đi theo lớp mới)
+    const lopCua = {}, tenCua = {};
+    dsHocSinh().forEach(function (h) { if (h.u) { lopCua[h.u] = h.c; tenCua[h.u] = h.n; } });
+    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB_THUONG);
+    const tuan = tuanNay();
+    ds = [];
+    if (sh && sh.getLastRow() > 1) {
+      const cot = Math.max(sh.getLastColumn(), COT_THUONG.length);
+      sh.getRange(2, 1, sh.getLastRow() - 1, cot).getValues().forEach(function (r) {
+        const m = soMa(r[0]);
+        if (!m || lopCua[m] !== hs.c) return;
+        const xp = soDuong(r[3], 100000000);
+        const wxp = String(r[10] instanceof Date ? Utilities.formatDate(r[10], 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd') : r[10]) === tuan ? soDuong(r[9], 100000000) : 0;
+        ds.push({ u: m, t: tenTat(tenCua[m]), a: xp, w: wxp });
+      });
+    }
+    try { cache.put(k, JSON.stringify(ds), 120); } catch (err) {}
+  }
+  if (!ds.some(function (h) { return h.u === u; })) ds.push({ u: u, t: tenTat(hs.n), a: 0, w: 0 });
+  return { ok: true, c: hs.c, tuan: tuanNay(), so: ds.length, tuanNay: xepHang(ds, 'w', u), tatCa: xepHang(ds, 'a', u) };
 }

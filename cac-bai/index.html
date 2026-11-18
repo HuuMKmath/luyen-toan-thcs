@@ -58,6 +58,19 @@ section[id]{scroll-margin-top:12px}
 .prog.none{font-style:italic}
 .prog .weak{display:block}
 a.lesson.done{border-color:var(--accent)}
+.bxh-tabs{display:flex;gap:8px;margin:4px 0 12px}
+.bxh-tabs button{font:inherit;font-weight:600;min-height:40px;padding:0 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.bxh-tabs button[aria-selected="true"]{border-color:var(--accent);background:var(--accent);color:var(--card)}
+.bxh-list{list-style:none;margin:0;padding:0}
+.bxh-list li{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:10px}
+.bxh-list li+li{border-top:1px solid var(--line)}
+.bxh-list li.me{background:var(--paper);outline:2px solid var(--accent);outline-offset:-2px;border-top-color:transparent}
+.bxh-r{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-weight:700;font-size:.9rem;border:1.5px solid var(--line);flex:none}
+.bxh-r.t1{background:#f0b429;border-color:#f0b429;color:#3b2a00}.bxh-r.t2{background:#c9d2de;border-color:#c9d2de;color:#1f2a3a}.bxh-r.t3{background:#d8955a;border-color:#d8955a;color:#2e1606}
+.bxh-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bxh-x{font-weight:700;font-variant-numeric:tabular-nums}
+.bxh-x small{font-weight:400;color:var(--muted)}
+.bxh-gap{text-align:center;color:var(--muted);padding:2px 0!important;border-top:none!important}
 
 </style>
 </head>
@@ -76,6 +89,11 @@ a.lesson.done{border-color:var(--accent)}
   <section class="me" id="me" aria-labelledby="h-me">
     <h2 id="h-me">Tiến độ của em</h2>
     <div id="me-body"></div>
+  </section>
+
+  <section class="me" id="bxh" aria-labelledby="h-bxh" hidden>
+    <h2 id="h-bxh">Bảng xếp hạng lớp</h2>
+    <div id="bxh-body"></div>
   </section>
 
   <section id="lop-6" aria-labelledby="h-lop-6">
@@ -249,7 +267,7 @@ function applyGrade(g){
 }
 function clearBadges(){cards.forEach(function(a){a.classList.remove('done');const p=a.querySelector('.prog');if(p)p.remove();});}
 function loginView(msg){
-  clearBadges();applyGrade('');
+  clearBadges();applyGrade('');bxhHide();
   body.innerHTML='<p class="sum" style="margin:0 0 12px">Nhập mã học sinh để xem điểm cao nhất, số lần làm và phần còn yếu của từng bài.</p>'+
    '<div class="row"><label for="ma" class="sum" style="margin:0">Mã học sinh</label><input id="ma" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 chữ số"><button id="go">Xem tiến độ</button></div>'+
    '<p class="err" id="err" role="alert">'+esc(msg||'')+'</p>';
@@ -265,7 +283,7 @@ function loginView(msg){
 function fetchProg(u,fresh){
   body.innerHTML='<p class="sum" style="margin:0">Đang tải tiến độ…</p>';
   fetch(SHEET_URL+'?ma='+u+'&tiendo=1').then(function(r){return r.json();}).then(function(o){
-    if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);}
+    if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);bxhLoad(u);}
     else if(o&&o.err){fresh?loginView('Hệ thống đang bận, hãy thử lại sau ít phút.'):showCached('Chưa tải được tiến độ lúc này.');}
     else{if(!fresh)save(null);loginView('Mã không đúng. Hãy kiểm tra lại hoặc hỏi thầy cô.');}
   }).catch(function(){fresh?loginView('Không kết nối được. Kiểm tra mạng rồi thử lại.'):showCached('Chưa tải được tiến độ lúc này (mất mạng?).');});
@@ -303,6 +321,37 @@ function showProg(o){
    '<p class="sum" style="margin:10px 0 0;font-size:.85rem">Điểm là lần làm cao nhất của em ở mỗi bài (thang 10). Phần ghi "Cần ôn" là chủ đề em làm đúng dưới một nửa ở lần đó.</p>';
   document.getElementById('rf').onclick=function(){fetchProg(o.n&&load()?load().u:'',false);};
   document.getElementById('out').onclick=function(){save(null);loginView('');};
+}
+
+// ---- Bảng xếp hạng lớp (XP từ trang tính "Thưởng"; chỉ thấy lớp mình, tên viết tắt) ----
+const bxhSec=document.getElementById('bxh'),bxhBody=document.getElementById('bxh-body');
+let bxhData=null,bxhTab='tuanNay';
+function bxhHide(){bxhSec.hidden=true;bxhData=null;}
+function bxhLoad(u){
+  if(!u){bxhHide();return;}
+  bxhSec.hidden=false;bxhBody.innerHTML='<p class="sum" style="margin:0">Đang tải bảng xếp hạng…</p>';
+  fetch(SHEET_URL+'?ma='+u+'&bxh=1').then(function(r){return r.json();}).then(function(o){
+    if(!o||!o.ok||o.off||o.gv||!o.tuanNay){bxhHide();return;}
+    bxhData=o;bxhDraw();
+    if(location.hash==='#bxh'&&!bxhSec.dataset.seen){bxhSec.dataset.seen='1';bxhSec.scrollIntoView();}
+  }).catch(function(){bxhBody.innerHTML='<p class="sum" style="margin:0">Chưa tải được bảng xếp hạng.</p>';});
+}
+function bxhRow(e){
+  return '<li'+(e.me?' class="me" aria-current="true"':'')+'><span class="bxh-r'+(e.r<=3?' t'+e.r:'')+'">'+e.r+'</span><span class="bxh-n">'+esc(e.n)+(e.me?' <b>(em)</b>':'')+'</span><span class="bxh-x">'+esc(e.x)+' <small>XP</small></span></li>';
+}
+function bxhDraw(){
+  const o=bxhData,b=o[bxhTab],week=bxhTab==='tuanNay';
+  let list=b.top.map(bxhRow).join('');
+  if(b.toi&&!b.top.some(function(e){return e.me;}))list+='<li class="bxh-gap" aria-hidden="true">⋯</li>'+bxhRow(b.toi);
+  const d=String(o.tuan||'').split('-');
+  const note=week?'XP kiếm được từ thứ Hai'+(d.length===3?' ('+d[2]+'/'+d[1]+')':'')+'; sang tuần mới bảng tính lại từ đầu.':'Tổng XP từ trước đến nay.';
+  const lead=b.toi?(b.toi.r===1&&b.toi.x>0?'Em đang đứng đầu lớp!':b.toi.x>0?'Em đang đứng thứ <b>'+b.toi.r+'</b>/'+o.so+' bạn.':(week?'Tuần này em chưa có XP. Làm vài câu luyện tập để vào bảng nhé!':'Làm bài luyện tập để có XP và vào bảng nhé!')):'';
+  bxhBody.innerHTML='<div class="bxh-tabs" role="tablist" aria-label="Chọn bảng">'+
+    '<button role="tab" aria-selected="'+week+'" data-t="tuanNay">Tuần này</button><button role="tab" aria-selected="'+(!week)+'" data-t="tatCa">Tất cả</button></div>'+
+    '<p class="sum" style="margin:0 0 8px">Lớp '+esc(o.c)+(lead?' · '+lead:'')+'</p>'+
+    '<ol class="bxh-list">'+list+'</ol>'+
+    '<p class="sum" style="margin:10px 0 0;font-size:.85rem">'+note+' XP là điểm thưởng khi luyện tập, không phải điểm kiểm tra.</p>';
+  [].forEach.call(bxhBody.querySelectorAll('[data-t]'),function(btn){btn.onclick=function(){bxhTab=btn.getAttribute('data-t');bxhDraw();const f=bxhBody.querySelector('[data-t="'+bxhTab+'"]');if(f)f.focus();};});
 }
 const h=load();
 if(h){applyGrade(grade(h.c));fetchProg(h.u,false);}else loginView('');
