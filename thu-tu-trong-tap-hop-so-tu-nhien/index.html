@@ -518,6 +518,40 @@ const RECAP=[
   {k:'kh',fig:'<div class="figbox"><p>{x ∈ ℕ | x < 4} = {0; 1; 2; 3}</p><p>{x ∈ ℕ | x ≤ 4} = {0; 1; 2; 3; 4}</p></div>',extra:'Nếu a ≤ b và b ≤ c thì a ≤ c.'}
 ];
 
+
+/* ============ Câu kết hợp kiến thức bài trước (Bài 1. Tập hợp; Bài 2. Cách ghi số tự nhiên) ============ */
+const ROMAN_U=['','I','II','III','IV','V','VI','VII','VIII','IX'];
+const ROM=n=>'X'.repeat(Math.floor(n/10))+ROMAN_U[n%10];
+const PLACE=['đơn vị','nghìn','triệu'];
+/* số mô tả bằng các hàng: "a triệu, b nghìn và c đơn vị" */
+const descNum=(a,b,c)=>[a?`${a} triệu`:'',b?`${b} nghìn`:'',c?`${c} đơn vị`:''].filter(Boolean).join(', ').replace(/, ([^,]*)$/,' và $1');
+function x3LMcmp(){return tryGen(()=>{const [a,b]=sample(2,4,30);const r=cmpS(a,b);
+  return {stem:`So sánh hai số La Mã ${ROM(a)} và ${ROM(b)}:`,opts:[{t:`${ROM(a)} ${r} ${ROM(b)}`},{t:`${ROM(a)} ${r==='<'?'>':'<'} ${ROM(b)}`,err:`${ROM(a)} = ${a}, ${ROM(b)} = ${b}.`},{t:`${ROM(a)} = ${ROM(b)}`,err:'Hai số khác nhau.'},{t:'Không so sánh được',err:'Đổi ra số tự nhiên thông thường rồi so sánh.'}].map(nbT),ans:0,exp:`${ROM(a)} = ${a}, ${ROM(b)} = ${b} nên ${ROM(a)} ${r} ${ROM(b)}.`};});}
+function x3LMsort(){return tryGen(()=>{const v=sample(4,1,30),up=asc(v),s=a=>a.map(ROM).join('; ');const lex=v.slice().sort((x,y)=>ROM(x)<ROM(y)?-1:1);
+  return {stem:`Sắp xếp các số La Mã ${v.map(ROM).join('; ')} theo thứ tự từ bé đến lớn:`,opts:[{t:s(up)}].concat(pickOpts(s(up),[{t:s(up.slice().reverse()),err:'Đây là thứ tự từ lớn đến bé.'},{t:s(lex),err:'Không sắp xếp theo chữ cái; đổi ra số rồi so sánh.'},{t:s([up[1],up[0],up[2],up[3]]),err:`${ROM(up[0])} = ${up[0]} < ${ROM(up[1])} = ${up[1]}.`},{t:s([up[0],up[1],up[3],up[2]]),err:`${ROM(up[2])} = ${up[2]} < ${ROM(up[3])} = ${up[3]}.`}])),ans:0,exp:`${up.map(x=>`${ROM(x)} = ${x}`).join('; ')}.`};});}
+function x3Desc(){return tryGen(()=>{const a=ri(1,9),b=ri(1,99),c=ri(1,99),m=a*1000000+b*1000+c;const n=m+sel([-1,1])*sel([1,10,100,1000,10000]);const r=cmpS(m,n);
+  return {stem:`Số m gồm ${descNum(a,b,c)}; số n = ${F(n)}. So sánh m và n:`,opts:[{t:`m ${r} n`},{t:`m ${r==='<'?'>':'<'} n`,err:`m = ${F(m)}. So sánh từng cặp chữ số cùng hàng.`},{t:'m = n',err:`m = ${F(m)}, khác n.`},{t:'Không so sánh được',err:'Viết m bằng chữ số rồi so sánh.'}].map(nbT),ans:0,exp:`m = ${F(m)} ${r} ${F(n)} = n.`};});}
+function x3MaxDiff(){return tryGen(()=>{const N=ri(1200,9800),dd=x=>new Set(String(x)).size===String(x).length;let x=N-1;while(!dd(x))x--;let y=N;while(!dd(y))y++;let z=x-1;while(!dd(z))z--;
+  const c=[];if(N-1!==x)c.push({t:F(N-1),err:`${F(N-1)} có chữ số lặp lại.`});c.push({t:F(y),err:`${F(y)} không nhỏ hơn ${F(N)}.`},{t:F(z),err:`${F(x)} lớn hơn ${F(z)} và có các chữ số khác nhau.`},{t:F(x-10),err:`${F(x)} lớn hơn và có các chữ số khác nhau.`});
+  return {stem:`Số lớn nhất có các chữ số khác nhau và nhỏ hơn ${F(N)} là:`,opts:[{t:F(x)}].concat(pickOpts(F(x),c)),ans:0,exp:`Thử lần lượt các số nhỏ hơn ${F(N)} kể từ ${F(N-1)}: số đầu tiên có các chữ số khác nhau là ${F(x)}.`};});}
+function x3SetNext(){return tryGen(()=>{const v=sample(3,10,99).sort((a,b)=>a-b),nx=v.map(x=>x+1),pv=v.map(x=>x-1);
+  return {stem:`Cho A = ${SET(v)}. Tập hợp B gồm các số liền sau của các phần tử của A là:`,opts:[{t:'B = '+SET(nx)},{t:'B = '+SET(pv),err:'Đây là các số liền trước.'},{t:'B = '+SET(v.concat(nx)),err:'B chỉ gồm các số liền sau.'},{t:'B = '+SET(v.map(x=>x+2)),err:'Số liền sau lớn hơn 1 đơn vị.'}].map(nbT),ans:0,exp:`Các số liền sau của ${v.join('; ')} là ${nx.join('; ')}.`};});}
+[['x3_lmcmp','ss','TH',x3LMcmp],['x3_lmsort','ss','VD',x3LMsort],['x3_desc','ss','TH',x3Desc],['x3_maxdiff','ss','VD',x3MaxDiff],['x3_setnext','lt','TH',x3SetNext]].forEach(([id,t,l,g])=>{['a','b'].forEach(s=>{MC.push({id:id+'_'+s,type:'mc',topic:t,level:l,gen:g,mix:[1,2]});});});
+function tfX3(){const v=sample(4,4,30).sort((a,b)=>a-b),S=v.map(ROM);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v1=R();o.push(IT(`${v1?S[0]:S[3]} là phần tử nhỏ nhất của A.`,v1,'ss','VD',`Phần tử nhỏ nhất là ${S[0]} = ${v[0]}.`));}
+    {const v1=R();o.push(IT(`${S[1]} ${v1?'<':'>'} ${S[2]}`,v1,'ss','VD',`${v[1]} < ${v[2]}.`));}
+    {const k=v.filter(x=>x>15).length,v1=R();o.push(IT(`A có ${v1?k:k+1} phần tử lớn hơn XV.`,v1,'kh','VD',`Các phần tử lớn hơn 15: ${v.filter(x=>x>15).map(ROM).join('; ')||'không có'}.`));}
+    {const v1=R(),nx=v[3]+1;o.push(IT(`Số liền sau của ${S[3]} được viết là ${v1?ROM(nx):ROM(nx+1)}.`,v1,'lt','VD',`${v[3]} + 1 = ${nx}: ${ROM(nx)}.`));}return o;});
+  return {stem:`Cho A = ${nb(SET(shuffle(S)))} (các phần tử viết bằng số La Mã). Xét các phát biểu sau:`,items:wrap(items)};}
+['a','b'].forEach(s=>TF.push({id:'x3_tf_'+s,type:'tf',topic:'ss',level:'VD',gen:tfX3,mix:[1,2]}));
+SA.push(
+ {id:'x3_s_lm',type:'sa',topic:'lt',level:'TH',unit:'',mix:[2],gen:()=>{const n=ri(4,29);return{stem:`Số liền sau của số La Mã ${ROM(n)} là số nào? (Nhập bằng chữ số thông thường.)`,ans:[n+1],exp:`${ROM(n)} = ${n}; số liền sau là ${n+1}.`};}},
+ {id:'x3_s_cnt',type:'sa',topic:'kh',level:'VD',unit:'phần tử',mix:[1,2],gen:()=>{const d=ri(1,8),N=d*100+ri(10,98);const L=range(100,999).filter(x=>x<N&&Math.floor(x/100)===d);return{stem:`Tập hợp các số tự nhiên có ba chữ số, có chữ số hàng trăm là ${d} và nhỏ hơn ${N}, có bao nhiêu phần tử?`,ans:[L.length],exp:`Các số từ ${d*100} đến ${N-1}: ${L.length} số.`};}},
+ {id:'x3_s_desc',type:'sa',topic:'ss',level:'VD',unit:'',mix:[2],gen:()=>{const v=shuffle([ri(1,9)*1000000+ri(1,999)*1000,ri(1,9)*1000000+ri(1,999),ri(10,99)*100000]),mx=Math.max(...v);const d=x=>x>=1000000?descNum(Math.floor(x/1000000),Math.floor(x/1000)%1000,x%1000):`${x/100000} trăm nghìn`;return{stem:`Trong ba số: số gồm ${d(v[0])}; số gồm ${d(v[1])}; số gồm ${d(v[2])}. Viết số lớn nhất bằng chữ số.`,ans:[mx],exp:`Ba số là ${v.map(F).join('; ')}; lớn nhất là ${F(mx)}.`};}});
+/* các câu đã có sẵn nhưng dùng kiến thức Bài 1, Bài 2 */
+const MIX_OLD={g_setle_a:[1],g_setle_b:[1],tf_set_th_a:[1],tf_set_th_b:[1],tf_set_vd:[1],h_khac:[2]};
+[...MC,...TF,...SA,...HARD.sa,...HARD.tf].forEach(q=>{if(MIX_OLD[q.id])q.mix=MIX_OLD[q.id];});
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};

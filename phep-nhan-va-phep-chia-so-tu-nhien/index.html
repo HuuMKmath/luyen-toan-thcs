@@ -558,6 +558,39 @@ const RECAP=[
   {k:'cd',fig:'<div class="figbox"><p>4 847 : 131 = 37 (phép chia hết)</p><p>5 580 : 157 = 35 (dư 85), vì 5 580 = 157 · 35 + 85 và 85 < 157</p></div>',extra:'Số dư bao giờ cũng nhỏ hơn số chia.'},
   {k:'ud',fig:'<div class="figbox"><p>487 : 45 = 10 (dư 37)</p><p>Chở 487 người bằng xe 45 chỗ cần ít nhất 10 + 1 = 11 xe</p></div>',extra:'x : 5 = 12 ⇒ x = 12 · 5 = 60; 60 : x = 12 ⇒ x = 60 : 12 = 5.'}
 ];
+
+/* ============ Câu kết hợp kiến thức bài trước (Bài 1, 2, 3, 4) ============ */
+const PL=[[100000,'100 000'],[10000,'10 000'],[1000,'1 000'],[100,'100'],[10,'10'],[1,'1']];
+function x5SetRem(){return tryGen(()=>{const b=ri(3,9),L=range(0,b-1);
+  return {stem:`Tập hợp R các số dư có thể có khi chia một số tự nhiên cho ${b} là:`,opts:[{t:'R = '+SET(L)},{t:'R = '+SET(range(1,b-1)),err:'Số dư có thể bằng 0 (phép chia hết).'},{t:'R = '+SET(range(0,b)),err:`Số dư phải nhỏ hơn ${b}.`},{t:'R = '+SET(range(1,b)),err:`Số dư có thể bằng 0 và phải nhỏ hơn ${b}.`}].map(nbT),ans:0,exp:`0 ≤ r < ${b} nên R = ${SET(L)}.`};});}
+function x5SumForm(){return tryGen(()=>{let n;do{n=ri(100000,999999);}while(!String(n).includes('0'));const d=String(n).split('').map(Number);
+  const terms=sh=>d.map((x,i)=>[x,PL[Math.min(5,i+sh)][1]]).filter(t=>t[0]).map(t=>t[1]==='1'?`${t[0]} · 1`:`${t[0]} · ${t[1]}`).join(' + ');
+  const good=terms(0),w1=d.map((x,i)=>x?`${x} · ${PL[i][1]}`:null).filter(Boolean).slice(0,-1).join(' + '),w2=d.filter(Boolean).join(' + '),w3=terms(1);
+  return {stem:`Biểu diễn số ${F(n)} thành tổng giá trị các chữ số của nó (bỏ các chữ số 0):`,opts:[{t:good},{t:w1,err:'Còn thiếu giá trị của chữ số cuối cùng khác 0.'},{t:w2,err:'Mỗi chữ số phải nhân với giá trị của hàng.'},{t:w3,err:'Chữ số đầu tiên của số có sáu chữ số ở hàng trăm nghìn.'}].map(nbT),ans:0,exp:`Mỗi chữ số nhân với giá trị hàng của nó: ${F(n)} = ${good}.`};});}
+function x5CmpProd(){return tryGen(()=>{const x=ri(12,999),t=ri(0,2);let A,Bs,r,e;
+  if(t===0){A=`${F(x)} · 125 · 8`;Bs=`${F(x)} · 999`;r='A > B';e=`A = ${F(x)} · 1 000 > ${F(x)} · 999 = B.`;}
+  else if(t===1){A=`25 · ${F(x)} · 4`;Bs=`${F(x)} · 100`;r='A = B';e=`A = ${F(x)} · (25 · 4) = ${F(x)} · 100 = B.`;}
+  else {A=`${F(x)} · 99`;Bs=`${F(x)} · 100 − ${F(x)} + 1`;r='A < B';e=`B = ${F(x)} · 99 + 1 nên B lớn hơn A.`;}
+  return {stem:`Không tính giá trị, so sánh ${E(`A = ${A}`)} và ${E(`B = ${Bs}`)}:`,opts:[{t:r}].concat(['A < B','A > B','A = B'].filter(z=>z!==r).map(z=>({t:z,err:e})),[{t:'Không so sánh được',err:'Dùng tính chất của phép nhân để so sánh.'}]),ans:0,exp:e};});}
+function x5SetX(){return tryGen(()=>{const a=ri(2,9),k=ri(3,6),b=a*k+ri(1,a-1)||a*k+1,le=RNG()<.5,L=range(0,Math.floor((le?b:b-1)/a));if(b%a===0)return null;
+  return {stem:`Viết tập hợp các số tự nhiên x thoả mãn ${E(`${a} · x ${le?'≤':'<'} ${b}`)}:`,opts:[{t:SET(L)}].concat(pickOpts(SET(L),[{t:SET(L.slice(1)),err:`x = 0 cũng thoả mãn: ${a} · 0 = 0.`},{t:SET(L.concat([L.length])),err:`${a} · ${L.length} = ${a*L.length} > ${b}.`},{t:SET(L.slice(0,-1)),err:`${a} · ${L[L.length-1]} = ${a*L[L.length-1]} ${le?'≤':'<'} ${b}.`}])).map(nbT),ans:0,exp:`${a} · ${L[L.length-1]} = ${a*L[L.length-1]} ${le?'≤':'<'} ${b} còn ${a} · ${L.length} = ${a*L.length} > ${b}: ${SET(L)}.`};});}
+function x5Tour(){return tryGen(()=>{const T=ri(18,26)*1000000,q1=ri(4000,7000)*1000+ri(1,9)*100,q2=ri(3000,6000)*1000+ri(1,9)*100;let rest=T-q1-q2;if(rest%2)return null;const h=rest/2;
+  return {stem:`Kế hoạch cả năm đón ${F(T)} lượt khách du lịch quốc tế. Quý I và quý II đã đón lần lượt ${F(q1)} và ${F(q2)} lượt. Nếu quý III và quý IV đón số lượt bằng nhau thì mỗi quý cần đón bao nhiêu lượt để hoàn thành kế hoạch?`,opts:[{t:F(h)}].concat(pickOpts(F(h),[{t:F(rest),err:'Đây là số lượt của cả hai quý cuối.'},{t:F((T-q1)/1|0),err:'Còn phải trừ số lượt của quý II.'},{t:F(T/4),err:'Phải trừ số lượt đã đón ở hai quý đầu.'},{t:F(h+50000),err:'Tính lại phép chia.'}])),ans:0,exp:`Hai quý đầu: ${F(q1)} + ${F(q2)} = ${F(q1+q2)}. Hai quý cuối: ${F(T)} − ${F(q1+q2)} = ${F(rest)}. Mỗi quý: ${F(rest)} : 2 = ${F(h)}.`};});}
+[['x5_setrem','cd','TH',x5SetRem,[1]],['x5_sumform','pn','VD',x5SumForm,[2]],['x5_cmpprod','tn','TH',x5CmpProd,[3]],['x5_setx','ud','VD',x5SetX,[1,3]],['x5_tour','ud','VD',x5Tour,[4]]].forEach(([id,t,l,g,mx])=>{['a','b'].forEach(s=>{MC.push({id:id+'_'+s,type:'mc',topic:t,level:l,gen:g,mix:mx});});});
+function tfX5(){let n;do{n=ri(10000,99999)*10;}while(new Set(String(n)).size===6);const d=String(n),S=[...new Set(d)].map(Number),k=ri(1,4),dk=+d[k],vk=dk*Math.pow(10,5-k);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Tập hợp các chữ số của n có ${v?S.length:S.length+1} phần tử.`,v,'pn','VD',`Tập hợp đó là ${SET(S)}.`));}
+    {const v=R();o.push(IT(`n = ${F(n/10)} · ${v?10:100}`,v,'pn','VD',`${F(n/10)} · 10 = ${F(n)}.`));}
+    {const v=R();o.push(IT(`Chữ số hàng ${['trăm nghìn','chục nghìn','nghìn','trăm','chục','đơn vị'][k]} của n có giá trị ${F(v?vk:vk*10)}.`,v||dk===0,'pn','VD',`${dk} · ${F(Math.pow(10,5-k))} = ${F(vk)}.`));}
+    {const v=R(),q=Math.floor(n/7),r=n%7;o.push(IT(`n : 7 = ${F(q)} (dư ${v?r:(r+1)%7})`,v,'cd','VD',`${F(n)} = 7 · ${F(q)} + ${r}.`));}return o;});
+  return {stem:`Cho số n = ${F(n)}. Xét các phát biểu sau:`,items:wrap(items)};}
+['a','b'].forEach(s=>TF.push({id:'x5_tf_'+s,type:'tf',topic:'pn',level:'VD',gen:tfX5,mix:[1,2]}));
+SA.push(
+ {id:'x5_s_rem',type:'sa',topic:'cd',level:'VD',unit:'số',mix:[1],gen:()=>{const b=ri(3,12),r=ri(0,b-1),L=range(10,99).filter(x=>x%b===r);return{stem:`Tập hợp các số tự nhiên có hai chữ số mà chia cho ${b} dư ${r} có bao nhiêu phần tử?`,ans:[L.length],exp:`Các số đó là ${L[0]}; ${L[1]}; …; ${L[L.length-1]}: có ${L.length} số.`};}},
+ {id:'x5_s_place',type:'sa',topic:'pn',level:'TH',unit:'',mix:[2],gen:()=>{const a=ri(1,9),b=ri(1,9),c=ri(1,9);return{stem:`Tính ${E(`${a} · 100 000 + ${b} · 1 000 + ${c} · 10`)}.`,ans:[a*100000+b*1000+c*10],exp:`Số gồm ${a} trăm nghìn, ${b} nghìn và ${c} chục: ${F(a*100000+b*1000+c*10)}.`};}},
+ {id:'x5_s_tour',type:'sa',topic:'ud',level:'VD',unit:'người',mix:[4],gen:()=>{const p=ri(30,60)*1000,n=ri(25,45),k=ri(2,5),M=ri(8,20)*1000000;return{stem:`Một đoàn có ${n} người đi tham quan, vé vào cửa giá ${F(p)} đồng một người; ngoài ra mỗi người được tặng ${k} chai nước. Trưởng đoàn mang ${F(M)} đồng. Sau khi mua vé cho cả đoàn, trưởng đoàn còn lại bao nhiêu đồng?`,ans:[M-n*p],exp:`Tiền vé: ${n} · ${F(p)} = ${F(n*p)}. Còn lại: ${F(M)} − ${F(n*p)} = ${F(M-n*p)} (đồng).`};}});
+const MIX_OLD={tf_shop_vd_a:[4],tf_shop_vd_b:[4],h_elec:[4],h_pages:[2]};
+[...MC,...TF,...SA,...HARD.sa,...HARD.tf].forEach(q=>{if(MIX_OLD[q.id])q.mix=MIX_OLD[q.id];});
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
