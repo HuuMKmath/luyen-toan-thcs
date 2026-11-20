@@ -677,6 +677,42 @@ const RECAP=[
   {k:'cs',fig:'<div class="figbox"><p>Số lớn nhất có ba chữ số khác nhau: 987</p><p>Số nhỏ nhất có ba chữ số khác nhau: 102</p></div>',extra:'Chữ số đầu tiên của số tự nhiên khác 0 phải khác 0.'}
 ];
 
+
+/* ============ Câu kết hợp kiến thức bài trước (Bài 1. Tập hợp) ============ */
+const MIXID={};
+const digSet=n=>{const o=[];String(n).split('').map(Number).forEach(d=>{if(!o.includes(d))o.push(d);});return o;};
+function x2SetDigits(){return tryGen(()=>{let n;do{n=ri(100000,999999);}while(digSet(n).length===6||digSet(n).length<4);const S=digSet(n),all=String(n).split('').map(Number);
+  const miss=S.slice(0,S.length-1),wrongs=[[all,'Mỗi phần tử chỉ viết một lần, dù chữ số lặp lại.'],[miss,`Còn thiếu chữ số ${S[S.length-1]}.`],[[n],'Các phần tử là các chữ số, không phải cả số.']];
+  return {stem:`Tập hợp M các chữ số của số ${F(n)} là:`,opts:[{t:'M = '+SET(S)}].concat(wrongs.map(w=>({t:'M = '+SET(w[0].map(x=>typeof x==='number'&&x>9?F(x):x)),err:w[1]}))).map(nbT),ans:0,exp:`Các chữ số của ${F(n)} là ${S.join('; ')} (mỗi chữ số viết một lần): M = ${SET(S)}.`};});}
+function x2InSet(){return tryGen(()=>{const n=ri(100000,999999),S=digSet(n),non=range(0,9).filter(d=>!S.includes(d));if(!non.length)return null;const d=sel(S),e=sel(non);
+  return {stem:`Gọi M là tập hợp các chữ số của số ${F(n)}. Khẳng định nào sau đây đúng?`,opts:[{t:`${d} ∈ M`},{t:`${d} ∉ M`,err:`Chữ số ${d} có trong số ${F(n)}.`},{t:`${e} ∈ M`,err:`Số ${F(n)} không có chữ số ${e}.`},{t:`${F(n)} ∈ M`,err:'Phần tử của M là các chữ số.'}].map(nbT),ans:0,exp:`M = ${SET(S)}, nên ${d} ∈ M và ${e} ∉ M.`};});}
+function x2LMSet(){return tryGen(()=>{const v=sample(4,1,30).sort((a,b)=>a-b),R=v.map(LM);
+  const bad1=v.map(x=>x===4?6:x===9?11:x===14?16:x===19?21:x+1),bad2=v.slice(0,3);
+  return {stem:`Cho A = ${nb(SET(R))}. Viết tập hợp A bằng các số tự nhiên thông thường:`,opts:[{t:'A = '+SET(v)},{t:'A = '+SET(bad1),err:'Đọc lại từng số La Mã: chữ số nhỏ đứng trước chữ số lớn thì lấy số lớn trừ số nhỏ.'},{t:'A = '+SET(bad2),err:'Tập hợp A có bốn phần tử.'},{t:'A = '+SET(v.map(x=>x+10)),err:'Đọc lại số chữ X.'}].map(nbT),ans:0,exp:`${R.map((r,i)=>`${r} = ${v[i]}`).join('; ')}.`};});}
+function x2TwoDig(){return tryGen(()=>{const s=ri(3,9),L=range(10,99).filter(x=>Math.floor(x/10)+x%10===s);
+  return {stem:`Viết tập hợp B các số tự nhiên có hai chữ số mà tổng hai chữ số bằng ${s}:`,opts:[{t:'B = '+SET(L)},{t:'B = '+SET(L.concat([s])),err:`${s} là số có một chữ số.`},{t:'B = '+SET(L.slice(1)),err:`Thiếu số ${L[0]}.`},{t:'B = '+SET(L.slice(0,-1)),err:`Thiếu số ${L[L.length-1]}.`}].map(nbT),ans:0,exp:`Chữ số hàng chục từ 1 đến ${s}: B = ${SET(L)}.`};});}
+function x2SetPlace(){return tryGen(()=>{const n=ri(1000000,9999999),d=String(n),k=ri(0,6),names=['hàng triệu','hàng trăm nghìn','hàng chục nghìn','hàng nghìn','hàng trăm','hàng chục','hàng đơn vị'];const ks=sample(3,0,6).sort();const S=digSet(ks.map(i=>d[i]).join('')),key=a=>[...new Set(a.map(String))].sort().join(),seen=new Set([key(S)]),uniq=c=>c.filter(o=>{if(o.dup)return true;const k=key(o.v);if(seen.has(k))return false;seen.add(k);return true;});
+  return {stem:`Cho số ${F(n)}. Gọi C là tập hợp các chữ số ở ${names[ks[0]]}, ${names[ks[1]]} và ${names[ks[2]]}. Tập hợp C là:`,opts:[{t:'C = '+SET(S)}].concat(pickOpts('C = '+SET(S),uniq([{v:digSet(ks.map(i=>d[6-i]).join('')),err:'Hàng đơn vị là chữ số cuối cùng bên phải.'},{v:digSet(ks.map(i=>d[Math.min(6,i+1)]).join('')),err:'Xác định lại vị trí từng hàng.'},{v:ks.map(i=>+d[i]),dup:S.length<3,err:'Mỗi phần tử chỉ viết một lần.'},{v:digSet(d).slice(0,3),err:'Chỉ lấy chữ số ở ba hàng đã nêu.'},{v:digSet(ks.map(i=>d[Math.max(0,i-1)]).join('')),err:'Xác định lại vị trí từng hàng.'}]).map(o=>({t:'C = '+SET(o.v),err:o.err})))).map(nbT),ans:0,exp:`Các chữ số đó là ${ks.map(i=>d[i]).join('; ')}, nên C = ${SET(S)}.`};});}
+[['x2_setdig','tp','TH',x2SetDigits],['x2_inset','tp','TH',x2InSet],['x2_lmset','lm','TH',x2LMSet],['x2_twodig','cs','VD',x2TwoDig],['x2_setplace','gt','VD',x2SetPlace]].forEach(([id,t,l,g])=>{['a','b'].forEach(s=>{MC.push({id:id+'_'+s,type:'mc',topic:t,level:l,gen:g,mix:[1]});});});
+function tfX2(){const n=ri(100000,999999),S=digSet(n),d=String(n);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Tập hợp các chữ số của số ${F(n)} có ${v?S.length:6} phần tử.`,v||S.length===6,'tp','VD',`M = ${SET(S)}.`));}
+    {const c=sel(S),v=R(),e=range(0,9).find(z=>!S.includes(z));o.push(IT(`${v?c:e} ∈ M, với M là tập hợp các chữ số của số ${F(n)}.`,v||e===undefined,'tp','VD',`M = ${SET(S)}.`));}
+    {const v=R();o.push(IT(`Chữ số hàng chục nghìn của số ${F(n)} là ${v?d[1]:d[2]}.`,v||d[1]===d[2],'gt','VD',`Chữ số hàng chục nghìn là ${d[1]}.`));}
+    {const v=R(),k=+d[0];o.push(IT(`Chữ số ${k} ở hàng trăm nghìn có giá trị ${F(v?k*100000:k*10000)}.`,v,'gt','VD',`${k} × 100 000 = ${F(k*100000)}.`));}return o;});
+  return {stem:`Cho số ${F(n)}. Gọi M là tập hợp các chữ số của số đó. Xét các phát biểu sau:`,items:wrap(items)};}
+['a','b'].forEach(s=>TF.push({id:'x2_tf_'+s,type:'tf',topic:'tp',level:'VD',gen:tfX2,mix:[1]}));
+SA.push(
+ {id:'x2_s_count',type:'sa',topic:'tp',level:'TH',unit:'phần tử',mix:[1],gen:()=>{let n;do{n=ri(1000000,9999999);}while(digSet(n).length===7);return{stem:`Tập hợp các chữ số của số ${F(n)} có bao nhiêu phần tử?`,ans:[digSet(n).length],exp:`Tập hợp đó là ${SET(digSet(n))} (mỗi chữ số viết một lần).`};}},
+ {id:'x2_s_kdig',type:'sa',topic:'cs',level:'VD',unit:'phần tử',mix:[1],gen:()=>{const k=ri(2,4);return{stem:`Tập hợp các số tự nhiên có ${k} chữ số có bao nhiêu phần tử?`,ans:[9*Math.pow(10,k-1)],exp:`Từ ${F(Math.pow(10,k-1))} đến ${F(Math.pow(10,k)-1)}: có ${F(Math.pow(10,k)-1)} − ${F(Math.pow(10,k-1))} + 1 = ${F(9*Math.pow(10,k-1))} số.`};}},
+ {id:'x2_s_ktimes',type:'sa',topic:'cs',level:'VD',unit:'phần tử',mix:[1],gen:()=>{const k=ri(2,4),L=range(10,99).filter(x=>x%10===k*Math.floor(x/10));return{stem:`Tập hợp các số tự nhiên có hai chữ số mà chữ số hàng đơn vị gấp ${k} lần chữ số hàng chục có bao nhiêu phần tử?`,ans:[L.length],exp:`Đó là ${SET(L)}: ${L.length} phần tử.`};}});
+function x2Form(){return tryGen(()=>{const z=RNG()<.5,ds=z?[0].concat(sample(2,1,9)):sample(3,1,9);const L=[];for(const a of ds)for(const b of ds)for(const c of ds)if(a&&a!==b&&b!==c&&a!==c)L.push(100*a+10*b+c);L.sort((x,y)=>x-y);
+  const wrong1=[];for(const a of ds)for(const b of ds)for(const c of ds)if(a!==b&&b!==c&&a!==c)wrong1.push(+(''+a+b+c));wrong1.sort((x,y)=>x-y);
+  const W=[[z?wrong1.map(x=>String(x).padStart(3,'0')):L.slice(0,-1),z?'Chữ số 0 không đứng đầu một số có ba chữ số.':`Còn thiếu số ${L[L.length-1]}.`],[L.slice(1),`Còn thiếu số ${L[0]}.`],[L.filter((_,i)=>i%2===0),'Phải kể đủ các cách sắp xếp ba chữ số.']];
+  return {stem:`Viết tập hợp D các số tự nhiên có ba chữ số khác nhau được lập từ các chữ số của tập hợp ${SET(ds)}:`,opts:[{t:'D = '+SET(L)}].concat(W.map(w=>({t:'D = '+SET(w[0]),err:w[1]}))).map(nbT),ans:0,exp:`Chữ số hàng trăm phải khác 0. D = ${SET(L)}.`};});}
+['a','b'].forEach(s=>MC.push({id:'x2_form_'+s,type:'mc',topic:'cs',level:'VD',gen:x2Form,mix:[1]}));
+SA.push({id:'x2_s_lm',type:'sa',topic:'lm',level:'TH',unit:'',mix:[1],gen:()=>{const v=sample(4,1,30);return{stem:`Cho A = ${nb(SET(v.map(LM)))}. Phần tử lớn nhất của A biểu diễn số tự nhiên nào?`,ans:[Math.max(...v)],exp:`${v.map(x=>`${LM(x)} = ${x}`).join('; ')}.`};}});
+HARD.sa.push({id:'x2_h_form',type:'sa',topic:'cs',level:'VD',unit:'phần tử',mix:[1],gen:()=>{const z=RNG()<.5,ds=z?[0].concat(sample(3,1,9)):sample(4,1,9);let c=0;for(const a of ds)for(const b of ds)for(const d of ds)if(a&&a!==b&&b!==d&&a!==d)c++;return{stem:`Cho E = ${SET(ds)}. Tập hợp các số tự nhiên có ba chữ số khác nhau, mỗi chữ số đều thuộc E, có bao nhiêu phần tử?`,ans:[c],exp:z?`Hàng trăm có 3 cách chọn (khác 0), hàng chục 3 cách, hàng đơn vị 2 cách: 3 × 3 × 2 = ${c}.`:`Hàng trăm 4 cách, hàng chục 3 cách, hàng đơn vị 2 cách: 4 × 3 × 2 = ${c}.`};}});
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};

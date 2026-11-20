@@ -555,6 +555,38 @@ const RECAP=[
   {k:'pt',fig:tiaOp(7,4,'−',true),extra:'7 − 4 = 3: 7 là số bị trừ, 4 là số trừ, 3 là hiệu. Phép trừ 7 − 8 không thực hiện được trong ℕ.'},
   {k:'tx',fig:'<div class="figbox"><p>7 + x = 362 ⇒ x = 362 − 7 = 355</p><p>25 − x = 15 ⇒ x = 25 − 15 = 10</p><p>x − 56 = 4 ⇒ x = 4 + 56 = 60</p></div>',extra:'Tìm xong, thay x vào để thử lại.'}
 ];
+
+/* ============ Câu kết hợp kiến thức bài trước (Bài 1, 2, 3) ============ */
+const ROMAN_U=['','I','II','III','IV','V','VI','VII','VIII','IX'];
+const ROM=n=>'X'.repeat(Math.floor(n/10))+ROMAN_U[n%10];
+const SETn=a=>'{'+a.map(F).join('; ')+'}';
+function x4SetSum(){return tryGen(()=>{const a=ri(5,60),k=ri(3,5),b=a+k,L=range(a,b),s=sum(L),strict=RNG()<.5,st=strict?`${a-1} < x < ${b+1}`:`${a} ≤ x ≤ ${b}`;
+  return {stem:`Cho A = ${nb(`{x ∈ ℕ | ${st}}`)}. Tổng các phần tử của A là:`,opts:[{t:F(s)}].concat(pickOpts(F(s),[{t:F(s-b),err:`${b} cũng thuộc A.`},{t:F(s-a),err:`${a} cũng thuộc A.`},{t:F(s+b+1),err:`${b+1} không thuộc A.`},{t:F(s+a-1),err:`${a-1} không thuộc A.`}])),ans:0,exp:`A = ${SET(L)}; tổng: ${L.join(' + ')} = ${s}.`};});}
+function x4LMAdd(){return tryGen(()=>{const a=ri(2,20),b=ri(2,30-a),c=a+b,op=RNG()<.6?'+':'−';const [p,q,r]=op==='+'?[a,b,c]:[c,b,a];
+  return {stem:`Tính ${ROM(p)} ${op} ${ROM(q)}. Kết quả viết bằng số La Mã là:`,opts:[{t:ROM(r)}].concat(pickOpts(ROM(r),[{t:ROM(r+1),err:`${ROM(p)} = ${p}, ${ROM(q)} = ${q}; tính lại.`},{t:ROM(Math.max(1,r-1)),err:'Tính lại.'},{t:op==='+'?ROM(p)+ROM(q):ROM(r+10),err:op==='+'?'Không ghép hai số La Mã; đổi ra số rồi tính.':'Đọc lại số chữ X.'},{t:ROM(r>10?r-10:r+20),err:'Đọc lại số chữ X.'}])).map(nbT),ans:0,exp:`${ROM(p)} = ${p}, ${ROM(q)} = ${q}: ${p} ${op} ${q} = ${r} = ${ROM(r)}.`};});}
+function x4CmpSum(){return tryGen(()=>{const a=ri(1000,9000),b=ri(1000,9000),k=ri(1,9),t=ri(0,2);let A,Bs,r;
+  if(t===0){A=`${F(a)} + ${F(b)}`;Bs=`${F(a+k)} + ${F(b-k)}`;r='A = B';}else if(t===1){A=`${F(a)} + ${F(b)}`;Bs=`${F(b+k)} + ${F(a)}`;r='A < B';}else{A=`${F(a+k)} − ${F(b-k)}`;Bs=`${F(a)} − ${F(b)}`;if(a<=b)return null;r='A > B';}
+  const all=['A < B','A > B','A = B'];
+  return {stem:`Không tính giá trị, so sánh ${E(`A = ${A}`)} và ${E(`B = ${Bs}`)}:`,opts:[{t:r}].concat(all.filter(x=>x!==r).map(x=>({t:x,err:t===0?`Thêm ${k} vào số hạng này, bớt ${k} ở số hạng kia thì tổng không đổi.`:t===1?`Đổi chỗ các số hạng thì tổng không đổi; B có số hạng ${F(b+k)} > ${F(b)}.`:`Số bị trừ tăng ${k}, số trừ giảm ${k} nên hiệu tăng.`})),[{t:'Không so sánh được',err:'Dùng tính chất của phép cộng, phép trừ để so sánh.'}]).map(nbT),ans:0,exp:t===0?`A = B vì (${F(a)} + ${k}) + (${F(b)} − ${k}) = ${F(a)} + ${F(b)}.`:t===1?`B = ${F(a)} + ${F(b+k)} lớn hơn A = ${F(a)} + ${F(b)} là ${k}.`:`A − B = 2 lần ${k}: A lớn hơn B.`};});}
+function x4SetX(){return tryGen(()=>{const a=ri(5,99),k=ri(3,6),b=a+k,L=range(0,k-1),le=RNG()<.5,L2=le?range(0,k):L,st=le?`x + ${a} ≤ ${b}`:`x + ${a} < ${b}`;
+  return {stem:`Viết tập hợp các số tự nhiên x thoả mãn ${E(st)}:`,opts:[{t:SET(L2)}].concat(pickOpts(SET(L2),[{t:SET(le?L:range(0,k)),err:le?`Dấu ≤ cho phép x + ${a} = ${b}, tức x = ${k}.`:`x + ${a} < ${b} nên x < ${k}.`},{t:SET(L2.slice(1)),err:'Số 0 cũng thoả mãn.'},{t:SET(range(a,b)),err:'Đây là các giá trị của x + '+a+', không phải x.'}])).map(nbT),ans:0,exp:`x + ${a} ${le?'≤':'<'} ${b} nên x ${le?'≤':'<'} ${k}: ${SET(L2)}.`};});}
+function x4ValDiff(){return tryGen(()=>{const d=ri(1,9);let s;do{s=String(ri(10000,99999)).split('');s[1]=String(d);s[3]=String(d);s=s.join('');}while(s[0]==='0');const n=+s,r=d*1000-d*10;
+  return {stem:`Trong số ${F(n)}, chữ số ${d} ở hàng nghìn có giá trị lớn hơn chữ số ${d} ở hàng chục bao nhiêu?`,opts:[{t:F(r)}].concat(pickOpts(F(r),[{t:'0',err:'Cùng chữ số nhưng ở hàng khác nhau thì giá trị khác nhau.'},{t:F(d*100-d*10),err:`Chữ số ${d} ở hàng nghìn có giá trị ${F(d*1000)}.`},{t:F(d*1000+d*10),err:'Đề hỏi hiệu, không hỏi tổng.'},{t:F(d*1000-d),err:`Chữ số ${d} ở hàng chục có giá trị ${d*10}.`}])),ans:0,exp:`${F(d*1000)} − ${d*10} = ${F(r)}.`};});}
+[['x4_setsum','pc','TH',x4SetSum,[1,3]],['x4_lmadd','pc','TH',x4LMAdd,[2]],['x4_cmpsum','tc','VD',x4CmpSum,[3]],['x4_setx','tx','VD',x4SetX,[1,3]],['x4_valdiff','pt','VD',x4ValDiff,[2]]].forEach(([id,t,l,g,mx])=>{['a','b'].forEach(s=>{MC.push({id:id+'_'+s,type:'mc',topic:t,level:l,gen:g,mix:mx});});});
+function tfX4(){const v=sample(3,100,999).sort((a,b)=>a-b),s=sum(v);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v1=R();o.push(IT(`Tổng các phần tử của A là ${F(v1?s:s+100)}.`,v1,'pc','VD',`${v.join(' + ')} = ${F(s)}.`));}
+    {const v1=R();o.push(IT(`Phần tử lớn nhất hơn phần tử nhỏ nhất ${v1?v[2]-v[0]:v[2]-v[0]+10} đơn vị.`,v1,'pt','VD',`${v[2]} − ${v[0]} = ${v[2]-v[0]}.`));}
+    {const v1=R();o.push(IT(`${v1?v[0]+v[1]:v[0]+v[1]+1} là tổng của hai phần tử nhỏ nhất của A.`,v1,'pc','VD',`${v[0]} + ${v[1]} = ${v[0]+v[1]}.`));}
+    {const v1=R(),y=v[2]-v[1];o.push(IT(`Nếu x + ${v[1]} = ${v[2]} thì x ${v1?'∉':'∈'} A.`,v1===!v.includes(y),'tx','VD',`x = ${v[2]} − ${v[1]} = ${y}; ${v.includes(y)?y+' ∈ A':y+' ∉ A'}.`));}return o;});
+  return {stem:`Cho A = ${SETn(shuffle(v))}. Xét các phát biểu sau:`,items:wrap(items)};}
+['a','b'].forEach(s=>TF.push({id:'x4_tf_'+s,type:'tf',topic:'pc',level:'VD',gen:tfX4,mix:[1,3]}));
+SA.push(
+ {id:'x4_s_cnt',type:'sa',topic:'tx',level:'VD',unit:'phần tử',mix:[1,3],gen:()=>{const b=ri(3,30),a=b+ri(2,20),c=a+ri(3,25);return{stem:`Tập hợp ${nb(`{x ∈ ℕ | ${a} ≤ x + ${b} ≤ ${c}}`)} có bao nhiêu phần tử?`,ans:[c-a+1],exp:`${a} − ${b} ≤ x ≤ ${c} − ${b}, tức ${a-b} ≤ x ≤ ${c-b}: có ${c-a+1} số.`};}},
+ {id:'x4_s_lm',type:'sa',topic:'pt',level:'TH',unit:'',mix:[2],gen:()=>{const a=ri(12,30),b=ri(2,a-1);return{stem:`Tính ${ROM(a)} − ${ROM(b)} (nhập kết quả bằng chữ số thông thường).`,ans:[a-b],exp:`${ROM(a)} = ${a}, ${ROM(b)} = ${b}: ${a} − ${b} = ${a-b}.`};}},
+ {id:'x4_s_val',type:'sa',topic:'pc',level:'VD',unit:'',mix:[2],gen:()=>{const d=ri(1,9);let s;do{s=String(ri(100000,999999)).split('');const p=sample(2,0,5);s[p[0]]=String(d);s[p[1]]=String(d);s=s.map((c,i)=>i!==p[0]&&i!==p[1]&&c===String(d)?String((d+1)%10):c).join('');}while(s[0]==='0');const n=+s,vals=s.split('').map((c,i)=>c===String(d)?d*Math.pow(10,5-i):0).filter(Boolean);return{stem:`Tính tổng giá trị của các chữ số ${d} trong số ${F(n)}.`,ans:[sum(vals)],exp:`${vals.map(F).join(' + ')} = ${F(sum(vals))}.`};}});
+const MIX_OLD={g_extsum:[2],g_extdiff:[2],s_pt_vd2:[2],h_ext:[2]};
+[...MC,...TF,...SA,...HARD.sa,...HARD.tf].forEach(q=>{if(MIX_OLD[q.id])q.mix=MIX_OLD[q.id];});
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
