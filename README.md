@@ -13,6 +13,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bài 5. Phép nhân và phép chia số tự nhiên | `phep-nhan-va-phep-chia-so-tu-nhien/` | `NC6-` |
 | 6 | Bài 6. Luỹ thừa với số mũ tự nhiên | `luy-thua-voi-so-mu-tu-nhien/` | `LU6-` |
 | 6 | Bài 7. Thứ tự thực hiện các phép tính | `thu-tu-thuc-hien-cac-phep-tinh/` | `PT6-` |
+| 6 | Bài tập cuối chương I | `bai-tap-cuoi-chuong-1-toan-6/` | `CC1-` |
 | 6 | Bài 12. Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
 | 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
@@ -48,6 +49,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Bài 5. Phép nhân và phép chia số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/phep-nhan-va-phep-chia-so-tu-nhien/`
 - Bài 6. Luỹ thừa với số mũ tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-voi-so-mu-tu-nhien/`
 - Bài 7. Thứ tự thực hiện các phép tính (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/thu-tu-thuc-hien-cac-phep-tinh/`
+- Bài tập cuối chương I (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-1-toan-6/`
 - Bội chung nhỏ nhất: `https://huumkmath.github.io/tam-giac-bang-nhau/boi-chung-nho-nhat/`
 - Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
