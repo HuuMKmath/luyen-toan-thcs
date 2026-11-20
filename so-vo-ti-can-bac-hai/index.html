@@ -897,6 +897,17 @@ function buildPractice(spec){
 const HS_KEY='luyentoan-hs';
 function needHS(){return !!SHEET_URL;} // có Google Sheet thì phải có mã học sinh mới vào học
 function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
+// Mỗi lần mở trang: hỏi lại Google Sheet xem mã đã lưu trên máy còn trong danh sách học sinh không.
+// Giáo viên đã xoá mã thì tự đăng xuất; mất mạng hoặc hệ thống đang bận thì vẫn cho học tiếp.
+function recheckHS(){
+  if(!needHS()||!state.stu)return;
+  const u=state.stu.u;
+  fetch(SHEET_URL+'?ma='+encodeURIComponent(u)).then(r=>r.json()).then(o=>{
+    if(!o||o.err||!state.stu||state.stu.u!==u)return;
+    if(o.ok){const n=o.n||state.stu.n,c=o.c||'';if(n!==state.stu.n||c!==(state.stu.c||'')){saveHS({u,n,c});if(state.view==='home'&&location.hash!=='#giao-vien')render();}return;}
+    saveHS(null);state.view='home';state.hsGone=true;if(location.hash!=='#giao-vien')render();
+  }).catch(()=>{});
+}
 function saveHS(o){state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
 function loginHTML(){
   return `
@@ -909,7 +920,7 @@ function loginHTML(){
     <div>
       <label class="fl" for="hsma">Mã học sinh (6 chữ số)</label>
       <input type="text" id="hsma" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ví dụ: 482913">
-      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)"></p>
+      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)">${state.hsGone?'Mã học sinh lưu trên máy này không còn trong danh sách của giáo viên. Nếu em vẫn học, hãy hỏi thầy cô mã mới.':''}</p>
     </div>
     <div class="row"><button class="btn" id="hsgo">Vào học</button></div>
     <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
@@ -1408,7 +1419,7 @@ function finish(force){
   if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
   state.result=grade();updateWeak(state.result);state.gm=GM.onFinish(state.result,S.mode);state.view='result';render();
 }
-loadHS();
+loadHS();recheckHS();
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
 document.addEventListener('click',e=>{
   const pk=e.target.closest('[data-pack]');

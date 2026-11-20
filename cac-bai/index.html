@@ -420,7 +420,7 @@ function fetchProg(u,fresh){
   fetch(SHEET_URL+'?ma='+u+'&tiendo=1').then(function(r){return r.json();}).then(function(o){
     if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);bxhLoad(u);if(GMok)GM.sync();}
     else if(o&&o.err){fresh?loginView('Hệ thống đang bận, hãy thử lại sau ít phút.'):showCached('Chưa tải được tiến độ lúc này.');}
-    else{if(!fresh)save(null);loginView('Mã không đúng. Hãy kiểm tra lại hoặc hỏi thầy cô.');}
+    else{if(!fresh)save(null);loginView(fresh?'Mã không đúng. Hãy kiểm tra lại hoặc hỏi thầy cô.':'Mã học sinh lưu trên máy này không còn trong danh sách của giáo viên. Nếu em vẫn học, hãy hỏi thầy cô mã mới.');}
   }).catch(function(){fresh?loginView('Không kết nối được. Kiểm tra mạng rồi thử lại.'):showCached('Chưa tải được tiến độ lúc này (mất mạng?).');});
 }
 function shell(h,extra){
