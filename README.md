@@ -6,6 +6,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 
 | Lớp | Bài | Thư mục | Mã kết quả |
 |---|---|---|---|
+| 6 | Bài 1. Tập hợp | `tap-hop/` | `TH6-` |
 | 6 | Bài 12. Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
 | 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
@@ -34,6 +35,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 - Trang chung: `https://huumkmath.github.io/tam-giac-bang-nhau/cac-bai/`
 - Tam giác bằng nhau: `https://huumkmath.github.io/tam-giac-bang-nhau/`
+- Bài 1. Tập hợp (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop/`
 - Bội chung nhỏ nhất: `https://huumkmath.github.io/tam-giac-bang-nhau/boi-chung-nho-nhat/`
 - Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
