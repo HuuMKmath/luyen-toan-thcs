@@ -717,6 +717,37 @@ const RECAP=[
   {k:'vd',fig:'<div class="figbox"><p>khoản chi, giảm, bị trừ điểm: số âm</p><p>k lần số (−a): k · (−a) = −(k · a)</p><p>h giờ trước: −h giờ</p></div>',extra:'Đọc kĩ đề để biết đại lượng nào là số âm, viết biểu thức rồi tính.'}
 ];
 
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const a=5*ri(4,12),b=5*ri(2,8),x=ri(8,30),y=ri(6,25),q=y*(-b),tot=x*a+q,y2=ri(10,30),need=Math.ceil(y2*b/a);
+  if(a===b||y2*b%a===0)throw 0;
+  const E=(p,r,s,t)=>`${p} · ${r} + ${s} · ${t}`;
+  return {title:'Cửa hàng bán quần áo cuối mùa',ctx:P(`Một cửa hàng bán áo và quần. Mỗi chiếc áo bán ra cửa hàng lãi ${a} nghìn đồng. Quần được bán hạ giá nên mỗi chiếc quần bán ra cửa hàng lỗ ${b} nghìn đồng. Người ta ghi tiền lãi bằng số dương, tiền lỗ bằng số âm. Trong ngày, cửa hàng bán được ${x} chiếc áo và ${y} chiếc quần.`),qs:[
+   A('Kết quả kinh doanh từ số quần bán được trong ngày là bao nhiêu nghìn đồng? (Nhập số âm nếu bị lỗ.)',q,'nghìn đồng',`Mỗi chiếc quần lỗ ${b} nghìn đồng, ghi là ${nm(-b)}. ${y} · (${nm(-b)}) = ${nm(q)}.`,'qt','TH'),
+   M('Biểu thức nào cho biết kết quả kinh doanh của cửa hàng trong ngày (nghìn đồng)?',E(x,a,y,`(${nm(-b)})`),[[E(x,a,y,b),'Tiền lỗ phải ghi bằng số âm.'],[`(${x} + ${y}) · (${a} − ${b})`,'Số áo và số quần khác nhau nên không gộp chung như vậy được.'],[E(x,`(${nm(-b)})`,y,a),'Lãi đi với số áo, lỗ đi với số quần; biểu thức này đã đổi chỗ.']],`Kết quả = ${x} · ${a} + ${y} · (${nm(-b)}).`,'bt','TH'),
+   A('Kết quả kinh doanh của cửa hàng trong ngày là bao nhiêu nghìn đồng? (Nhập số âm nếu bị lỗ.)',tot,'nghìn đồng',`${x} · ${a} + ${y} · (${nm(-b)}) = ${x*a} + (${nm(q)}) = ${nm(tot)}.`,'bt','VD'),
+   A(`Hôm sau cửa hàng bán được ${y2} chiếc quần như vậy. Cửa hàng phải bán được ít nhất bao nhiêu chiếc áo để hôm đó không bị lỗ?`,need,'chiếc áo',`Tiền lỗ từ quần: ${y2} · (${nm(-b)}) = ${nm(-y2*b)}. Bán ${need-1} áo được ${(need-1)*a} < ${y2*b} nên vẫn lỗ; bán ${need} áo được ${need*a} ≥ ${y2*b}. Vậy cần ít nhất ${need} chiếc áo.`,'vd','VD')]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
@@ -791,7 +822,7 @@ function buildHard(){
   makeSession('hard',null,'Thử thách',{mc,tf,sa});
 }
 function buildPisa(){
-  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
   const by={mc:[],tf:[],sa:[]};
   units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
   makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
@@ -895,7 +926,7 @@ function homeHTML(){
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Toán thực tế</div>
-      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>

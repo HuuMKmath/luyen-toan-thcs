@@ -767,7 +767,7 @@ function buildHard(){
   makeSession('hard',null,'Thử thách',{mc,tf,sa});
 }
 function buildPisa(){
-  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
   const by={mc:[],tf:[],sa:[]};
   units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
   makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
@@ -872,7 +872,7 @@ function homeHTML(){
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TOPICS[k].short==='Tương ứng'?'Cạnh, góc tương ứng và chu vi':'Nhận biết, tính toán và chứng minh'}</span></button>`).join('')}</div>
       <div class="grp">Toán thực tế</div>
-      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>

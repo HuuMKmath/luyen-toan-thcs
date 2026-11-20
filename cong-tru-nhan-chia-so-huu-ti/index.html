@@ -975,6 +975,46 @@ const RECAP=[
   {k:'tc',fig:`<div class="figbox"><p>a + (b − c) = a + b − c</p><p>a − (b − c) = a − b + c</p><p>a · (b + c) = a · b + a · c</p></div>`,extra:'Ví dụ: 1/2 − (1/3 − 1/4) = 1/2 − 1/3 + 1/4 = 5/12.'}
 ];
 
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const it=pk([['Táo',5*ri(8,16)],['Cam',5*ri(6,12)],['Nho',10*ri(8,15)],['Xoài',5*ri(6,12)]],3),w=it.map(()=>sel([0.5,1.5,2,2.5,0.75,1.25]));
+  const c=it.map((x,i)=>rd(x[1]*w[i],2));if(c.some(v=>Math.abs(v*10-Math.round(v*10))>1e-9))throw 0;
+  const tot=rd(c[0]+c[1]+c[2],2),B=tot<200?200:500;if(tot>=B)throw 0;const back=rd(B-tot,2);
+  const pr=it[0][1],k=sel([1.5,2.5,0.5,3.5]),M2=rd(pr*k,2);
+  const ex=it.map((x,i)=>`${x[1]} · ${nm(w[i])}`);
+  return {title:'Mua trái cây',ctx:P('Cô Lan đi mua trái cây. Bảng sau ghi giá bán và khối lượng cô Lan mua mỗi loại.')+T(['Loại','Giá (nghìn đồng/kg)','Khối lượng mua (kg)'],it.map((x,i)=>[x[0],x[1],nm(w[i])])),qs:[
+   A(`Số tiền mua ${it[0][0].toLowerCase()} là bao nhiêu nghìn đồng?`,c[0],'nghìn đồng',`${it[0][1]} · ${nm(w[0])} = ${nm(c[0])}.`,'nh','TH'),
+   A('Tổng số tiền cô Lan phải trả là bao nhiêu nghìn đồng?',tot,'nghìn đồng',`${ex.join(' + ')} = ${c.map(nm).join(' + ')} = ${nm(tot)}.`,'ct','TH'),
+   M(`Cô Lan đưa người bán ${B} nghìn đồng. Biểu thức nào tính số tiền cô Lan được trả lại (nghìn đồng)?`,`${B} − (${ex.join(' + ')})`,[[`${B} − ${ex.join(' + ')}`,'Thiếu dấu ngoặc: chỉ trừ tiền loại thứ nhất mà lại cộng tiền hai loại sau.'],[`${B} − (${it.map(x=>x[1]).join(' + ')}) · (${w.map(nm).join(' + ')})`,'Mỗi loại có giá và khối lượng riêng, phải nhân từng cặp rồi mới cộng.'],[`${B} + (${ex.join(' + ')})`,'Tiền đã trả làm số tiền giảm đi, phải trừ.']],`Tiền trả lại = ${B} − tổng tiền mua = ${B} − (${ex.join(' + ')}) = ${nm(back)} (nghìn đồng).`,'tc','VD'),
+   A(`Hôm sau cô Lan có ${nm(M2)} nghìn đồng và chỉ mua ${it[0][0].toLowerCase()} với giá như cũ. Cô mua được bao nhiêu ki-lô-gam ${it[0][0].toLowerCase()}?`,k,'kg',`${nm(M2)} : ${pr} = ${nm(k)} (kg).`,'ch','VD')]};}),
+ G(()=>{const a=sel([3,4,5,6]),c=sel([3,4,5]),b=ri(1,c-1),k=ri(2,8),Pg=a*c*k;if(Pg<120||Pg>400||gc(b,c)!==1)throw 0;
+  const d1=Pg/a,r1=Pg-d1,d2=r1*b/c,rem=[(a-1)*(c-b),a*c],g=gc(rem[0],rem[1]),rf=[rem[0]/g,rem[1]/g];if(!Number.isInteger(d2)||rf[1]===1)throw 0;
+  return {title:'Đọc sách',ctx:P(`Bạn Mai đọc một cuốn sách dày ${Pg} trang. Ngày thứ nhất Mai đọc ${Fh(1,a)} số trang của cuốn sách. Ngày thứ hai Mai đọc ${Fh(b,c)} số trang còn lại.`),qs:[
+   A('Ngày thứ nhất Mai đọc bao nhiêu trang?',d1,'trang',`${Pg} · ${Fh(1,a)} = ${d1} (trang).`,'nh','TH'),
+   M('Sau ngày thứ nhất, số trang còn lại bằng bao nhiêu phần cuốn sách?',Fh(a-1,a),[[Fh(1,a),'Đây là phần Mai đã đọc, không phải phần còn lại.'],[Fh(a+1,a),`Phần còn lại là 1 − ${Fh(1,a)}, không phải 1 + ${Fh(1,a)}.`],[Fh(a-1,a+1),'Không trừ tử với tử và mẫu với mẫu như vậy. Viết 1 thành phân số có cùng mẫu rồi mới trừ.']],`1 − ${Fh(1,a)} = ${Fh(a-1,a)}.`,'ct','TH'),
+   A('Ngày thứ hai Mai đọc bao nhiêu trang?',d2,'trang',`Số trang còn lại sau ngày thứ nhất: ${Pg} − ${d1} = ${r1}. Ngày thứ hai đọc ${r1} · ${Fh(b,c)} = ${d2} (trang).`,'nh','VD'),
+   A('Sau hai ngày, số trang chưa đọc bằng bao nhiêu phần cuốn sách? Nhập dạng phân số tối giản.',rf[0]/rf[1],'',`Sau ngày thứ hai còn lại ${Fh(a-1,a)} · (1 − ${Fh(b,c)}) = ${Fh(a-1,a)} · ${Fh(c-b,c)} = ${Fh(rf[0],rf[1])} cuốn sách.`,'tc','VD',Fh(rf[0],rf[1]))]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
@@ -1054,7 +1094,7 @@ function buildHard(){
   makeSession('hard',null,'Thử thách',{mc,tf,sa});
 }
 function buildPisa(){
-  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
   const by={mc:[],tf:[],sa:[]};
   units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
   makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
@@ -1158,7 +1198,7 @@ function homeHTML(){
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Toán thực tế</div>
-      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>

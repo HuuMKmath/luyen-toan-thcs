@@ -1,0 +1,8 @@
+PISA.push(
+ G(()=>{const x=ri(25,45),y=ri(40,70);if(y<=x)throw 0;const al=2*ri(20,40),be=ri(85,120),rod=sel([2,3,4]);
+  return {title:'Khung cánh diều',fig:fb(figKite()),ctx:P(`Bạn Tùng làm khung một chiếc diều như hình: hai thanh AC và AD dài bằng nhau, cùng dài ${x} cm; hai thanh BC và BD dài bằng nhau, cùng dài ${y} cm; thanh dọc AB nối hai đỉnh A và B. Tùng đo được góc CAD bằng ${al}° và góc ACB bằng ${be}°.`),qs:[
+   M('Vì sao ΔABC = ΔABD?','Theo trường hợp cạnh – cạnh – cạnh (c.c.c): AC = AD, BC = BD và AB là cạnh chung',[['Theo trường hợp cạnh – góc – cạnh (c.g.c) vì AC = AD và ∠CAB = ∠DAB','Đề bài chưa cho biết ∠CAB = ∠DAB; đó là điều chỉ suy ra được sau khi đã chứng minh hai tam giác bằng nhau.'],['Theo trường hợp góc – cạnh – góc (g.c.g) vì hai tam giác có chung cạnh AB','Trường hợp g.c.g cần thêm hai cặp góc kề cạnh AB bằng nhau, đề bài chưa cho.'],['Vì hai tam giác có chung cạnh AB','Chỉ một cặp cạnh bằng nhau thì chưa đủ để hai tam giác bằng nhau.']],'Hai tam giác ABC và ABD có AC = AD, BC = BD và AB chung, nên ΔABC = ΔABD (c.c.c).','ccc','TH'),
+   A(`Tùng làm ${rod} chiếc diều giống hệt nhau. Tổng độ dài các thanh viền AC, AD, BC, BD của ${rod} chiếc diều là bao nhiêu xăng-ti-mét?`,rod*2*(x+y),'cm',`Một khung cần ${x} + ${x} + ${y} + ${y} = ${2*(x+y)} cm thanh viền. ${rod} chiếc cần ${rod} · ${2*(x+y)} = ${rod*2*(x+y)} cm.`,'tu','TH'),
+   A('Góc ADB bằng bao nhiêu độ?',be,'°',`Vì ΔABC = ΔABD nên ∠ADB = ∠ACB = ${be}° (hai góc tương ứng).`,'tu','VD'),
+   A('Góc CAB bằng bao nhiêu độ?',al/2,'°',`Vì ΔABC = ΔABD nên ∠CAB = ∠DAB (hai góc tương ứng). Mà ∠CAB + ∠DAB = ∠CAD = ${al}°, nên ∠CAB = ${al}° : 2 = ${al/2}°.`,'tu','VD')]};})
+);

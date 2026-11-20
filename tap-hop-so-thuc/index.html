@@ -829,6 +829,54 @@ const RECAP=[
   {k:'gt',fig:`<div class="figbox"><p>|a| = a khi a > 0; |a| = −a khi a < 0; |0| = 0</p><p>|2| = 2; |−2| = 2; |−√2| = √2</p><p>|x| = k (k > 0) ⇔ x = k hoặc x = −k</p></div>`,extra:'Giá trị tuyệt đối không âm. Hai số đối nhau có giá trị tuyệt đối bằng nhau.'}
 ];
 
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const PL=['A','B','C','D','E'],rt=sel([2,3,5]),sq={t:(RNG()<.5?'−':'')+'√'+rt,ir:1};sq.v=(sq.t[0]==='−'?-1:1)*Math.sqrt(rt);
+  const ds=[];while(ds.length<4){const x=rd(ri(1,30)/10*(RNG()<.5?-1:1),1);if(!ds.some(y=>Math.abs(Math.abs(y)-Math.abs(x))<0.15)&&Math.abs(Math.abs(x)-Math.abs(sq.v))>0.15&&Math.abs(Math.abs(x)-1.5)>1e-9)ds.push(x);}
+  const it=shuffle(ds.map(x=>({t:nm(x),v:x})).concat([sq])).map((x,i)=>({...x,L:PL[i]}));
+  const negs=it.filter(x=>x.v<0&&!x.ir),pos=it.filter(x=>x.v>0&&!x.ir);if(!negs.length||!pos.length)throw 0;
+  const X=sel(negs),Y=sel(pos),ok=it.filter(x=>Math.abs(x.v)<=1.5).length;if(ok===0||ok===5)throw 0;
+  const far=it.reduce((a,b)=>Math.abs(b.v)>Math.abs(a.v)?b:a);
+  const wr=shuffle(it.filter(x=>x!==far)).slice(0,3).map(x=>[`Gói ${x.L}`,x.ir?`|${x.t}| = √${rt} ≈ ${nm(rd(Math.sqrt(rt),2))}, nhỏ hơn |${far.t}|.`:`|${x.t}| = ${nm(Math.abs(x.v))}, nhỏ hơn |${far.t}|${far.ir?` = √${rt} ≈ ${nm(rd(Math.sqrt(rt),2))}`:''}.`]);
+  return {title:'Kiểm tra khối lượng gói bánh',ctx:P('Mỗi gói bánh có khối lượng chuẩn là 200 g. Bảng sau ghi độ lệch so với khối lượng chuẩn của năm gói bánh (đơn vị: g): số dương nghĩa là nặng hơn, số âm nghĩa là nhẹ hơn khối lượng chuẩn.')+T(['Gói','Độ lệch (g)'],it.map(x=>[x.L,x.t])),qs:[
+   A(`Giá trị tuyệt đối của độ lệch của gói ${X.L} là bao nhiêu?`,Math.abs(X.v),'g',`|${X.t}| = ${nm(Math.abs(X.v))}.`,'gt','TH'),
+   A(`Gói ${Y.L} nặng bao nhiêu gam?`,rd(200+Y.v,1),'g',`200 + ${Y.t} = ${nm(rd(200+Y.v,1))} (g).`,'sr','TH'),
+   A('Gói bánh đạt chuẩn nếu giá trị tuyệt đối của độ lệch không quá 1,5 g. Có bao nhiêu gói đạt chuẩn?',ok,'gói',`Giá trị tuyệt đối các độ lệch: ${it.map(x=>x.ir?`√${rt} ≈ ${nm(rd(Math.sqrt(rt),2))}`:nm(Math.abs(x.v))).join('; ')}. Có ${ok} số không lớn hơn 1,5.`,'gt','VD'),
+   M('Gói nào có khối lượng lệch xa khối lượng chuẩn nhất?',`Gói ${far.L}`,wr,`Gói lệch xa nhất là gói có giá trị tuyệt đối của độ lệch lớn nhất: |${far.t}|${far.ir?` = √${rt} ≈ ${nm(rd(Math.sqrt(rt),2))}`:` = ${nm(Math.abs(far.v))}`}.`,'ss','VD')]};}),
+ G(()=>{const names=['Trường học','Chợ','Bưu điện','Công viên','Thư viện'],rt=sel([2,3,5,7]);
+  const vals=[];while(vals.length<4){const x=rd(ri(2,40)/10*(RNG()<.5?-1:1),1);if(!vals.some(y=>Math.abs(Math.abs(y)-Math.abs(x))<0.15)&&Math.abs(Math.abs(x)-Math.sqrt(rt))>0.15&&Math.abs(Math.abs(x)-2)>1e-9)vals.push(x);}
+  const sq={t:'−√'+rt,v:-Math.sqrt(rt),ir:1},it=shuffle(vals.map(x=>({t:nm(x),v:x})).concat([sq])).map((x,i)=>({...x,n:names[i]}));
+  const mk=it.find(x=>x.n==='Chợ');if(mk.ir||mk.v>=0)throw 0;
+  const asc=it.slice().sort((a,b)=>a.v-b.v),far=it.reduce((a,b)=>Math.abs(b.v)>Math.abs(a.v)?b:a),cl=it.filter(x=>Math.abs(x.v)<=2).length;if(!cl||cl===5)throw 0;
+  const A2=x=>x.ir?`√${rt} ≈ ${nm(rd(Math.sqrt(rt),2))}`:nm(Math.abs(x.v));
+  const s=a=>a.map(x=>x.n).join(', ');
+  const abs=s(it.slice().sort((a,b)=>Math.abs(a.v)-Math.abs(b.v)));
+  return {title:'Các địa điểm trên một con đường thẳng',ctx:P('Một con đường thẳng chạy theo hướng tây – đông được coi như một trục số: nhà bạn Nam ở gốc O, chiều dương hướng về phía đông, đơn vị là ki-lô-mét. Bảng sau ghi số biểu diễn vị trí của một số địa điểm trên con đường.')+T(['Địa điểm','Vị trí (km)'],it.map(x=>[x.n,x.t])),qs:[
+   A('Chợ cách nhà Nam bao nhiêu ki-lô-mét?',Math.abs(mk.v),'km',`Khoảng cách từ gốc O đến điểm ${mk.t} là |${mk.t}| = ${nm(Math.abs(mk.v))} (km).`,'gt','TH'),
+   M('Địa điểm nào xa nhà Nam nhất?',far.n,shuffle(it.filter(x=>x!==far)).slice(0,3).map(x=>[x.n,`${x.n} cách nhà Nam |${x.t}| = ${A2(x)} km, gần hơn ${far.n} (${A2(far)} km).`]),`Khoảng cách đến nhà Nam là giá trị tuyệt đối của vị trí. Lớn nhất là ${A2(far)} km, đó là ${far.n.toLowerCase()}.`,'gt','TH'),
+   A('Có bao nhiêu địa điểm trong bảng cách nhà Nam không quá 2 km?',cl,'địa điểm',`Khoảng cách các địa điểm: ${it.map(x=>`${x.n} ${A2(x)} km`).join('; ')}. Có ${cl} địa điểm cách không quá 2 km.`,'gt','VD'),
+   M('Đi dọc con đường từ phía tây sang phía đông, ta lần lượt gặp các địa điểm theo thứ tự nào?',s(asc),[[s(asc.slice().reverse()),'Đây là thứ tự từ đông sang tây.'],[abs,'Đây là thứ tự từ gần nhà Nam đến xa nhà Nam, không phải từ tây sang đông.'],[s([asc[1],asc[0]].concat(asc.slice(2))),`Hai địa điểm đầu bị đổi chỗ: ${asc[0].t} < ${asc[1].t}.`]],`Từ tây sang đông là theo thứ tự tăng dần của số thực: ${asc.map(x=>x.t).join(' < ')}${it.some(x=>x.ir)?` (với −√${rt} ≈ ${nm(rd(-Math.sqrt(rt),2))})`:''}.`,'ss','VD')]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
@@ -903,7 +951,7 @@ function buildHard(){
   makeSession('hard',null,'Thử thách',{mc,tf,sa});
 }
 function buildPisa(){
-  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
   const by={mc:[],tf:[],sa:[]};
   units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
   makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
@@ -1007,7 +1055,7 @@ function homeHTML(){
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Toán thực tế</div>
-      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>

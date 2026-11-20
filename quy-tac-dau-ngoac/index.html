@@ -779,6 +779,44 @@ const RECAP=[
   {k:'hl',fig:'<div class="figbox"><p>(−385 + 210) + (385 − 217)</p><p>= −385 + 210 + 385 − 217</p><p>= (385 − 385) + (210 − 217) = −7</p></div>',extra:'Bỏ ngoặc trước, sau đó nhóm các số đối nhau hoặc các số cho tổng tròn chục, tròn trăm.'}
 ];
 
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const a=sel([200,300,500]),x=ri(12,45),y=5*ri(14,30),z=5*ri(8,20),r=a-(x+y+z);if(r<=0)throw 0;
+  const b=a+sel([50,100,150,200]),bk=r+x;
+  return {title:'Mẹ đi chợ',ctx:P(`Mẹ mang theo ${a} nghìn đồng đi chợ. Mẹ mua rau hết ${x} nghìn đồng, thịt hết ${y} nghìn đồng và cá hết ${z} nghìn đồng.`),qs:[
+   M('Biểu thức nào tính đúng số tiền mẹ còn lại (nghìn đồng)?',`${a} − (${x} + ${y} + ${z})`,[[`${a} − (${x} + ${y}) + ${z}`,'Tiền mua cá cũng phải trừ đi, không được cộng vào.'],[`${a} − ${x} + ${y} + ${z}`,'Đây là bỏ dấu ngoặc sai: trước ngoặc có dấu "−" thì phải đổi dấu mọi số hạng trong ngoặc.'],[`${a} + (${x} + ${y} + ${z})`,'Tiền đã tiêu làm số tiền giảm đi, phải trừ.']],`Số tiền còn lại bằng số tiền mang theo trừ đi tổng số tiền đã mua: ${a} − (${x} + ${y} + ${z}).`,'bn','TH'),
+   A('Mẹ còn lại bao nhiêu nghìn đồng?',r,'nghìn đồng',`${a} − (${x} + ${y} + ${z}) = ${a} − ${x+y+z} = ${r}.`,'bn','TH'),
+   A('Về nhà, mẹ thấy bó rau bị héo nên mang ra chợ đổi trả và được trả lại đủ tiền rau. Lúc này mẹ có bao nhiêu nghìn đồng?',bk,'nghìn đồng',`${a} − (${x} + ${y} + ${z}) + ${x} = ${a} − ${x} − ${y} − ${z} + ${x} = ${a} − ${y} − ${z} = ${bk}.`,'hl','VD'),
+   A(`Hôm sau mẹ mang ${b} nghìn đồng đi chợ và mua đúng các món như hôm trước, giá không đổi (không đổi trả gì). Số tiền mẹ còn lại hôm sau nhiều hơn hôm trước bao nhiêu nghìn đồng?`,b-a,'nghìn đồng',`[${b} − (${x} + ${y} + ${z})] − [${a} − (${x} + ${y} + ${z})] = ${b} − ${a} = ${b-a}. Không cần tính số tiền còn lại của từng ngày.`,'hl','VD')]};}),
+ G(()=>{const t=-ri(5,20),a=ri(2,9),b=ri(2,9),c=ri(2,9);if(a===b||b===c||a===c)throw 0;
+  const t14=t-a+b-c,d=ri(-6,6);if(!d)throw 0;const s=t14+d;
+  const br=x=>x<0?`(${nm(x)})`:nm(x);
+  return {title:'Tủ bảo quản lạnh',ctx:P(`Lúc 8 giờ, nhiệt độ trong một tủ bảo quản là ${nm(t)}°C. Từ 8 giờ đến 10 giờ nhiệt độ giảm ${a}°C, từ 10 giờ đến 12 giờ nhiệt độ tăng ${b}°C, từ 12 giờ đến 14 giờ nhiệt độ giảm ${c}°C.`),qs:[
+   M('Biểu thức nào cho biết nhiệt độ trong tủ lúc 14 giờ?',`${nm(t)} − (${a} − ${b} + ${c})`,[[`${nm(t)} − (${a} + ${b} + ${c})`,`Nhiệt độ có lúc tăng ${b}°C, nên trong ngoặc không thể cộng ${b}.`],[`${nm(t)} − (${a} − ${b} − ${c})`,`Bỏ ngoặc: ${nm(t)} − (${a} − ${b} − ${c}) = ${nm(t)} − ${a} + ${b} + ${c}, tức là nhiệt độ lại tăng ${c}°C.`],[`${nm(t)} + (${a} − ${b} + ${c})`,`Bỏ ngoặc ra được ${nm(t)} + ${a} − ${b} + ${c}: nhiệt độ tăng ${a}°C và tăng ${c}°C, ngược với đề bài.`]],`Nhiệt độ lúc 14 giờ là ${nm(t)} − ${a} + ${b} − ${c} = ${nm(t)} − (${a} − ${b} + ${c}).`,'dn','TH'),
+   A('Nhiệt độ trong tủ lúc 14 giờ là bao nhiêu độ C?',t14,'°C',`${nm(t)} − (${a} − ${b} + ${c}) = ${nm(t)} − ${br(a-b+c)} = ${nm(t14)}.`,'bn','TH'),
+   A('Nhiệt độ lúc 14 giờ thay đổi bao nhiêu độ C so với lúc 8 giờ? (Nhập số âm nếu nhiệt độ giảm.)',t14-t,'°C',`${nm(t14)} − ${br(t)} = ${nm(t14-t)}. Có thể tính nhanh: −${a} + ${b} − ${c} = ${nm(t14-t)}.`,'hl','VD'),
+   A(`Lúc 16 giờ nhiệt độ trong tủ là ${nm(s)}°C. Từ 14 giờ đến 16 giờ nhiệt độ đã thay đổi bao nhiêu độ C? (Nhập số âm nếu nhiệt độ giảm.)`,d,'°C',`${nm(s)} − ${br(t14)} = ${nm(d)}.`,'hl','VD')]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
 /* ============ Trạng thái ============ */
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
@@ -858,7 +896,7 @@ function buildHard(){
   makeSession('hard',null,'Thử thách',{mc,tf,sa});
 }
 function buildPisa(){
-  const units=shuffle(PISA).slice(0,2).map(f=>f());
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
   const by={mc:[],tf:[],sa:[]};
   units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
   makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
@@ -962,7 +1000,7 @@ function homeHTML(){
       <div class="grp">Theo nội dung</div>
       <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
       <div class="grp">Toán thực tế</div>
-      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Hai tình huống trong đời sống, mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
       <div class="grp">Gợi ý cho bạn</div>
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>
