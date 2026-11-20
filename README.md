@@ -10,6 +10,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bài 2. Cách ghi số tự nhiên | `cach-ghi-so-tu-nhien/` | `GS6-` |
 | 6 | Bài 3. Thứ tự trong tập hợp các số tự nhiên | `thu-tu-trong-tap-hop-so-tu-nhien/` | `TT6-` |
 | 6 | Bài 4. Phép cộng và phép trừ số tự nhiên | `phep-cong-va-phep-tru-so-tu-nhien/` | `CT6-` |
+| 6 | Bài 5. Phép nhân và phép chia số tự nhiên | `phep-nhan-va-phep-chia-so-tu-nhien/` | `NC6-` |
 | 6 | Bài 12. Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
 | 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
@@ -42,6 +43,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Bài 2. Cách ghi số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/cach-ghi-so-tu-nhien/`
 - Bài 3. Thứ tự trong tập hợp các số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/thu-tu-trong-tap-hop-so-tu-nhien/`
 - Bài 4. Phép cộng và phép trừ số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-va-phep-tru-so-tu-nhien/`
+- Bài 5. Phép nhân và phép chia số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/phep-nhan-va-phep-chia-so-tu-nhien/`
 - Bội chung nhỏ nhất: `https://huumkmath.github.io/tam-giac-bang-nhau/boi-chung-nho-nhat/`
 - Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
