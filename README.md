@@ -20,6 +20,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Luyện tập chung (sau Bài 10) | `luyen-tap-chung-sau-bai-10/` | `LC2-` |
 | 6 | Bài 11. Ước chung. Ước chung lớn nhất | `uoc-chung-lon-nhat/` | `UC6-` |
 | 6 | Bài 12. Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
+| 6 | Luyện tập chung (sau Bài 12) | `luyen-tap-chung-sau-bai-12/` | `LC3-` |
 | 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
 | 6 | Bài 15. Quy tắc dấu ngoặc | `quy-tac-dau-ngoac/` | `DN6-` |
@@ -61,6 +62,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Luyện tập chung (sau Bài 10): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-sau-bai-10/`
 - Bài 11. Ước chung. Ước chung lớn nhất (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/uoc-chung-lon-nhat/`
 - Bội chung nhỏ nhất: `https://huumkmath.github.io/luyen-toan-thcs/boi-chung-nho-nhat/`
+- Luyện tập chung (sau Bài 12): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-sau-bai-12/`
 - Tập hợp các số nguyên: `https://huumkmath.github.io/luyen-toan-thcs/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/luyen-toan-thcs/phep-cong-tru-so-nguyen/`
 - Quy tắc dấu ngoặc: `https://huumkmath.github.io/luyen-toan-thcs/quy-tac-dau-ngoac/`
