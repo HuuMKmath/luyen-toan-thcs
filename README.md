@@ -16,6 +16,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bài tập cuối chương I | `bai-tap-cuoi-chuong-1-toan-6/` | `CC1-` |
 | 6 | Bài 8. Quan hệ chia hết và tính chất | `quan-he-chia-het-va-tinh-chat/` | `QH6-` |
 | 6 | Bài 9. Dấu hiệu chia hết | `dau-hieu-chia-het/` | `DH6-` |
+| 6 | Bài 10. Số nguyên tố | `so-nguyen-to/` | `NT6-` |
 | 6 | Bài 12. Bội chung, bội chung nhỏ nhất | `boi-chung-nho-nhat/` | `BC6-` |
 | 6 | Bài 13. Tập hợp các số nguyên | `tap-hop-so-nguyen/` | `SN6-` |
 | 6 | Bài 14. Phép cộng và phép trừ số nguyên | `phep-cong-tru-so-nguyen/` | `PC6-` |
@@ -54,6 +55,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Bài tập cuối chương I (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-1-toan-6/`
 - Bài 8. Quan hệ chia hết và tính chất (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/quan-he-chia-het-va-tinh-chat/`
 - Bài 9. Dấu hiệu chia hết (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/dau-hieu-chia-het/`
+- Bài 10. Số nguyên tố (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/so-nguyen-to/`
 - Bội chung nhỏ nhất: `https://huumkmath.github.io/tam-giac-bang-nhau/boi-chung-nho-nhat/`
 - Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
 - Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
