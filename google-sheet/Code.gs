@@ -453,7 +453,8 @@ function thuongDongBo(body) {
 
 /* ---------- Bảng xếp hạng lớp ---------- */
 // Học sinh (đã qua bước tra mã) chỉ nhận bảng của chính lớp mình và của khối mình (khối = số đầu tên lớp): 10 bạn đứng đầu theo XP tuần này và theo tổng XP,
-// tên viết tắt (ví dụ "N.V. An"), kèm thứ hạng của chính em. Lớp "GV" (mã giáo viên) không được xếp hạng.
+// tên viết tắt (ví dụ "N.V. An"), kèm thứ hạng của chính em. Lớp "GV" (mã giáo viên) không được xếp hạng,
+// nhưng mã giáo viên xem được bảng đầy đủ của mọi lớp, mọi khối (bxhGiaoVien).
 const BXH_BAT = true;   // đặt false để tắt bảng xếp hạng trên website
 const BXH_KHOI = true;  // đặt false để chỉ giữ bảng lớp, tắt bảng xếp hạng toàn khối
 const BXH_SO = 10;      // số bạn hiện trong bảng
@@ -486,9 +487,33 @@ function xepHang(ds, truong, ma, kemLop) {
   return { top: out.slice(0, BXH_SO), toi: toi };
 }
 
+// Bảng xếp hạng cho giáo viên (mã lớp "GV"): mọi học sinh trong trang tính "Học sinh", nhóm theo khối,
+// họ tên đầy đủ, lớp, tổng XP và XP tuần này. Trang web tự xếp hạng theo khối hoặc theo từng lớp.
+// Em chưa có dòng ở trang tính "Thưởng" vẫn hiện với 0 XP để giáo viên biết em nào chưa luyện tập.
+function bxhGiaoVien() {
+  const tuan = tuanNay(), xpCua = {};
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB_THUONG);
+  if (sh && sh.getLastRow() > 1) {
+    const cot = Math.max(sh.getLastColumn(), COT_THUONG.length);
+    sh.getRange(2, 1, sh.getLastRow() - 1, cot).getValues().forEach(function (r) {
+      const m = soMa(r[0]);
+      if (!m) return;
+      const wxp = String(r[10] instanceof Date ? Utilities.formatDate(r[10], 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd') : r[10]) === tuan ? soDuong(r[9], 100000000) : 0;
+      xpCua[m] = { a: soDuong(r[3], 100000000), w: wxp };
+    });
+  }
+  const khoi = {};
+  dsHocSinh().forEach(function (h) {
+    if (!h.u || !h.c || laLopGV(h.c)) return;
+    const k = khoiLop(h.c) || h.c, x = xpCua[h.u] || { a: 0, w: 0 };
+    (khoi[k] = khoi[k] || []).push({ n: h.n, l: h.c, a: x.a, w: x.w });
+  });
+  return { ok: true, gv: 1, tuan: tuan, khoi: khoi };
+}
+
 function bangXepHang(hs, ma) {
   if (!BXH_BAT) return { ok: true, off: 1 };
-  if (laLopGV(hs.c)) return { ok: true, gv: 1 };
+  if (laLopGV(hs.c)) return bxhGiaoVien(); // mã giáo viên: xem bảng của mọi lớp, mọi khối
   const khoi = khoiLop(hs.c);
   const u = soMa(ma), cache = CacheService.getScriptCache(), k = khoaBxh(khoi || hs.c);
   let ds = null;

@@ -534,12 +534,13 @@ function showProg(o){
 
 // ---- Bảng xếp hạng lớp (XP từ trang tính "Thưởng"; chỉ thấy lớp mình, tên viết tắt) ----
 const bxhSec=document.getElementById('bxh'),bxhBody=document.getElementById('bxh-body');
-let bxhData=null,bxhTab='tuanNay',bxhScope='lop';
-function bxhHide(){bxhSec.hidden=true;bxhData=null;drawRank(null);}
+let bxhData=null,bxhTab='tuanNay',bxhScope='lop',gvData=null,gvKhoi='',gvLop='';
+function bxhHide(){bxhSec.hidden=true;bxhData=null;gvData=null;drawRank(null);}
 function bxhLoad(u){
   if(!u){bxhHide();return;}
   bxhSec.hidden=false;bxhBody.innerHTML='<p class="sum" style="margin:0">Đang tải bảng xếp hạng…</p>';
   fetch(SHEET_URL+'?ma='+u+'&bxh=1').then(function(r){return r.json();}).then(function(o){
+    if(o&&o.ok&&o.gv&&o.khoi){gvData=o;gvDraw();return;} // mã giáo viên: bảng của mọi lớp, mọi khối
     if(!o||!o.ok||o.off||o.gv||!o.tuanNay){bxhHide();return;}
     bxhData=o;bxhDraw();drawRank(o);
     if(location.hash==='#bxh'&&!bxhSec.dataset.seen){bxhSec.dataset.seen='1';bxhSec.scrollIntoView();}
@@ -569,6 +570,41 @@ function bxhDraw(){
   [].forEach.call(bxhBody.querySelectorAll('[data-t],[data-s]'),function(btn){btn.onclick=function(){
     const s=btn.getAttribute('data-s'),t=btn.getAttribute('data-t');if(s)bxhScope=s;if(t)bxhTab=t;bxhDraw();
     const f=bxhBody.querySelector(s?'[data-s="'+s+'"]':'[data-t="'+t+'"]');if(f)f.focus();};});
+}
+
+// ---- Bảng xếp hạng cho giáo viên (mã lớp GV): chọn khối, lớp; họ tên đầy đủ; đủ cả danh sách ----
+function gvRank(list,f){
+  const s=list.slice().sort(function(a,b){return b[f]-a[f]||(a.l<b.l?-1:a.l>b.l?1:0)||(a.n<b.n?-1:a.n>b.n?1:0);});
+  let r=0,prev=-1;
+  return s.map(function(e,i){if(e[f]!==prev){r=i+1;prev=e[f];}return {r:r,n:e.n,l:e.l,x:e[f]};});
+}
+function gvDraw(){
+  const o=gvData,ks=Object.keys(o.khoi).sort(function(a,b){return (parseInt(a,10)||99)-(parseInt(b,10)||99)||(a<b?-1:1);});
+  bxhSec.hidden=false;
+  if(!ks.length){bxhBody.innerHTML='<p class="sum" style="margin:0">Trang tính "Học sinh" chưa có học sinh nào.</p>';return;}
+  if(ks.indexOf(gvKhoi)<0){gvKhoi=ks[0];gvLop='';}
+  const all=o.khoi[gvKhoi],lops=[];
+  all.forEach(function(e){if(lops.indexOf(e.l)<0)lops.push(e.l);});
+  lops.sort();
+  if(gvLop&&lops.indexOf(gvLop)<0)gvLop='';
+  const list=gvLop?all.filter(function(e){return e.l===gvLop;}):all;
+  const f=bxhTab==='tuanNay'?'w':'a',ranked=gvRank(list,f),co=ranked.filter(function(e){return e.x>0;}).length;
+  const d=String(o.tuan||'').split('-');
+  const note=bxhTab==='tuanNay'?'XP kiếm được từ thứ Hai'+(d.length===3?' ('+d[2]+'/'+d[1]+')':'')+'.':'Tổng XP từ trước đến nay.';
+  bxhBody.innerHTML='<p class="sum" style="margin:0 0 8px"><b>Chế độ giáo viên:</b> thầy cô thấy đủ danh sách và họ tên đầy đủ; học sinh chỉ thấy 10 bạn đứng đầu lớp, khối mình, tên viết tắt.</p>'+
+    (ks.length>1?bxhTabs('Khối',ks.map(function(k){return [k,/^\d+$/.test(k)?'Khối '+k:k];}),gvKhoi).replace(/data-t=/g,'data-k='):'')+
+    bxhTabs('Thời gian',[['tuanNay','Tuần này'],['tatCa','Tất cả']],bxhTab)+
+    '<div class="row" style="margin:0 0 10px"><label for="gv-lop" class="sum" style="margin:0">Lớp</label><select id="gv-lop" style="font:inherit;min-height:40px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)">'+
+      '<option value="">Cả khối ('+all.length+' em)</option>'+lops.map(function(l){return '<option value="'+esc(l)+'"'+(l===gvLop?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div>'+
+    '<p class="sum" style="margin:0 0 8px">'+esc(gvLop?'Lớp '+gvLop:(/^\d+$/.test(gvKhoi)?'Khối '+gvKhoi:gvKhoi))+' · <b>'+co+'/'+ranked.length+'</b> em có XP'+(bxhTab==='tuanNay'?' tuần này':'')+'.</p>'+
+    '<ol class="bxh-list">'+ranked.map(function(e){
+      return '<li'+(e.x>0?'':' style="opacity:.6"')+'><span class="bxh-r'+(e.x>0&&e.r<=3?' t'+e.r:'')+'">'+e.r+'</span><span class="bxh-n">'+esc(e.n)+(gvLop?'':' <small class="bxh-l">· '+esc(e.l)+'</small>')+'</span><span class="bxh-x">'+esc(e.x)+' <small>XP</small></span></li>';
+    }).join('')+'</ol>'+
+    '<p class="sum" style="margin:10px 0 0;font-size:.85rem">'+note+' Bấm “Làm mới” ở trên để tải số mới nhất.</p>';
+  [].forEach.call(bxhBody.querySelectorAll('[data-k],[data-t]'),function(btn){btn.onclick=function(){
+    const k=btn.getAttribute('data-k'),t=btn.getAttribute('data-t');if(k){gvKhoi=k;gvLop='';}if(t)bxhTab=t;gvDraw();
+    const fo=bxhBody.querySelector(k?'[data-k="'+k+'"]':'[data-t="'+t+'"]');if(fo)fo.focus();};});
+  document.getElementById('gv-lop').onchange=function(){gvLop=this.value;gvDraw();document.getElementById('gv-lop').focus();};
 }
 
 const h=load();
