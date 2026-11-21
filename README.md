@@ -45,41 +45,41 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 ## Địa chỉ khi bật GitHub Pages
 
-- Trang chung: `https://huumkmath.github.io/tam-giac-bang-nhau/cac-bai/`
-- Tam giác bằng nhau: `https://huumkmath.github.io/tam-giac-bang-nhau/`
-- Bài 1. Tập hợp (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop/`
-- Bài 2. Cách ghi số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/cach-ghi-so-tu-nhien/`
-- Bài 3. Thứ tự trong tập hợp các số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/thu-tu-trong-tap-hop-so-tu-nhien/`
-- Bài 4. Phép cộng và phép trừ số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-va-phep-tru-so-tu-nhien/`
-- Bài 5. Phép nhân và phép chia số tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/phep-nhan-va-phep-chia-so-tu-nhien/`
-- Bài 6. Luỹ thừa với số mũ tự nhiên (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-voi-so-mu-tu-nhien/`
-- Bài 7. Thứ tự thực hiện các phép tính (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/thu-tu-thuc-hien-cac-phep-tinh/`
-- Bài tập cuối chương I (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-1-toan-6/`
-- Bài 8. Quan hệ chia hết và tính chất (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/quan-he-chia-het-va-tinh-chat/`
-- Bài 9. Dấu hiệu chia hết (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/dau-hieu-chia-het/`
-- Bài 10. Số nguyên tố (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/so-nguyen-to/`
-- Luyện tập chung (sau Bài 10): `https://huumkmath.github.io/tam-giac-bang-nhau/luyen-tap-chung-sau-bai-10/`
-- Bài 11. Ước chung. Ước chung lớn nhất (Toán 6): `https://huumkmath.github.io/tam-giac-bang-nhau/uoc-chung-lon-nhat/`
-- Bội chung nhỏ nhất: `https://huumkmath.github.io/tam-giac-bang-nhau/boi-chung-nho-nhat/`
-- Tập hợp các số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-nguyen/`
-- Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-cong-tru-so-nguyen/`
-- Quy tắc dấu ngoặc: `https://huumkmath.github.io/tam-giac-bang-nhau/quy-tac-dau-ngoac/`
-- Phép chia hết, ước và bội: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-chia-het-uoc-boi/`
-- Luyện tập chung (sau Bài 17): `https://huumkmath.github.io/tam-giac-bang-nhau/luyen-tap-chung-sau-bai-17/`
-- Bài tập cuối chương III: `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-3/`
-- Phép nhân số nguyên: `https://huumkmath.github.io/tam-giac-bang-nhau/phep-nhan-so-nguyen/`
-- Luyện tập chung (sau Bài 15): `https://huumkmath.github.io/tam-giac-bang-nhau/luyen-tap-chung-so-nguyen/`
-- Tập hợp các số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-huu-ti/`
-- Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/cong-tru-nhan-chia-so-huu-ti/`
-- Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/tam-giac-bang-nhau/luy-thua-so-huu-ti/`
-- Thứ tự thực hiện các phép tính. Quy tắc chuyển vế: `https://huumkmath.github.io/tam-giac-bang-nhau/thu-tu-phep-tinh-chuyen-ve/`
-- Làm quen với số thập phân vô hạn tuần hoàn: `https://huumkmath.github.io/tam-giac-bang-nhau/so-thap-phan-vo-han-tuan-hoan/`
-- Số vô tỉ. Căn bậc hai số học: `https://huumkmath.github.io/tam-giac-bang-nhau/so-vo-ti-can-bac-hai/`
-- Tập hợp các số thực: `https://huumkmath.github.io/tam-giac-bang-nhau/tap-hop-so-thuc/`
-- Bài tập cuối chương II: `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-2-toan-7/`
-- Bài tập cuối chương I: `https://huumkmath.github.io/tam-giac-bang-nhau/bai-tap-cuoi-chuong-1-toan-7/`
-- Các trường hợp bằng nhau của tam giác vuông: `https://huumkmath.github.io/tam-giac-bang-nhau/tam-giac-vuong-bang-nhau/`
-- Thu thập và phân loại dữ liệu: `https://huumkmath.github.io/tam-giac-bang-nhau/thu-thap-phan-loai-du-lieu/`
+- Trang chung: `https://huumkmath.github.io/luyen-toan-thcs/cac-bai/`
+- Tam giác bằng nhau: `https://huumkmath.github.io/luyen-toan-thcs/`
+- Bài 1. Tập hợp (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/tap-hop/`
+- Bài 2. Cách ghi số tự nhiên (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/cach-ghi-so-tu-nhien/`
+- Bài 3. Thứ tự trong tập hợp các số tự nhiên (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/thu-tu-trong-tap-hop-so-tu-nhien/`
+- Bài 4. Phép cộng và phép trừ số tự nhiên (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/phep-cong-va-phep-tru-so-tu-nhien/`
+- Bài 5. Phép nhân và phép chia số tự nhiên (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/phep-nhan-va-phep-chia-so-tu-nhien/`
+- Bài 6. Luỹ thừa với số mũ tự nhiên (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/luy-thua-voi-so-mu-tu-nhien/`
+- Bài 7. Thứ tự thực hiện các phép tính (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/thu-tu-thuc-hien-cac-phep-tinh/`
+- Bài tập cuối chương I (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/bai-tap-cuoi-chuong-1-toan-6/`
+- Bài 8. Quan hệ chia hết và tính chất (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/quan-he-chia-het-va-tinh-chat/`
+- Bài 9. Dấu hiệu chia hết (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/dau-hieu-chia-het/`
+- Bài 10. Số nguyên tố (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/so-nguyen-to/`
+- Luyện tập chung (sau Bài 10): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-sau-bai-10/`
+- Bài 11. Ước chung. Ước chung lớn nhất (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/uoc-chung-lon-nhat/`
+- Bội chung nhỏ nhất: `https://huumkmath.github.io/luyen-toan-thcs/boi-chung-nho-nhat/`
+- Tập hợp các số nguyên: `https://huumkmath.github.io/luyen-toan-thcs/tap-hop-so-nguyen/`
+- Phép cộng và phép trừ số nguyên: `https://huumkmath.github.io/luyen-toan-thcs/phep-cong-tru-so-nguyen/`
+- Quy tắc dấu ngoặc: `https://huumkmath.github.io/luyen-toan-thcs/quy-tac-dau-ngoac/`
+- Phép chia hết, ước và bội: `https://huumkmath.github.io/luyen-toan-thcs/phep-chia-het-uoc-boi/`
+- Luyện tập chung (sau Bài 17): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-sau-bai-17/`
+- Bài tập cuối chương III: `https://huumkmath.github.io/luyen-toan-thcs/bai-tap-cuoi-chuong-3/`
+- Phép nhân số nguyên: `https://huumkmath.github.io/luyen-toan-thcs/phep-nhan-so-nguyen/`
+- Luyện tập chung (sau Bài 15): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-so-nguyen/`
+- Tập hợp các số hữu tỉ: `https://huumkmath.github.io/luyen-toan-thcs/tap-hop-so-huu-ti/`
+- Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/luyen-toan-thcs/cong-tru-nhan-chia-so-huu-ti/`
+- Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/luyen-toan-thcs/luy-thua-so-huu-ti/`
+- Thứ tự thực hiện các phép tính. Quy tắc chuyển vế: `https://huumkmath.github.io/luyen-toan-thcs/thu-tu-phep-tinh-chuyen-ve/`
+- Làm quen với số thập phân vô hạn tuần hoàn: `https://huumkmath.github.io/luyen-toan-thcs/so-thap-phan-vo-han-tuan-hoan/`
+- Số vô tỉ. Căn bậc hai số học: `https://huumkmath.github.io/luyen-toan-thcs/so-vo-ti-can-bac-hai/`
+- Tập hợp các số thực: `https://huumkmath.github.io/luyen-toan-thcs/tap-hop-so-thuc/`
+- Bài tập cuối chương II: `https://huumkmath.github.io/luyen-toan-thcs/bai-tap-cuoi-chuong-2-toan-7/`
+- Bài tập cuối chương I: `https://huumkmath.github.io/luyen-toan-thcs/bai-tap-cuoi-chuong-1-toan-7/`
+- Các trường hợp bằng nhau của tam giác vuông: `https://huumkmath.github.io/luyen-toan-thcs/tam-giac-vuong-bang-nhau/`
+- Thu thập và phân loại dữ liệu: `https://huumkmath.github.io/luyen-toan-thcs/thu-thap-phan-loai-du-lieu/`
 
 ## Cách dùng cho giáo viên
 
