@@ -9,7 +9,7 @@ function mparts(html){const out=[],re=/([^\s<·:+]+)<sup>([\s\S]*?)<\/sup>/g;let
   while((m=re.exec(html))){const pre=clean(html.slice(i,m.index));if(pre)out.push(new MathRun(pre));out.push(new MathSuperScript({children:[new MathRun(clean(m[1]))],superScript:[new MathRun(clean(m[2]))]}));i=re.lastIndex;}
   const rest=clean(html.slice(i));if(rest)out.push(new MathRun(rest));return out.length?out:[new MathRun('')];}
 function runs(html,base){base=base||{};const out=[];let s=String(html==null?'':html);
-  const re=/<span class="fr"><span>([\s\S]*?)<\/span>\s*<span>([\s\S]*?)<\/span><\/span>|<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<\/?[a-zA-Z][^<>]*>/g;let i=0,m;
+  const re=/<span\s+class="fr"><span>([\s\S]*?)<\/span>\s*<span>([\s\S]*?)<\/span><\/span>|<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<\/?[a-zA-Z][^<>]*>/g;let i=0,m;
   const txt=t=>{t=dec(t.replace(/<\/?[a-zA-Z][^<>]*>/g,''));if(t)out.push(new TextRun(Object.assign({text:t,font:FONT},base)));};
   while((m=re.exec(s))){txt(s.slice(i,m.index));i=re.lastIndex;
     if(m[1]!==undefined)out.push(new DMath({children:[new MathFraction({numerator:mparts(m[1]),denominator:mparts(m[2])})]}));
