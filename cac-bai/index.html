@@ -423,8 +423,10 @@ const body=document.getElementById('me-body');
 const cards=[].slice.call(document.querySelectorAll('a.lesson[data-tab]'));
 const GMok=!!(window.GM&&GM.stats);
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function load(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');return o&&o.u&&o.n?o:null;}catch(e){return null;}}
-function save(o){try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+// Quá 2 ngày không mở trang nào của website thì máy quên mã học sinh, phải nhập lại (mã GV không hết hạn).
+const HS_TTL=2*24*3600*1000;let hsExpired=false;
+function load(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(!(o&&o.u&&o.n))return null;if(!/^\s*gv\s*$/i.test(String(o.c||''))&&o.t&&Date.now()-o.t>HS_TTL){localStorage.removeItem(HS_KEY);hsExpired=true;return null;}return o;}catch(e){return null;}}
+function save(o){try{if(o){o.t=Date.now();localStorage.setItem(HS_KEY,JSON.stringify(o));}else localStorage.removeItem(HS_KEY);}catch(e){}}
 function grade(c){const m=String(c||'').match(/\d+/);return m?m[0]:'';}
 function lastName(n){const p=String(n||'').trim().split(/\s+/);return p.length>1?p.slice(-2).join(' '):p[0]||'';}
 if(GMok){GM.noHud=true;GM.sheet=SHEET_URL;GM.user=function(){const h=load();return h?h.u:'';};GM.onChange=function(){if(load())drawStats();};}
@@ -608,7 +610,7 @@ function gvDraw(){
 }
 
 const h=load();
-if(h){applyGrade(grade(h.c));showCached('');document.querySelector('#me-body .err').remove();fetchProg(h.u,false);}else loginView('');
+if(h){save(h);applyGrade(grade(h.c));showCached('');document.querySelector('#me-body .err').remove();fetchProg(h.u,false);}else loginView(hsExpired?'Đã hơn 2 ngày em chưa vào ôn luyện nên máy đã quên mã. Hãy nhập lại mã học sinh nhé.':'');
 })();
 </script>
 </body>

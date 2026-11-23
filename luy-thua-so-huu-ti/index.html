@@ -1106,7 +1106,9 @@ function buildPractice(spec){
 /* ============ Mã học sinh ============ */
 const HS_KEY='luyentoan-hs';
 function needHS(){return !!SHEET_URL;} // có Google Sheet thì phải có mã học sinh mới vào học
-function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
+// Mã học sinh chỉ nhớ trên máy (trình duyệt) đã nhập. Quá 2 ngày không mở trang nào của website thì máy quên mã, phải nhập lại (mã GV không hết hạn).
+const HS_TTL=2*24*3600*1000;
+function loadHS(){try{const o=JSON.parse(localStorage.getItem(HS_KEY)||'null');if(o&&o.u&&o.n){if(!/^\s*gv\s*$/i.test(String(o.c||''))&&o.t&&Date.now()-o.t>HS_TTL){localStorage.removeItem(HS_KEY);state.hsExpired=true;return;}o.t=Date.now();localStorage.setItem(HS_KEY,JSON.stringify(o));state.stu=o;state.name=o.n;state.cls=o.c||'';}}catch(e){}}
 // Mỗi lần mở trang: hỏi lại Google Sheet xem mã đã lưu trên máy còn trong danh sách học sinh không.
 // Giáo viên đã xoá mã thì tự đăng xuất; mất mạng hoặc hệ thống đang bận thì vẫn cho học tiếp.
 function recheckHS(){
@@ -1118,7 +1120,7 @@ function recheckHS(){
     saveHS(null);state.view='home';state.hsGone=true;if(location.hash!=='#giao-vien')render();
   }).catch(()=>{});
 }
-function saveHS(o){state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
+function saveHS(o){if(o)o.t=Date.now();state.stu=o;state.name=o?o.n:'';state.cls=o?(o.c||''):'';try{if(o)localStorage.setItem(HS_KEY,JSON.stringify(o));else localStorage.removeItem(HS_KEY);}catch(e){}}
 function loginHTML(){
   return `
   <section class="hero">
@@ -1130,7 +1132,7 @@ function loginHTML(){
     <div>
       <label class="fl" for="hsma">Mã học sinh (6 chữ số)</label>
       <input type="text" id="hsma" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ví dụ: 482913">
-      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)">${state.hsGone?'Mã học sinh lưu trên máy này không còn trong danh sách của giáo viên. Nếu em vẫn học, hãy hỏi thầy cô mã mới.':''}</p>
+      <p class="small" id="hserr" role="alert" style="margin:6px 0 0;color:var(--bad,#b3261e)">${state.hsGone?'Mã học sinh lưu trên máy này không còn trong danh sách của giáo viên. Nếu em vẫn học, hãy hỏi thầy cô mã mới.':state.hsExpired?'Đã hơn 2 ngày em chưa vào ôn luyện nên máy đã quên mã. Hãy nhập lại mã học sinh nhé.':''}</p>
     </div>
     <div class="row"><button class="btn" id="hsgo">Vào học</button></div>
     <p class="small muted" style="margin:0">Mã do giáo viên phát, mỗi bạn một mã. Bạn chỉ cần nhập một lần, máy này sẽ nhớ cho các lần sau.</p>
