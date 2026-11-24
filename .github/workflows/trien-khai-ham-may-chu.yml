@@ -1,0 +1,20 @@
+# Tự đưa hàm máy chủ "bai-lam" lên Supabase mỗi khi có thay đổi trong supabase/functions trên nhánh main.
+# Cần một bí mật của kho: SUPABASE_ACCESS_TOKEN (Supabase → Account → Access Tokens).
+name: Đưa hàm máy chủ lên Supabase
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/functions/**", ".github/workflows/trien-khai-ham-may-chu.yml"]
+  workflow_dispatch:
+jobs:
+  trien-khai:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Đưa hàm bai-lam lên
+        run: supabase functions deploy bai-lam --project-ref rhfjgaoyrdqglurfzbrw --no-verify-jwt --use-api
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

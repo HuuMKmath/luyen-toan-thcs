@@ -67,9 +67,17 @@ export function moDapAn(ph, chiCau) {
         o.exp_y = q.items.map(it => it.exp || null);
       } else {
         o.dung = q.at || String(q.ans[0]).replace(".", ",");
+        o.ans = q.ans;
       }
       out[q.id] = o;
     }
   }
   return out;
+}
+
+/** Lời nhắc lỗi sai của phương án học sinh vừa chọn (luyện tập, chọn sai lần đầu) – không lộ đáp án đúng. */
+export function loiPhuongAn(ph, q, viTri) {
+  const perm = (ph.perm && ph.perm[q.id]) || q.opts.map((_, i) => i);
+  const o = q.opts[perm[viTri]];
+  return (o && o.err) || null;
 }

@@ -89,6 +89,7 @@ const l3 = r.luot, p3 = LUOT[l3].cau_phat, q0 = p3.by.mc[0];
 const viTriDung = p3.perm[q0.id].indexOf(q0.ans), viTriSai = (viTriDung + 1) % q0.opts.length;
 r = await goi({ viec: "kiem_tra", phien: phienAn, luot: l3, cau: q0.id, tra_loi: viTriSai });
 ok(r.ok && r.oks[0] === false && r.lan === 1 && r.mo === null, "trả lời sai lần 1: chưa lộ đáp án");
+ok(r.loi_chon === (q0.opts[p3.perm[q0.id][viTriSai]].err || null), "chọn sai: có lời nhắc lỗi của phương án vừa chọn");
 r = await goi({ viec: "kiem_tra", phien: phienAn, luot: l3, cau: q0.id, tra_loi: viTriDung });
 ok(r.ok && r.oks[0] === true && r.lan === 2 && r.mo && r.mo.dung === viTriDung, "lần 2: đúng, hiện đáp án và lời giải");
 r = await goi({ viec: "nop", phien: phienAn, luot: l3 });

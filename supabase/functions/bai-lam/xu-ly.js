@@ -7,7 +7,7 @@
 //   kiem_tra  {phien, luot, cau, tra_loi}           → {ok, oks, lan, mo?}      (chỉ chế độ luyện tập)
 //   nop       {phien, luot, tra_loi?}               → {ok, ket_qua, mo}
 import { NAP } from "./bai/danh-sach.js";
-import { anDapAn, doiTraLoi, moDapAn } from "./phien.js";
+import { anDapAn, doiTraLoi, moDapAn, loiPhuongAn } from "./phien.js";
 
 export const SAI_TOI_DA = 40, SAI_PHUT = 10;          // chống dò mã, giống Sheet cũ
 const NGAY = 24 * 3600 * 1000;
@@ -126,7 +126,8 @@ export async function xuLy(yc, { db, bi_mat, bay_gio = () => Date.now() }) {
       if (xong) P.final = true;
       pr[q.id] = P;
       await db.capNhatLuot(l.id, { bai_lam: { ...(l.bai_lam || {}), pr } });
-      return { ok: true, oks, lan: P.attempts, mo: xong ? moDapAn(ph, q.id)[q.id] : null };
+      const loi_chon = !xong && q.type === "mc" ? loiPhuongAn(ph, q, yc.tra_loi) : null;
+      return { ok: true, oks, lan: P.attempts, mo: xong ? moDapAn(ph, q.id)[q.id] : null, loi_chon };
     }
 
     // nop
