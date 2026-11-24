@@ -476,25 +476,25 @@ function genHg3(){ // suy ra từ ΔBHC = ΔCKB
   return mk('Cho ΔABC có AB = AC, BH ⊥ AC tại H, CK ⊥ AB tại K (như hình). Biết ΔBHC = ΔCKB. Khẳng định nào sau đây đúng?','BH = CK',[['BH = CH','BH ứng với CK (B↔C, H↔K), còn CH ứng với BK.'],['BK = BH','BK ứng với CH, không ứng với BH.'],['∠HBC = ∠KBC','∠HBC ứng với ∠KCB (B↔C), không ứng với ∠KBC.']],'ΔBHC = ΔCKB với B↔C, H↔K, C↔B nên BH = CK và CH = BK.',{fig});
 }
 const MC=[
- {id:'n_cv',topic:'cv',level:'NB',stem:'Hai tam giác vuông bằng nhau theo trường hợp hai cạnh góc vuông khi:',ans:0,opts:[
+ {id:'n_cv',type:'mc',topic:'cv',level:'NB',stem:'Hai tam giác vuông bằng nhau theo trường hợp hai cạnh góc vuông khi:',ans:0,opts:[
    {t:'hai cạnh góc vuông của tam giác này lần lượt bằng hai cạnh góc vuông của tam giác kia'},
    {t:'cạnh huyền của tam giác này bằng cạnh huyền của tam giác kia',err:'Mới có một cặp cạnh huyền bằng nhau, chưa đủ.'},
    {t:'hai góc nhọn của tam giác này lần lượt bằng hai góc nhọn của tam giác kia',err:'Hai cặp góc nhọn bằng nhau mà chưa có cạnh nào bằng nhau thì chưa đủ để kết luận.'},
    {t:'một cạnh góc vuông của tam giác này bằng cạnh huyền của tam giác kia',err:'Cạnh góc vuông và cạnh huyền không tương ứng với nhau nên không dùng được.'}],
   exp:'Hai tam giác vuông có hai cạnh góc vuông bằng nhau từng đôi một thì bằng nhau, vì hai góc vuông xen giữa hai cạnh ấy cũng bằng nhau (trường hợp c.g.c).'},
- {id:'n_hg',topic:'hg',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh huyền – góc nhọn?',ans:0,opts:[
+ {id:'n_hg',type:'mc',topic:'hg',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh huyền – góc nhọn?',ans:0,opts:[
    {t:'Hai tam giác vuông có cạnh huyền và một góc nhọn bằng nhau từng đôi một thì bằng nhau'},
    {t:'Hai tam giác vuông có hai góc nhọn bằng nhau từng đôi một thì bằng nhau',err:'Chưa có cạnh nào bằng nhau, hai tam giác có thể có kích thước khác nhau.'},
    {t:'Hai tam giác vuông có cạnh huyền bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh huyền bằng nhau, cần thêm một góc nhọn (hoặc một cạnh góc vuông).'},
    {t:'Hai tam giác vuông có một cạnh góc vuông bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh góc vuông bằng nhau, chưa đủ.'}],
   exp:'Trường hợp cạnh huyền – góc nhọn: cạnh huyền và một góc nhọn của tam giác vuông này bằng cạnh huyền và một góc nhọn của tam giác vuông kia thì hai tam giác bằng nhau.'},
- {id:'n_hc',topic:'hc',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh huyền – cạnh góc vuông?',ans:0,opts:[
+ {id:'n_hc',type:'mc',topic:'hc',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh huyền – cạnh góc vuông?',ans:0,opts:[
    {t:'Hai tam giác vuông có cạnh huyền và một cạnh góc vuông bằng nhau từng đôi một thì bằng nhau'},
    {t:'Hai tam giác vuông có hai cạnh huyền bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh huyền bằng nhau, cần thêm một cạnh góc vuông (hoặc một góc nhọn).'},
    {t:'Hai tam giác vuông có cạnh huyền của tam giác này bằng cạnh góc vuông của tam giác kia thì bằng nhau',err:'Cạnh huyền chỉ tương ứng với cạnh huyền, không tương ứng với cạnh góc vuông.'},
    {t:'Hai tam giác vuông có hai góc nhọn bằng nhau thì bằng nhau',err:'Hai góc nhọn bằng nhau chưa đủ; cần có một cặp cạnh bằng nhau.'}],
   exp:'Trường hợp cạnh huyền – cạnh góc vuông: cạnh huyền và một cạnh góc vuông của tam giác vuông này bằng cạnh huyền và một cạnh góc vuông của tam giác vuông kia thì hai tam giác bằng nhau.'},
- {id:'n_gv',topic:'gv',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh góc vuông – góc nhọn kề?',ans:0,opts:[
+ {id:'n_gv',type:'mc',topic:'gv',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh góc vuông – góc nhọn kề?',ans:0,opts:[
    {t:'Hai tam giác vuông có một cạnh góc vuông và góc nhọn kề cạnh ấy bằng nhau từng đôi một thì bằng nhau'},
    {t:'Hai tam giác vuông có một cạnh góc vuông bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh góc vuông bằng nhau, cần thêm góc nhọn kề cạnh ấy (hoặc cạnh góc vuông còn lại).'},
    {t:'Hai tam giác vuông có hai góc nhọn bằng nhau thì bằng nhau',err:'Hai góc nhọn bằng nhau chưa đủ; cần có một cặp cạnh bằng nhau.'},
