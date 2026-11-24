@@ -592,7 +592,7 @@ function bxhDraw(){
 function gvRank(list,f){
   const s=list.slice().sort(function(a,b){return b[f]-a[f]||(a.l<b.l?-1:a.l>b.l?1:0)||(a.n<b.n?-1:a.n>b.n?1:0);});
   let r=0,prev=-1;
-  return s.map(function(e,i){if(e[f]!==prev){r=i+1;prev=e[f];}return {r:r,n:e.n,l:e.l,x:e[f]};});
+  return s.map(function(e,i){if(e[f]!==prev){r=i+1;prev=e[f];}return {r:r,n:e.n,l:(e.ls&&e.ls.length?e.ls.join(', '):e.l),x:e[f]};});
 }
 function gvDraw(){
   const o=gvData,ks=Object.keys(o.khoi).sort(function(a,b){return (parseInt(a,10)||99)-(parseInt(b,10)||99)||(a<b?-1:1);});
@@ -600,10 +600,11 @@ function gvDraw(){
   if(!ks.length){bxhBody.innerHTML='<p class="sum" style="margin:0">Trang tính "Học sinh" chưa có học sinh nào.</p>';return;}
   if(ks.indexOf(gvKhoi)<0){gvKhoi=ks[0];gvLop='';}
   const all=o.khoi[gvKhoi],lops=[];
-  all.forEach(function(e){if(lops.indexOf(e.l)<0)lops.push(e.l);});
+  const lopsCua=function(e){return e.ls&&e.ls.length?e.ls:[e.l];}; // một em có thể ở nhiều lớp (chính khóa, học thêm) nhưng chỉ hiện một lần
+  all.forEach(function(e){lopsCua(e).forEach(function(l){if(lops.indexOf(l)<0)lops.push(l);});});
   lops.sort();
   if(gvLop&&lops.indexOf(gvLop)<0)gvLop='';
-  const list=gvLop?all.filter(function(e){return e.l===gvLop;}):all;
+  const list=gvLop?all.filter(function(e){return lopsCua(e).indexOf(gvLop)>=0;}):all;
   const f=bxhTab==='tuanNay'?'w':'a',ranked=gvRank(list,f),co=ranked.filter(function(e){return e.x>0;}).length;
   const d=String(o.tuan||'').split('-');
   const note=bxhTab==='tuanNay'?'XP kiếm được từ thứ Hai'+(d.length===3?' ('+d[2]+'/'+d[1]+')':'')+'.':'Tổng XP từ trước đến nay.';
