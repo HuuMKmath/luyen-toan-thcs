@@ -286,16 +286,16 @@ function genAddDiff(){return tryGen(()=>{
   const [x,y]=sample(2,2,60),neg1=RNG()<.5;
   const a=neg1?-x:x,b=neg1?y:-y,s=a+b,big=Math.max(x,y),small=Math.min(x,y);
   return mk(`Tính ${ADD(a,b)}.`,N(s),[
-    C(N(-s),'Dấu của kết quả phải là dấu của số có giá trị tuyệt đối lớn hơn.'),
-    C(N(x+y),'Hai số khác dấu thì ta lấy hiệu hai giá trị tuyệt đối chứ không cộng chúng.'),
-    C(N(-(x+y)),'Hai số khác dấu thì ta lấy hiệu hai giá trị tuyệt đối chứ không cộng chúng.')],
-    `Hai số khác dấu: lấy ${big} − ${small} = ${big-small}. Số có giá trị tuyệt đối lớn hơn là ${N(big===x?a:b)} nên kết quả mang dấu ${s<0?'"−"':'"+"'}: ${N(s)}.`);
+    C(N(-s),'Dấu của kết quả phải là dấu của số có phần số tự nhiên lớn hơn.'),
+    C(N(x+y),'Hai số khác dấu thì ta lấy hiệu hai phần số tự nhiên chứ không cộng chúng.'),
+    C(N(-(x+y)),'Hai số khác dấu thì ta lấy hiệu hai phần số tự nhiên chứ không cộng chúng.')],
+    `Hai số khác dấu: lấy ${big} − ${small} = ${big-small}. Số có phần số tự nhiên lớn hơn là ${N(big===x?a:b)} nên kết quả mang dấu ${s<0?'"−"':'"+"'}: ${N(s)}.`);
 });}
 function genSum4(){return tryGen(()=>{
   const v=[sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30)],s=sum(v);
   if(s===0||v.every(x=>x>0)||v.every(x=>x<0))return null;
   return mk(`Tính ${SUMX(v)}.`,N(s),[
-    C(N(-s),'Kết quả có dấu ngược lại. Hãy cộng từng bước và để ý dấu của số có giá trị tuyệt đối lớn hơn.'),
+    C(N(-s),'Kết quả có dấu ngược lại. Hãy cộng từng bước và để ý dấu của số có phần số tự nhiên lớn hơn.'),
     C(N(s-2*v[3]),`Bạn đã đổi dấu số hạng cuối ${N(v[3])}.`),
     C(N(s-2*v[0]),`Bạn đã đổi dấu số hạng đầu ${N(v[0])}.`)],
     `Cộng lần lượt: ${N(v[0])} + ${P(v[1])} = ${N(v[0]+v[1])}; ${N(v[0]+v[1])} + ${P(v[2])} = ${N(v[0]+v[1]+v[2])}; ${N(v[0]+v[1]+v[2])} + ${P(v[3])} = ${N(s)}.`);
@@ -306,7 +306,7 @@ function genRangeSum(){return tryGen(()=>{
   const drop=b>a?s-b:s+a;
   return mk(`Tổng tất cả các số nguyên x thỏa mãn ${nb(N(-a)+' ≤ x ≤ '+b)} là bao nhiêu?`,N(s),[
     C('0','Các cặp số đối nhau triệt tiêu, nhưng khi hai đầu mút không đối nhau thì vẫn còn các số ở một phía.'),
-    C(N(-s),'Dấu của kết quả bị ngược: phần còn lại là các số ở phía có giá trị tuyệt đối lớn hơn.'),
+    C(N(-s),'Dấu của kết quả bị ngược: phần còn lại là các số ở phía có phần số tự nhiên lớn hơn.'),
     C(N(drop),'Bạn đã bỏ sót một đầu mút của khoảng. Dấu "≤" cho phép lấy cả hai đầu mút.')],
     `Các cặp số đối nhau có tổng bằng 0. ${b>a?`Còn lại các số từ ${a+1} đến ${b}`:`Còn lại các số từ ${N(-a)} đến ${N(-(b+1))}`}. Tổng của chúng là ${N(s)}.`);
 });}
@@ -377,7 +377,7 @@ function genSubAsAdd(){return tryGen(()=>{
 function genDiffTemp(){return tryGen(()=>{
   const lo=ri(3,25),hi=ri(2,25),d=hi+lo;
   return mk(`Nhiệt độ lúc sáng sớm là ${N(-lo)}°C, đến trưa là ${hi}°C. Nhiệt độ đã tăng bao nhiêu độ?`,`${d}°C`,[
-    C(`${Math.abs(hi-lo)}°C`,'Bạn đã lấy hiệu hai giá trị tuyệt đối. Số độ tăng là hiệu hai nhiệt độ: hi − (−lo), tức là phép cộng.'),
+    C(`${Math.abs(hi-lo)}°C`,'Bạn đã lấy hiệu hai phần số tự nhiên. Số độ tăng là hiệu hai nhiệt độ: hi − (−lo), tức là phép cộng.'),
     C(`${hi}°C`,'Đó là nhiệt độ lúc trưa, chưa phải số độ đã tăng.'),
     C(`${N(-d)}°C`,'Nhiệt độ tăng nên số độ tăng là số dương.')],
     `Số độ tăng = nhiệt độ lúc trưa − nhiệt độ lúc sáng = ${hi} − (${N(-lo)}) = ${hi} + ${lo} = ${d}°C.`);
@@ -415,7 +415,7 @@ function genMove(){return tryGen(()=>{
 function genDiffAlt(){return tryGen(()=>{
   const a=ri(10,80),b=ri(5,60),d=a+b;
   return mk(`Điểm A ở độ cao ${a} m, điểm B ở độ cao ${N(-b)} m so với mực nước biển. Điểm A cao hơn điểm B bao nhiêu mét?`,`${d} m`,[
-    C(`${Math.abs(a-b)} m`,'Bạn đã lấy hiệu hai giá trị tuyệt đối. Chênh lệch là hiệu hai độ cao: a − (−b) = a + b.'),
+    C(`${Math.abs(a-b)} m`,'Bạn đã lấy hiệu hai phần số tự nhiên. Chênh lệch là hiệu hai độ cao: a − (−b) = a + b.'),
     C(`${a} m`,'Đó là độ cao của điểm A, chưa phải chênh lệch độ cao của hai điểm.'),
     C(`${N(-d)} m`,'A cao hơn B nên chênh lệch là số dương.')],
     `Chênh lệch độ cao = độ cao của A − độ cao của B = ${nb(`${a} − ${P(-b)} = ${a} + ${b} = ${d}`)} (m).`);
@@ -477,7 +477,7 @@ function addItem(){
   const [x,y]=sample(2,2,50),kind=ri(0,2);
   let a,b;if(kind===0){a=-x;b=-y;}else{a=sgn()*x;b=a<0?y:-y;}
   const s=a+b,v=RNG()<.5,shown=v?s:wrongOf(s,kind===0?[x+y,-Math.abs(x-y)]:[-s,x+y,-(x+y)]);
-  return IT(`${ADD(a,b)} = ${N(shown)}`,v,'cg','TH',v?`${ADD(a,b)} = ${N(s)}.${kind===0?' Hai số âm: cộng phần số tự nhiên rồi đặt dấu "−".':' Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối, đặt dấu của số có giá trị tuyệt đối lớn hơn.'}`:`Kết quả đúng của ${ADD(a,b)} là ${N(s)}, không phải ${N(shown)}.`);
+  return IT(`${ADD(a,b)} = ${N(shown)}`,v,'cg','TH',v?`${ADD(a,b)} = ${N(s)}.${kind===0?' Hai số âm: cộng phần số tự nhiên rồi đặt dấu "−".':' Hai số khác dấu: lấy hiệu hai phần số tự nhiên, đặt dấu của số có phần số tự nhiên lớn hơn.'}`:`Kết quả đúng của ${ADD(a,b)} là ${N(s)}, không phải ${N(shown)}.`);
 }
 /* một ý: tổng nhiều số hạng (vận dụng) */
 function sum3Item(){
@@ -509,7 +509,7 @@ const PT=[
 const PF=[
  IT('Với mọi số nguyên a và b, a − b = b − a.',false,'tr','NB','Phép trừ không có tính chất giao hoán: 5 − 3 = 2 nhưng 3 − 5 = −2.'),
  IT('Tổng của hai số nguyên âm là một số nguyên dương.',false,'cg','NB','Tổng của hai số nguyên âm luôn là số nguyên âm, ví dụ (−2) + (−3) = −5.'),
- IT('Tổng của một số nguyên âm và một số nguyên dương luôn là số nguyên âm.',false,'cg','NB','Dấu của tổng phụ thuộc vào số có giá trị tuyệt đối lớn hơn. Ví dụ (−2) + 7 = 5 là số dương.'),
+ IT('Tổng của một số nguyên âm và một số nguyên dương luôn là số nguyên âm.',false,'cg','NB','Dấu của tổng phụ thuộc vào số có phần số tự nhiên lớn hơn. Ví dụ (−2) + 7 = 5 là số dương.'),
  IT('Tổng của hai số nguyên đối nhau bằng chính số đó.',false,'cg','NB','Tổng của hai số đối nhau bằng 0, không phải chính số đó.'),
  IT('Hiệu của hai số nguyên dương luôn là số nguyên dương.',false,'tr','NB','Ví dụ 3 − 5 = −2 là số nguyên âm.'),
  IT('Khi nhiệt độ giảm, ta cộng thêm số độ giảm vào nhiệt độ ban đầu.',false,'dn','NB','Nhiệt độ giảm là trừ đi số độ giảm, nhiệt độ tăng mới là cộng thêm.'),
@@ -595,7 +595,7 @@ function tfCtx(make){return ()=>{
 function signItem(k){
   const v=RNG()<.5,[x,y]=sample(2,2,30);
   if(k===0)return IT(`Tổng ${ADD(-x,-y)} là một số nguyên ${v?'âm':'dương'}.`,v,'cg','NB','Tổng của hai số nguyên âm luôn là một số nguyên âm.');
-  if(k===1){const pos=y>x;return IT(`Tổng ${ADD(-x,y)} là một số nguyên ${v===pos?'dương':'âm'}.`,v,'cg','NB',`Hai số khác dấu: tổng mang dấu của số có giá trị tuyệt đối lớn hơn. Vì ${Math.max(x,y)} > ${Math.min(x,y)} nên tổng là số nguyên ${pos?'dương':'âm'}.`);}
+  if(k===1){const pos=y>x;return IT(`Tổng ${ADD(-x,y)} là một số nguyên ${v===pos?'dương':'âm'}.`,v,'cg','NB',`Hai số khác dấu: tổng mang dấu của số có phần số tự nhiên lớn hơn. Vì ${Math.max(x,y)} > ${Math.min(x,y)} nên tổng là số nguyên ${pos?'dương':'âm'}.`);}
   if(k===2)return IT(`Số đối của ${N(-x)} là ${v?x:N(-x)}.`,v,'tr','NB',`Số đối của ${N(-x)} là ${x}, vì ${ADD(-x,x)} = 0.`);
   if(k===3)return IT(`${SUB(x,-y)} = ${nb(v?`${x} + ${y}`:`${x} − ${y}`)}`,v,'tr','NB',`Trừ một số là cộng với số đối của số đó: ${SUB(x,-y)} = ${nb(`${x} + ${y}`)}.`);
   const neg=x<y;return IT(`Hiệu ${SUB(x,y)} là một số nguyên ${v===neg?'âm':'dương'}.`,v,'tr','NB',`${SUB(x,y)} = ${N(x-y)} là số nguyên ${neg?'âm':'dương'} vì số bị trừ ${neg?'nhỏ':'lớn'} hơn số trừ.`);
@@ -604,7 +604,7 @@ function tfSignNB(){return ()=>{const items=mixed(()=>shuffle([0,1,2,3,4]).slice
 
 /* ============ Bộ sinh trả lời ngắn ============ */
 function saAddNeg(){const [a,b]=sample(2,1,40);return{stem:`Tính ${ADD(-a,-b)}.`,ans:[-(a+b)],exp:`Hai số âm: ${a} + ${b} = ${a+b}, đặt dấu "−": ${N(-(a+b))}.`};}
-function saAddDiff(){const [x,y]=sample(2,2,60),neg=RNG()<.5,a=neg?-x:x,b=neg?y:-y;return{stem:`Tính ${ADD(a,b)}.`,ans:[a+b],exp:`Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối ${Math.max(x,y)} − ${Math.min(x,y)} = ${Math.abs(x-y)}, đặt dấu của số có giá trị tuyệt đối lớn hơn: ${N(a+b)}.`};}
+function saAddDiff(){const [x,y]=sample(2,2,60),neg=RNG()<.5,a=neg?-x:x,b=neg?y:-y;return{stem:`Tính ${ADD(a,b)}.`,ans:[a+b],exp:`Hai số khác dấu: lấy hiệu hai phần số tự nhiên ${Math.max(x,y)} − ${Math.min(x,y)} = ${Math.abs(x-y)}, đặt dấu của số có phần số tự nhiên lớn hơn: ${N(a+b)}.`};}
 function saSum4(){let v,s;do{v=[sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30),sgn()*ri(2,30)];s=sum(v);}while(v.every(x=>x>0)||v.every(x=>x<0));return{stem:`Tính ${SUMX(v)}.`,ans:[s],exp:`Cộng lần lượt: ${N(v[0])} + ${P(v[1])} = ${N(v[0]+v[1])}; rồi ${N(v[0]+v[1])} + ${P(v[2])} = ${N(v[0]+v[1]+v[2])}; rồi ${N(v[0]+v[1]+v[2])} + ${P(v[3])} = ${N(s)}.`};}
 function saRange(){let a,b;do{[a,b]=sample(2,2,12);}while(a===b);const s=rangeSum(a,b);return{stem:`Tính tổng tất cả các số nguyên x thỏa mãn ${nb(N(-a)+' ≤ x ≤ '+b)}.`,ans:[s],exp:`Các cặp số đối nhau có tổng bằng 0. ${b>a?`Còn lại các số từ ${a+1} đến ${b}`:`Còn lại các số từ ${N(-a)} đến ${N(-(b+1))}`}, tổng bằng ${N(s)}.`};}
 function saZero(){const x=sgn()*ri(2,60);return{stem:`Tìm số nguyên a thỏa mãn ${nb('a + '+P(x)+' = 0')}.`,ans:[-x],exp:`Hai số có tổng bằng 0 là hai số đối nhau, nên a là số đối của ${N(x)}: a = ${N(-x)}.`};}
@@ -644,7 +644,7 @@ SA.push(...SA.map(q=>Object.assign({},q,{id:q.id+'b'})));
 
 /* ============ Chủ đề ============ */
 const TOPICS={
-  cg:{short:'Cộng hai số nguyên',name:'Cộng hai số nguyên',rule:'Cộng hai số nguyên âm: cộng hai số tự nhiên sau dấu "−" rồi đặt dấu "−" trước kết quả. Cộng hai số nguyên khác dấu (không đối nhau): lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối, rồi đặt trước kết quả dấu của số có giá trị tuyệt đối lớn hơn. Hai số đối nhau có tổng bằng 0.',tip:'Hai số khác dấu thì lấy hiệu, không cộng hai giá trị tuyệt đối. Dấu của kết quả là dấu của số có giá trị tuyệt đối lớn hơn.'},
+  cg:{short:'Cộng hai số nguyên',name:'Cộng hai số nguyên',rule:'Cộng hai số nguyên âm: cộng phần số tự nhiên của chúng với nhau rồi đặt dấu "−" trước kết quả. Cộng hai số nguyên khác dấu (không đối nhau): tìm hiệu hai phần số tự nhiên của chúng (số lớn trừ số nhỏ) rồi đặt trước hiệu tìm được dấu của số có phần số tự nhiên lớn hơn. Hai số nguyên đối nhau thì có tổng bằng 0.',tip:'Hai số khác dấu thì lấy hiệu hai phần số tự nhiên (số lớn trừ số nhỏ), không cộng chúng. Dấu của kết quả là dấu của số có phần số tự nhiên lớn hơn.'},
   tc:{short:'Tính chất phép cộng',name:'Tính chất của phép cộng',rule:'Giao hoán: a + b = b + a. Kết hợp: (a + b) + c = a + (b + c). Cộng với số 0: a + 0 = a. Cộng với số đối: a + (−a) = 0.',tip:'Nhóm các số đối nhau (tổng bằng 0) trước để tính nhanh, và nhớ giữ nguyên dấu của mỗi số hạng khi đổi chỗ.'},
   tr:{short:'Trừ hai số nguyên',name:'Trừ hai số nguyên',rule:'Muốn trừ số nguyên a cho số nguyên b, ta cộng a với số đối của b: a − b = a + (−b). Hiệu của hai số nguyên luôn là một số nguyên.',tip:'Trừ cho một số âm thì thành cộng với số dương: a − (−b) = a + b. Không đảo thứ tự: a − b khác b − a.'},
   dn:{short:'Bài toán thực tế',name:'Bài toán thực tế và trục số',rule:'Số nguyên âm biểu diễn nhiệt độ dưới 0°C, độ cao dưới mực nước biển, số tiền nợ hay lỗ. Tăng là cộng, giảm là trừ. Trên trục số, cộng là sang phải, trừ là sang trái. Chênh lệch giữa hai giá trị là hiệu của số lớn trừ số bé.',tip:'Đọc kĩ tình huống và viết phép tính trước khi tính. Cẩn thận khi trừ cho số âm: 8 − (−5) = 8 + 5 = 13, không phải 3.'}
@@ -673,20 +673,20 @@ const MC=[
    O('0'),O('Chính số đó','Ví dụ 4 + (−4) = 0, không phải 4.'),O('Gấp đôi số đó','Ví dụ 4 + (−4) = 0, không phải 8.'),O('Số đối của số đó','Ví dụ 4 + (−4) = 0, không phải −4.')],
   exp:'Hai số đối nhau có tổng bằng 0: a + (−a) = 0.'},
  {id:'m4',topic:'cg',level:'TH',stem:'Quy tắc cộng hai số nguyên khác dấu (không đối nhau) là gì?',ans:0,opts:[
-   O('Lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối, rồi đặt trước kết quả dấu của số có giá trị tuyệt đối lớn hơn'),
-   O('Cộng hai giá trị tuyệt đối rồi đặt dấu "−" trước kết quả','Hai số khác dấu thì ta lấy hiệu hai giá trị tuyệt đối chứ không cộng.'),
-   O('Lấy số lớn trừ số nhỏ trong hai giá trị tuyệt đối rồi đặt dấu "+" trước kết quả','Dấu của kết quả là dấu của số có giá trị tuyệt đối lớn hơn, có thể là dấu "−".'),
-   O('Cộng hai giá trị tuyệt đối rồi đặt dấu của số đứng trước','Phải lấy hiệu hai giá trị tuyệt đối, không phải tổng.')],
-  exp:'Ví dụ (−9) + 4: lấy 9 − 4 = 5, số −9 có giá trị tuyệt đối lớn hơn nên kết quả là −5.'},
+   O('Tìm hiệu hai phần số tự nhiên (số lớn trừ số nhỏ), rồi đặt trước hiệu dấu của số có phần số tự nhiên lớn hơn'),
+   O('Cộng hai phần số tự nhiên rồi đặt dấu "−" trước kết quả','Hai số khác dấu thì ta lấy hiệu hai phần số tự nhiên chứ không cộng.'),
+   O('Tìm hiệu hai phần số tự nhiên rồi đặt dấu "+" trước kết quả','Dấu của kết quả là dấu của số có phần số tự nhiên lớn hơn, có thể là dấu "−".'),
+   O('Cộng hai phần số tự nhiên rồi đặt dấu của số đứng trước','Phải lấy hiệu hai phần số tự nhiên, không phải tổng.')],
+  exp:'Ví dụ (−9) + 4: lấy 9 − 4 = 5, số −9 có phần số tự nhiên lớn hơn nên kết quả là −5.'},
  {id:'m5',topic:'cg',level:'TH',stem:'Phép tính nào sau đây có kết quả là một số nguyên âm?',ans:0,opts:[
-   O('(−12) + 5'),O('12 + (−5)','Kết quả là 7, số dương, vì số 12 có giá trị tuyệt đối lớn hơn.'),O('(−5) + 12','Kết quả là 7, số dương, vì số 12 có giá trị tuyệt đối lớn hơn.'),O('9 + (−4)','Kết quả là 5, số dương, vì số 9 có giá trị tuyệt đối lớn hơn.')],
-  exp:'(−12) + 5 = −7: số −12 có giá trị tuyệt đối lớn hơn nên kết quả là số âm.'},
- {id:'m6',topic:'cg',level:'TH',stem:'Cho a là số nguyên âm, b là số nguyên dương và |a| > |b|. Khẳng định nào đúng?',ans:0,opts:[
+   O('(−12) + 5'),O('12 + (−5)','Kết quả là 7, số dương, vì số 12 có phần số tự nhiên lớn hơn.'),O('(−5) + 12','Kết quả là 7, số dương, vì số 12 có phần số tự nhiên lớn hơn.'),O('9 + (−4)','Kết quả là 5, số dương, vì số 9 có phần số tự nhiên lớn hơn.')],
+  exp:'(−12) + 5 = −7: số −12 có phần số tự nhiên lớn hơn nên kết quả là số âm.'},
+ {id:'m6',topic:'cg',level:'TH',stem:'Cho a là số nguyên âm, b là số nguyên dương và phần số tự nhiên của a lớn hơn phần số tự nhiên của b. Khẳng định nào đúng?',ans:0,opts:[
    O('a + b là số nguyên âm'),
-   O('a + b là số nguyên dương','Dấu của tổng là dấu của số có giá trị tuyệt đối lớn hơn, đó là số a (âm).'),
-   O('a + b = 0','Tổng chỉ bằng 0 khi |a| = |b|.'),
+   O('a + b là số nguyên dương','Dấu của tổng là dấu của số có phần số tự nhiên lớn hơn, đó là số a (âm).'),
+   O('a + b = 0','Tổng chỉ bằng 0 khi a và b là hai số đối nhau.'),
    O('a + b > b','Vì a âm nên a + b nhỏ hơn b.')],
-  exp:'Số a có giá trị tuyệt đối lớn hơn nên a + b mang dấu của a, tức là số nguyên âm. Ví dụ (−7) + 3 = −4.'},
+  exp:'Số a có phần số tự nhiên lớn hơn nên a + b mang dấu của a, tức là số nguyên âm. Ví dụ (−7) + 3 = −4.'},
  {id:'m7',topic:'cg',level:'VD',stem:'Cho a là số nguyên âm, b là số nguyên dương và a + b = 0. Khẳng định nào đúng?',ans:0,opts:[
    O('a và b là hai số đối nhau'),
    O('a = b','a âm còn b dương nên không thể bằng nhau.'),
@@ -718,7 +718,7 @@ const MC=[
    O('Chỉ thực hiện được khi cả hai số đều âm','Phép trừ thực hiện được với mọi cặp số nguyên, không cần điều kiện dấu.')],
   exp:'Hiệu của hai số nguyên bất kì luôn là một số nguyên, vì a − b = a + (−b) và tổng hai số nguyên là số nguyên.'},
  {id:'m15',topic:'dn',level:'NB',stem:'Số dư tài khoản của một người là −200 nghìn đồng. Điều đó có nghĩa là người đó:',ans:0,opts:[
-   O('đang nợ 200 nghìn đồng'),O('có 200 nghìn đồng','Số dư âm không phải là có tiền. Số âm biểu diễn tiền nợ.'),O('có 2 000 nghìn đồng','Số dư là −200, giá trị tuyệt đối của nó là 200, không phải 2 000.'),O('chưa có khoản nào','Số dư khác 0 nên đã có giao dịch; số dư âm là đang nợ.')],
+   O('đang nợ 200 nghìn đồng'),O('có 200 nghìn đồng','Số dư âm không phải là có tiền. Số âm biểu diễn tiền nợ.'),O('có 2 000 nghìn đồng','Số dư là −200, phần số tự nhiên của nó là 200, không phải 2 000.'),O('chưa có khoản nào','Số dư khác 0 nên đã có giao dịch; số dư âm là đang nợ.')],
   exp:'Số nguyên âm dùng để biểu diễn tiền nợ, nên số dư −200 nghìn đồng nghĩa là nợ 200 nghìn đồng.'},
  {id:'m16',topic:'dn',level:'NB',stem:'Nhiệt độ lúc đầu là −3°C, sau đó tăng 5°C. Phép tính nào cho nhiệt độ lúc sau?',ans:0,opts:[
    O('(−3) + 5'),O('(−3) − 5','Nhiệt độ tăng thì cộng thêm, không phải trừ đi.'),O('3 + 5','Nhiệt độ lúc đầu là −3°C, không phải 3°C.'),O('3 − 5','Nhiệt độ lúc đầu là −3°C và tăng là phép cộng.')],
@@ -826,7 +826,7 @@ const TYPES=['mc','tf','sa'];
 
 /* ============ Ôn nhanh ============ */
 const RECAP=[
-  {k:'cg',fig:'<div class="figbox"><p>(−6) + (−4) = −(6 + 4) = −10</p><p>(−9) + 4 = −(9 − 4) = −5</p><p>7 + (−7) = 0</p></div>',extra:'Hai số khác dấu: lấy hiệu hai giá trị tuyệt đối, dấu của số có giá trị tuyệt đối lớn hơn.'},
+  {k:'cg',fig:'<div class="figbox"><p>(−6) + (−4) = −(6 + 4) = −10</p><p>(−9) + 4 = −(9 − 4) = −5</p><p>7 + (−7) = 0</p></div>',extra:'Hai số khác dấu: lấy hiệu hai phần số tự nhiên, dấu của số có phần số tự nhiên lớn hơn.'},
   {k:'tc',fig:'<div class="figbox"><p>a + b = b + a</p><p>(a + b) + c = a + (b + c)</p><p>a + 0 = a; a + (−a) = 0</p></div>',extra:'Ví dụ: (−46) + 17 + 46 = ((−46) + 46) + 17 = 17.'},
   {k:'tr',fig:'<div class="figbox"><p>a − b = a + (−b)</p><p>5 − 8 = 5 + (−8) = −3</p><p>7 − (−2) = 7 + 2 = 9</p></div>',extra:'Trừ cho một số âm thì thành cộng với số dương.'},
   {k:'dn',fig:'<div class="figbox"><p>Tăng là cộng, giảm là trừ</p><p>(−3) + 5 = 2 (nhiệt độ −3°C tăng 5°C)</p><p>Chênh lệch: 8 − (−5) = 8 + 5 = 13</p></div>',extra:'Lỗ, nợ, dưới 0 là số nguyên âm. Trên trục số, cộng là sang phải, trừ là sang trái.'}
