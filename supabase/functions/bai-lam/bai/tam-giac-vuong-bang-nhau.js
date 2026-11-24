@@ -1,0 +1,695 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ tam-giac-vuong-bang-nhau/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "tam-giac-vuong-bang-nhau";
+export const TIEN_TO = "TV7-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+/* ============ Hình vẽ ============ */
+const f1=n=>(Math.round(n*10)/10);
+function ticks(p,q,n){
+  const mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2,dx=q[0]-p[0],dy=q[1]-p[1],len=Math.hypot(dx,dy);
+  const ux=dx/len,uy=dy/len,nx=-uy,ny=ux;let s='';
+  for(let i=0;i<n;i++){const o=(i-(n-1)/2)*5,cx=mx+ux*o,cy=my+uy*o;
+    s+=`<line class="mk" x1="${f1(cx-nx*5)}" y1="${f1(cy-ny*5)}" x2="${f1(cx+nx*5)}" y2="${f1(cy+ny*5)}"/>`;}
+  return s;
+}
+function arcs(v,p,q,n){
+  const a1=Math.atan2(p[1]-v[1],p[0]-v[0]),a2=Math.atan2(q[1]-v[1],q[0]-v[0]);
+  let d=a2-a1;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+  const sw=d>0?1:0;let s='';
+  for(let i=0;i<n;i++){const r=16+i*5;
+    s+=`<path class="mk" d="M${f1(v[0]+r*Math.cos(a1))} ${f1(v[1]+r*Math.sin(a1))} A${r} ${r} 0 0 ${sw} ${f1(v[0]+r*Math.cos(a2))} ${f1(v[1]+r*Math.sin(a2))}"/>`;}
+  return s;
+}
+/* kí hiệu góc vuông tại đỉnh v, giữa hai tia hướng về p và q */
+function rmark(v,p,q,s){
+  s=s||9;const a=Math.hypot(p[0]-v[0],p[1]-v[1]),b=Math.hypot(q[0]-v[0],q[1]-v[1]);
+  const u=[(p[0]-v[0])/a,(p[1]-v[1])/a],w=[(q[0]-v[0])/b,(q[1]-v[1])/b];
+  const P1=[v[0]+u[0]*s,v[1]+u[1]*s],P2=[P1[0]+w[0]*s,P1[1]+w[1]*s],P3=[v[0]+w[0]*s,v[1]+w[1]*s];
+  return `<path class="mk" d="M${f1(P1[0])} ${f1(P1[1])} L${f1(P2[0])} ${f1(P2[1])} L${f1(P3[0])} ${f1(P3[1])}"/>`;
+}
+const TX=(x,y,t)=>`<text class="vl" x="${f1(x)}" y="${f1(y)}" text-anchor="middle">${t}</text>`;
+/* Tam giác vuông: đỉnh góc vuông ở góc dưới (trái hoặc phải nếu lật), đỉnh H ở đầu cạnh nằm ngang, đỉnh V ở đầu cạnh thẳng đứng.
+   lab[i] là tên đỉnh thứ i; o.r là chỉ số đỉnh góc vuông; o.sides=[[i,j,n]] là dấu cạnh; o.angs=[[i,n]] là cung góc. */
+function rtPos(off,flip){const m=x=>flip?off+172-x:off+x;return{R:[m(22),118],H:[m(150),118],V:[m(22),28]};}
+function drawRT(off,lab,o){
+  const flip=!!o.flip,P=rtPos(off,flip),others=[0,1,2].filter(i=>i!==o.r),role={};
+  role[o.r]='R';role[others[0]]='H';role[others[1]]='V';
+  const at=i=>P[role[i]];
+  let s=`<polygon class="tri${o.anim?' draw':''}" points="${[P.R,P.H,P.V].map(p=>p.join(',')).join(' ')}"/>`;
+  (o.sides||[]).forEach(([i,j,n])=>{s+=ticks(at(i),at(j),n);});
+  (o.angs||[]).forEach(([i,n])=>{const ot=[0,1,2].filter(k=>k!==i);s+=arcs(at(i),at(ot[0]),at(ot[1]),n);});
+  if(!o.noRight)s+=rmark(P.R,P.H,P.V);
+  const L={R:flip?[12,15]:[-12,15],H:flip?[-11,15]:[11,15],V:[0,-8]};
+  [0,1,2].forEach(i=>{const k=role[i];s+=TX(P[k][0]+L[k][0],P[k][1]+L[k][1],lab[i]);});
+  return s;
+}
+function figRT2(o){
+  const l1=o.l1||['A','B','C'],l2=o.l2||['D','E','F'];
+  return `<svg class="fig" viewBox="0 0 360 150" role="img" aria-label="${o.alt||'Hai tam giác vuông có các cạnh và góc tương ứng được đánh dấu giống nhau'}">${drawRT(0,l1,{r:o.r||0,sides:o.s1,angs:o.a1,anim:o.anim})}${drawRT(190,l2,{r:o.r||0,sides:o.s2||o.s1,angs:o.a2||o.a1,flip:!!o.flip,noRight:o.noRight2,anim:o.anim})}</svg>`;
+}
+function figRT1(o){
+  return `<svg class="fig" viewBox="0 0 180 150" role="img" aria-label="${o.alt||'Tam giác vuông'}">${drawRT(0,o.l||['A','B','C'],{r:o.r||0,sides:o.s,angs:o.a})}</svg>`;
+}
+/* Tam giác cân có đường cao: lab=[đỉnh trên, đỉnh trái, đỉnh phải, chân đường cao] */
+function figIso2(o){
+  const T=[120,22],L=[35,118],R=[205,118],F=[120,118],lb=o.lab||['A','B','C','H'],tk=o.ticks||{};
+  let s=`<polygon class="tri" points="${T} ${L} ${R}"/><line class="seg" x1="120" y1="22" x2="120" y2="118"/>`;
+  if(tk.TL)s+=ticks(T,L,tk.TL);if(tk.TR)s+=ticks(T,R,tk.TR);if(tk.LF)s+=ticks(L,F,tk.LF);if(tk.FR)s+=ticks(F,R,tk.FR);
+  if(o.arcT)s+=arcs(T,L,F,1)+arcs(T,F,R,1);
+  if(o.arcB)s+=arcs(L,T,R,1)+arcs(R,T,L,1);
+  if(o.right!==false)s+=rmark(F,T,R);
+  s+=TX(120,14,lb[0])+TX(24,132,lb[1])+TX(216,132,lb[2])+TX(120,136,lb[3]);
+  return `<svg class="fig" viewBox="0 0 240 145" role="img" aria-label="${o.alt||'Tam giác cân có đường cao'}">${s}</svg>`;
+}
+function proj(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy);return[a[0]+t*dx,a[1]+t*dy];}
+/* Tam giác cân ABC (đỉnh A) với hai đường cao BH ⊥ AC và CK ⊥ AB */
+function figAlt(o){
+  const A=[120,24],B=[40,130],C=[200,130],H=proj(B,A,C),K=proj(C,A,B),lb=o.lab||['A','B','C','H','K'];
+  let s=`<polygon class="tri" points="${A} ${B} ${C}"/><line class="seg" x1="${B[0]}" y1="${B[1]}" x2="${f1(H[0])}" y2="${f1(H[1])}"/><line class="seg" x1="${C[0]}" y1="${C[1]}" x2="${f1(K[0])}" y2="${f1(K[1])}"/>`;
+  s+=ticks(A,B,1)+ticks(A,C,1)+rmark(H,A,B)+rmark(K,A,C);
+  s+=TX(120,16,lb[0])+TX(28,144,lb[1])+TX(212,144,lb[2])+TX(H[0]+11,H[1]-1,lb[3])+TX(K[0]-11,K[1]-1,lb[4]);
+  return `<svg class="fig" viewBox="0 0 240 152" role="img" aria-label="${o.alt||'Tam giác cân ABC có hai đường cao BH và CK'}">${s}</svg>`;
+}
+/* M nằm trên tia phân giác của góc xOy, MA ⊥ Ox, MB ⊥ Oy */
+function figBis(){
+  const O=[30,110],X=[205,110],Y=[90,6],M=[125.3,55],A=[125.3,110],B=[77.6,27.5];
+  let s=`<line class="seg" x1="30" y1="110" x2="205" y2="110"/><line class="seg" x1="30" y1="110" x2="90" y2="6"/><line class="seg" x1="30" y1="110" x2="125.3" y2="55"/><line class="seg" x1="125.3" y1="55" x2="125.3" y2="110"/><line class="seg" x1="125.3" y1="55" x2="77.6" y2="27.5"/>`;
+  s+=arcs(O,X,M,1)+arcs(O,M,Y,1)+rmark(A,O,M)+rmark(B,O,M);
+  s+=TX(16,124,'O')+TX(125,126,'A')+TX(214,114,'x')+TX(94,14,'y')+TX(66,24,'B')+TX(138,52,'M');
+  return `<svg class="fig" viewBox="0 0 240 140" role="img" aria-label="Điểm M nằm trên tia phân giác của góc xOy, MA vuông góc với Ox tại A, MB vuông góc với Oy tại B">${s}</svg>`;
+}
+/* Hai tam giác vuông ABC (vuông tại C) và BAD (vuông tại D) có chung cạnh huyền AB, AC = BD */
+function figSemi(){
+  const A=[30,112],B=[210,112],C=[64.6,41.1],D=[175.4,41.1];
+  let s=`<line class="seg" x1="30" y1="112" x2="210" y2="112"/><polygon class="tri" points="${A} ${C} ${B}"/><polygon class="tri" points="${A} ${D} ${B}"/>`;
+  s+=ticks(A,C,1)+ticks(B,D,1)+rmark(C,A,B)+rmark(D,A,B);
+  s+=TX(18,126,'A')+TX(222,126,'B')+TX(52,40,'C')+TX(188,40,'D');
+  return `<svg class="fig" viewBox="0 0 240 140" role="img" aria-label="Hai tam giác vuông ABC vuông tại C và BAD vuông tại D có chung cạnh huyền AB, hai cạnh góc vuông AC và BD bằng nhau">${s}</svg>`;
+}
+const fb=svg=>`<div class="figbox">${svg}</div>`;
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  cv:{short:'Hai cạnh góc vuông',name:'Trường hợp hai cạnh góc vuông',rule:'Nếu hai cạnh góc vuông của tam giác vuông này lần lượt bằng hai cạnh góc vuông của tam giác vuông kia thì hai tam giác vuông đó bằng nhau.',tip:'Hai góc vuông luôn bằng nhau và xen giữa hai cạnh góc vuông, nên đây chính là trường hợp c.g.c. Phải là hai cạnh góc vuông, không phải cạnh huyền.'},
+  gv:{short:'Cạnh góc vuông – góc nhọn kề',name:'Trường hợp cạnh góc vuông – góc nhọn kề',rule:'Nếu một cạnh góc vuông và một góc nhọn kề cạnh ấy của tam giác vuông này bằng một cạnh góc vuông và một góc nhọn kề cạnh ấy của tam giác vuông kia thì hai tam giác vuông đó bằng nhau.',tip:'Góc nhọn phải kề với cạnh góc vuông đã cho, nghĩa là cùng một đầu mút với cạnh đó. Đây chính là trường hợp g.c.g.'},
+  hg:{short:'Cạnh huyền – góc nhọn',name:'Trường hợp cạnh huyền – góc nhọn',rule:'Nếu cạnh huyền và một góc nhọn của tam giác vuông này bằng cạnh huyền và một góc nhọn của tam giác vuông kia thì hai tam giác vuông đó bằng nhau.',tip:'Cạnh huyền là cạnh đối diện với góc vuông. Chỉ có hai góc nhọn bằng nhau mà chưa có cạnh nào bằng nhau thì chưa đủ.'},
+  hc:{short:'Cạnh huyền – cạnh góc vuông',name:'Trường hợp cạnh huyền – cạnh góc vuông',rule:'Nếu cạnh huyền và một cạnh góc vuông của tam giác vuông này bằng cạnh huyền và một cạnh góc vuông của tam giác vuông kia thì hai tam giác vuông đó bằng nhau.',tip:'Chỉ dùng được khi cả hai tam giác đều vuông. Cạnh huyền phải bằng cạnh huyền, cạnh góc vuông phải bằng cạnh góc vuông; một cạnh huyền bằng một cạnh góc vuông thì không dùng được.'}
+};
+const TKEYS=['cv','gv','hg','hc'];
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhận biết cạnh huyền, cạnh góc vuông và trường hợp bằng nhau của tam giác vuông.',TH:'Chọn điều kiện cần thêm, tìm các yếu tố tương ứng.',VD:'Chứng minh và tính toán qua nhiều bước, đọc hình vẽ.'};
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+
+/* ============ Bộ sinh đề tự đổi ============ */
+const LBL=[['A','B','C','D','E','F'],['M','N','P','X','Y','Z'],['H','K','L','D','E','F'],['A','B','C','M','N','P'],['P','Q','R','X','Y','Z'],['D','E','F','M','N','P']];
+/* r: chỉ số đỉnh góc vuông (0, 1 hoặc 2); o: chỉ số hai đỉnh còn lại */
+function ctx(r){const l=LBL[ri(0,LBL.length-1)];if(r==null)r=ri(0,9)<5?0:ri(0,2);const o=[0,1,2].filter(i=>i!==r);return{v:l.slice(0,3),w:l.slice(3),r,o,t1:'Δ'+l.slice(0,3).join(''),t2:'Δ'+l.slice(3).join('')};}
+function SD(c,i,j){const rev=ri(0,9)<3;return{t:rev?`${c.v[j]}${c.v[i]} = ${c.w[j]}${c.w[i]}`:`${c.v[i]}${c.v[j]} = ${c.w[i]}${c.w[j]}`,s:[i,j]};}
+function AN(c,i){return{t:`∠${c.v[i]} = ∠${c.w[i]}`,a:i};}
+function joinConds(a){a=shuffle(a);return a.length>1?a.slice(0,-1).join(', ')+' và '+a[a.length-1]:a[0];}
+const CASE_OPT={cv:'Hai cạnh góc vuông',gv:'Cạnh góc vuông – góc nhọn kề',hg:'Cạnh huyền – góc nhọn',hc:'Cạnh huyền – cạnh góc vuông',none:'Chưa đủ điều kiện để kết luận'};
+const CASE_LOW={cv:'hai cạnh góc vuông',gv:'cạnh góc vuông – góc nhọn kề',hg:'cạnh huyền – góc nhọn',hc:'cạnh huyền – cạnh góc vuông'};
+const NEED={cv:'hai cặp cạnh góc vuông bằng nhau',gv:'một cặp cạnh góc vuông và một cặp góc nhọn kề cạnh ấy bằng nhau',hg:'một cặp cạnh huyền và một cặp góc nhọn bằng nhau',hc:'một cặp cạnh huyền và một cặp cạnh góc vuông bằng nhau'};
+
+/* Tình huống: các điều kiện bằng nhau của hai tam giác vuông và kết luận đúng */
+function scen(kind,c){
+  const r=c.r,[p,q]=c.o,v=c.v,w=c.w,t=`${c.t1} = ${c.t2}`;
+  const x=ri(0,1)?p:q,y=x===p?q:p;
+  const head=`${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}`;
+  const B={head,t,x,y};
+  switch(kind){
+    case 'cv':return Object.assign(B,{kind:'cv',conds:[SD(c,r,p),SD(c,r,q)],exp:`Hai cạnh góc vuông ${v[r]}${v[p]}, ${v[r]}${v[q]} của ${c.t1} lần lượt bằng hai cạnh góc vuông ${w[r]}${w[p]}, ${w[r]}${w[q]} của ${c.t2} nên ${t} (hai cạnh góc vuông).`});
+    case 'gv':return Object.assign(B,{kind:'gv',conds:[SD(c,r,x),AN(c,x)],exp:`Cạnh góc vuông ${v[r]}${v[x]} kề với góc nhọn ${v[x]}. Một cạnh góc vuông và góc nhọn kề cạnh ấy bằng nhau nên ${t} (cạnh góc vuông – góc nhọn kề).`});
+    case 'hg':return Object.assign(B,{kind:'hg',conds:[SD(c,p,q),AN(c,x)],exp:`${v[p]}${v[q]} là cạnh huyền (đối diện góc vuông ${v[r]}). Cạnh huyền và một góc nhọn bằng nhau nên ${t} (cạnh huyền – góc nhọn).`});
+    case 'hc':return Object.assign(B,{kind:'hc',conds:[SD(c,p,q),SD(c,r,x)],exp:`${v[p]}${v[q]} là cạnh huyền, ${v[r]}${v[x]} là cạnh góc vuông. Cạnh huyền và một cạnh góc vuông bằng nhau nên ${t} (cạnh huyền – cạnh góc vuông).`});
+    case 'ang2':return Object.assign(B,{kind:'none',trap:'ang2',conds:[AN(c,p),AN(c,q)],exp:'Hai cặp góc nhọn bằng nhau chưa đủ: hai tam giác vuông có thể có các cạnh dài ngắn khác nhau. Cần có thêm một cặp cạnh bằng nhau.'});
+    case 'leg1':return Object.assign(B,{kind:'none',trap:'leg1',conds:[SD(c,r,x)],exp:'Mới có một cặp cạnh góc vuông bằng nhau, chưa đủ để áp dụng trường hợp nào.'});
+    case 'hyp1':return Object.assign(B,{kind:'none',trap:'hyp1',conds:[SD(c,p,q)],exp:'Mới có một cặp cạnh huyền bằng nhau. Cần thêm một cạnh góc vuông (hoặc một góc nhọn) bằng nhau.'});
+    case 'mix':return Object.assign(B,{kind:'none',trap:'mix',conds:[{t:`${v[p]}${v[q]} = ${w[r]}${w[x]}`,nofig:true},AN(c,x)],exp:`${v[p]}${v[q]} là cạnh huyền của ${c.t1} nhưng ${w[r]}${w[x]} là cạnh góc vuông của ${c.t2}. Hai cạnh này không tương ứng nên không dùng được làm điều kiện bằng nhau của hai tam giác.`});
+    default:return Object.assign(B,{kind:'none',trap:'notright',head:`${c.t1} vuông tại ${v[r]} và ${c.t2}`,noRight2:true,conds:[SD(c,p,q),SD(c,r,x)],exp:`${c.t2} chưa được cho là tam giác vuông nên không dùng được các trường hợp bằng nhau của tam giác vuông. Mới có hai cặp cạnh bằng nhau, chưa đủ để kết luận.`});
+  }
+}
+function scenFig(c,s){
+  if(s.conds.some(d=>d.nofig))return null;
+  const sides=[],angs=[];let ns=0,na=0;
+  s.conds.forEach(d=>{if(d.s)sides.push([d.s[0],d.s[1],++ns]);else angs.push([d.a,++na]);});
+  return figRT2({l1:c.v,l2:c.w,r:c.r,s1:sides,a1:angs,flip:RNG()<.5,noRight2:s.noRight2});
+}
+function caseErr(s,key){
+  if(s.kind!=='none'){
+    if(key==='none')return `Đã đủ điều kiện: có ${NEED[s.kind]} (trường hợp ${CASE_LOW[s.kind]}).`;
+    return `Trường hợp này cần ${NEED[key]}, còn đề bài cho điều kiện của trường hợp ${CASE_LOW[s.kind]}.`;
+  }
+  return `Chưa dùng được trường hợp này (cần ${NEED[key]}). ${s.exp}`;
+}
+function caseOptions(s){
+  const correct=s.kind,keys=['cv','gv','hg','hc','none'].filter(k=>k!==correct);
+  const wr=shuffle(keys).slice(0,3);
+  return {right:CASE_OPT[correct],wrongs:wr.map(k=>[CASE_OPT[k],caseErr(s,k)])};
+}
+const mk=(stem,right,wrongs,exp,extra)=>Object.assign({stem,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),ans:0,exp},extra||{});
+
+/* Nhận ra trường hợp bằng nhau: kind là một trong các khóa của scen; mode 'fig' dùng hình, 'txt' dùng lời */
+function genCase(kinds,mode){return()=>{
+  const c=ctx(),s=scen(sel(kinds),c),o=caseOptions(s);
+  if(mode==='fig'){
+    const f=scenFig(c,s);
+    return mk(`Cho hình vẽ, trong đó ${c.t1} vuông tại ${c.v[c.r]} và ${c.t2} vuông tại ${c.w[c.r]}. Các cạnh, các góc có kí hiệu giống nhau thì bằng nhau. Có thể kết luận hai tam giác bằng nhau theo trường hợp nào?`,o.right,o.wrongs,s.kind==='none'?s.exp:s.exp,{fig:fb(f)});
+  }
+  return mk(`Cho ${s.head}. Biết ${joinConds(s.conds.map(d=>d.t))}. Có thể kết luận hai tam giác bằng nhau theo trường hợp nào?`,o.right,o.wrongs,s.exp);
+};}
+
+/* Chọn điều kiện cần bổ sung để được đúng trường hợp k */
+function genNeed(k){return()=>{
+  const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,x=ri(0,1)?p:q,y=x===p?q:p,t=`${c.t1} = ${c.t2}`;
+  let given,right;
+  if(k==='cv'){given=SD(c,r,x).t;right=SD(c,r,y).t;}
+  else if(k==='gv'){given=SD(c,r,x).t;right=AN(c,x).t;}
+  else if(k==='hg'){given=SD(c,p,q).t;right=AN(c,x).t;}
+  else{given=SD(c,p,q).t;right=SD(c,r,x).t;}
+  const D=[
+    [`∠${v[r]} = ∠${w[r]}`,`Cả hai tam giác đều vuông nên hai góc vuông đã bằng nhau, điều này không thêm thông tin mới.`],
+    [`Tổng hai góc nhọn của mỗi tam giác bằng 90°`,`Điều này đúng với mọi tam giác vuông, không giúp so sánh hai tam giác.`],
+    [`∠${v[p]} = ∠${v[q]}`,`Đây là hai góc của cùng một tam giác ${c.t1}, chưa cho biết quan hệ giữa hai tam giác.`],
+    [`${v[r]}${v[p]} = ${v[r]}${v[q]}`,`Đây là hai cạnh của cùng một tam giác ${c.t1}, chưa cho biết quan hệ giữa hai tam giác.`]
+  ];
+  return mk(`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${given}. Cần bổ sung điều kiện nào dưới đây để ${t} theo trường hợp ${CASE_LOW[k]}?`,right,shuffle(D).slice(0,3),`Trường hợp ${CASE_LOW[k]} cần ${NEED[k]}. Đã có ${given}, cần thêm ${right}. Khi đó ${t}.`);
+};}
+
+/* Suy ra yếu tố tương ứng sau khi chứng minh bằng nhau */
+function genCorr(k){return()=>{
+  const c=ctx(),s=scen(k,c),r=c.r,[p,q]=c.o,v=c.v,w=c.w,t=s.t;
+  const key=(a,b)=>[a,b].sort().join('');
+  const sides=[[r,p],[r,q],[p,q]],angs=[p,q];
+  const used=new Set(s.conds.map(d=>d.s?'s'+key(d.s[0],d.s[1]):'a'+d.a));
+  const pool=[];
+  sides.forEach(([i,j])=>{if(!used.has('s'+key(i,j)))pool.push({t:`${v[i]}${v[j]} = ${w[i]}${w[j]}`,why:`${v[i]}${v[j]} và ${w[i]}${w[j]} là hai cạnh tương ứng của hai tam giác bằng nhau.`});});
+  angs.forEach(i=>{if(!used.has('a'+i))pool.push({t:`∠${v[i]} = ∠${w[i]}`,why:`∠${v[i]} và ∠${w[i]} là hai góc tương ứng của hai tam giác bằng nhau.`});});
+  const right=sel(pool),wr=[];
+  sides.forEach(([i,j])=>sides.forEach(([k,l])=>{if(key(i,j)!==key(k,l))wr.push({t:`${v[i]}${v[j]} = ${w[k]}${w[l]}`,err:`Cạnh ${v[i]}${v[j]} nối ${v[i]} với ${v[j]}, nên ứng với cạnh ${w[i]}${w[j]}, không phải ${w[k]}${w[l]}.`});}));
+  [p,q,r].forEach(i=>[p,q,r].forEach(j=>{if(i!==j)wr.push({t:`∠${v[i]} = ∠${w[j]}`,err:`∠${v[i]} ứng với ∠${w[i]} (đỉnh tương ứng ${v[i]} và ${w[i]}), không phải ∠${w[j]}.`});}));
+  const pick3=shuffle(wr).slice(0,3);
+  return mk(`Cho ${s.head}. Biết ${joinConds(s.conds.map(d=>d.t))}. Khẳng định nào sau đây đúng?`,right.t,pick3.map(z=>[z.t,z.err]),`${s.exp} Hai tam giác bằng nhau nên ${right.why}`);
+};}
+
+/* Gọi tên cạnh huyền, cạnh góc vuông */
+function genTerm(){
+  const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,hyp=v[p]+v[q],l1=v[r]+v[p],l2=v[r]+v[q];
+  if(ri(0,1)===0)
+    return mk(`Cho ${c.t1} vuông tại ${v[r]}. Cạnh huyền của tam giác là cạnh nào?`,hyp,[[l1,`${l1} có một đầu là ${v[r]} nên là cạnh góc vuông. Cạnh huyền là cạnh đối diện với góc vuông, tức là ${hyp}.`],[l2,`${l2} có một đầu là ${v[r]} nên là cạnh góc vuông. Cạnh huyền là cạnh đối diện với góc vuông, tức là ${hyp}.`],['Không xác định được',`Cạnh huyền là cạnh đối diện với góc vuông ${v[r]}, nên xác định được: đó là ${hyp}.`]],`Góc vuông ở đỉnh ${v[r]}, cạnh đối diện với nó là ${hyp}. Vậy ${hyp} là cạnh huyền; ${l1} và ${l2} là hai cạnh góc vuông.`);
+  return mk(`Cho ${c.t1} vuông tại ${v[r]}. Hai cạnh góc vuông của tam giác là:`,`${l1} và ${l2}`,[[`${l1} và ${hyp}`,`${hyp} đối diện với góc vuông nên là cạnh huyền, không phải cạnh góc vuông.`],[`${l2} và ${hyp}`,`${hyp} đối diện với góc vuông nên là cạnh huyền, không phải cạnh góc vuông.`],[`${hyp} và ${hyp}`,`Hai cạnh góc vuông là hai cạnh tạo nên góc vuông ${v[r]}: ${l1} và ${l2}.`]],`Hai cạnh góc vuông là hai cạnh có chung đỉnh góc vuông ${v[r]}: ${l1} và ${l2}.`);
+}
+
+/* Hình tam giác cân có đường cao: bốn bộ chữ cái [đỉnh trên, trái, phải, chân] */
+const LB4=[['A','B','C','H'],['M','N','P','K'],['X','Y','Z','O'],['Q','P','S','H']];
+function genKite(k){return()=>{ // ΔFLT vuông tại F, R thuộc tia đối của tia FL, FR = FL
+  const [T,L,R,F]=sel([['C','B','D','A'],['N','M','P','K'],['Z','X','Y','O'],['Q','P','S','H']]);
+  const fig=fb(figIso2({lab:[T,L,R,F],ticks:{LF:1,FR:1},alt:`Tam giác vuông ${F}${L}${T}, điểm ${R} trên tia đối của tia ${F}${L} với ${F}${R} bằng ${F}${L}`}));
+  const st=`Cho Δ${F}${L}${T} vuông tại ${F}. Trên tia đối của tia ${F}${L} lấy điểm ${R} sao cho ${F}${R} = ${F}${L} (như hình).`;
+  if(k==='case'){
+    const s={kind:'cv',exp:`Hai tam giác vuông Δ${F}${L}${T} và Δ${F}${R}${T} có ${F}${L} = ${F}${R} và ${F}${T} chung (hai cạnh góc vuông), nên bằng nhau theo trường hợp hai cạnh góc vuông.`};
+    const o=caseOptions(s);
+    return mk(`${st} Hai tam giác Δ${F}${L}${T} và Δ${F}${R}${T} bằng nhau theo trường hợp nào?`,o.right,o.wrongs,s.exp,{fig});
+  }
+  return mk(`${st} Biết Δ${F}${L}${T} = Δ${F}${R}${T}. Khẳng định nào sau đây đúng?`,`${T}${L} = ${T}${R}`,[[`${F}${T} = ${T}${L}`,`${F}${T} là cạnh góc vuông, ${T}${L} là cạnh huyền; hai cạnh này không tương ứng.`],[`∠${F}${R}${T} = ∠${L}${F}${T}`,`∠${L}${F}${T} = 90° còn ∠${F}${R}${T} là góc nhọn nên không bằng nhau.`],[`∠${F}${T}${L} = ∠${F}${L}${T}`,`Các góc tương ứng là ∠${F}${T}${L} = ∠${F}${T}${R} và ∠${F}${L}${T} = ∠${F}${R}${T}; không suy ra ∠${F}${T}${L} = ∠${F}${L}${T}.`]],`Δ${F}${L}${T} = Δ${F}${R}${T} (hai cạnh góc vuông) nên hai cạnh huyền tương ứng bằng nhau: ${T}${L} = ${T}${R}.`,{fig});
+};}
+function genBisAlt(k){return()=>{ // ΔFLT = ΔFRT khi có đường cao hạ từ đỉnh trên xuống đáy
+  const [T,L,R,F]=sel(LB4);
+  if(k==='gv'){
+    const fig=fb(figIso2({lab:[T,L,R,F],arcT:true,alt:`Tam giác ${T}${L}${R} có ${T}${F} vuông góc với ${L}${R} tại ${F} và ${T}${F} là tia phân giác của góc ${T}`}));
+    const s={kind:'gv',exp:`${T}${F} chung là cạnh góc vuông của cả hai tam giác, ∠${L}${T}${F} = ∠${R}${T}${F} là góc nhọn kề cạnh ${T}${F}. Vậy Δ${T}${F}${L} = Δ${T}${F}${R} (cạnh góc vuông – góc nhọn kề).`};
+    const o=caseOptions(s);
+    return mk(`Cho Δ${T}${L}${R} có ${T}${F} ⊥ ${L}${R} tại ${F} và ∠${L}${T}${F} = ∠${R}${T}${F} (như hình). Δ${T}${F}${L} và Δ${T}${F}${R} bằng nhau theo trường hợp nào?`,o.right,o.wrongs,s.exp,{fig});
+  }
+  if(k==='hc'){
+    const fig=fb(figIso2({lab:[T,L,R,F],ticks:{TL:1,TR:1},alt:`Tam giác ${T}${L}${R} cân tại ${T}, ${T}${F} vuông góc với ${L}${R} tại ${F}`}));
+    const s={kind:'hc',exp:`Δ${T}${F}${L} và Δ${T}${F}${R} vuông tại ${F}, có cạnh huyền ${T}${L} = ${T}${R} và cạnh góc vuông ${T}${F} chung. Vậy chúng bằng nhau theo trường hợp cạnh huyền – cạnh góc vuông.`};
+    const o=caseOptions(s);
+    return mk(`Cho Δ${T}${L}${R} có ${T}${L} = ${T}${R} và ${T}${F} ⊥ ${L}${R} tại ${F} (như hình). Δ${T}${F}${L} và Δ${T}${F}${R} bằng nhau theo trường hợp nào?`,o.right,o.wrongs,s.exp,{fig});
+  }
+  // 'hc2': suy ra yếu tố tương ứng
+  const fig=fb(figIso2({lab:[T,L,R,F],ticks:{TL:1,TR:1},alt:`Tam giác ${T}${L}${R} cân tại ${T}, ${T}${F} vuông góc với ${L}${R} tại ${F}`}));
+  return mk(`Cho Δ${T}${L}${R} có ${T}${L} = ${T}${R} và ${T}${F} ⊥ ${L}${R} tại ${F} (như hình). Biết Δ${T}${F}${L} = Δ${T}${F}${R}. Khẳng định nào sau đây đúng?`,`${F}${L} = ${F}${R}`,[[`${F}${L} = ${T}${F}`,`${F}${L} và ${T}${F} là hai cạnh góc vuông của cùng một tam giác, không phải cặp cạnh tương ứng.`],[`∠${L}${T}${F} = ∠${T}${L}${F}`,`Các góc tương ứng là ∠${L}${T}${F} = ∠${R}${T}${F} và ∠${T}${L}${F} = ∠${T}${R}${F}; không suy ra ∠${L}${T}${F} = ∠${T}${L}${F}.`],[`${T}${F} = ${L}${R}`,`${T}${F} ứng với chính nó (cạnh chung), không suy ra bằng ${L}${R}.`]],`Δ${T}${F}${L} = Δ${T}${F}${R} nên hai cạnh góc vuông tương ứng bằng nhau: ${F}${L} = ${F}${R}. Vậy ${F} là trung điểm của ${L}${R}.`,{fig});
+};}
+
+/* ============ Câu hỏi trắc nghiệm ============ */
+const TRIP=[[3,4,5],[5,12,13],[6,8,10],[8,15,17],[9,12,15]];
+function genAdj(){
+  const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,leg=v[r]+v[p];
+  return mk(`Cho ${c.t1} vuông tại ${v[r]}. Góc nhọn kề cạnh góc vuông ${leg} là góc nào?`,`∠${v[p]}`,[[`∠${v[q]}`,`∠${v[q]} đối diện với cạnh ${leg}, không kề cạnh ${leg}. Góc kề cạnh ${leg} phải có ${leg} là một cạnh.`],[`∠${v[r]}`,`∠${v[r]} là góc vuông, không phải góc nhọn.`],[`Cả ∠${v[p]} và ∠${v[q]}`,`Chỉ ∠${v[p]} có ${leg} là một cạnh. ∠${v[q]} kề với cạnh góc vuông ${v[r]}${v[q]}.`]],`Góc kề cạnh ${leg} là góc có ${leg} là một cạnh, tức là ∠${v[p]}; đó là góc nhọn.`);
+}
+function genHg1(){ // ΔBHC = ΔCKB
+  const fig=fb(figAlt({}));
+  const s={kind:'hg',exp:'ΔBHC vuông tại H và ΔCKB vuông tại K có chung cạnh huyền BC. Vì ΔABC cân tại A nên ∠ABC = ∠ACB, tức là ∠KBC = ∠HCB, hai góc nhọn tương ứng. Vậy ΔBHC = ΔCKB (cạnh huyền – góc nhọn).'};
+  const o=caseOptions(s);
+  return mk('Cho ΔABC có AB = AC, BH ⊥ AC tại H, CK ⊥ AB tại K (như hình). Hai tam giác BHC và CKB bằng nhau theo trường hợp nào?',o.right,o.wrongs,s.exp,{fig});
+}
+function genHg2(){ // ΔOAM = ΔOBM
+  const fig=fb(figBis());
+  const s={kind:'hg',exp:'ΔOAM vuông tại A và ΔOBM vuông tại B có chung cạnh huyền OM. Vì OM là tia phân giác nên ∠AOM = ∠BOM, hai góc nhọn tương ứng. Vậy ΔOAM = ΔOBM (cạnh huyền – góc nhọn).'};
+  const o=caseOptions(s);
+  return mk('Điểm M nằm trên tia phân giác của góc xOy, MA ⊥ Ox tại A, MB ⊥ Oy tại B (như hình). Hai tam giác OAM và OBM bằng nhau theo trường hợp nào?',o.right,o.wrongs,s.exp,{fig});
+}
+function genHc1(){ // ΔABC = ΔBAD
+  const fig=fb(figSemi());
+  const s={kind:'hc',exp:'ΔABC vuông tại C và ΔBAD vuông tại D có chung cạnh huyền AB, lại có cạnh góc vuông AC = BD. Vậy ΔABC = ΔBAD (cạnh huyền – cạnh góc vuông).'};
+  const o=caseOptions(s);
+  return mk('Cho ΔABC vuông tại C và ΔBAD vuông tại D có AC = BD (như hình). Hai tam giác ABC và BAD bằng nhau theo trường hợp nào?',o.right,o.wrongs,s.exp,{fig});
+}
+function genHg3(){ // suy ra từ ΔBHC = ΔCKB
+  const fig=fb(figAlt({}));
+  return mk('Cho ΔABC có AB = AC, BH ⊥ AC tại H, CK ⊥ AB tại K (như hình). Biết ΔBHC = ΔCKB. Khẳng định nào sau đây đúng?','BH = CK',[['BH = CH','BH ứng với CK (B↔C, H↔K), còn CH ứng với BK.'],['BK = BH','BK ứng với CH, không ứng với BH.'],['∠HBC = ∠KBC','∠HBC ứng với ∠KCB (B↔C), không ứng với ∠KBC.']],'ΔBHC = ΔCKB với B↔C, H↔K, C↔B nên BH = CK và CH = BK.',{fig});
+}
+const MC=[
+ {id:'n_cv',type:'mc',topic:'cv',level:'NB',stem:'Hai tam giác vuông bằng nhau theo trường hợp hai cạnh góc vuông khi:',ans:0,opts:[
+   {t:'hai cạnh góc vuông của tam giác này lần lượt bằng hai cạnh góc vuông của tam giác kia'},
+   {t:'cạnh huyền của tam giác này bằng cạnh huyền của tam giác kia',err:'Mới có một cặp cạnh huyền bằng nhau, chưa đủ.'},
+   {t:'hai góc nhọn của tam giác này lần lượt bằng hai góc nhọn của tam giác kia',err:'Hai cặp góc nhọn bằng nhau mà chưa có cạnh nào bằng nhau thì chưa đủ để kết luận.'},
+   {t:'một cạnh góc vuông của tam giác này bằng cạnh huyền của tam giác kia',err:'Cạnh góc vuông và cạnh huyền không tương ứng với nhau nên không dùng được.'}],
+  exp:'Hai tam giác vuông có hai cạnh góc vuông bằng nhau từng đôi một thì bằng nhau, vì hai góc vuông xen giữa hai cạnh ấy cũng bằng nhau (trường hợp c.g.c).'},
+ {id:'n_hg',type:'mc',topic:'hg',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh huyền – góc nhọn?',ans:0,opts:[
+   {t:'Hai tam giác vuông có cạnh huyền và một góc nhọn bằng nhau từng đôi một thì bằng nhau'},
+   {t:'Hai tam giác vuông có hai góc nhọn bằng nhau từng đôi một thì bằng nhau',err:'Chưa có cạnh nào bằng nhau, hai tam giác có thể có kích thước khác nhau.'},
+   {t:'Hai tam giác vuông có cạnh huyền bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh huyền bằng nhau, cần thêm một góc nhọn (hoặc một cạnh góc vuông).'},
+   {t:'Hai tam giác vuông có một cạnh góc vuông bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh góc vuông bằng nhau, chưa đủ.'}],
+  exp:'Trường hợp cạnh huyền – góc nhọn: cạnh huyền và một góc nhọn của tam giác vuông này bằng cạnh huyền và một góc nhọn của tam giác vuông kia thì hai tam giác bằng nhau.'},
+ {id:'n_hc',type:'mc',topic:'hc',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh huyền – cạnh góc vuông?',ans:0,opts:[
+   {t:'Hai tam giác vuông có cạnh huyền và một cạnh góc vuông bằng nhau từng đôi một thì bằng nhau'},
+   {t:'Hai tam giác vuông có hai cạnh huyền bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh huyền bằng nhau, cần thêm một cạnh góc vuông (hoặc một góc nhọn).'},
+   {t:'Hai tam giác vuông có cạnh huyền của tam giác này bằng cạnh góc vuông của tam giác kia thì bằng nhau',err:'Cạnh huyền chỉ tương ứng với cạnh huyền, không tương ứng với cạnh góc vuông.'},
+   {t:'Hai tam giác vuông có hai góc nhọn bằng nhau thì bằng nhau',err:'Hai góc nhọn bằng nhau chưa đủ; cần có một cặp cạnh bằng nhau.'}],
+  exp:'Trường hợp cạnh huyền – cạnh góc vuông: cạnh huyền và một cạnh góc vuông của tam giác vuông này bằng cạnh huyền và một cạnh góc vuông của tam giác vuông kia thì hai tam giác bằng nhau.'},
+ {id:'n_gv',type:'mc',topic:'gv',level:'NB',stem:'Phát biểu nào sau đây đúng về trường hợp cạnh góc vuông – góc nhọn kề?',ans:0,opts:[
+   {t:'Hai tam giác vuông có một cạnh góc vuông và góc nhọn kề cạnh ấy bằng nhau từng đôi một thì bằng nhau'},
+   {t:'Hai tam giác vuông có một cạnh góc vuông bằng nhau thì bằng nhau',err:'Mới có một cặp cạnh góc vuông bằng nhau, cần thêm góc nhọn kề cạnh ấy (hoặc cạnh góc vuông còn lại).'},
+   {t:'Hai tam giác vuông có hai góc nhọn bằng nhau thì bằng nhau',err:'Hai góc nhọn bằng nhau chưa đủ; cần có một cặp cạnh bằng nhau.'},
+   {t:'Hai tam giác vuông có góc vuông bằng nhau thì bằng nhau',err:'Mọi góc vuông đều bằng nhau, điều này không giúp kết luận hai tam giác bằng nhau.'}],
+  exp:'Trường hợp cạnh góc vuông – góc nhọn kề: một cạnh góc vuông và một góc nhọn kề cạnh ấy bằng nhau thì hai tam giác vuông bằng nhau (g.c.g, vì góc vuông cũng bằng nhau).'}
+];
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b'].forEach(x=>{
+  TKEYS.forEach(k=>{
+    addMC(`cs_${k}_f_${x}`,k,'NB',genCase([k],'fig'));
+    addMC(`cs_${k}_t_${x}`,k,'TH',genCase([k],'txt'));
+    addMC(`nd_${k}_${x}`,k,'TH',genNeed(k));
+    addMC(`co_${k}_${x}`,k,'TH',genCorr(k));
+  });
+  addMC(`tm_${x}`,'cv','NB',genTerm);
+  addMC(`ad_${x}`,'gv','NB',genAdj);
+  addMC(`tr_leg_${x}`,'cv','TH',genCase(['leg1'],'txt'));
+  addMC(`tr_ang_${x}`,'gv','TH',genCase(['ang2'],'txt'));
+  addMC(`tr_mix_${x}`,'hg','TH',genCase(['mix'],'txt'));
+  addMC(`tr_hyp_${x}`,'hc','TH',genCase(['hyp1'],'txt'));
+  addMC(`tr_nr_${x}`,'hc','TH',genCase(['notright'],'txt'));
+  addMC(`trf_${x}`,'gv','TH',genCase(['ang2','leg1','hyp1'],'fig'));
+  addMC(`vd_cv_c_${x}`,'cv','VD',genKite('case'));
+  addMC(`vd_cv_k_${x}`,'cv','TH',genKite('corr'));
+  addMC(`vd_gv_c_${x}`,'gv','VD',genBisAlt('gv'));
+  addMC(`vd_hc_c_${x}`,'hc','VD',genBisAlt('hc'));
+  addMC(`vd_hc_k_${x}`,'hc','TH',genBisAlt('hc2'));
+});
+addMC('vd_hg1','hg','VD',genHg1);
+addMC('vd_hg2','hg','VD',genHg2);
+addMC('vd_hg3','hg','TH',genHg3);
+addMC('vd_hc1','hc','VD',genHc1);
+
+/* ============ Câu đúng sai ============ */
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+function tfRT(k){return()=>{
+  for(let n=0;n<80;n++){
+    const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,t=`${c.t1} = ${c.t2}`;
+    const tr=sel(TRIP),sw=RNG()<.5,a=sw?tr[1]:tr[0],b=sw?tr[0]:tr[1],h=tr[2];
+    const al=ri(20,70),alpha=al===45?30:al;
+    const u=[0,1,2,3].map(()=>RNG()<.5),head=`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}`;
+    const N=(vv,tt,ff,tp,lv,et,ef)=>({t:vv?tt:ff,v:vv,topic:tp,level:lv,exp:vv?et:ef});
+    let stem,items;
+    if(k==='cv'){
+      stem=`${head} có ${v[r]}${v[p]} = ${a} cm, ${v[r]}${v[q]} = ${b} cm, ${v[p]}${v[q]} = ${h} cm; ${w[r]}${w[p]} = ${a} cm, ${w[r]}${w[q]} = ${b} cm.`;
+      const wh=sel([a,b]);
+      items=[
+        N(u[0],`${t}.`,`Chưa đủ điều kiện để kết luận ${t}.`,'cv','NB',`Hai cạnh góc vuông của hai tam giác lần lượt bằng nhau (${a} cm và ${b} cm) nên ${t}.`,`Hai cạnh góc vuông của hai tam giác lần lượt bằng nhau (${a} cm và ${b} cm), đã đủ điều kiện để kết luận ${t}.`),
+        N(u[1],`${w[p]}${w[q]} = ${h} cm.`,`${w[p]}${w[q]} = ${wh} cm.`,'cv','TH',`${t} nên cạnh huyền ${w[p]}${w[q]} = ${v[p]}${v[q]} = ${h} cm.`,`${t} nên ${w[p]}${w[q]} = ${v[p]}${v[q]} = ${h} cm, không phải ${wh} cm.`),
+        N(u[2],`∠${v[p]} = ∠${w[p]}.`,`∠${v[p]} = ∠${w[r]}.`,'cv','TH',`${v[p]} ứng với ${w[p]} nên ∠${v[p]} = ∠${w[p]}.`,`∠${w[r]} = 90° là góc vuông còn ∠${v[p]} là góc nhọn nên hai góc này không bằng nhau.`),
+        N(u[3],`Chu vi ${c.t2} bằng ${a+b+h} cm.`,`Chu vi ${c.t2} bằng ${a+b+h-sel([2,3,4])} cm.`,'cv','VD',`Chu vi ${c.t2} = chu vi ${c.t1} = ${a} + ${b} + ${h} = ${a+b+h} cm.`,`Chu vi ${c.t2} = chu vi ${c.t1} = ${a} + ${b} + ${h} = ${a+b+h} cm.`)
+      ];
+    }else if(k==='gv'){
+      stem=`${head} có ${v[r]}${v[p]} = ${a} cm, ∠${v[p]} = ${alpha}°; ${w[r]}${w[p]} = ${a} cm, ∠${w[p]} = ${alpha}°.`;
+      items=[
+        N(u[0],`${t}.`,`Chưa đủ điều kiện để kết luận ${t}.`,'gv','NB',`Cạnh góc vuông ${v[r]}${v[p]} và góc nhọn kề ${v[p]} của hai tam giác bằng nhau nên ${t}.`,`Đã có một cạnh góc vuông và góc nhọn kề cạnh ấy bằng nhau, đủ để kết luận ${t}.`),
+        N(u[1],`∠${w[q]} = ${90-alpha}°.`,`∠${w[q]} = ${alpha}°.`,'gv','TH',`Trong ${c.t2} vuông tại ${w[r]}: ∠${w[q]} = 90° − ${alpha}° = ${90-alpha}°.`,`Trong ${c.t2} vuông tại ${w[r]}: ∠${w[q]} = 90° − ${alpha}° = ${90-alpha}°, không phải ${alpha}°.`),
+        u[2]?N(true,`${v[p]}${v[q]} = ${w[p]}${w[q]}.`,'','gv','TH',`${t} nên hai cạnh huyền tương ứng ${v[p]}${v[q]} và ${w[p]}${w[q]} bằng nhau.`,''):N(false,'',`∠${v[q]} = ∠${w[p]}.`,'gv','TH','',`∠${v[q]} = ${90-alpha}° còn ∠${w[p]} = ${alpha}°, hai số đo khác nhau.`),
+        N(u[3],`${t} theo trường hợp cạnh góc vuông – góc nhọn kề.`,`${t} theo trường hợp hai cạnh góc vuông.`,'gv','TH','Giả thiết cho một cạnh góc vuông và góc nhọn kề cạnh ấy.','Đề không cho hai cặp cạnh góc vuông bằng nhau; điều kiện đã cho là một cạnh góc vuông và một góc nhọn.')
+      ];
+    }else if(k==='hg'){
+      stem=`${head} có ${v[p]}${v[q]} = ${h} cm, ∠${v[p]} = ${alpha}°; ${w[p]}${w[q]} = ${h} cm, ∠${w[p]} = ${alpha}°.`;
+      items=[
+        N(u[0],`${t}.`,`Chưa đủ điều kiện để kết luận ${t}.`,'hg','NB',`Cạnh huyền và một góc nhọn bằng nhau nên ${t}.`,`Đã có cạnh huyền và một góc nhọn bằng nhau, đủ để kết luận ${t}.`),
+        N(u[1],`∠${w[q]} = ${90-alpha}°.`,`∠${w[q]} = ${alpha}°.`,'hg','TH',`Trong ${c.t2} vuông tại ${w[r]}: ∠${w[q]} = 90° − ${alpha}° = ${90-alpha}°.`,`Trong ${c.t2} vuông tại ${w[r]}: ∠${w[q]} = 90° − ${alpha}° = ${90-alpha}°, không phải ${alpha}°.`),
+        u[2]?N(true,`${v[r]}${v[p]} = ${w[r]}${w[p]}.`,'','hg','TH',`${t} nên hai cạnh góc vuông tương ứng ${v[r]}${v[p]} và ${w[r]}${w[p]} bằng nhau.`,''):N(false,'',`∠${v[q]} = ∠${w[p]}.`,'hg','TH','',`∠${v[q]} = ${90-alpha}° còn ∠${w[p]} = ${alpha}°, hai số đo khác nhau.`),
+        N(u[3],`${t} theo trường hợp cạnh huyền – góc nhọn.`,`${t} theo trường hợp hai cạnh góc vuông.`,'hg','TH','Giả thiết cho cạnh huyền và một góc nhọn.','Đề không cho hai cạnh góc vuông bằng nhau; điều kiện đã cho là cạnh huyền và một góc nhọn.')
+      ];
+    }else{
+      stem=`${head} có ${v[r]}${v[p]} = ${a} cm, ${v[r]}${v[q]} = ${b} cm, ${v[p]}${v[q]} = ${h} cm; ${w[p]}${w[q]} = ${h} cm, ${w[r]}${w[p]} = ${a} cm.`;
+      const wh=sel([a,h]);
+      items=[
+        N(u[0],`${t}.`,`Chưa đủ điều kiện để kết luận ${t}.`,'hc','NB',`Cạnh huyền và một cạnh góc vuông bằng nhau nên ${t}.`,`Đã có cạnh huyền và một cạnh góc vuông bằng nhau, đủ để kết luận ${t}.`),
+        N(u[1],`${w[r]}${w[q]} = ${b} cm.`,`${w[r]}${w[q]} = ${wh} cm.`,'hc','TH',`${t} nên ${w[r]}${w[q]} = ${v[r]}${v[q]} = ${b} cm.`,`${t} nên ${w[r]}${w[q]} = ${v[r]}${v[q]} = ${b} cm, không phải ${wh} cm.`),
+        N(u[2],`∠${v[q]} = ∠${w[q]}.`,`∠${v[q]} = ∠${w[r]}.`,'hc','TH',`${v[q]} ứng với ${w[q]} nên ∠${v[q]} = ∠${w[q]}.`,`∠${w[r]} = 90° là góc vuông còn ∠${v[q]} là góc nhọn nên hai góc này không bằng nhau.`),
+        N(u[3],`Chu vi ${c.t2} bằng ${a+b+h} cm.`,`Chu vi ${c.t2} bằng ${a+b+h+sel([2,3,4])} cm.`,'hc','VD',`Chu vi ${c.t2} = chu vi ${c.t1} = ${a} + ${b} + ${h} = ${a+b+h} cm.`,`Chu vi ${c.t2} = chu vi ${c.t1} = ${a} + ${b} + ${h} = ${a+b+h} cm.`)
+      ];
+    }
+    if(tfOK(items))return {stem,items};
+  }
+};}
+const TF=[
+ {id:'ts1',type:'tf',topic:'cv',level:'NB',stem:'Xét các phát biểu về hai tam giác vuông.',items:[
+   {t:'Hai tam giác vuông có hai cạnh góc vuông bằng nhau từng đôi một thì bằng nhau.',v:true,topic:'cv',level:'NB',exp:'Hai cạnh góc vuông và góc vuông xen giữa bằng nhau nên hai tam giác bằng nhau (c.g.c).'},
+   {t:'Hai tam giác vuông có cạnh huyền bằng nhau thì bằng nhau.',v:false,topic:'hc',level:'NB',exp:'Mới có một cặp cạnh huyền, còn thiếu một cạnh góc vuông hoặc một góc nhọn.'},
+   {t:'Hai tam giác vuông có hai góc nhọn bằng nhau từng đôi một thì bằng nhau.',v:false,topic:'hg',level:'TH',exp:'Chưa có cạnh nào bằng nhau, hai tam giác có thể có kích thước khác nhau.'},
+   {t:'Hai tam giác vuông có cạnh huyền và một góc nhọn bằng nhau từng đôi một thì bằng nhau.',v:true,topic:'hg',level:'NB',exp:'Đây chính là trường hợp cạnh huyền – góc nhọn.'}]},
+ {id:'ts2',type:'tf',topic:'hc',level:'TH',stem:'Xét các phát biểu về các trường hợp bằng nhau của tam giác vuông.',items:[
+   {t:'Nếu cạnh huyền và một cạnh góc vuông của tam giác vuông này bằng cạnh huyền và một cạnh góc vuông của tam giác vuông kia thì hai tam giác đó bằng nhau.',v:true,topic:'hc',level:'NB',exp:'Đây là trường hợp cạnh huyền – cạnh góc vuông.'},
+   {t:'Nếu cạnh huyền của một tam giác vuông bằng cạnh góc vuông của một tam giác vuông khác thì hai tam giác đó bằng nhau.',v:false,topic:'hc',level:'TH',exp:'Cạnh huyền chỉ tương ứng với cạnh huyền; hai cạnh này không tương ứng nên không dùng được.'},
+   {t:'Nếu một cạnh góc vuông và một góc nhọn kề cạnh ấy của hai tam giác vuông bằng nhau thì hai tam giác đó bằng nhau.',v:true,topic:'gv',level:'NB',exp:'Đây là trường hợp cạnh góc vuông – góc nhọn kề.'},
+   {t:'Nếu hai tam giác vuông có một cạnh góc vuông bằng nhau thì hai tam giác đó bằng nhau.',v:false,topic:'cv',level:'TH',exp:'Mới có một cặp cạnh góc vuông, cần thêm cạnh góc vuông còn lại, cạnh huyền hoặc góc nhọn kề.'}]},
+ {id:'ts3',type:'tf',topic:'hg',level:'VD',stem:'Cho ΔABC vuông tại A và ΔDEF vuông tại D có BC = EF và ∠B = ∠E.',items:[
+   {t:'ΔABC = ΔDEF.',v:true,topic:'hg',level:'NB',exp:'Cạnh huyền BC = EF và góc nhọn ∠B = ∠E nên ΔABC = ΔDEF (cạnh huyền – góc nhọn).'},
+   {t:'AC = DF.',v:true,topic:'hg',level:'TH',exp:'ΔABC = ΔDEF (A↔D, B↔E, C↔F) nên AC = DF.'},
+   {t:'∠A = ∠E.',v:false,topic:'hg',level:'TH',exp:'∠A = 90° còn ∠E là góc nhọn; ∠A tương ứng với ∠D, không phải ∠E.'},
+   {t:'Chỉ cần BC = EF là đủ để kết luận ΔABC = ΔDEF.',v:false,topic:'hc',level:'TH',exp:'Mới có một cặp cạnh huyền bằng nhau, chưa đủ; ở đây còn dùng thêm ∠B = ∠E.'}]},
+ {id:'ts4',type:'tf',topic:'gv',level:'VD',stem:'Cho ΔABC vuông tại A và ΔDEF vuông tại D có AB = DE = 6 cm và ∠B = ∠E = 40°.',items:[
+   {t:'ΔABC = ΔDEF theo trường hợp cạnh góc vuông – góc nhọn kề.',v:true,topic:'gv',level:'NB',exp:'Cạnh góc vuông AB = DE và góc nhọn kề cạnh ấy ∠B = ∠E.'},
+   {t:'∠C = 50°.',v:true,topic:'gv',level:'TH',exp:'Trong ΔABC vuông tại A: ∠C = 90° − 40° = 50°.'},
+   {t:'∠F = 40°.',v:false,topic:'gv',level:'TH',exp:'∠F = ∠C = 90° − 40° = 50°.'},
+   {t:'Chỉ dùng các điều kiện đã cho, có thể chứng minh ΔABC = ΔDEF bằng trường hợp hai cạnh góc vuông.',v:false,topic:'cv',level:'TH',exp:'Đề cho một cạnh góc vuông và một góc nhọn, chưa cho hai cạnh góc vuông bằng nhau.'}]}
+];
+['a','b'].forEach(x=>TKEYS.forEach(k=>TF.push({id:`tf_${k}_${x}`,type:'tf',topic:k,level:'TH',gen:tfRT(k)})));
+
+/* ============ Câu trả lời ngắn ============ */
+const SA=[];
+const addSA=(id,topic,level,unit,gen)=>SA.push({id,type:'sa',topic,level,unit,gen});
+function saCvN(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,h=sel(TRIP)[2];
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,r,p).t,SD(c,r,q).t,`${v[p]}${v[q]} = ${h} cm`])}. Tính độ dài ${w[p]}${w[q]}.`,ans:[h],exp:`Hai cạnh góc vuông bằng nhau từng đôi một nên ${c.t1} = ${c.t2}. Suy ra ${w[p]}${w[q]} = ${v[p]}${v[q]} = ${h} cm.`};}
+function saCvT(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,al=sel([20,25,30,35,40,50,55,60,65,70]);
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,r,p).t,SD(c,r,q).t,`∠${v[p]} = ${al}°`])}. Tính số đo ∠${w[q]}.`,ans:[90-al],exp:`Hai cạnh góc vuông bằng nhau từng đôi một nên ${c.t1} = ${c.t2}, suy ra ∠${w[q]} = ∠${v[q]}. Trong ${c.t1}: ∠${v[q]} = 90° − ${al}° = ${90-al}°.`};}
+function saCvV(){const [T,L,R,F]=sel([['C','B','D','A'],['N','M','P','K'],['Z','X','Y','O'],['Q','P','S','H']]),al=ri(20,70);
+  return {fig:fb(figIso2({lab:[T,L,R,F],ticks:{LF:1,FR:1},alt:`Tam giác vuông ${F}${L}${T}, điểm ${R} trên tia đối của tia ${F}${L} với ${F}${R} bằng ${F}${L}`})),stem:`Cho Δ${F}${L}${T} vuông tại ${F}. Trên tia đối của tia ${F}${L} lấy điểm ${R} sao cho ${F}${R} = ${F}${L} (như hình). Biết ∠${F}${L}${T} = ${al}°. Tính số đo ∠${L}${T}${R}.`,ans:[180-2*al],exp:`Δ${F}${L}${T} = Δ${F}${R}${T} (hai cạnh góc vuông) nên ∠${F}${T}${R} = ∠${F}${T}${L} = 90° − ${al}° = ${90-al}°. Vì ${F} nằm giữa ${L} và ${R} nên ∠${L}${T}${R} = 2 · ${90-al}° = ${180-2*al}°.`};}
+function saGvN(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,x=ri(0,1)?p:q,y=x===p?q:p,b=ri(4,15);
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,r,x).t,AN(c,x).t,`${v[r]}${v[y]} = ${b} cm`])}. Tính độ dài ${w[r]}${w[y]}.`,ans:[b],exp:`Cạnh góc vuông ${v[r]}${v[x]} và góc nhọn kề ${v[x]} bằng nhau nên ${c.t1} = ${c.t2}. Suy ra ${w[r]}${w[y]} = ${v[r]}${v[y]} = ${b} cm.`};}
+function saGvT(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,x=ri(0,1)?p:q,y=x===p?q:p,al=sel([20,25,30,35,40,50,55,60,65,70]);
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,r,x).t,AN(c,x).t,`∠${v[x]} = ${al}°`])}. Tính số đo ∠${w[y]}.`,ans:[90-al],exp:`Cạnh góc vuông ${v[r]}${v[x]} và góc nhọn kề ${v[x]} bằng nhau nên ${c.t1} = ${c.t2}, suy ra ∠${w[y]} = ∠${v[y]}. Trong ${c.t1}: ∠${v[y]} = 90° − ${al}° = ${90-al}°.`};}
+function saGvV(){const [T,L,R,F]=sel(LB4),tr=sel(TRIP),m=sel([tr[0],tr[1]]),c=tr[2];
+  return {fig:fb(figIso2({lab:[T,L,R,F],arcT:true,alt:`Tam giác ${T}${L}${R} có ${T}${F} vuông góc với ${L}${R} tại ${F} và ${T}${F} là tia phân giác của góc ${T}`})),stem:`Cho Δ${T}${L}${R} có ${T}${F} ⊥ ${L}${R} tại ${F} và ∠${L}${T}${F} = ∠${R}${T}${F} (như hình). Biết ${L}${F} = ${m} cm và ${T}${L} = ${c} cm. Tính chu vi Δ${T}${L}${R}.`,ans:[2*c+2*m],exp:`Δ${T}${F}${L} = Δ${T}${F}${R} (cạnh góc vuông – góc nhọn kề) nên ${F}${R} = ${F}${L} = ${m} cm và ${T}${R} = ${T}${L} = ${c} cm. Chu vi = ${T}${L} + ${T}${R} + ${L}${R} = ${c} + ${c} + ${2*m} = ${2*c+2*m} cm.`};}
+function saHgN(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,x=ri(0,1)?p:q,y=x===p?q:p,b=ri(4,15);
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,p,q).t,AN(c,x).t,`${v[r]}${v[y]} = ${b} cm`])}. Tính độ dài ${w[r]}${w[y]}.`,ans:[b],exp:`Cạnh huyền và một góc nhọn bằng nhau nên ${c.t1} = ${c.t2} (cạnh huyền – góc nhọn). Suy ra ${w[r]}${w[y]} = ${v[r]}${v[y]} = ${b} cm.`};}
+function saHgT(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,x=ri(0,1)?p:q,y=x===p?q:p,al=sel([20,25,30,35,40,50,55,60,65,70]);
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,p,q).t,AN(c,x).t,`∠${v[x]} = ${al}°`])}. Tính số đo ∠${w[y]}.`,ans:[90-al],exp:`Cạnh huyền và một góc nhọn bằng nhau nên ${c.t1} = ${c.t2}, suy ra ∠${w[y]} = ∠${v[y]}. Trong ${c.t1}: ∠${v[y]} = 90° − ${al}° = ${90-al}°.`};}
+function saHgV(){const m=ri(4,12),k=ri(m+2,m+9);
+  return {fig:fb(figBis()),stem:`Điểm M nằm trên tia phân giác của góc xOy, MA ⊥ Ox tại A, MB ⊥ Oy tại B (như hình). Biết OM = ${k} cm và MA = ${m} cm. Tính độ dài MB.`,ans:[m],exp:`ΔOAM và ΔOBM vuông, có cạnh huyền OM chung và ∠AOM = ∠BOM (OM là tia phân giác) nên ΔOAM = ΔOBM (cạnh huyền – góc nhọn). Suy ra MB = MA = ${m} cm.`};}
+function saHcN(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,x=ri(0,1)?p:q,y=x===p?q:p,b=ri(4,15);
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} và ${c.t2} vuông tại ${w[r]}. Biết ${joinConds([SD(c,p,q).t,SD(c,r,x).t,`${v[r]}${v[y]} = ${b} cm`])}. Tính độ dài ${w[r]}${w[y]}.`,ans:[b],exp:`Cạnh huyền và một cạnh góc vuông bằng nhau nên ${c.t1} = ${c.t2} (cạnh huyền – cạnh góc vuông). Suy ra ${w[r]}${w[y]} = ${v[r]}${v[y]} = ${b} cm.`};}
+function saHcT(){const c=ctx(),r=c.r,[p,q]=c.o,v=c.v,w=c.w,tr=sel(TRIP),sw=RNG()<.5,a=sw?tr[1]:tr[0],b=sw?tr[0]:tr[1],h=tr[2];
+  return {stem:`Cho ${c.t1} vuông tại ${v[r]} có ${v[r]}${v[p]} = ${a} cm, ${v[r]}${v[q]} = ${b} cm, ${v[p]}${v[q]} = ${h} cm và ${c.t2} vuông tại ${w[r]} có ${w[p]}${w[q]} = ${h} cm, ${w[r]}${w[p]} = ${a} cm. Tính chu vi ${c.t2}.`,ans:[a+b+h],exp:`Cạnh huyền và một cạnh góc vuông bằng nhau nên ${c.t1} = ${c.t2}, suy ra ${w[r]}${w[q]} = ${v[r]}${v[q]} = ${b} cm. Chu vi ${c.t2} = ${a} + ${b} + ${h} = ${a+b+h} cm.`};}
+function saHcV(){const [T,L,R,F]=sel(LB4),tr=sel(TRIP),sw=RNG()<.5,a=sw?tr[1]:tr[0],b=sw?tr[0]:tr[1],c=tr[2];
+  return {fig:fb(figIso2({lab:[T,L,R,F],ticks:{TL:1,TR:1},alt:`Tam giác ${T}${L}${R} cân tại ${T}, ${T}${F} vuông góc với ${L}${R} tại ${F}`})),stem:`Cho Δ${T}${L}${R} có ${T}${L} = ${T}${R} = ${c} cm, ${T}${F} ⊥ ${L}${R} tại ${F} (như hình). Biết ${T}${F} = ${a} cm và ${L}${R} = ${2*b} cm. Tính chu vi Δ${T}${F}${L}.`,ans:[a+b+c],exp:`Δ${T}${F}${L} = Δ${T}${F}${R} (cạnh huyền – cạnh góc vuông) nên ${F}${L} = ${F}${R} = ${L}${R} : 2 = ${b} cm. Chu vi Δ${T}${F}${L} = ${T}${F} + ${F}${L} + ${T}${L} = ${a} + ${b} + ${c} = ${a+b+c} cm.`};}
+[['cv','NB','cm',saCvN],['cv','TH','độ',saCvT],['cv','VD','độ',saCvV],['gv','NB','cm',saGvN],['gv','TH','độ',saGvT],['gv','VD','cm',saGvV],['hg','NB','cm',saHgN],['hg','TH','độ',saHgT],['hg','VD','cm',saHgV],['hc','NB','cm',saHcN],['hc','TH','cm',saHcT],['hc','VD','cm',saHcV]].forEach(([k,l,u,g])=>{
+  addSA(`sa_${k}_${l.toLowerCase()}`,k,l,u,g);
+  addSA(`sa_${k}_${l.toLowerCase()}2`,k,l,u,g);
+});
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+function tfIsoH(){
+  for(let n=0;n<60;n++){
+    const [a,b,c]=sel(TRIP),sw=RNG()<.5,A=sw?a:b,Bh=sw?b:a,u=[0,1,2,3].map(()=>RNG()<.5);
+    const items=[
+      {t:u[0]?'ΔAHB = ΔAHC theo trường hợp cạnh huyền – cạnh góc vuông.':'ΔAHB = ΔAHC theo trường hợp hai cạnh góc vuông.',v:u[0],topic:'hc',level:'NB',exp:u[0]?'ΔAHB và ΔAHC vuông tại H, có cạnh huyền AB = AC và cạnh góc vuông AH chung.':'Đề chưa cho HB = HC nên chưa dùng được trường hợp hai cạnh góc vuông; điều kiện có sẵn là cạnh huyền AB = AC và cạnh góc vuông AH chung.'},
+      {t:u[1]?`HC = ${Bh} cm.`:`HC = ${A} cm.`,v:u[1],topic:'hc',level:'TH',exp:u[1]?`ΔAHB = ΔAHC nên HC = HB = ${Bh} cm.`:`ΔAHB = ΔAHC nên HC = HB = ${Bh} cm, không phải ${A} cm.`},
+      {t:u[2]?`BC = ${2*Bh} cm.`:`BC = ${Bh} cm.`,v:u[2],topic:'hc',level:'VD',exp:u[2]?`H nằm giữa B và C với HB = HC = ${Bh} cm nên BC = ${2*Bh} cm.`:`BC = HB + HC = ${Bh} + ${Bh} = ${2*Bh} cm, không phải ${Bh} cm.`},
+      {t:u[3]?`Chu vi ΔABC bằng ${2*c+2*Bh} cm.`:`Chu vi ΔABC bằng ${2*c+Bh} cm.`,v:u[3],topic:'hc',level:'VD',exp:`AB = AC = ${c} cm và BC = ${2*Bh} cm nên chu vi ΔABC = ${c} + ${c} + ${2*Bh} = ${2*c+2*Bh} cm.`}
+    ];
+    if(tfOK(items))return {stem:`Cho ΔABC có AB = AC = ${c} cm, AH ⊥ BC tại H, AH = ${A} cm và HB = ${Bh} cm (như hình).`,items};
+  }
+}
+const HARD={tf:[{id:'h_iso',type:'tf',topic:'hc',level:'VD',fig:fb(figIso2({lab:['A','B','C','H'],ticks:{TL:1,TR:1},alt:'Tam giác ABC cân tại A, AH vuông góc với BC tại H'})),gen:tfIsoH}],sa:[
+ {id:'h_semi',topic:'hc',level:'VD',unit:'cm',fig:fb(figSemi()),gen:()=>{const [a,b,c]=sel(TRIP),sw=RNG()<.5,x=sw?a:b,y=sw?b:a;return{stem:`Cho ΔABC vuông tại C và ΔBAD vuông tại D, AC = BD = ${x} cm, BC = ${y} cm và AB = ${c} cm (như hình). Tính chu vi ΔABD.`,ans:[x+y+c],exp:`ΔABC và ΔBAD có chung cạnh huyền AB và AC = BD nên ΔABC = ΔBAD (cạnh huyền – cạnh góc vuông). Suy ra AD = BC = ${y} cm. Chu vi ΔABD = BD + AD + AB = ${x} + ${y} + ${c} = ${x+y+c} cm.`};}},
+ {id:'h_alt',topic:'hg',level:'VD',unit:'cm',fig:fb(figAlt({})),gen:()=>{const k=ri(5,12),m=ri(3,k-1);return{stem:`Cho ΔABC cân tại A, BH ⊥ AC tại H, CK ⊥ AB tại K (như hình). Biết CK = ${k} cm và CH = ${m} cm. Tính BH + BK.`,ans:[k+m],exp:`ΔBHC và ΔCKB vuông, có cạnh huyền BC chung và ∠HCB = ∠KBC (do ∠ABC = ∠ACB) nên ΔBHC = ΔCKB (cạnh huyền – góc nhọn). Suy ra BH = CK = ${k} cm và BK = CH = ${m} cm. Vậy BH + BK = ${k} + ${m} = ${k+m} cm.`};}},
+ {id:'h_cv',topic:'cv',level:'VD',unit:'cm',gen:()=>{const [T,L,R,F]=sel([['C','B','D','A'],['N','M','P','K'],['Z','X','Y','O'],['Q','P','S','H']]),a=ri(3,9),h=ri(a+1,a+8);return{fig:fb(figIso2({lab:[T,L,R,F],ticks:{LF:1,FR:1},alt:`Tam giác vuông ${F}${L}${T}, điểm ${R} trên tia đối của tia ${F}${L} với ${F}${R} bằng ${F}${L}`})),stem:`Cho Δ${F}${L}${T} vuông tại ${F}. Trên tia đối của tia ${F}${L} lấy điểm ${R} sao cho ${F}${R} = ${F}${L} (như hình). Biết ${F}${L} = ${a} cm và ${T}${L} = ${h} cm. Tính chu vi Δ${T}${L}${R}.`,ans:[2*a+2*h],exp:`Δ${F}${L}${T} = Δ${F}${R}${T} (hai cạnh góc vuông) nên ${T}${R} = ${T}${L} = ${h} cm. Lại có ${L}${R} = ${F}${L} + ${F}${R} = ${2*a} cm. Chu vi Δ${T}${L}${R} = ${h} + ${h} + ${2*a} = ${2*a+2*h} cm.`};}},
+ {id:'h_gv',topic:'gv',level:'VD',unit:'độ',gen:()=>{const [T,L,R,F]=sel(LB4),m=ri(20,70);return{fig:fb(figIso2({lab:[T,L,R,F],arcT:true,alt:`Tam giác ${T}${L}${R} có ${T}${F} vuông góc với ${L}${R} tại ${F} và ${T}${F} là tia phân giác của góc ${T}`})),stem:`Cho Δ${T}${L}${R} có ${T}${F} ⊥ ${L}${R} tại ${F} và ∠${L}${T}${F} = ∠${R}${T}${F} (như hình). Biết ∠${L}${T}${R} = ${2*m}°. Tính số đo ∠${T}${R}${L}.`,ans:[90-m],exp:`∠${L}${T}${F} = ∠${R}${T}${F} = ${2*m}° : 2 = ${m}°. Δ${T}${F}${L} = Δ${T}${F}${R} (cạnh góc vuông – góc nhọn kề) nên ∠${T}${R}${F} = ∠${T}${L}${F}. Trong Δ${T}${F}${L} vuông tại ${F}: ∠${T}${L}${F} = 90° − ${m}° = ${90-m}°. Vậy ∠${T}${R}${L} = ${90-m}°.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+
+const PISA=[
+ ()=>{const [a,b,c]=sel(TRIP),sw=RNG()<.5,hh=sw?a:b,bs=sw?b:a,n=ri(3,6);
+  return {title:'Hai chiếc thang',fig:fb(figRT2({l1:['O','B','A'],l2:['H','E','D'],r:0,s1:[[1,2,1],[0,2,2]],alt:'Hai tam giác vuông tạo bởi thang, tường và nền nhà'})),ctx:`<p class="stem">Một xưởng có hai bức tường thẳng đứng giống nhau, nền nhà vuông góc với tường. Thang AB dựa vào tường thứ nhất, chân thang B ở trên nền, đầu thang A chạm tường tại độ cao OA = ${hh} m so với nền (O là chân tường). Thang DE dài bằng thang AB và dựa vào tường thứ hai, đầu thang D chạm tường cũng ở độ cao ${hh} m (H là chân tường). Thang AB dài ${c} m, chân thang B cách tường ${bs} m.</p>`,qs:[
+   mcq('Hai tam giác vuông OAB và HDE bằng nhau theo trường hợp nào?','Cạnh huyền – cạnh góc vuông',[['Hai cạnh góc vuông','Chưa biết hai cạnh góc vuông của tam giác này bằng hai cạnh góc vuông của tam giác kia; chân thang E còn chưa biết.'],['Cạnh huyền – góc nhọn','Đề không cho góc nhọn nào bằng nhau.'],['Cạnh góc vuông – góc nhọn kề','Đề không cho góc nhọn nào bằng nhau.']],`Hai thang dài bằng nhau (cạnh huyền AB = DE) và độ cao đầu thang bằng nhau (cạnh góc vuông OA = HD), nên ΔOAB = ΔHDE (cạnh huyền – cạnh góc vuông).`,'hc','TH'),
+   saq('Chân thang DE cách tường thứ hai bao nhiêu mét?',bs,'m',`ΔOAB = ΔHDE nên HE = OB = ${bs} m.`,'hc','VD'),
+   saq(`Người ta căng một sợi dây dọc theo ba cạnh của tam giác HDE (tường HD, nền HE và thang DE). Sợi dây dài bao nhiêu mét?`,hh+bs+c,'m',`Chu vi ΔHDE = chu vi ΔOAB = ${hh} + ${bs} + ${c} = ${hh+bs+c} m.`,'hc','VD'),
+   saq(`Xưởng làm ${n} chiếc thang giống thang DE. Tổng chiều dài các thang là bao nhiêu mét?`,n*c,'m',`Mỗi thang dài ${c} m (DE = AB) nên ${n} thang dài ${n} · ${c} = ${n*c} m.`,'hc','TH')
+ ]};},
+ ()=>{const s=ri(8,15),h=ri(3,6),k=ri(2,4),H=s;
+  let hd;do{hd=ri(9,22);}while(hd%10===0);const rolls=Math.ceil(2*hd/10);
+  return {title:'Đo chiều cao cột cờ bằng bóng',fig:fb(figRT2({l1:['B','C','A'],l2:['E','F','D'],r:0,s1:[[0,1,1]],a1:[[1,1]],flip:true,alt:'Hai tam giác vuông tạo bởi cột, bóng và tia nắng'})),ctx:`<p class="stem">Lúc 9 giờ sáng, cột cờ AB của trường đổ bóng BC trên mặt đất phẳng, còn cây cọc DE cao ${hd} m đổ bóng EF. Cột cờ và cọc đều đứng vuông góc với mặt đất. Đo được bóng của cột cờ và bóng của cọc cùng dài ${s} m. Tia nắng làm với mặt đất cùng một góc nhọn tại C và F (∠C = ∠F).</p>`,qs:[
+   mcq('Hai tam giác ABC và DEF bằng nhau theo trường hợp nào?','Cạnh góc vuông – góc nhọn kề',[['Hai cạnh góc vuông','Chưa biết độ cao hai cột (hai cạnh góc vuông AB, DE) bằng nhau; đó là điều cần tìm.'],['Cạnh huyền – cạnh góc vuông','Đề không cho độ dài các cạnh huyền AC và DF.'],['Cạnh huyền – góc nhọn','Đề không cho độ dài các cạnh huyền AC và DF.']],'Hai bóng BC = EF là cạnh góc vuông, góc nhọn kề mỗi bóng là ∠C = ∠F, nên ΔABC = ΔDEF (cạnh góc vuông – góc nhọn kề).','gv','TH'),
+   saq('Cột cờ cao bao nhiêu mét?',hd,'m',`ΔABC = ΔDEF nên AB = DE = ${hd} m.`,'gv','VD'),
+   saq(`Dây kéo cờ dài gấp đôi chiều cao cột cờ. Dây được bán theo cuộn dài 10 m, không bán lẻ. Cần mua ít nhất bao nhiêu cuộn dây?`,rolls,'cuộn',`Cột cờ cao ${hd} m nên dây dài ${2*hd} m. Mua ${rolls-1} cuộn chỉ được ${10*(rolls-1)} m, chưa đủ; mua ${rolls} cuộn được ${10*rolls} m. Vậy cần ít nhất ${rolls} cuộn.`,'gv','VD'),
+   mcq('Giả sử tia nắng ở cột cờ và ở cọc không còn cùng độ nghiêng (∠C khác ∠F), các số liệu khác giữ nguyên. Kết luận nào đúng?','Không còn suy ra được AB = DE từ hai tam giác này',[['Vẫn suy ra AB = DE vì hai bóng bằng nhau','Chỉ có một cặp cạnh góc vuông bằng nhau (hai bóng), chưa đủ để kết luận hai tam giác bằng nhau.'],['Vẫn suy ra AB = DE vì hai tam giác đều vuông','Hai góc vuông bằng nhau là điều luôn có, không đủ để kết luận.'],['Suy ra AB lớn hơn DE','Từ các điều kiện này không suy ra được quan hệ về độ dài giữa AB và DE.']],'Khi hai góc nhọn không bằng nhau, hai tam giác chỉ còn một cặp cạnh góc vuông bằng nhau (BC = EF), chưa đủ điều kiện để kết luận chúng bằng nhau.','gv','VD')
+ ]};},
+ ()=>{const m=ri(6,14),oa=ri(m+3,m+12);let seg;do{seg=ri(4,6);}while((2*m)%seg===0);const pipes=Math.ceil(2*m/seg);
+  return {title:'Trạm bơm cách đều hai con đường',fig:fb(figBis()),ctx:`<p class="stem">Hai con đường thẳng Ox và Oy cắt nhau tại O. Người ta đặt trạm bơm M trên đường phân giác của góc xOy. Từ M xây hai đường ống thẳng, vuông góc với hai con đường: MA ⊥ Ox tại A và MB ⊥ Oy tại B (như hình). Ống MA dài ${m} m, OA dài ${oa} m.</p>`,qs:[
+   mcq('Hai tam giác OAM và OBM bằng nhau theo trường hợp nào?','Cạnh huyền – góc nhọn',[['Hai cạnh góc vuông','Chưa biết hai cạnh góc vuông của tam giác này bằng hai cạnh góc vuông của tam giác kia; MB là điều cần tìm.'],['Cạnh huyền – cạnh góc vuông','Đề không cho độ dài cạnh góc vuông MB hay OB.'],['Cạnh góc vuông – góc nhọn kề','Cạnh góc vuông MA và góc nhọn kề nó là ∠OMA, nhưng đề không cho ∠OMA = ∠OMB.']],'ΔOAM và ΔOBM vuông, có cạnh huyền OM chung và ∠AOM = ∠BOM (OM là tia phân giác) nên chúng bằng nhau theo trường hợp cạnh huyền – góc nhọn.','hg','TH'),
+   saq('Ống MB dài bao nhiêu mét?',m,'m',`ΔOAM = ΔOBM nên MB = MA = ${m} m.`,'hg','VD'),
+   saq('Đoạn đường OB dài bao nhiêu mét?',oa,'m',`ΔOAM = ΔOBM nên OB = OA = ${oa} m.`,'hg','VD'),
+   saq(`Ống nước được bán theo đoạn dài ${seg} m, không bán lẻ. Cần mua ít nhất bao nhiêu đoạn để làm cả hai ống MA và MB?`,pipes,'đoạn',`Hai ống dài ${m} + ${m} = ${2*m} m. Mua ${pipes-1} đoạn được ${seg*(pipes-1)} m, chưa đủ; mua ${pipes} đoạn được ${seg*pipes} m. Vậy cần ít nhất ${pipes} đoạn.`,'hg','VD')
+ ]};},
+ ()=>{const [a,b,c]=sel(TRIP),sw=RNG()<.5,ah=sw?a:b,bh=sw?b:a,v=ri(3,8),one=2*c+2*bh+ah;
+  return {title:'Vì kèo mái hiên',fig:fb(figIso2({lab:['A','B','C','H'],ticks:{TL:1,TR:1},alt:'Vì kèo tam giác ABC cân tại A, thanh chống AH vuông góc với thanh ngang BC tại H'})),ctx:`<p class="stem">Một vì kèo mái hiên có dạng tam giác ABC với hai thanh kèo AB = AC = ${c} dm. Thanh chống AH vuông góc với thanh ngang BC tại H và dài ${ah} dm. Người thợ đo được HB = ${bh} dm.</p>`,qs:[
+   mcq('Vì sao người thợ chắc chắn rằng H là trung điểm của BC?','Vì ΔAHB = ΔAHC (cạnh huyền – cạnh góc vuông) nên HB = HC',[['Vì AB = AC nên HB = HC','Từ AB = AC chưa thể suy ngay HB = HC; cần chứng minh hai tam giác AHB và AHC bằng nhau.'],['Vì ΔAHB = ΔAHC (hai cạnh góc vuông)','Đề chưa cho HB = HC; cặp cạnh góc vuông đã biết chỉ có AH chung.'],['Vì AH vuông góc với BC','Chỉ có AH ⊥ BC thì chưa đủ; cần thêm AB = AC để hai tam giác bằng nhau.']],'ΔAHB và ΔAHC vuông tại H, có cạnh huyền AB = AC và cạnh góc vuông AH chung nên ΔAHB = ΔAHC. Suy ra HB = HC.','hc','TH'),
+   saq('Thanh ngang BC dài bao nhiêu đề-xi-mét?',2*bh,'dm',`HB = HC = ${bh} dm nên BC = ${bh} + ${bh} = ${2*bh} dm.`,'hc','TH'),
+   saq(`Mỗi vì kèo gồm hai thanh kèo, một thanh ngang và một thanh chống. Cần bao nhiêu đề-xi-mét gỗ để làm ${v} vì kèo?`,v*one,'dm',`Một vì kèo cần ${c} + ${c} + ${2*bh} + ${ah} = ${one} dm gỗ. Vậy ${v} vì kèo cần ${v} · ${one} = ${v*one} dm.`,'hc','VD'),
+   saq(`Người thợ sơn các mép của tấm tam giác AHB (gồm thanh kèo AB, thanh chống AH và nửa thanh ngang HB). Chu vi của tam giác AHB là bao nhiêu đề-xi-mét?`,ah+bh+c,'dm',`Chu vi ΔAHB = AH + HB + AB = ${ah} + ${bh} + ${c} = ${ah+bh+c} dm.`,'hc','VD')
+ ]};}
+];
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+const RECAP=[
+  {k:'cv',fig:figRT2({s1:[[0,1,1],[0,2,2]],alt:'Hai tam giác vuông có hai cặp cạnh góc vuông bằng nhau'}),extra:'Hai cạnh góc vuông AB, AC bằng hai cạnh góc vuông DE, DF; hai góc vuông xen giữa luôn bằng nhau.'},
+  {k:'gv',fig:figRT2({s1:[[0,1,1]],a1:[[1,1]],alt:'Hai tam giác vuông có một cạnh góc vuông và góc nhọn kề bằng nhau'}),extra:'Cạnh góc vuông AB kề với góc nhọn B.'},
+  {k:'hg',fig:figRT2({s1:[[1,2,1]],a1:[[1,1]],alt:'Hai tam giác vuông có cạnh huyền và một góc nhọn bằng nhau'}),extra:'Cạnh huyền BC và góc nhọn B (hoặc C).'},
+  {k:'hc',fig:figRT2({s1:[[1,2,1],[0,1,2]],alt:'Hai tam giác vuông có cạnh huyền và một cạnh góc vuông bằng nhau'}),extra:'Cạnh huyền BC và cạnh góc vuông AB (hoặc AC).'}
+];
+
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60}; // giây
+GM.user=()=>state.stu&&state.stu.u||'';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec'; // địa chỉ Apps Script của Google Sheet chung (kết thúc bằng /exec); để trống thì chỉ dùng mã gửi tay
+GM.sheet=SHEET_URL;
+const SHEET_TAB='7 - Tam giác vuông bằng nhau'; // tên trang tính của bài này trong Google Sheet chung
+const SHEET_TOPICS=['Hai cạnh góc vuông','Cạnh góc vuông-góc nhọn kề','Cạnh huyền-góc nhọn','Cạnh huyền-cạnh góc vuông']; // tên cột cho từng phần kiến thức, cùng thứ tự với TKEYS
+let tick=null;
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null; // phiên hiện tại: {mode:'test'|'quick'|'practice', spec, title, by:{mc,tf,sa}, list, idx}
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem('tv7_seen')||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem('tv7_seen',JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['cv',['NB']],['gv',['NB','TH']],['hg',['NB','TH']],['hc',['NB','TH']],[null,['TH']],[null,['VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=[sel(['cv','gv']),'hg','hc'].map(t=>pick(TF.filter(q=>q.topic===t),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=TKEYS.map(t=>pick(MC.filter(q=>q.topic===t&&q.level!=='VD'),used));
+  const sa=[pick(SA.filter(q=>(q.topic==='cv'||q.topic==='gv')&&q.level!=='VD'),used),pick(SA.filter(q=>(q.topic==='hg'||q.topic==='hc')&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}

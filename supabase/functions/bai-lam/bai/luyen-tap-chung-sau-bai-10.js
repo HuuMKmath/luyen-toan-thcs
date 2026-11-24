@@ -1,0 +1,543 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ luyen-tap-chung-sau-bai-10/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "luyen-tap-chung-sau-bai-10";
+export const TIEN_TO = "LC2-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;
+const L=a=>a.join('; ');                 // các phần tử cách nhau bởi dấu ";"
+const SET=a=>'{'+L(a)+'}';
+const nb=s=>s.replace(/ /g,' ');    // không ngắt dòng giữa các kí hiệu
+const nbT=o=>Object.assign(o,{t:nb(o.t)});
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const range=(lo,hi)=>{const o=[];for(let v=lo;v<=hi;v++)o.push(v);return o;};
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(c&&!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function mixed(make){for(let n=0;n<80;n++){const items=make();if(!items)continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}return null;}
+const wrap=items=>items?items.map(i=>Object.assign(i,{t:nb(i.t)})):null;
+const F=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const fl=Math.floor;
+const NAMES=['Mai','Lan','An','Minh','Hà','Bình','Cường','Dung'];
+
+/* ============ Kí hiệu chia hết (như SGK) ============ */
+const DV='⋮', ND='⋮̸';                       // a ⋮ b ; a ⋮̸ b
+const dv=(a,b)=>`${F(a)} ${DV} ${F(b)}`;
+const nd=(a,b)=>`${F(a)} ${ND} ${F(b)}`;
+const rel=(a,b)=>a%b===0?dv(a,b):nd(a,b);           // viết đúng quan hệ
+const why=(a,b)=>a%b===0?`${F(a)} = ${F(b)} · ${F(a/b)} nên ${dv(a,b)}`:`${F(a)} = ${F(b)} · ${F(fl(a/b))} + ${a%b} nên ${nd(a,b)}`;
+const UO=n=>`Ư(${F(n)})`, BO=n=>`B(${F(n)})`;
+function divs(n){const o=[];for(let d=1;d<=n;d++)if(n%d===0)o.push(d);return o;}
+const nDiv=n=>divs(n).length;
+const nonDiv=(n,lo,hi,not)=>{for(let k=0;k<200;k++){const x=ri(lo,hi);if(n%x&&!(not||[]).includes(x))return x;}return null;};
+const RICH=[12,18,20,24,28,30,32,36,40,42,44,45,48,50,54,56,60,63,64,66,70,72,75,78,80,84,90,96,98,100];
+const SMALL=[6,8,9,10,12,14,15,16,18,20,21,22,25,26,27,28];
+const sumT=a=>a.map(F).join(' + ');
+
+/* ============ Số nguyên tố: công cụ ============ */
+const OV=s=>`<span\tstyle="text-decoration:overline">${s}</span>`;
+const isP=n=>{if(n<2)return false;for(let d=2;d*d<=n;d++)if(n%d===0)return false;return true;};
+const PR=range(2,1000).filter(isP);
+const spf=n=>{for(let d=2;d*d<=n;d++)if(n%d===0)return d;return n;};
+function fac(n){const o=[];let d=2;while(n>1){if(n%d===0){let e=0;while(n%d===0){n/=d;e++;}o.push([d,e]);}d++;}return o;}
+const FS=f=>f.map(([p,e])=>e>1?`${p}<sup>${e}</sup>`:''+p).join(' · ');      // 2<sup>3</sup> · 3
+const fval=f=>f.reduce((s,[p,e])=>s*Math.pow(p,e),1);
+const whyC=n=>{const d=spf(n);return `${F(n)} = ${d} · ${F(n/d)} nên ${F(n)} có thêm ước ${d} (ngoài 1 và chính nó), ${F(n)} là hợp số`;};
+const whyP=n=>`${F(n)} chỉ có hai ước là 1 và ${F(n)} nên là số nguyên tố`;
+const kind=n=>n<2?'không là số nguyên tố, cũng không là hợp số':isP(n)?'là số nguyên tố':'là hợp số';
+const whyN=n=>n<2?`${n} không là số nguyên tố, cũng không là hợp số`:isP(n)?whyP(n):whyC(n);
+const oddComp=(lo,hi)=>pickN(lo,hi,x=>x%2&&!isP(x)&&x%5);     // hợp số "khó nhận": lẻ, không tận cùng 5
+const primeIn=(lo,hi)=>sel(PR.filter(p=>p>=lo&&p<=hi));
+function mkNum(ps,minE){let f=shuffle(ps).slice(0,ri(2,3)).sort((x,y)=>x-y).map(p=>[p,ri(1,p<=3?3:p<=5?2:1)]);if(minE&&!f.some(z=>z[1]>1))f[0][1]=2;return f;}
+const FB_MC=()=>({stem:'Số nguyên tố là:',opts:[{t:'Số tự nhiên lớn hơn 1, chỉ có hai ước là 1 và chính nó'},{t:'Số tự nhiên lẻ',err:'9 lẻ nhưng có ước 3; 2 chẵn nhưng là số nguyên tố.'},{t:'Số tự nhiên chỉ có một ước',err:'Chỉ số 1 có đúng một ước, và 1 không là số nguyên tố.'},{t:'Số tự nhiên không chia hết cho 2',err:'9 không chia hết cho 2 nhưng là hợp số.'}],ans:0,exp:'Số nguyên tố là số tự nhiên lớn hơn 1, chỉ có hai ước là 1 và chính nó.'});
+function tryGen(f){for(let n=0;n<200;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>String(o.t))).size===4)return r;}return FB_MC();}
+const mkMC=(stem,right,wrongs,exp)=>({stem,opts:[{t:nb(right)}].concat(wrongs.map(w=>({t:nb(w[0]),err:w[1]}))),ans:0,exp});
+function pickN(lo,hi,pred){for(let k=0;k<3000;k++){const x=ri(lo,hi);if(pred(x))return x;}return null;}
+
+/* ============ Hình: sơ đồ cột, sơ đồ cây ============ */
+function colFig(n,hide){ // hide: tập chỉ số ô bị ẩn, dạng 'L2' (cột trái hàng 2) hoặc 'R1'
+  const rows=[];let x=n;while(x>1){const p=spf(x);rows.push([x,p]);x/=p;}rows.push([1,'']);
+  const td=(v,k,side)=>`<td style="padding:3px 12px;border:none;text-align:${side==='L'?'right':'left'};${side==='L'?'border-right:2px solid currentColor;':''}">${hide.has(side+k)?'<b style="color:var(--accent,#2563eb)">?</b>':v}</td>`;
+  return {rows,html:`<div class="figbox" style="max-width:220px"><table role="img" aria-label="Sơ đồ cột phân tích số ${n} ra thừa số nguyên tố" style="border-collapse:collapse;font-size:18px;margin:auto">${rows.map((r,k)=>`<tr>${td(r[0],k,'L')}${td(r[1],k,'R')}</tr>`).join('')}</table></div>`};}
+function treeFig(n,hideRoot,hideIdx){ // sơ đồ cây kiểu Hình 2.3: n = p × m, m = q × r ...
+  const nodes=[];let x=n,cx=160,cy=26,lv=0;nodes.push({v:n,x:cx,y:cy});
+  while(!isP(x)){const p=spf(x),m=x/p;const L={v:p,x:cx-55,y:cy+58},R={v:m,x:cx+55,y:cy+58};nodes.push(L,R);L.par=nodes.indexOf(nodes.find(z=>z.x===cx&&z.y===cy));R.par=L.par;cx+=55;cy+=58;x=m;lv++;}
+  const W=Math.max(...nodes.map(z=>z.x))+40,H=cy+34;
+  const q=i=>(i===0&&hideRoot)||hideIdx.has(i);
+  let s='';nodes.forEach((z,i)=>{if(i>0){const P=nodes[z.par];s+=`<line x1="${P.x}" y1="${P.y+17}" x2="${z.x}" y2="${z.y-17}" stroke="currentColor" stroke-width="1.5"/>`;}});
+  nodes.forEach((z,i)=>{if(i>0&&i%2===1){const R=nodes[i+1];s+=`<text x="${(z.x+R.x)/2}" y="${z.y+6}" text-anchor="middle" font-size="15" fill="currentColor">×</text>`;}});
+  nodes.forEach((z,i)=>{s+=`<circle cx="${z.x}" cy="${z.y}" r="17" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="${z.x}" y="${z.y+6}" text-anchor="middle" font-size="${String(z.v).length>2?13:16}" fill="currentColor" font-weight="${q(i)?700:400}">${q(i)?'?':z.v}</text>`;});
+  return {nodes,html:`<div class="figbox" style="max-width:${W+10}px"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sơ đồ cây phân tích một số ra thừa số nguyên tố" style="width:100%;max-width:${W}px;height:auto;display:block;color:var(--ink)">${s}</svg></div>`};}
+
+const dsum=n=>String(n).split('').reduce((s,c)=>s+(+c),0);
+const dplus=n=>String(n).split('').join(' + ');
+function multOf(m,lo,hi){return m*ri(Math.ceil(lo/m),fl(hi/m));}
+function notOf(m,lo,hi){for(;;){const x=ri(lo,hi);if(x%m)return x;}}
+function sig(n,m){const L=String(n).slice(-1);
+  if(m===2)return n%2?`${F(n)} có chữ số tận cùng là ${L} (lẻ) nên ${nd(n,2)}`:`${F(n)} có chữ số tận cùng là ${L} nên ${dv(n,2)}`;
+  if(m===5)return n%5?`${F(n)} có chữ số tận cùng là ${L} (khác 0 và 5) nên ${nd(n,5)}`:`${F(n)} có chữ số tận cùng là ${L} nên ${dv(n,5)}`;
+  const s=dsum(n);return `${F(n)} có tổng các chữ số ${dplus(n)} = ${s}${s%m?` không chia hết cho ${m} nên ${nd(n,m)}`:` chia hết cho ${m} nên ${dv(n,m)}`}`;}
+const R4=()=>ri(1000,9999);
+
+/* ============ Luyện tập chung Bài 8, 9, 10: công cụ riêng ============ */
+const sigX=(n,m)=>m===10?(n%10?`${F(n)} có chữ số tận cùng khác 0 nên ${nd(n,10)}`:`${F(n)} có chữ số tận cùng là 0 nên ${dv(n,10)}`):sig(n,m);
+const K5=[2,3,5,9,10];
+const twins=N=>PR.filter(p=>p+2<N&&isP(p+2)).map(p=>[p,p+2]);
+const gold=N=>PR.filter(p=>p<=N/2&&isP(N-p)).map(p=>[p,N-p]);
+const omega=n=>fac(n).reduce((s,[p,e])=>s+e,0);                   // số thừa số nguyên tố (kể cả lặp)
+const MX=[[8],[9],[8,9],[9,10],[8,10],[8,9,10]];
+const mixOf=t=>({sd:[8,9],pt:[8,10],nt:[9,10],tt:[8,9,10]})[t];
+
+/* ============ Câu nhiều lựa chọn ============ */
+// sd: dấu hiệu và tính chất chia hết (Bài 8 + Bài 9)
+function gTab(){return tryGen(()=>{const n=pickN(1000,9999,x=>{const k=K5.filter(m=>x%m===0).length;return k>=1&&k<=4;}),G=K5.filter(m=>n%m===0);
+  const fmt=a=>a.length?a.join('; '):'Không có số nào';const c=[{t:fmt(K5.filter(m=>m!==10&&n%m===0||(m===10&&n%5===0))),err:'Chia hết cho 10 thì chữ số tận cùng phải là 0.'},{t:fmt(G.filter(m=>m!==3&&m!==9)),err:'Còn phải xét tổng các chữ số để biết có chia hết cho 3, cho 9 không.'},{t:fmt(G.concat(G.includes(9)?[]:G.includes(3)?[9]:[3]).sort((a,b)=>a-b)),err:'Chia hết cho 3 chưa chắc chia hết cho 9; xét lại tổng các chữ số.'},{t:fmt(K5.filter(m=>!G.includes(m))),err:'Đây là các số mà n không chia hết.'},{t:fmt(G.slice(1)),err:`Còn thiếu ${G[0]}.`}];
+  const o=pickOpts(fmt(G),c);if(o.length<3)return null;
+  return {stem:`Số ${F(n)} chia hết cho những số nào trong các số 2; 3; 5; 9; 10?`,opts:[{t:fmt(G)}].concat(o.map(z=>({t:z.t,err:z.err}))),ans:0,exp:K5.map(m=>sigX(n,m)).join('; ')+'.'};});}
+function gSumDiv(){return tryGen(()=>{const t=sel([3,5,7,9,11]),T=[multOf(t,15,99),multOf(t,60,250),multOf(t,100,400)];if(new Set(T).size<3)return null;const S=sum(T);const W=[2,3,5,7,9,11,4].filter(m=>m!==t&&S%m!==0);if(W.length<3)return null;
+  return mkMC(`Không tính tổng, cho biết ${T.join(' + ')} chia hết cho số nào sau đây?`,''+t,shuffle(W).slice(0,3).map(m=>[''+m,`Không phải mọi số hạng đều chia hết cho ${m}: ${T.filter(x=>x%m).map(x=>nd(x,m)).join(', ')}; tổng = ${F(S)} ${ND} ${m}.`]),`${T.map(x=>dv(x,t)).join(', ')} nên tổng chia hết cho ${t} (tính chất 1).`);});}
+function gRem(){return tryGen(()=>{const [M,d1,d2]=sel([[12,4,6],[12,3,4],[18,6,9],[20,4,10],[24,6,8],[30,6,10],[30,5,6],[36,4,9]]),r=ri(1,M-1);const A=r%d1===0,B=r%d2===0;if(A===B&&RNG()<.6)return null;
+  const S=(x,y)=>`a ${x?DV:ND} ${d1} và a ${y?DV:ND} ${d2}`;const right=S(A,B);
+  return mkMC(`Số tự nhiên a chia cho ${M} dư ${r}. Khẳng định nào sau đây đúng?`,right,[[S(!A,B),`a = ${M}q + ${r}; ${dv(M,d1)} nên a chia ${d1} cùng dư với ${r}, ${r%d1?`dư ${r%d1}`:'tức là chia hết'}.`],[S(A,!B),`a = ${M}q + ${r}; ${dv(M,d2)} nên a chia ${d2} cùng dư với ${r}, ${r%d2?`dư ${r%d2}`:'tức là chia hết'}.`],[S(!A,!B),'Xét lại cả hai số chia.']],`a = ${M}q + ${r}. Vì ${dv(M,d1)} và ${dv(M,d2)}: ${rel(r,d1)} nên a ${A?DV:ND} ${d1}; ${rel(r,d2)} nên a ${B?DV:ND} ${d2}.`);});}
+function gAB(){return tryGen(()=>{const [m,k]=sel([[2,4],[3,6],[3,9],[5,10],[4,8],[2,6],[6,12]]);
+  return mkMC(`Nếu a ${DV} ${m} và b ${DV} ${k} thì tổng a + b chắc chắn chia hết cho:`,''+m,[[''+k,`Ví dụ a = ${m}, b = ${k}: a + b = ${m+k} ${ND} ${k}.`],[''+(m+k),`Ví dụ a = ${m}, b = ${k*2}: a + b = ${m+2*k} ${ND} ${m+k}.`],[''+(m*k),`Ví dụ a = ${m}, b = ${k}: ${m+k} ${ND} ${m*k}.`]],`b ${DV} ${k} mà ${dv(k,m)} nên b ${DV} ${m}; a ${DV} ${m} nên (a + b) ${DV} ${m}.`);});}
+function xList(A,m,N,sub){const o=[];for(let x=0;x<=N;x++){if(sub&&x>A)continue;if((sub?A-x:A+x)%m===0)o.push(x);}return o;}
+function gX(){return tryGen(()=>{const sub=RNG()<.5,m=sel([3,4,6,8,9]),A=ri(60,150),N=ri(18,40),L0=xList(A,m,N,sub),c=L0.length;if(!c)return null;
+  return mkMC(`Có bao nhiêu số tự nhiên x không vượt quá ${N} sao cho ${sub?`${A} − x`:`${A} + x`} chia hết cho ${m}?`,''+c,[[''+(c+1),'Đếm thừa một số: kiểm tra lại số lớn nhất không vượt quá '+N+'.'],[''+(c-1===0?c+3:c-1),'Còn thiếu một giá trị (nhớ x = 0 nếu thoả mãn).'],[''+(c+2),'Đếm lại các giá trị của x.']],`${A} chia ${m} dư ${A%m} nên ${sub?'x chia':'x chia'} ${m} dư ${sub?A%m:(m-A%m)%m}: x ∈ ${SET(L0)}.`);});}
+function gX2(){return tryGen(()=>{const A=ri(60,130),B=multOf(9,18,99)+multOf(9,9,90),N=ri(20,40);const S=[];for(let x=0;x<=Math.min(N,A);x++)if((A-x)%4===0&&(B+x)%9===0)S.push(x);if(!S.length)return null;
+  const s4=xList(A,4,N,true),s9=[];for(let x=0;x<=N;x++)if((B+x)%9===0)s9.push(x);
+  const c=[{t:SET(s4),err:`Còn phải có (${B} + x) ⋮ 9.`},{t:SET(s9),err:`Còn phải có (${A} − x) ⋮ 4.`},{t:SET(S.concat([S[S.length-1]+36]).filter(x=>x<=N+36)),err:`Có số vượt quá ${N}.`},{t:SET(S.length>1?S.slice(1):[S[0]+9]),err:'Kiểm tra lại cả hai điều kiện.'}];
+  const o=pickOpts(SET(S),c);if(o.length<3)return null;
+  return {stem:`Tìm các số tự nhiên x không vượt quá ${N} sao cho ${A} − x chia hết cho 4 và ${B} + x chia hết cho 9.`,opts:[{t:nb(SET(S))}].concat(o.map(z=>({t:nb(z.t),err:z.err}))),ans:0,exp:`${dv(B,9)} nên cần x ⋮ 9: x ∈ ${SET(s9)}; trong đó ${A} − x ⋮ 4 khi x ∈ ${SET(S)}.`};});}
+function gCombo(){return tryGen(()=>{const g=pickN(100,999,x=>x%6===0&&x%9!==0),W=[[pickN(100,999,x=>x%18===0),'Số này chia hết cho cả 9.'],[pickN(100,999,x=>x%3===0&&x%2===1&&x%9),'Số lẻ, không chia hết cho 2.'],[pickN(100,999,x=>x%2===0&&x%3!==0),'Tổng các chữ số không chia hết cho 3.']];
+  return mkMC('Số nào sau đây chia hết cho cả 2 và 3 nhưng không chia hết cho 9?',F(g),W.map(([x,e])=>[F(x),e]),`${sig(g,2)}; ${F(g)} có tổng các chữ số ${dsum(g)}: chia hết cho 3 nhưng không chia hết cho 9.`);});}
+// pt: phân tích và ứng dụng (Bài 10 + Bài 8)
+function gFact2(){return tryGen(()=>{const [b1,b2]=shuffle([6,10,12,14,15,18,21,22]).slice(0,2),m=ri(2,4),k=ri(2,3);const ex={};const add=(b,e)=>fac(b).forEach(([p,q])=>{ex[p]=(ex[p]||0)+q*e;});add(b1,m);add(b2,k);const f=Object.keys(ex).map(Number).sort((a,b)=>a-b).map(p=>[p,ex[p]]),R=FS(f);
+  const ex2={};const add2=(b,e)=>fac(b).forEach(([p,q])=>{ex2[p]=(ex2[p]||0)+(q===1?e:q+e);});add2(b1,m);add2(b2,k);const W1=FS(Object.keys(ex2).map(Number).sort((a,b)=>a-b).map(p=>[p,ex2[p]]));
+  const W2=FS(Object.keys(ex).map(Number).sort((a,b)=>a-b).map(p=>[p,Math.max(m,k)]));const W3=FS(f.map(([p,e],i)=>[p,i===0?e+1:e]));
+  return mkMC(`Viết A = ${b1}<sup>${m}</sup> · ${b2}<sup>${k}</sup> thành tích các luỹ thừa của những số nguyên tố khác nhau:`,R,[[W1,'Kiểm tra lại số mũ của từng thừa số nguyên tố.'],[W2,`Các thừa số nguyên tố chung của ${b1} và ${b2} phải cộng số mũ.`],[W3,'Tính lại số mũ.']],`${b1} = ${FS(fac(b1))}, ${b2} = ${FS(fac(b2))} nên A = ${R}.`);});}
+function gDivBy(){return tryGen(()=>{const f=sel([[[2,2],[3,1],[5,1]],[[2,1],[3,2],[5,1]],[[2,3],[3,1]],[[2,1],[3,1],[7,1]],[[2,2],[3,2]],[[3,2],[5,1],[7,1]],[[2,1],[5,2]],[[2,3],[5,1]]]),n=fval(f),D=divs(n).filter(d=>d>5&&!isP(d));const good=sel(D),W=[];
+  for(const w of shuffle([4,6,8,9,10,12,14,15,18,20,21,25,27,30,35,45,16])){if(n%w&&W.length<3)W.push(w);}if(W.length<3)return null;
+  return mkMC(`Biết n = ${FS(f)}. Số n chia hết cho số nào sau đây?`,''+good,W.map(w=>[''+w,`${w} = ${FS(fac(w))}, nhưng dạng phân tích của n không chứa đủ các thừa số này.`]),`${good} = ${FS(fac(good))}; n = ${FS(f)} = ${good} · ${n/good} nên n ${DV} ${good}.`);});}
+function gRows(){return tryGen(()=>{const n=pickN(24,500,x=>!isP(x)&&omega(x)>=3&&omega(x)<=6),r=omega(n)+1;
+  return mkMC(`Khi phân tích số ${n} ra thừa số nguyên tố theo sơ đồ cột, cột bên trái có tất cả bao nhiêu số (kể cả số 1 ở hàng cuối)?`,''+r,[[''+(r-1),'Còn số 1 ở hàng cuối.'],[''+fac(n).length,'Đây là số ước nguyên tố khác nhau; mỗi lần chia là một hàng.'],[''+(r+1),'Đếm thừa một hàng.']].filter((w,i,A)=>w[0]!==''+r&&A.findIndex(z=>z[0]===w[0])===i).concat([[''+(r+2),'Đếm thừa.']]).slice(0,3),`${n} = ${FS(fac(n))} có ${omega(n)} thừa số nguyên tố (kể cả lặp) nên cột trái có ${omega(n)} số và số 1: ${r} số.`);});}
+function gMul(){return tryGen(()=>{const m=sel([9,12,18,20,45,50,36,10,15]),f=mkNum([2,3,5,7],false),n=fval(f);if(n>600)return null;let k=1;while((n*k)%m)k++;if(k===1)return null;
+  return mkMC(`Cần nhân số ${n} = ${FS(f)} với số tự nhiên nhỏ nhất (khác 0) nào để được một số chia hết cho ${m}?`,''+k,[[''+m,`Nhân với ${m} thì được, nhưng chưa phải nhỏ nhất.`],[''+(k+1),`${n} · ${k+1} = ${n*(k+1)} ${(n*(k+1))%m?ND:DV} ${m}.`],[''+(k>2?k-1:k+2),`Thử lại: ${n} · ${k>2?k-1:k+2} = ${n*(k>2?k-1:k+2)} ${(n*(k>2?k-1:k+2))%m?ND:DV} ${m}${(n*(k>2?k-1:k+2))%m?'':', nhưng chưa nhỏ nhất'}.`]],`${m} = ${FS(fac(m))}, ${n} = ${FS(f)}: còn thiếu ${FS(fac(k))} nên nhân với ${k}.`);});}
+function gSmallest(){return tryGen(()=>{const v=ri(0,2);let pred,txt;
+  if(v===0){const ps=shuffle([2,3,5,7]).slice(0,2).sort((a,b)=>a-b),m=sel([4,8,9,25,27]).toString();pred=x=>fac(x).map(z=>z[0]).join()===ps.join()&&x%+m===0;txt=`chỉ có hai ước nguyên tố là ${ps.join(' và ')}, và chia hết cho ${m}`;}
+  else if(v===1){const k=sel([3,4]);pred=x=>fac(x).length===k&&x%9===0;txt=`có đúng ${k} ước nguyên tố khác nhau và chia hết cho 9`;}
+  else{const k=sel([2,3]);pred=x=>fac(x).length===k&&x%2===1;txt=`là số lẻ và có đúng ${k} ước nguyên tố khác nhau`;}
+  let n=2;while(!pred(n)&&n<5000)n++;if(n>=5000)return null;const W=[];for(let x=n+1;W.length<2&&x<9000;x++)if(pred(x))W.push(x);
+  const cands=[[F(W[0]),'Thoả mãn nhưng chưa nhỏ nhất.'],[F(W[1]||W[0]*2),'Thoả mãn nhưng chưa nhỏ nhất.'],[F(pickN(Math.max(2,n-30),n-1,x=>!pred(x))||n-1),'Không thoả mãn đủ điều kiện.']];
+  return mkMC(`Số tự nhiên nhỏ nhất ${txt} là:`,F(n),cands,`${F(n)} = ${FS(fac(n))} thoả mãn; thử các số nhỏ hơn đều không thoả mãn.`);});}
+// nt: số nguyên tố với dấu hiệu chia hết (Bài 9 + Bài 10)
+function gTwin(){return tryGen(()=>{const N=ri(30,110),T=twins(N),c=T.length,pr=PR.filter(p=>p<N).length;
+  return mkMC(`Hai số nguyên tố hơn kém nhau 2 đơn vị gọi là hai số nguyên tố sinh đôi (ví dụ 17 và 19). Có bao nhiêu cặp số nguyên tố sinh đôi nhỏ hơn ${N}?`,''+c,[[''+(c+1),'Có cặp được đếm nhưng chứa hợp số (ví dụ 7 và 9).'],[''+(c-1),'Còn thiếu một cặp; nhớ cặp 3 và 5.'],[''+(fl(pr/2)===c||fl(pr/2)===c+1||fl(pr/2)===c-1?c+2:fl(pr/2)),'Không phải hai số nguyên tố liên tiếp nào cũng hơn kém nhau 2.']],`Các cặp: ${T.map(z=>`${z[0]} và ${z[1]}`).join('; ')}.`);});}
+function gGold(){return tryGen(()=>{const N=2*ri(8,30),G=gold(N),c=G.length;
+  return mkMC(`Số ${N} viết được thành tổng của hai số nguyên tố theo bao nhiêu cách (không kể thứ tự các số hạng)?`,''+c,[[''+(2*c===c+1?c+2:2*c),'Đã đếm hai lần mỗi cách (a + b và b + a).'],[''+(c+1),'Có cách chứa số 1 hoặc hợp số.'],[''+(c-1>0?c-1:c+3),'Còn thiếu một cách.']],`${N} = ${G.map(z=>`${z[0]} + ${z[1]}`).join(' = ')}.`);});}
+function gExpr(){return tryGen(()=>{const E=[];const mk=()=>{const t=ri(0,3);let a,b,c,s,v;if(t===0){a=sel([2,3,5,7]);b=sel([3,5,7,11]);c=ri(1,9);s=`${a} · ${b} + ${c}`;v=a*b+c;}else if(t===1){a=ri(2,4);b=sel([5,7,11]);s=`${a}<sup>2</sup> + ${b}`;v=a*a+b;}else if(t===2){s='2 · 3 · 5 · 7 + 1';v=211;if(RNG()<.5){s='2 · 3 · 5 + 1';v=31;}}else{a=ri(11,40);b=ri(2,9);s=`${a} · ${b} − ${b}`;v=a*b-b;}return [s,v];};
+  let good=null;const W=[];for(let k=0;k<200&&(!good||W.length<3);k++){const [s,v]=mk();if(isP(v)&&!good)good=[s,v];else if(!isP(v)&&v>1&&W.length<3&&!W.some(w=>w[0]===s))W.push([s,v]);}if(!good||W.length<3)return null;
+  return mkMC('Kết quả của phép tính nào sau đây là một số nguyên tố?',good[0],W.map(([s,v])=>[s,`${s.replace(/<sup>(\d)<\/sup>/g,'<sup>$1</sup>')} = ${v} là hợp số (${v} = ${FS(fac(v))}).`]),`${good[0]} = ${good[1]} là số nguyên tố.`);});}
+function gOdd3(){return mkMC('Ba số lẻ liên tiếp nào sau đây đều là số nguyên tố?','3; 5; 7',shuffle([['1; 3; 5','1 không là số nguyên tố.'],['5; 7; 9','9 ⋮ 3 nên là hợp số.'],['7; 9; 11','9 ⋮ 3 nên là hợp số.'],['11; 13; 15','15 ⋮ 5 nên là hợp số.'],['13; 15; 17','15 là hợp số.']]).slice(0,3),'Trong ba số lẻ liên tiếp luôn có một số chia hết cho 3; số đó chỉ là số nguyên tố khi bằng 3. Vậy chỉ có 3; 5; 7.');}
+function gHop(){return tryGen(()=>{const tpl=sel([`${ri(1,9)}*`,`*${sel([1,3,7,9])}`]);const H=range(0,9).filter(d=>{const s=tpl.replace('*',d);return s[0]!=='0'&&!isP(+s);}),c=H.length;const all=range(0,9).filter(d=>tpl.replace('*',d)[0]!=='0').length;
+  return mkMC(`Có bao nhiêu chữ số thay được cho dấu * để số ${OV(tpl)} là hợp số?`,''+c,[[''+(all-c),'Đây là số các chữ số làm cho số là số nguyên tố.'],[''+(c+1),'Có số được đếm nhưng là số nguyên tố.'],[''+(c-1>0?c-1:c+2),'Còn thiếu một hợp số.']].filter((w,i,A)=>w[0]!==''+c&&A.findIndex(z=>z[0]===w[0])===i).concat([[''+(c+2),'Đếm lại.']]).slice(0,3),range(0,9).filter(d=>tpl.replace('*',d)[0]!=='0').map(d=>`${tpl.replace('*',d)} ${isP(+tpl.replace('*',d))?'nguyên tố':'hợp số'}`).join('; ')+'.');});}
+function gStmt(){const P=[
+  ['Số có tổng các chữ số chia hết cho 9 và lớn hơn 9 là hợp số',[['Số có chữ số tận cùng là 1 là số nguyên tố','21 = 3 · 7 là hợp số.'],['Mọi số chia hết cho 3 đều là hợp số','3 là số nguyên tố.'],['Tổng của hai số nguyên tố luôn chia hết cho 2','2 + 3 = 5.']]],
+  ['Số lớn hơn 5 có chữ số tận cùng là 5 luôn là hợp số',[['Số có chữ số tận cùng là 3 luôn là số nguyên tố','33 = 3 · 11.'],['Mọi số lẻ lớn hơn 1 đều là số nguyên tố','9 = 3 · 3.'],['Số chia hết cho 2 và 5 có thể là số nguyên tố','Số đó có ước 2, 5 và lớn hơn 10.']]],
+  ['Mọi số chẵn lớn hơn 2 đều là hợp số',[['Tích của hai số nguyên tố là số nguyên tố','2 · 3 = 6 là hợp số.'],['Mọi hợp số đều là số chẵn','9 là hợp số lẻ.'],['Số 1 có hai ước là 1 và chính nó','Số 1 chỉ có một ước.']]]];
+  const [r,W]=sel(P);return mkMC('Khẳng định nào sau đây đúng?',r,W,'Dùng dấu hiệu chia hết để tìm thêm ước khác 1 và chính số đó.');}
+// tt: bài toán thực tế (Bài 8 + 9 + 10)
+function gRowMin(){return tryGen(()=>{const n=sel([36,40,42,45,48,54,56,60,63,72,80,84,90]),lo=ri(3,5),hi=ri(9,15),D=divs(n).filter(d=>d>=lo&&d<=hi);if(D.length<2)return null;const best=D[D.length-1],r=n/best;
+  return mkMC(`Đội văn nghệ có ${n} bạn, xếp thành các hàng có số người bằng nhau, mỗi hàng có từ ${lo} đến ${hi} bạn. Cách xếp có ít hàng nhất thì có bao nhiêu hàng?`,''+r,[[''+n/D[0],'Đây là số hàng nhiều nhất.'],[''+best,'Đây là số bạn mỗi hàng, không phải số hàng.'],[''+(Math.ceil(n/hi)===r?r+1:Math.ceil(n/hi)),`Số bạn mỗi hàng phải là ước của ${n}.`]].filter((w,i,A)=>w[0]!==''+r&&A.findIndex(z=>z[0]===w[0])===i),`Số bạn mỗi hàng là ước của ${n} từ ${lo} đến ${hi}: ${SET(D)}. Ít hàng nhất khi mỗi hàng ${best} bạn: ${n} : ${best} = ${r} hàng.`);});}
+function gCut(){return tryGen(()=>{const n=sel([30,42,60,66,70,78,84,90,105,110,130,154,210]),P=fac(n).map(z=>z[0]);
+  return mkMC(`Một cuộn dây dài ${n} m được cắt hết thành các đoạn bằng nhau, độ dài mỗi đoạn (theo mét) là một số nguyên tố. Có bao nhiêu cách cắt?`,''+P.length,[[''+divs(n).length,'Đây là số ước của '+n+'; độ dài phải là số nguyên tố.'],[''+(divs(n).length-2),'Còn phải là số nguyên tố.'],[''+(P.length+1),'Số 1 không là số nguyên tố.']].filter((w,i,A)=>w[0]!==''+P.length&&A.findIndex(z=>z[0]===w[0])===i),`${n} = ${FS(fac(n))}; độ dài mỗi đoạn là ước nguyên tố của ${n}: ${L(P)}.`);});}
+function gMoney(){return tryGen(()=>{const [p,q]=shuffle(PR.filter(x=>x>2&&x<40)).slice(0,2).sort((a,b)=>a-b),T=p*q;if(T<30)return null;
+  return mkMC(`Mai mua một số quyển vở cùng loại hết ${T} nghìn đồng. Giá mỗi quyển là một số tự nhiên (nghìn đồng) lớn hơn 1, số quyển lớn hơn 1 và nhỏ hơn giá mỗi quyển. Giá mỗi quyển là:`,`${q} nghìn đồng`,[[`${p} nghìn đồng`,`Khi đó số quyển là ${q}, lớn hơn giá mỗi quyển.`],[`${T} nghìn đồng`,'Số quyển phải lớn hơn 1.'],[`${q+2} nghìn đồng`,`${T} ${ND} ${q+2}.`]],`${T} = ${p} · ${q} (tích hai số nguyên tố) nên chỉ có thể là ${p} quyển, mỗi quyển ${q} nghìn đồng.`);});}
+function gBox(){return tryGen(()=>{const n=sel([120,144,180,210,240,300,360,420,450,600]),D=divs(n).filter(d=>d>=10&&d<=99);
+  return mkMC(`Có ${n} chiếc kẹo chia đều vào các túi, số túi là số có hai chữ số. Có bao nhiêu cách chia?`,''+D.length,[[''+divs(n).length,'Số túi phải có hai chữ số.'],[''+(D.length+1),'Đếm thừa một cách.'],[''+(D.length-1),'Còn thiếu một cách.']],`${n} = ${FS(fac(n))}; các ước có hai chữ số: ${SET(D)}.`);});}
+function gDigitsMax(){return tryGen(()=>{const ds=shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,4).sort((a,b)=>a-b),m=sel([3,9,5,6,10]),big=RNG()<.6;const all=[];for(let x=100;x<1000;x++){const s=String(x);if(new Set(s).size===3&&s.split('').every(d=>ds.includes(+d)))all.push(x);}
+  const G=all.filter(x=>x%m===0);if(G.length<2)return null;const v=big?G[G.length-1]:G[0];const lab=m===6?'cả 2 và 3':m===10?'cả 2 và 5':''+m;
+  const near=all.filter(x=>x%m&&(big?x>v:x<v));const W=[[F(big?G[G.length-2]:G[1]),`Chia hết cho ${lab} nhưng chưa phải ${big?'lớn':'nhỏ'} nhất.`]];if(near.length)W.push([F(big?near[near.length-1]:near[0]),`${F(big?near[near.length-1]:near[0])} không chia hết cho ${lab}.`]);W.push([F(big?all[all.length-1]:all[0]),`Đây là số ${big?'lớn':'nhỏ'} nhất viết được, nhưng ${(big?all[all.length-1]:all[0])%m?'không chia hết cho '+lab:'trùng đáp án'}.`]);
+  const o=W.filter(w=>w[0]!==F(v)&&!(num(w[0])%m===0&&w[1].startsWith('Đây'))).filter((w,i,A)=>A.findIndex(z=>z[0]===w[0])===i);if(o.length<3)o.push([F(v+(m===10?10:m)),`Không viết được từ các chữ số đã cho hoặc chữ số bị lặp.`]);if(o.length<3)return null;
+  return mkMC(`Dùng ba trong bốn chữ số ${L(ds)}, viết số ${big?'lớn':'nhỏ'} nhất có ba chữ số khác nhau và chia hết cho ${lab}.`,F(v),o.slice(0,3),`Các số viết được chia hết cho ${lab}: ${G.join('; ')}. Số ${big?'lớn':'nhỏ'} nhất là ${F(v)}.`);});}
+const num=s=>+String(s).replace(/\D/g,'');
+
+const MC=[];
+const addMC=(id,topic,level,gen,mix)=>MC.push(Object.assign({id,type:'mc',topic,level,gen},{mix:mix||mixOf(topic)}));
+addMC('l_tab','sd','NB',gTab);addMC('l_sd2','sd','NB',gSumDiv);addMC('l_row2','pt','NB',gRows);addMC('l_tab2','sd','NB',gTab);addMC('l_sd','sd','NB',gSumDiv);addMC('l_ab','sd','TH',gAB);addMC('l_rem','sd','TH',gRem);addMC('l_x','sd','TH',gX);addMC('l_cmb','sd','TH',gCombo);addMC('l_x2','sd','VD',gX2);addMC('l_x2b','sd','VD',gX2);
+addMC('l_f2','pt','TH',gFact2);addMC('l_dby','pt','NB',gDivBy);addMC('l_dby2','pt','TH',gDivBy);addMC('l_row','pt','NB',gRows);addMC('l_mul','pt','VD',gMul);addMC('l_sm','pt','VD',gSmallest);addMC('l_f2b','pt','VD',gFact2);
+addMC('l_tw','nt','TH',gTwin);addMC('l_gd','nt','TH',gGold);addMC('l_ex','nt','NB',gExpr);addMC('l_o3','nt','NB',gOdd3);addMC('l_hp','nt','VD',gHop);addMC('l_st','nt','NB',gStmt);addMC('l_ex2','nt','TH',gExpr);
+addMC('l_rm','tt','TH',gRowMin);addMC('l_cut','tt','VD',gCut);addMC('l_mon','tt','VD',gMoney);addMC('l_box','tt','VD',gBox);addMC('l_dm','tt','TH',gDigitsMax);addMC('l_dm2','tt','NB',gDigitsMax);addMC('l_rm2','tt','NB',gRowMin);
+
+/* ============ Câu đúng sai ============ */
+function tfStatic(pool,stem){return ()=>{const items=mixed(()=>shuffle(pool).slice(0,4).map(p=>sel(p)));return {stem,items:wrap(items)};};}
+const POOL_L=[
+  [IT('Số chia hết cho cả 2 và 5 thì chia hết cho 10.',true,'sd','NB','Chữ số tận cùng là 0.'),IT('Số chia hết cho 2 hoặc 5 thì chia hết cho 10.',false,'sd','NB','12 ⋮ 2 nhưng 12 ⋮̸ 10.')],
+  [IT('Số có tổng các chữ số bằng 18 thì chia hết cho cả 3 và 9.',true,'sd','NB','18 chia hết cho 9 và cho 3.'),IT('Số có tổng các chữ số bằng 12 thì chia hết cho 9.',false,'sd','NB','12 ⋮̸ 9.')],
+  [IT('Số 2 027 không chia hết cho 3.',true,'sd','NB','Tổng các chữ số bằng 11.'),IT('Số 2 021 là số nguyên tố vì có chữ số tận cùng là 1.',false,'nt','NB','2 021 = 43 · 47 là hợp số.')],
+  [IT('Số 1 980 chia hết cho 2; 3; 5 và 9.',true,'sd','NB','Tận cùng 0; tổng các chữ số 18.'),IT('Số 1 980 là số nguyên tố.',false,'nt','NB','1 980 ⋮ 10 nên là hợp số.')],
+  [IT('Mọi hợp số đều có ít nhất một ước nguyên tố.',true,'pt','NB','Phân tích hợp số ra thừa số nguyên tố.'),IT('Mọi số tự nhiên đều có ước nguyên tố.',false,'pt','NB','Số 1 không có ước nguyên tố.')],
+  [IT('Nếu n = 2<sup>2</sup> · 3 · 5 thì n chia hết cho 10.',true,'pt','NB','n = 60 = 10 · 6.'),IT('Nếu n = 2<sup>2</sup> · 3 · 5 thì n chia hết cho 9.',false,'pt','NB','n chỉ có một thừa số 3; 60 ⋮̸ 9.')]];
+function tfNum(){const n=pickN(100,2000,x=>!isP(x)&&[2,3,5,9].some(m=>x%m===0)),f=fac(n);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const m=sel([2,5,10]),c=R(),v=c===(n%m===0);o.push(IT(`${F(n)} ${c?DV:ND} ${m}`,v,'sd','NB',`${sigX(n,m)}.`));}
+    {const m=sel([3,9]),c=R(),v=c===(n%m===0);o.push(IT(`${F(n)} ${c?DV:ND} ${m}`,v,'sd','NB',`${sig(n,m)}.`));}
+    {const v=R();o.push(IT(`Số ${F(n)} ${v?'có nhiều hơn hai ước':'chỉ có hai ước là 1 và chính nó'}.`,v,'nt','NB',`${whyC(n)}.`));}
+    {const v=R(),p=v?sel(f.map(z=>z[0])):sel([2,3,5,7].filter(q=>n%q));if(!p)return null;o.push(IT(`${p} là một ước nguyên tố của ${F(n)}.`,v,'pt','NB',`${F(n)} = ${FS(f)}.`));}
+    return o;});return {stem:`Cho số ${F(n)}. Xét các khẳng định sau:`,items:wrap(items)};}
+function tfFromFact(){const f=sel([[[2,2],[3,2],[5,1]],[[2,3],[3,1],[5,1]],[[2,1],[3,3]],[[2,2],[3,1],[7,1]],[[3,2],[5,1],[7,1]],[[2,1],[3,2],[5,1],[7,1]],[[2,4],[5,1]]]),n=fval(f);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R(),m=v?sel([4,6,9,10,12,15,18,20,30,45].filter(d=>n%d===0)):sel([4,6,9,10,12,15,18,20,25,27,45].filter(d=>n%d));if(!m)return null;o.push(IT(`n chia hết cho ${m}.`,v,'pt','TH',`n = ${FS(f)}, ${m} = ${FS(fac(m))}.`));}
+    {const v=R();o.push(IT(`n có ${v?f.length:f.length+1} ước nguyên tố.`,v,'pt','TH',`Các ước nguyên tố: ${L(f.map(z=>z[0]))}.`));}
+    {const c=R();o.push(IT(c?'Chữ số tận cùng của n là 0.':'Chữ số tận cùng của n khác 0.',c===(n%10===0),'sd','TH',`n = ${F(n)}.`));}
+    {const v=R();o.push(IT(`Tổng các chữ số của n ${v===(n%9===0)?'chia hết cho 9':'không chia hết cho 9'}.`,v,'sd','TH',`n = ${F(n)} ${n%9?'không có':'có'} thừa số 3<sup>2</sup>, nên ${n%9?'không ':''}chia hết cho 9; theo dấu hiệu, tổng các chữ số ${n%9?'không ':''}chia hết cho 9.`));}
+    return o;});return {stem:`Cho n = ${FS(f)}. Xét các khẳng định sau:`,items:wrap(items)};}
+function tfPrimes(){const N=ri(30,90),T=twins(N),M=2*ri(8,25),G=gold(M);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Có ${v?T.length:T.length+1} cặp số nguyên tố sinh đôi nhỏ hơn ${N}.`,v,'nt','TH',`${T.map(z=>`(${z[0]}; ${z[1]})`).join(', ')}.`));}
+    {const v=R(),p=sel(G);o.push(IT(`${M} = ${p[0]} + ${v?p[1]:p[1]+2} là tổng của hai số nguyên tố.`,v?true:isP(p[1]+2)&&p[0]+p[1]+2===M,'nt','TH',`${M} = ${G.map(z=>`${z[0]} + ${z[1]}`).join(' = ')}.`));}
+    {const v=R();o.push(IT(`Số ${M} viết được thành tổng hai số nguyên tố theo ${v?G.length:G.length+1} cách (không kể thứ tự).`,v,'nt','TH',`${M} = ${G.map(z=>`${z[0]} + ${z[1]}`).join(' = ')}.`));}
+    {const v=R(),t=sel(twins(200).filter(z=>z[0]>3));o.push(IT(`Tổng hai số nguyên tố sinh đôi ${t[0]} và ${t[1]} chia hết cho ${v?12:9}.`,v?(t[0]+t[1])%12===0:(t[0]+t[1])%9===0,'nt','TH',`${t[0]} + ${t[1]} = ${t[0]+t[1]}.`));}
+    return o;});return {stem:'Xét các khẳng định sau:',items:wrap(items)};}
+function tfX(){const A=ri(60,130),m=sel([4,6,8]),N=ri(20,30),S=xList(A,m,N,true);
+  const items=mixed(()=>{const o=[],used=new Set();for(let i=0;i<3;i++){const x=ri(0,N);if(used.has(x))return null;used.add(x);const ok=S.includes(x);o.push(IT(`x = ${x} thoả mãn điều kiện.`,ok,'sd','TH',`${A} − ${x} = ${A-x} ${(A-x)%m?ND:DV} ${m}.`));}
+    const v=RNG()<.5;o.push(IT(`Có ${v?S.length:S.length+1} giá trị x thoả mãn.`,v,'sd','TH',`x ∈ ${SET(S)}.`));return o;});
+  return {stem:`Tìm các số tự nhiên x không vượt quá ${N} sao cho ${A} − x chia hết cho ${m}. Xét các khẳng định sau:`,items:wrap(items)};}
+function tfTeam(){const n=sel([36,40,42,48,54,60,72]),lo=ri(3,4),hi=ri(10,12),D=divs(n).filter(d=>d>=lo&&d<=hi);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Có ${v?D.length:D.length+1} cách xếp.`,v,'tt','VD',`Số bạn mỗi hàng là ước của ${n} từ ${lo} đến ${hi}: ${SET(D)}.`));}
+    {const v=R(),d=sel(D);o.push(IT(`Nếu mỗi hàng có ${d} bạn thì có ${v?n/d:n/d+1} hàng.`,v,'tt','VD',`${n} : ${d} = ${n/d}.`));}
+    {const v=R(),w=v?sel(D):(divs(n).find(d=>d>hi)||divs(n).find(d=>d<lo&&d>1));if(!w)return null;o.push(IT(`Có thể xếp mỗi hàng ${w} bạn.`,v,'tt','VD',v?`${w} ∈ ${SET(D)}.`:`${w} không nằm trong khoảng từ ${lo} đến ${hi}.`));}
+    {const v=R();o.push(IT(`${n} = ${v?FS(fac(n)):FS(fac(n).map((z,i)=>i===0?[z[0],z[1]+1]:z))}`,v,'pt','VD',`${n} = ${FS(fac(n))}.`));}
+    return o;});
+  return {stem:`Đội văn nghệ có ${n} bạn được xếp thành các hàng có số người bằng nhau, mỗi hàng có từ ${lo} đến ${hi} bạn. Xét các phát biểu sau:`,items:wrap(items)};}
+function tfShop(){const p=sel([3,7,9]),k=ri(12,60),T=p*k;
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Tổng số tiền ${F(T)} nghìn đồng ${v?'chia hết':'không chia hết'} cho ${p}.`,v,'sd','VD',`${F(T)} = ${p} · ${k}.`));}
+    {const v=R();o.push(IT(`Đã mua ${v?k:k+1} hộp.`,v,'tt','VD',`${F(T)} : ${p} = ${k}.`));}
+    {const v=R(),z=fac(T);o.push(IT(`${F(T)} = ${v?FS(z):FS(z.map((q,i)=>i===z.length-1?[q[0],q[1]+1]:q))}`,v,'pt','VD',`${F(T)} = ${FS(z)}.`));}
+    {const v=R(),q=v?fac(T).length:fac(T).length+1;o.push(IT(`Tổng số tiền có ${q} ước nguyên tố.`,v,'pt','VD',`Các ước nguyên tố: ${L(fac(T).map(z=>z[0]))}.`));}
+    return o;});
+  return {stem:`Mỗi hộp màu giá ${p} nghìn đồng. Cô giáo mua một số hộp hết ${F(T)} nghìn đồng. Xét các phát biểu sau:`,items:wrap(items)};}
+const TF=[];
+const addTF=(id,topic,level,gen,mix)=>TF.push(Object.assign({id,type:'tf',topic,level,gen},{mix:mix||mixOf(topic)}));
+addTF('lt_pa','sd','NB',tfStatic(POOL_L,'Xét các phát biểu sau:'));addTF('lt_pb','nt','NB',tfStatic(POOL_L,'Xét các phát biểu sau:'));addTF('lt_n','sd','NB',tfNum);addTF('lt_n2','nt','NB',tfNum);addTF('lt_n3','pt','NB',tfNum);
+addTF('lt_ff','pt','TH',tfFromFact);addTF('lt_ff2','sd','TH',tfFromFact);addTF('lt_pr','nt','TH',tfPrimes);addTF('lt_x','sd','TH',tfX);
+addTF('lt_tm','tt','VD',tfTeam);addTF('lt_sh','tt','VD',tfShop);addTF('lt_pr2','nt','VD',tfPrimes);addTF('lt_ff3','pt','VD',tfFromFact);
+
+/* ============ Câu trả lời ngắn ============ */
+const SA=[
+ {id:'ls_tab',topic:'sd',level:'NB',unit:'số',gen:()=>{const n=R4();return{stem:`Số ${F(n)} chia hết cho bao nhiêu số trong các số 2; 3; 5; 9; 10?`,ans:[K5.filter(m=>n%m===0).length],exp:K5.map(m=>sigX(n,m)).join('; ')+'.'};}},
+ {id:'ls_tw',topic:'nt',level:'NB',unit:'',gen:()=>{const t=sel(twins(200).filter(z=>z[0]>10));return{stem:`Hai số nguyên tố hơn kém nhau 2 đơn vị gọi là hai số nguyên tố sinh đôi. Tìm số nguyên tố lớn hơn ${t[0]} và sinh đôi với ${t[0]}.`,ans:[t[1]],exp:`${t[1]} = ${t[0]} + 2 là số nguyên tố.`};}},
+ {id:'ls_row',topic:'pt',level:'NB',unit:'',gen:()=>{const n=pickN(24,400,x=>!isP(x)&&omega(x)>=3);const ps=[];let x=n;while(x>1){const p=spf(x);ps.push(p);x/=p;}const k=ri(1,ps.length);return{stem:`Phân tích số ${n} ra thừa số nguyên tố theo sơ đồ cột. Số ở cột bên phải, hàng thứ ${k} (tính từ trên xuống) là số nào?`,ans:[ps[k-1]],exp:`Mỗi hàng chia cho ước nguyên tố nhỏ nhất: cột phải lần lượt là ${ps.join('; ')}.`};}},
+ {id:'ls_x',topic:'sd',level:'TH',unit:'số',gen:()=>{const sub=RNG()<.5,m=sel([3,4,6,8,9]),A=ri(60,150),N=ri(18,40);const S=xList(A,m,N,sub);return{stem:`Có bao nhiêu số tự nhiên x không vượt quá ${N} sao cho ${sub?`${A} − x`:`${A} + x`} chia hết cho ${m}?`,ans:[S.length],exp:`x ∈ ${S.length?SET(S):'∅'}.`};}},
+ {id:'ls_tw2',topic:'nt',level:'TH',unit:'cặp',gen:()=>{const N=ri(40,120);return{stem:`Có bao nhiêu cặp số nguyên tố sinh đôi (hơn kém nhau 2 đơn vị) nhỏ hơn ${N}?`,ans:[twins(N).length],exp:`${twins(N).map(z=>`(${z[0]}; ${z[1]})`).join(', ')}.`};}},
+ {id:'ls_gd',topic:'nt',level:'TH',unit:'cách',gen:()=>{const N=2*ri(10,35);return{stem:`Số ${N} viết được thành tổng của hai số nguyên tố theo bao nhiêu cách (không kể thứ tự)?`,ans:[gold(N).length],exp:`${N} = ${gold(N).map(z=>`${z[0]} + ${z[1]}`).join(' = ')}.`};}},
+ {id:'ls_rm',topic:'tt',level:'TH',unit:'hàng',gen:()=>{for(;;){const n=sel([36,40,42,45,48,54,56,60,72,84,90]),lo=ri(3,5),hi=ri(9,15),D=divs(n).filter(d=>d>=lo&&d<=hi);if(D.length<2)continue;return{stem:`Đội văn nghệ có ${n} bạn, xếp thành các hàng có số người bằng nhau, mỗi hàng có từ ${lo} đến ${hi} bạn. Cách xếp có nhiều hàng nhất thì có bao nhiêu hàng?`,ans:[n/D[0]],exp:`Số bạn mỗi hàng: ${SET(D)}; nhiều hàng nhất khi mỗi hàng ${D[0]} bạn: ${n/D[0]} hàng.`};}}},
+ {id:'ls_f2',topic:'pt',level:'TH',unit:'',gen:()=>{const [b1,b2]=shuffle([6,10,12,14,15,18]).slice(0,2),m=ri(2,4),k=ri(2,3);const ex={};[[b1,m],[b2,k]].forEach(([b,e])=>fac(b).forEach(([p,q])=>{ex[p]=(ex[p]||0)+q*e;}));const p=sel(Object.keys(ex).map(Number));return{stem:`Phân tích A = ${b1}<sup>${m}</sup> · ${b2}<sup>${k}</sup> ra thừa số nguyên tố. Số mũ của thừa số ${p} là bao nhiêu?`,ans:[ex[p]],exp:`A = ${FS(Object.keys(ex).map(Number).sort((a,b)=>a-b).map(q=>[q,ex[q]]))}.`};}},
+ {id:'ls_mul',topic:'pt',level:'VD',unit:'',gen:()=>{for(;;){const m=sel([9,12,18,20,45,50,36]),f=mkNum([2,3,5,7],false),n=fval(f);if(n>600)continue;let k=1;while((n*k)%m)k++;if(k===1)continue;return{stem:`Tìm số tự nhiên k nhỏ nhất (khác 0) sao cho ${n} · k chia hết cho ${m}.`,ans:[k],exp:`${n} = ${FS(f)}, ${m} = ${FS(fac(m))}; còn thiếu ${FS(fac(k))} nên k = ${k}.`};}}},
+ {id:'ls_x2',topic:'sd',level:'VD',unit:'',gen:()=>{for(;;){const A=ri(60,130),B=multOf(9,18,99),N=ri(30,60);const S=[];for(let x=0;x<=Math.min(N,A);x++)if((A-x)%4===0&&(B+x)%9===0)S.push(x);if(!sum(S))continue;return{stem:`Tính tổng tất cả các số tự nhiên x không vượt quá ${N} sao cho ${A} − x chia hết cho 4 và ${B} + x chia hết cho 9.`,ans:[sum(S)],exp:`x ⋮ 9 và ${A} − x ⋮ 4: x ∈ ${SET(S)}; tổng bằng ${sum(S)}.`};}}},
+ {id:'ls_cut',topic:'tt',level:'VD',unit:'cách',gen:()=>{const n=sel([30,42,60,66,70,78,84,90,105,110,130,154,210]);return{stem:`Một cuộn dây dài ${n} m được cắt hết thành các đoạn bằng nhau, độ dài mỗi đoạn (theo mét) là một số nguyên tố. Có bao nhiêu cách cắt?`,ans:[fac(n).length],exp:`${n} = ${FS(fac(n))}.`};}},
+ {id:'ls_box',topic:'tt',level:'VD',unit:'cách',gen:()=>{const n=sel([120,144,180,210,240,300,360]);return{stem:`Có ${n} chiếc kẹo chia đều vào các túi, số túi là số có hai chữ số. Có bao nhiêu cách chia?`,ans:[divs(n).filter(d=>d>=10&&d<=99).length],exp:`Các ước có hai chữ số của ${n}: ${SET(divs(n).filter(d=>d>=10&&d<=99))}.`};}},
+ {id:'ls_mon',topic:'tt',level:'VD',unit:'nghìn đồng',gen:()=>{for(;;){const [p,q]=shuffle(PR.filter(x=>x>2&&x<40)).slice(0,2).sort((a,b)=>a-b);if(p*q<30)continue;return{stem:`Lan mua một số cây bút cùng loại hết ${p*q} nghìn đồng. Giá mỗi cây là số tự nhiên (nghìn đồng) lớn hơn 1; số cây lớn hơn 1 và ít hơn giá mỗi cây. Giá mỗi cây là bao nhiêu nghìn đồng?`,ans:[q],exp:`${p*q} = ${p} · ${q}: ${p} cây, mỗi cây ${q} nghìn đồng.`};}}},
+ {id:'ls_hp',topic:'nt',level:'VD',unit:'chữ số',gen:()=>{const tpl=sel([`${ri(1,9)}*`,`*${sel([1,3,7,9])}`]);return{stem:`Có bao nhiêu chữ số thay được cho dấu * để số ${OV(tpl)} là hợp số?`,ans:[range(0,9).filter(d=>{const s=tpl.replace('*',d);return s[0]!=='0'&&!isP(+s);}).length],exp:range(0,9).filter(d=>tpl.replace('*',d)[0]!=='0').map(d=>`${tpl.replace('*',d)} ${isP(+tpl.replace('*',d))?'nguyên tố':'hợp số'}`).join('; ')+'.'};}},
+ {id:'ls_dm',topic:'tt',level:'TH',unit:'',gen:()=>{for(;;){const ds=shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,4),m=sel([3,9,5,6]),big=RNG()<.6;const G=[];for(let x=100;x<1000;x++){const s=String(x);if(new Set(s).size===3&&s.split('').every(d=>ds.includes(+d))&&x%m===0)G.push(x);}if(!G.length)continue;const lab=m===6?'cả 2 và 3':''+m;return{stem:`Dùng ba trong bốn chữ số ${L(ds.slice().sort((a,b)=>a-b))}, viết số ${big?'lớn':'nhỏ'} nhất có ba chữ số khác nhau và chia hết cho ${lab}.`,ans:[big?G[G.length-1]:G[0]],exp:`Các số thoả mãn: ${G.join('; ')}.`};}}},
+ {id:'ls_sd',topic:'sd',level:'NB',unit:'',gen:()=>{for(;;){const n=R4(),m=sel([3,9]);if(n%m===0)continue;return{stem:`Không thực hiện phép chia, tìm số tự nhiên nhỏ nhất cần cộng thêm vào ${F(n)} để được một số chia hết cho ${m}.`,ans:[(m-n%m)%m],exp:`Tổng các chữ số ${dplus(n)} = ${dsum(n)} chia ${m} dư ${n%m}; cần thêm ${m} − ${n%m} = ${(m-n%m)%m}.`};}}},
+ {id:'ls_np',topic:'pt',level:'NB',unit:'',gen:()=>{const f=mkNum([2,3,5,7,11],false),n=fval(f);return{stem:`Tính tổng các ước nguyên tố của ${F(n)}.`,ans:[sum(f.map(z=>z[0]))],exp:`${F(n)} = ${FS(f)}; tổng: ${f.map(z=>z[0]).join(' + ')} = ${sum(f.map(z=>z[0]))}.`};}}
+].map(q=>Object.assign({type:'sa',mix:mixOf(q.topic)},q));
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  sd:{short:'Chia hết của tổng, dấu hiệu',name:'Tính chất và dấu hiệu chia hết',rule:'Nếu mọi số hạng chia hết cho m thì tổng (hiệu) chia hết cho m; nếu chỉ một số hạng không chia hết cho m thì tổng không chia hết cho m. Chia hết cho 2, 5: xét chữ số tận cùng; cho 3, 9: xét tổng các chữ số; cho 10: tận cùng là 0.',tip:'Số chia hết cho 3 chưa chắc chia hết cho 9; số chia hết cho 2 hoặc 5 chưa chắc chia hết cho 10.'},
+  pt:{short:'Phân tích ra thừa số',name:'Phân tích ra thừa số nguyên tố và ứng dụng',rule:'Phân tích ra thừa số nguyên tố theo sơ đồ cây hoặc sơ đồ cột. Từ dạng phân tích, biết được số đó chia hết cho những số nào và các ước nguyên tố của nó.',tip:'n = 2<sup>2</sup> · 3 · 5 chia hết cho 12 = 2<sup>2</sup> · 3 nhưng không chia hết cho 9 = 3<sup>2</sup>.'},
+  nt:{short:'Số nguyên tố',name:'Số nguyên tố và hợp số',rule:'Số nguyên tố chỉ có hai ước là 1 và chính nó; dùng dấu hiệu chia hết để tìm một ước khác 1 và chính nó, chứng tỏ một số là hợp số.',tip:'2 là số nguyên tố chẵn duy nhất; trong ba số lẻ liên tiếp luôn có một số chia hết cho 3.'},
+  tt:{short:'Bài toán thực tế',name:'Bài toán thực tế',rule:'Chia đều, xếp hàng, cắt dây, đóng túi: số phần là ước của tổng số; dùng phân tích ra thừa số nguyên tố để tìm các ước và chọn những ước thoả mãn điều kiện.',tip:'Đọc kĩ điều kiện: mỗi hàng "từ … đến …", số túi "có hai chữ số", độ dài "là số nguyên tố".'}
+};
+const TKEYS=['sd','pt','nt','tt'];
+const TDESC={sd:'Tổng, hiệu, dấu hiệu chia hết cho 2, 3, 5, 9, 10',pt:'Sơ đồ, dạng luỹ thừa, chia hết suy từ phân tích',nt:'Sinh đôi, tổng hai số nguyên tố, hợp số',tt:'Xếp hàng, cắt dây, đóng túi, mua hàng'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Dùng các dấu hiệu, nhận ra số nguyên tố, đọc sơ đồ cột.',TH:'Kết hợp hai bài: tìm x để tổng, hiệu chia hết; phân tích tích các luỹ thừa; đếm số nguyên tố sinh đôi.',VD:'Kết hợp ba bài: hai điều kiện chia hết, nhân thêm để chia hết, bài toán thực tế.'};
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+function tfHard(){for(;;){
+  const P=[
+    [IT('Nếu một số chia hết cho 2 và chia hết cho 3 thì số đó chia hết cho 6.',true,'pt','VD','Dạng phân tích có thừa số 2 và thừa số 3 nên chia hết cho 2 · 3 = 6.'),IT('Nếu một số chia hết cho 2 và chia hết cho 4 thì số đó chia hết cho 8.',false,'pt','VD','12 ⋮ 2, 12 ⋮ 4 nhưng 12 ⋮̸ 8.')],
+    [IT('Mọi số có dạng abab (bốn chữ số) đều chia hết cho 101.',true,'sd','VD','abab = ab · 101.'),IT('Mọi số có dạng abab (bốn chữ số) đều là số nguyên tố.',false,'nt','VD','abab = ab · 101 là hợp số.')],
+    [IT('Số 111 là hợp số.',true,'nt','VD','1 + 1 + 1 = 3 nên 111 ⋮ 3.'),IT('Số 1 111 chia hết cho 3.',false,'sd','VD','Tổng các chữ số bằng 4.')],
+    [IT('Tích của ba số tự nhiên liên tiếp luôn chia hết cho 6.',true,'pt','VD','Có một số chia hết cho 2 và một số chia hết cho 3.'),IT('Tích của hai số tự nhiên liên tiếp luôn chia hết cho 6.',false,'pt','VD','1 · 2 = 2 ⋮\u0338 6.')],
+    [IT('Nếu p là số nguyên tố lớn hơn 5 thì chữ số tận cùng của p là 1, 3, 7 hoặc 9.',true,'nt','VD','Tận cùng chẵn thì chia hết cho 2, tận cùng 5 thì chia hết cho 5.'),IT('Mọi số có chữ số tận cùng là 1, 3, 7 hoặc 9 đều là số nguyên tố.',false,'nt','VD','27 = 3 · 9.')]];
+  const its=wrap(shuffle(P).slice(0,4).map(p=>sel(p)));if(tfOK(its))return {stem:'Xét các khẳng định sau:',items:its};}}
+const HARD={tf:[{id:'lh_tf',type:'tf',topic:'nt',level:'VD',gen:tfHard,mix:[8,9,10]}],sa:[
+ {id:'lh_pq',topic:'nt',level:'VD',unit:'',gen:()=>{const k=ri(0,2);return{stem:`Tìm hai số nguyên tố p và q (p < q) sao cho p + q và q − p đều là số nguyên tố. ${['Tính p · q.','Tính p + q.','Tìm q.'][k]}`,ans:[[10,7,5][k]],exp:'Nếu p, q đều lẻ thì p + q chẵn và lớn hơn 2, là hợp số; vậy p = 2. Khi đó q − 2, q, q + 2 đều là số nguyên tố; trong ba số lẻ liên tiếp có một số chia hết cho 3 nên q − 2 = 3, q = 5.'};}},
+ {id:'lh_big',topic:'sd',level:'VD',unit:'',gen:()=>{for(;;){const [a,b,c]=sel([[2,9,4],[3,5,2],[2,5,3],[3,4,9],[5,9,2],[2,3,4],[4,9,8],[3,10,9]]);let v=-1;for(let x=99;x>=10;x--)if(x%a===0&&x%b===0&&x%c!==0){v=x;break;}if(v<0)continue;return{stem:`Tìm số lớn nhất có hai chữ số chia hết cho cả ${a} và ${b} nhưng không chia hết cho ${c}.`,ans:[v],exp:`Thử từ 99 trở xuống: ${v} ⋮ ${a}, ${v} ⋮ ${b}, ${v} ⋮̸ ${c}.`};}}},
+ {id:'lh_pow',topic:'sd',level:'VD',unit:'',gen:()=>{const n=ri(6,30);let s=0,p=1;for(let i=1;i<=n;i++){p=p*2%3;s+=p;}return{stem:`Cho A = 2 + 2<sup>2</sup> + 2<sup>3</sup> + … + 2<sup>${n}</sup>. Tìm số dư khi chia A cho 3.`,ans:[s%3],exp:`Nhóm hai số hạng liên tiếp: 2<sup>k</sup> + 2<sup>k+1</sup> = 2<sup>k</sup> · 3 chia hết cho 3. ${n%2?`Còn lẻ số hạng 2<sup>${n}</sup>, ${n} lẻ nên chia 3 dư 2.`:'Có số chẵn số hạng nên A chia hết cho 3.'} Số dư là ${s%3}.`};}},
+ {id:'lh_sm',topic:'pt',level:'VD',unit:'',gen:()=>{const k=sel([3,4]),m=sel([4,9,25,8]);let n=2;while(!(fac(n).length===k&&n%m===0))n++;return{stem:`Tìm số tự nhiên nhỏ nhất có đúng ${k} ước nguyên tố khác nhau và chia hết cho ${m}.`,ans:[n],exp:`${F(n)} = ${FS(fac(n))}.`};}},
+ {id:'lh_oc',topic:'nt',level:'VD',unit:'số',gen:()=>{const N=ri(40,120);let c=0;for(let x=3;x<N;x+=2)if(!isP(x))c++;return{stem:`Có bao nhiêu hợp số lẻ nhỏ hơn ${N}?`,ans:[c],exp:`Số các số lẻ từ 3 đến dưới ${N} trừ đi số các số nguyên tố lẻ: được ${c}.`};}},
+ {id:'lh_tw',topic:'nt',level:'VD',unit:'',gen:()=>{const p=sel(PR.filter(q=>q>5&&q<200&&isP(q+2)));return{stem:`p và p + 2 là hai số nguyên tố sinh đôi, với p = ${p}. Số p + 1 chia hết cho 6 không? Hãy nhập thương của phép chia (p + 1) : 6.`,ans:[(p+1)/6],exp:`p lẻ nên p + 1 chẵn; trong ba số p, p + 1, p + 2 có một số chia hết cho 3, mà p, p + 2 là số nguyên tố lớn hơn 3, nên p + 1 ⋮ 3. Vậy p + 1 ⋮ 6: ${p+1} : 6 = ${(p+1)/6}.`};}}
+].map(q=>Object.assign({type:'sa',mix:[8,9,10]},q))};
+
+const qsOK=u=>u.qs.every(q=>q.type!=='mc'||(q.opts.length===4&&new Set(q.opts.map(o=>o.t)).size===4));
+const PISA=[
+ ()=>{for(;;){const n=ri(300,999),B=[6,10,12,15],ok=B.filter(b=>n%b===0);if(ok.length!==1)continue;const b0=ok[0],bad=sel(B.filter(b=>b!==b0)),add=bad-n%bad;
+   const u={title:'Đóng thùng nước',ctx:`<p class="stem">Kho có ${n} chai nước. Nhân viên muốn đóng hết số chai vào các thùng cùng loại, không thừa chai nào. Bảng sau ghi các loại thùng.</p>${tbl(['Loại thùng','Số chai mỗi thùng'],B.map((b,i)=>[`Loại ${'ABCD'[i]}`,b]))}`,qs:[
+    mcq('Loại thùng nào đóng vừa hết số chai?',`Loại ${'ABCD'[B.indexOf(b0)]}`,B.filter(b=>b!==b0).map(b=>[`Loại ${'ABCD'[B.indexOf(b)]}`,`${b} = ${FS(fac(b))}; ${F(n)} ${ND} ${b}.`]),`${b0} = ${FS(fac(b0))}: ${F(n)} chia hết cho các thừa số này nên chia hết cho ${b0}.`,'sd','TH'),
+    saq('Nếu đóng bằng loại thùng đó thì cần bao nhiêu thùng?',n/b0,'thùng',`${F(n)} : ${b0} = ${n/b0}.`,'tt','TH'),
+    saq(`Muốn đóng vừa hết bằng thùng loại ${'ABCD'[B.indexOf(bad)]}, cần thêm ít nhất bao nhiêu chai?`,add,'chai',`${F(n)} chia ${bad} dư ${n%bad}; cần thêm ${add} chai.`,'tt','VD')]};if(qsOK(u))return u;}},
+ ()=>{for(;;){const base=String(ri(1000,9999)),cs=d=>(9-dsum(d)%9)%9,code=base+cs(base),pos=ri(0,3),blur=base.slice(0,pos)+'*'+base.slice(pos+1)+code.slice(-1);const D=range(0,9).filter(d=>dsum(blur.replace('*',d))%9===0&&!(pos===0&&d===0));if(D.length!==1)continue;
+   const cands=[];for(let k=0;k<3;k++){const b=String(ri(1000,9999));cands.push(b+(RNG()<.5?cs(b):(cs(b)+ri(1,8))%9));}const valid=cands.filter(c=>dsum(c)%9===0).length;
+   const u={title:'Mã kiểm tra thẻ thư viện',ctx:`<p class="stem">Mỗi thẻ thư viện có mã gồm 5 chữ số. Một mã hợp lệ khi tổng các chữ số của nó chia hết cho 9 (tức là mã chia hết cho 9).</p>${tbl(['Thẻ','Mã'],[['Thẻ 1',cands[0]],['Thẻ 2',cands[1]],['Thẻ 3',cands[2]],['Thẻ 4',blur]])}`,qs:[
+    saq('Trong ba thẻ 1, 2, 3, có bao nhiêu thẻ có mã hợp lệ?',valid,'thẻ',cands.map(c=>`${c}: tổng ${dsum(c)}`).join('; ')+'.','sd','NB'),
+    saq(`Mã thẻ 4 bị mờ một chữ số. Tìm chữ số bị mờ để mã hợp lệ.`,D[0],'',`Tổng các chữ số còn lại là ${dsum(blur.replace('*',0))}; cần thêm ${D[0]} để tổng chia hết cho 9.`,'sd','TH'),
+    mcq('Mã hợp lệ có chắc chắn là hợp số không?','Có, vì mã chia hết cho 9 và lớn hơn 9',[['Không, vì mã có thể là số nguyên tố','Mã chia hết cho 9 nên có ước 3 và 9.'],['Chỉ khi chữ số tận cùng là số chẵn','Không cần xét chữ số tận cùng.'],['Không biết được nếu chưa phân tích','Dấu hiệu chia hết cho 9 đã cho biết mã có ước 9.']],'Mã chia hết cho 9, lớn hơn 9, nên có thêm ước 9 (ngoài 1 và chính nó): là hợp số.','nt','VD')]};if(qsOK(u))return u;}},
+ ()=>{for(;;){const n=sel([60,72,84,90,96,120,126,150]),P=fac(n).map(z=>z[0]),lo=ri(4,6),hi=ri(12,20),D=divs(n).filter(d=>d>=lo&&d<=hi);if(D.length<2)continue;
+   const u={title:'Chia luống rau',ctx:`<p class="stem">Vườn trường có ${n} cây rau giống. Lớp 6A trồng hết vào các luống, mỗi luống có số cây bằng nhau.</p>${tbl(['Yêu cầu','Nội dung'],[['Số cây mỗi luống',`từ ${lo} đến ${hi} cây`],['Số luống','nhiều hơn 1']])}`,qs:[
+    mcq(`Dạng phân tích ra thừa số nguyên tố của ${n} là:`,FS(fac(n)),[[FS(fac(n).map((z,i)=>i===0?[z[0],z[1]+1]:z)),'Tính lại tích.'],[`${P[0]} · ${n/P[0]}`,`${n/P[0]} chưa là số nguyên tố.`],[FS(fac(n).map(z=>[z[0],1])),'Còn thiếu các thừa số lặp lại.']],`${n} = ${FS(fac(n))}.`,'pt','NB'),
+    saq('Có bao nhiêu cách chia số cây mỗi luống thoả mãn yêu cầu?',D.length,'cách',`Số cây mỗi luống là ước của ${n} từ ${lo} đến ${hi}: ${SET(D)}.`,'tt','TH'),
+    saq('Nếu số cây mỗi luống là một số nguyên tố lớn hơn 2 thì có thể có nhiều nhất bao nhiêu luống?',n/P.filter(p=>p>2)[0],'luống',`Ước nguyên tố lớn hơn 2 nhỏ nhất của ${n} là ${P.filter(p=>p>2)[0]}; số luống nhiều nhất: ${n} : ${P.filter(p=>p>2)[0]} = ${n/P.filter(p=>p>2)[0]}.`,'tt','VD')]};if(qsOK(u)&&P.some(p=>p>2))return u;}},
+ ()=>{for(;;){const s=ri(30,45),each=sel([10,12,15,18,20]),T=s*each;const cnd=divs(T).filter(d=>d>=30&&d<=45);if(cnd.length!==1)continue;const P=fac(T).map(z=>z[0]);
+   const u={title:'Quỹ lớp',ctx:`<p class="stem">Lớp 6B góp quỹ đi tham quan, mỗi bạn góp số tiền như nhau (một số tự nhiên, đơn vị nghìn đồng) và thu được tất cả ${F(T)} nghìn đồng. Lớp có từ 30 đến 45 bạn.</p>`,qs:[
+    mcq(`Dạng phân tích ra thừa số nguyên tố của ${F(T)} là:`,FS(fac(T)),[[FS(fac(T).map((z,i)=>i===fac(T).length-1?[z[0],z[1]+1]:z)),'Tính lại tích.'],[`${each} · ${s}`,'Các thừa số phải là số nguyên tố.'],[FS(fac(T).map(z=>[z[0],1])),'Còn thiếu các thừa số lặp lại.']],`${F(T)} = ${FS(fac(T))}.`,'pt','NB'),
+    saq('Lớp 6B có bao nhiêu bạn?',s,'bạn',`Số bạn là ước của ${F(T)} từ 30 đến 45: chỉ có ${s}.`,'tt','TH'),
+    saq('Mỗi bạn góp bao nhiêu nghìn đồng?',each,'nghìn đồng',`${F(T)} : ${s} = ${each}.`,'tt','TH'),
+    mcq(`Có thể chia đều số tiền quỹ cho 9 nhóm (mỗi nhóm số tiền là số tự nhiên nghìn đồng) không?`,T%9===0?`Được, vì tổng các chữ số của ${F(T)} chia hết cho 9`:`Không, vì tổng các chữ số của ${F(T)} không chia hết cho 9`,[[T%9===0?'Không, vì số tiền là số chẵn':'Được, vì số tiền là số chẵn','Chia hết cho 9 dựa vào tổng các chữ số.'],[T%9===0?`Không, vì ${F(T)} có chữ số tận cùng là ${T%10}`:`Được, vì ${F(T)} có chữ số tận cùng là ${T%10}`,'Phải xét tổng các chữ số.'],[`Được, vì ${F(T)} lớn hơn 9`,'Lớn hơn 9 chưa chắc chia hết cho 9.']],`${sig(T,9)}.`,'sd','VD')]};if(qsOK(u))return u;}}
+];
+PISA.forEach((g,i)=>{PISA[i]=()=>{const u=g();u.qs.forEach(q=>q.mix=mixOf(q.topic));return u;};});
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'sd',fig:'<div class="figbox"><p>1 872: tận cùng 2 nên ⋮ 2, ⋮̸ 5, ⋮̸ 10; tổng các chữ số 18 nên ⋮ 3, ⋮ 9</p></div>',extra:'Kết hợp tính chất chia hết của một tổng.'},
+  {k:'pt',fig:'<div class="figbox"><p>140 = 2<sup>2</sup> · 5 · 7</p><p>A = 4<sup>2</sup> · 6<sup>3</sup> = 2<sup>4</sup> · 2<sup>3</sup> · 3<sup>3</sup> = 2<sup>7</sup> · 3<sup>3</sup></p></div>',extra:'Phân tích từng cơ số rồi cộng số mũ của cùng một thừa số.'},
+  {k:'nt',fig:'<div class="figbox"><p>Sinh đôi: 3 và 5; 5 và 7; 11 và 13; 17 và 19; 29 và 31</p></div>',extra:'Dùng dấu hiệu chia hết để tìm ước, chứng tỏ hợp số.'},
+  {k:'tt',fig:'<div class="figbox"><p>36 bạn, mỗi hàng 3 đến 12 bạn: 3; 4; 6; 9; 12 bạn mỗi hàng</p></div>',extra:'Số bạn mỗi hàng là ước của tổng số bạn.'}
+];
+
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='lc2_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['sd',['NB']],['nt',['NB']],['pt',['NB','TH']],['sd',['TH']],['tt',['NB','TH']],[null,['VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['sd','nt','tt'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=[
+    pick(MC.filter(q=>q.topic==='sd'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='nt'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='pt'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='tt'&&q.level==='TH'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic==='sd'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='nt'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^[1-9]\d{0,2}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}

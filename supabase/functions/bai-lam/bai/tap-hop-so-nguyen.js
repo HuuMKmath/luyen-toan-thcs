@@ -1,0 +1,1001 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ tap-hop-so-nguyen/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "tap-hop-so-nguyen";
+export const TIEN_TO = "SN6-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Số nguyên: cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;          // viết số nguyên, số âm dùng dấu trừ "−"
+const L=a=>a.map(N).join('; ');
+const SET=a=>'{'+L(a)+'}';
+const nb=s=>s.replace(/ /g,'\u00a0');   // khoảng trắng không ngắt dòng, để bất đẳng thức không bị tách đôi
+const nbT=o=>Object.assign(o,{t:nb(o.t)});
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const asc=a=>a.slice().sort((x,y)=>x-y);
+const range=(lo,hi)=>{const o=[];for(let v=lo;v<=hi;v++)o.push(v);return o;};
+
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const FB_MC=()=>({stem:'Số nào sau đây là số nguyên âm?',opts:[{t:'−7'},{t:'7',err:'7 là số nguyên dương.'},{t:'0',err:'Số 0 không phải số nguyên âm, cũng không phải số nguyên dương.'},{t:'+4',err:'+4 chính là 4, một số nguyên dương.'}],ans:0,exp:'−7 có dấu "−" đứng trước nên là số nguyên âm.'});
+function tryGen(f){
+  for(let n=0;n<100;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>o.t)).size===4)return r;}
+  return FB_MC();
+}
+
+/* ============ Hình: trục số ============ */
+function truc(lo,hi,pts,show){
+  pts=pts||{};
+  const x0=24,x1=366,st=(x1-x0)/(hi-lo),X=v=>+(x0+(v-lo)*st).toFixed(1),y=48;
+  let s=`<line class="ax" x1="6" y1="${y}" x2="388" y2="${y}"/><path class="ah" d="M395 ${y} l-10 -5 v10 z"/>`;
+  for(let v=lo;v<=hi;v++){
+    s+=`<line class="ax" x1="${X(v)}" y1="${y-5}" x2="${X(v)}" y2="${y+5}"/>`;
+    if(show==='all'||show.includes(v))s+=`<text class="tl" x="${X(v)}" y="${y+26}" text-anchor="middle">${N(v)}</text>`;
+  }
+  const names=Object.keys(pts);
+  if(!names.some(k=>pts[k]===0))s+=`<text class="ol0" x="${X(0)}" y="${y-12}" text-anchor="middle">O</text>`;
+  names.forEach(k=>{s+=`<circle class="pt" cx="${X(pts[k])}" cy="${y}" r="4.5"/><text class="pl" x="${X(pts[k])}" y="${y-12}" text-anchor="middle">${k}</text>`;});
+  const where=k=>`điểm ${k} cách gốc O ${Math.abs(pts[k])} vạch về bên ${pts[k]<0?'trái':'phải'}`;
+  const desc=`Trục số nằm ngang, gốc O ở giữa, mỗi vạch cách nhau một đơn vị`+(names.length?'; '+names.map(where).join('; '):'')+'.';
+  return `<div class="figbox"><svg viewBox="0 0 400 84" role="img" aria-label="${desc}" style="width:100%;height:auto;display:block">${s}</svg></div>`;
+}
+const FIG_NOTE=' (Mỗi khoảng giữa hai vạch liền nhau là 1 đơn vị.)';
+
+/* ============ Bộ sinh câu nhiều lựa chọn ============ */
+/* --- Số nguyên âm, tập hợp ℤ --- */
+function genNeg(){return tryGen(()=>{
+  const [a,b,c]=sample(3,2,60);
+  return {stem:'Số nào sau đây là số nguyên âm?',opts:[{t:N(-a)},{t:''+b,err:`${b} là số nguyên dương.`},{t:'0',err:'Số 0 không phải số nguyên âm, cũng không phải số nguyên dương.'},{t:'+'+c,err:`+${c} chính là ${c}, một số nguyên dương.`}],ans:0,exp:`${N(-a)} có dấu "−" đứng trước nên là số nguyên âm.`};
+});}
+function genIn(){return tryGen(()=>{
+  const [a,b,c,d]=sample(4,2,60);
+  const good=sel([
+    {t:`${N(-a)} ∈ ℤ`,e:`${N(-a)} là số nguyên âm nên thuộc tập hợp ℤ.`},
+    {t:`${a} ∈ ℤ`,e:`${a} là số tự nhiên, mà mọi số tự nhiên đều là số nguyên, nên ${a} ∈ ℤ.`},
+    {t:`${N(-a)} ∉ ℕ`,e:`${N(-a)} là số nguyên âm, không phải số tự nhiên, nên ${N(-a)} ∉ ℕ.`},
+    {t:'0 ∈ ℤ',e:'Số 0 là một số nguyên nên 0 ∈ ℤ.'}]);
+  const w1={t:`${N(-b)} ∈ ℕ`,err:`${N(-b)} là số nguyên âm, không phải số tự nhiên.`};
+  const w2={t:`${c} ∉ ℤ`,err:`${c} là số tự nhiên, mà mọi số tự nhiên đều là số nguyên, nên ${c} ∈ ℤ.`};
+  const w3=good.t==='0 ∈ ℤ'||ri(0,1)?{t:`${N(-d)} ∉ ℤ`,err:`${N(-d)} là số nguyên âm nên thuộc tập hợp ℤ.`}:{t:'0 ∉ ℤ',err:'Số 0 là một số nguyên nên 0 ∈ ℤ.'};
+  return {stem:'Cách viết nào sau đây đúng?',opts:[{t:good.t},w1,w2,w3].map(nbT),ans:0,exp:good.e};
+});}
+function mixList(n){
+  const k=ri(2,n-3),abs=sample(n-1,1,30);
+  const negs=abs.slice(0,k).map(v=>-v),poss=abs.slice(k);
+  const plus=sel(poss),list=shuffle(negs.concat(poss,[0]));
+  return {list,txt:list.map(v=>v===plus?'+'+v:N(v)).join('; '),negs:asc(negs),poss:asc(poss),neg:k,pos:poss.length};
+}
+function genCount(){return tryGen(()=>{
+  const d=mixList(6),k=d.neg;
+  const wrong=pickOpts(''+k,[
+    {t:''+(k+1),err:'Bạn đã tính cả số 0. Số 0 không phải là số nguyên âm.'},
+    {t:''+d.pos,err:'Đó là số các số nguyên dương trong dãy, không phải số nguyên âm.'},
+    {t:''+(d.pos+1),err:'Đó là số các số không âm (các số nguyên dương và số 0).'},
+    {t:''+(k-1),err:'Bạn đếm thiếu một số nguyên âm. Hãy tìm mọi số có dấu "−" đứng trước.'},
+    {t:'6',err:'6 là tổng số các số trong dãy, trong đó có cả số 0 và các số nguyên dương.'}]);
+  return {stem:`Trong các số ${d.txt}, có bao nhiêu số nguyên âm?`,opts:[{t:''+k}].concat(wrong),ans:0,exp:`Các số nguyên âm là ${L(d.negs)}. Có ${k} số. Số 0 không phải số nguyên âm.`};
+});}
+
+/* --- Số nguyên trong thực tế --- */
+const TWO=[
+  {a:()=>ri(2,15),b:()=>ri(1,12),stem:(a,b)=>`Nhiệt độ buổi trưa là ${a}°C trên 0°C, ban đêm là ${b}°C dưới 0°C. Hai nhiệt độ đó được viết lần lượt là:`,u:'°C',neg:'Nhiệt độ dưới 0°C',pos:'Nhiệt độ trên 0°C'},
+  {a:()=>50*ri(4,30),b:()=>10*ri(3,30),stem:(a,b)=>`Một đỉnh núi cao ${a} m so với mực nước biển, một đáy vực sâu ${b} m dưới mực nước biển. Độ cao của đỉnh núi và đáy vực so với mực nước biển lần lượt là:`,u:' m',neg:'Độ cao dưới mực nước biển',pos:'Độ cao trên mực nước biển'},
+  {a:()=>ri(5,40),b:()=>ri(3,30),stem:(a,b)=>`Tháng Một một cửa hàng lãi ${a} triệu đồng, tháng Hai lỗ ${b} triệu đồng. Dùng số nguyên, lợi nhuận của tháng Một và tháng Hai (đơn vị: triệu đồng) lần lượt là:`,u:'',neg:'Số tiền lỗ',pos:'Số tiền lãi'},
+  {a:()=>10*ri(2,20),b:()=>10*ri(2,20),stem:(a,b)=>`Bạn An có ${a} nghìn đồng, bạn Bình đang nợ ${b} nghìn đồng. Dùng số nguyên, số tiền của An và của Bình (đơn vị: nghìn đồng) lần lượt là:`,u:'',neg:'Số tiền nợ',pos:'Số tiền đang có'}
+];
+function genTwo(){return tryGen(()=>{
+  const C=sel(TWO),a=C.a(),b=C.b();if(a===b)return null;
+  const P=(x,y)=>`${N(x)}${C.u} và ${N(y)}${C.u}`;
+  return {stem:C.stem(a,b),opts:[
+    {t:P(a,-b)},
+    {t:P(-a,b),err:`Bạn đặt dấu ngược. ${C.neg} mới được biểu thị bằng số nguyên âm.`},
+    {t:P(a,b),err:`${C.neg} phải được biểu thị bằng số nguyên âm, có dấu "−" đứng trước.`},
+    {t:P(-a,-b),err:`${C.pos} được biểu thị bằng số nguyên dương, không có dấu "−".`}],ans:0,
+    exp:`${C.pos} được biểu thị bằng số nguyên dương, ${C.neg[0].toLowerCase()+C.neg.slice(1)} được biểu thị bằng số nguyên âm: ${P(a,-b)}.`};
+});}
+const MEAN=[
+  {x:()=>ri(2,25),stem:x=>`Bản tin thời tiết cho biết nhiệt độ tại một thị trấn vùng núi là ${N(-x)}°C. Điều đó có nghĩa là gì?`,
+   o:x=>[`Nhiệt độ là ${x} độ dưới 0°C`,[`Nhiệt độ là ${x} độ trên 0°C`,'Nhiệt độ trên 0°C được biểu thị bằng số nguyên dương.'],['Nhiệt độ đúng bằng 0°C','0°C là mốc, ứng với số 0.'],[`Nhiệt độ vừa giảm đi ${x} độ`,`Số ${N(-x)} cho biết nhiệt độ lúc đó, không cho biết nhiệt độ thay đổi bao nhiêu.`]],
+   e:x=>`${N(-x)}°C là nhiệt độ ${x} độ dưới 0°C.`},
+  {x:()=>10*ri(2,50),stem:x=>`Trong sổ ghi tiền của bác Tư, số tiền hiện có được ghi là ${N(-x)} nghìn đồng. Điều đó có nghĩa là gì?`,
+   o:x=>[`Bác Tư đang nợ ${x} nghìn đồng`,[`Bác Tư đang có ${x} nghìn đồng`,'Số tiền đang có được biểu thị bằng số nguyên dương.'],['Bác Tư không có tiền và cũng không nợ','Không có tiền và không nợ ứng với số 0.'],[`Bác Tư vừa tiêu ${x} nghìn đồng`,`Số ${N(-x)} cho biết số tiền hiện tại, không cho biết bác vừa tiêu bao nhiêu.`]],
+   e:x=>`Số tiền ${N(-x)} nghìn đồng nghĩa là đang nợ ${x} nghìn đồng.`},
+  {x:()=>10*ri(3,40),stem:x=>`Một tàu ngầm đang ở độ cao ${N(-x)} m so với mực nước biển. Điều đó có nghĩa là gì?`,
+   o:x=>[`Tàu đang ở dưới mực nước biển ${x} m`,[`Tàu đang ở trên mực nước biển ${x} m`,'Độ cao trên mực nước biển được biểu thị bằng số nguyên dương.'],['Tàu đang ở ngang mực nước biển','Ngang mực nước biển ứng với độ cao 0 m.'],[`Tàu vừa lặn sâu thêm ${x} m`,`Số ${N(-x)} cho biết vị trí của tàu lúc đó, không cho biết tàu vừa lặn thêm bao nhiêu.`]],
+   e:x=>`Độ cao ${N(-x)} m nghĩa là thấp hơn mực nước biển ${x} m.`}
+];
+function genMean(){return tryGen(()=>{
+  const C=sel(MEAN),x=C.x(),o=C.o(x);
+  return {stem:C.stem(x),opts:[{t:o[0]}].concat(o.slice(1).map(w=>({t:w[0],err:w[1]}))),ans:0,exp:C.e(x)};
+});}
+function genCold(){return tryGen(()=>{
+  const t=sample(4,1,15).map(v=>-v),cold=ri(0,1)===1,mn=Math.min(...t),mx=Math.max(...t),good=cold?mn:mx;
+  const opts=[{t:N(good)+'°C'}];
+  t.filter(v=>v!==good).forEach(v=>{
+    let err;
+    if(cold)err=v===mx?`Trong các số trên, ${N(v)} là số lớn nhất nên đó là nhiệt độ cao nhất, không phải thấp nhất.`:`${N(mn)} còn nhỏ hơn ${N(v)} (điểm ${N(mn)} nằm bên trái điểm ${N(v)} trên trục số).`;
+    else err=v===mn?`Trong các số trên, ${N(v)} là số nhỏ nhất nên đó là nhiệt độ thấp nhất, không phải cao nhất.`:`${N(mx)} còn lớn hơn ${N(v)} (điểm ${N(mx)} nằm bên phải điểm ${N(v)} trên trục số).`;
+    opts.push({t:N(v)+'°C',err});
+  });
+  return {stem:`Nhiệt độ lúc 5 giờ sáng của bốn ngày liên tiếp tại một thị trấn vùng núi là ${t.map(v=>N(v)+'°C').join('; ')}. Nhiệt độ ${cold?'thấp nhất':'cao nhất'} trong bốn ngày đó là:`,opts,ans:0,
+    exp:`Sắp xếp tăng dần: ${L(asc(t))}. Số ${cold?'nhỏ nhất':'lớn nhất'} là ${N(good)}, nên nhiệt độ ${cold?'thấp nhất':'cao nhất'} là ${N(good)}°C.`};
+});}
+
+/* --- Trục số --- */
+function genRead(){return tryGen(()=>{
+  const k=ri(2,6),sg=sel([-1,-1,1]),a=sg*k;
+  const cnt=`Từ gốc O đến A có ${k} khoảng, mỗi khoảng là 1 đơn vị. Hãy đếm lại.`;
+  return {stem:'Trên trục số dưới đây, điểm A biểu diễn số nào?'+FIG_NOTE,fig:truc(-7,7,{A:a},[0,1]),opts:[
+    {t:N(a)},
+    {t:N(-a),err:`Điểm A nằm bên ${sg<0?'trái':'phải'} gốc O nên biểu diễn một số nguyên ${sg<0?'âm':'dương'}.`},
+    {t:N(sg*(k+1)),err:cnt},{t:N(sg*(k-1)),err:cnt}],ans:0,
+    exp:`Điểm A nằm bên ${sg<0?'trái':'phải'} gốc O và cách O ${k} đơn vị nên A biểu diễn số ${N(a)}.`};
+});}
+function genWhich(){return tryGen(()=>{
+  const v=-ri(2,5),rest=shuffle(range(-6,6).filter(x=>x!==0&&x!==v&&x!==-v)).slice(0,2);
+  const names=shuffle(['A','B','C','D']),vals=[v,-v,rest[0],rest[1]],pts={};
+  names.forEach((k,i)=>pts[k]=vals[i]);
+  const opts=names.map((k,i)=>i===0?{t:'Điểm '+k}:{t:'Điểm '+k,err:`Điểm ${k} nằm bên ${vals[i]<0?'trái':'phải'} gốc O và cách O ${Math.abs(vals[i])} đơn vị nên biểu diễn số ${N(vals[i])}.`});
+  return {stem:`Trên trục số dưới đây, điểm nào biểu diễn số ${N(v)}?`+FIG_NOTE,fig:truc(-7,7,pts,[0,1]),opts,ans:0,
+    exp:`Số ${N(v)} là số nguyên âm nên điểm biểu diễn nằm bên trái gốc O và cách O ${-v} đơn vị. Đó là điểm ${names[0]}.`};
+});}
+function genDist(){return tryGen(()=>{
+  const a=ri(3,12);
+  return {stem:`Trên trục số, điểm biểu diễn số ${N(-a)} cách gốc O bao nhiêu đơn vị?`,opts:[
+    {t:`${a} đơn vị`},
+    {t:`${N(-a)} đơn vị`,err:'Khoảng cách không thể là số âm. Dấu "−" chỉ cho biết điểm nằm bên trái gốc O.'},
+    {t:`${2*a} đơn vị`,err:`${2*a} đơn vị là khoảng cách giữa hai điểm ${N(-a)} và ${a}, không phải từ điểm ${N(-a)} đến gốc O.`},
+    {t:`${a-1} đơn vị`,err:`Hãy đếm số khoảng từ gốc O đến điểm ${N(-a)}: có ${a} khoảng.`}],ans:0,
+    exp:`Điểm ${N(-a)} nằm bên trái gốc O và cách gốc O ${a} đơn vị.`};
+});}
+function genSide(){return tryGen(()=>{
+  const k=ri(2,15),left=ri(0,2)>0,g=left?-k:k;
+  const cnt=`Cách gốc O ${k} đơn vị nghĩa là từ O đến điểm đó có đúng ${k} khoảng.`;
+  return {stem:`Trên trục số nằm ngang, điểm nằm bên ${left?'trái':'phải'} gốc O và cách gốc O ${k} đơn vị biểu diễn số nào?`,opts:[
+    {t:N(g)},{t:N(-g),err:`Điểm ${N(-g)} nằm bên ${left?'phải':'trái'} gốc O.`},
+    {t:N(left?-(k+1):k+1),err:cnt},{t:N(left?-(k-1):k-1),err:cnt}],ans:0,
+    exp:`Bên ${left?'trái':'phải'} gốc O là các số nguyên ${left?'âm':'dương'}; cách O ${k} đơn vị là số ${N(g)}.`};
+});}
+function genBoth(){return tryGen(()=>{
+  const k=ri(2,20);
+  return {stem:`Trên trục số, những số nguyên nào có điểm biểu diễn cách gốc O đúng ${k} đơn vị?`,opts:[
+    {t:`${N(-k)} và ${k}`},
+    {t:`Chỉ số ${k}`,err:`Còn điểm ${N(-k)} ở bên trái gốc O cũng cách O ${k} đơn vị.`},
+    {t:`Chỉ số ${N(-k)}`,err:`Còn điểm ${k} ở bên phải gốc O cũng cách O ${k} đơn vị.`},
+    {t:`0 và ${k}`,err:'Số 0 được biểu diễn bởi chính gốc O, cách O 0 đơn vị.'}],ans:0,
+    exp:`Có hai điểm cách gốc O ${k} đơn vị: điểm ${k} ở bên phải và điểm ${N(-k)} ở bên trái.`};
+});}
+function moveData(){
+  const a=ri(1,4),m=a+ri(1,5),left=ri(0,1)===1;
+  const s=left?a:-a,d=left?-1:1,e=s+d*m;
+  const path=range(1,m).map(i=>s+d*i);
+  return {s,m,left,d,e,path};
+}
+function genMove(){return tryGen(()=>{
+  const D=moveData(),{s,m,left,d,e}=D;if(e===0)return null;
+  return {stem:`Trên trục số, một con kiến xuất phát từ điểm biểu diễn số ${N(s)} và bò sang ${left?'trái':'phải'} ${m} đơn vị. Con kiến dừng lại ở điểm biểu diễn số nào?`,fig:truc(-7,7,{},'all'),opts:[
+    {t:N(e)},
+    {t:N(s-d*m),err:`Đó là khi con kiến bò sang ${left?'phải':'trái'}. Đề bài cho bò sang ${left?'trái':'phải'}.`},
+    {t:N(-e),err:`Con kiến đã đi qua gốc O sang phía bên ${left?'trái':'phải'}, nên dừng ở một số nguyên ${left?'âm':'dương'}.`},
+    {t:N(e-d),err:`Bạn đã đếm cả điểm xuất phát. Bước thứ nhất là đến điểm ${N(s+d)}.`}],ans:0,
+    exp:`Từ ${N(s)} bò sang ${left?'trái':'phải'} ${m} đơn vị, con kiến lần lượt đến các điểm ${L(D.path)}. Vậy nó dừng ở điểm ${N(e)}.`};
+});}
+function genAB(){return tryGen(()=>{
+  const [a,b]=sample(2,1,6);
+  return {stem:`Trên trục số dưới đây, điểm A biểu diễn số ${N(-a)}, điểm B biểu diễn số ${b}. Hai điểm A và B cách nhau bao nhiêu đơn vị?`,fig:truc(-7,7,{A:-a,B:b},'all'),opts:[
+    {t:`${a+b} đơn vị`},
+    {t:`${Math.abs(a-b)} đơn vị`,err:'A và B nằm ở hai phía của gốc O, nên phải cộng khoảng cách từ mỗi điểm đến O.'},
+    {t:`${a+b-1} đơn vị`,err:'Hãy đếm số khoảng giữa A và B, không đếm số vạch nằm giữa.'},
+    {t:`${a+b+1} đơn vị`,err:'Bạn đã đếm số vạch từ A đến B. Số khoảng ít hơn số vạch 1.'}],ans:0,
+    exp:`A cách gốc O ${a} đơn vị về bên trái, B cách gốc O ${b} đơn vị về bên phải. Vậy A và B cách nhau ${a} + ${b} = ${a+b} đơn vị.`};
+});}
+
+/* --- So sánh --- */
+function genCmp(){return tryGen(()=>{
+  const two=()=>{const [x,y]=sample(2,2,30);return [Math.max(x,y),Math.min(x,y)];};
+  const [p,q]=two(),r=ri(1,30);
+  const good=sel([
+    {t:`${N(-p)} < ${N(-q)}`,e:`Trên trục số, điểm ${N(-p)} nằm bên trái điểm ${N(-q)} nên ${N(-p)} < ${N(-q)}.`},
+    {t:`${N(-q)} > ${N(-p)}`,e:`Trên trục số, điểm ${N(-q)} nằm bên phải điểm ${N(-p)} nên ${N(-q)} > ${N(-p)}.`},
+    {t:`${N(-p)} < ${r}`,e:'Mọi số nguyên âm đều nhỏ hơn mọi số nguyên dương.'},
+    {t:`${N(-p)} < 0`,e:'Mọi số nguyên âm đều nhỏ hơn 0.'}]);
+  const [p1,q1]=two(),[p2,r2]=two(),p3=ri(2,30);
+  return {stem:'Khẳng định nào sau đây đúng?',opts:[{t:good.t},
+    {t:`${N(-p1)} > ${N(-q1)}`,err:`${p1} > ${q1} nhưng với số âm thì ngược lại: điểm ${N(-p1)} nằm bên trái điểm ${N(-q1)} nên ${N(-p1)} < ${N(-q1)}.`},
+    {t:`${N(-p2)} > ${r2}`,err:`Số nguyên âm luôn nhỏ hơn số nguyên dương, nên ${N(-p2)} < ${r2}.`},
+    {t:sel([`${N(-p3)} > 0`,`0 < ${N(-p3)}`]),err:`Mọi số nguyên âm đều nhỏ hơn 0, nên ${N(-p3)} < 0.`}].map(nbT),ans:0,exp:good.e};
+});}
+function sortData(){
+  const abs=sample(5,1,12),zero=ri(0,1)===1;
+  const negs=abs.slice(0,zero?2:3).map(v=>-v),poss=abs.slice(3,5);
+  return {v:negs.concat(poss,zero?[0]:[]),negs,poss};
+}
+function genSort(inc){return ()=>tryGen(()=>{
+  const d=sortData(),v=d.v,up=asc(v),down=up.slice().reverse();
+  const na=d.negs.slice().sort((x,y)=>y-x); // số âm xếp theo số sau dấu trừ tăng dần (sai)
+  const rest=asc(v.filter(x=>x>=0));
+  const byAbs=v.slice().sort((x,y)=>Math.abs(x)-Math.abs(y));
+  const nn=asc(d.negs),hi=nn[nn.length-1],lo=nn[0];
+  const good=inc?up:down;
+  const wNeg=inc?na.concat(rest):rest.slice().reverse().concat(na.slice().reverse());
+  const wAbs=inc?byAbs:byAbs.slice().reverse();
+  return {stem:`Sắp xếp các số ${L(shuffle(v))} theo thứ tự ${inc?'tăng dần':'giảm dần'}.`,opts:[
+    {t:L(good)},
+    {t:L(inc?down:up),err:`Đó là thứ tự ${inc?'giảm dần':'tăng dần'}. Đề bài yêu cầu thứ tự ${inc?'tăng dần':'giảm dần'}.`},
+    {t:L(wNeg),err:`Các số nguyên âm xếp chưa đúng: ${N(lo)} nhỏ hơn ${N(hi)} vì điểm ${N(lo)} nằm bên trái điểm ${N(hi)} trên trục số.`},
+    {t:L(wAbs),err:'Bạn đã so sánh các số mà bỏ qua dấu "−". Số nguyên âm luôn nhỏ hơn 0 và nhỏ hơn mọi số nguyên dương.'}],ans:0,
+    exp:`Các số nguyên âm nhỏ hơn 0 và nhỏ hơn các số nguyên dương; trong các số âm, ${N(lo)} nhỏ nhất. Thứ tự ${inc?'tăng dần':'giảm dần'}: ${L(good)}.`};
+});}
+/* Khoảng: kiểu 0: −a < x < b; 1: −a ≤ x < b; 2: −a < x ≤ b; 3: −a ≤ x ≤ b */
+const RG={
+  txt:(a,b,k)=>nb(`${N(-a)} ${k&1?'≤':'<'} x ${k&2?'≤':'<'} ${b}`),
+  lo:(a,k)=>k&1?-a:-a+1,hi:(b,k)=>k&2?b:b-1
+};
+function genList(){return tryGen(()=>{
+  const a=ri(2,4),b=ri(1,3),k=ri(0,2);
+  const mk=j=>SET(range(RG.lo(a,j),RG.hi(b,j)));
+  const err=j=>{
+    const e=[];
+    if((j&1)!==(k&1))e.push(k&1?`Vì x ≥ ${N(-a)} nên x có thể bằng ${N(-a)}.`:`Vì x > ${N(-a)} nên x không thể bằng ${N(-a)}.`);
+    if((j&2)!==(k&2))e.push(k&2?`Vì x ≤ ${b} nên x có thể bằng ${b}.`:`Vì x < ${b} nên x không thể bằng ${b}.`);
+    return e.join(' ');
+  };
+  const opts=[{t:mk(k)}];[0,1,2,3].filter(j=>j!==k).forEach(j=>opts.push({t:mk(j),err:err(j)}));
+  return {stem:`Tập hợp các số nguyên x thỏa mãn ${RG.txt(a,b,k)} là:`,opts,ans:0,
+    exp:`Các số nguyên x thỏa mãn ${RG.txt(a,b,k)} là ${L(range(RG.lo(a,k),RG.hi(b,k)))}.`};
+});}
+function countExp(a,b,k){
+  const lo=RG.lo(a,k),hi=RG.hi(b,k);
+  return `Các số đó là ${N(lo)}; ${N(lo+1)}; ...; ${N(hi)}: gồm ${-lo} số nguyên âm, số 0 và ${hi} số nguyên dương. Tất cả có ${-lo} + 1 + ${hi} = ${hi-lo+1} số.`;
+}
+function genCountRange(){return tryGen(()=>{
+  const a=ri(4,12),b=ri(3,10),k=ri(0,3),c=RG.hi(b,k)-RG.lo(a,k)+1,s=a+b;
+  const wrong=pickOpts(''+c,shuffle([
+    {t:''+(s+1),err:`${s+1} là số các số nguyên từ ${N(-a)} đến ${b} khi tính cả hai đầu. Hãy xem lại dấu < và ≤ trong đề.`},
+    {t:''+s,err:`${s} là kết quả khi chỉ tính một trong hai số ${N(-a)} và ${b}. Hãy xem lại dấu < và ≤ trong đề.`},
+    {t:''+(s-1),err:`${s-1} là kết quả khi không tính cả ${N(-a)} và ${b}. Hãy xem lại dấu < và ≤ trong đề.`}]).concat(shuffle([
+    {t:''+(s-2),err:'Bạn đếm thiếu. Đừng quên số 0 nằm giữa các số nguyên âm và các số nguyên dương.'},
+    {t:''+(s+2),err:'Bạn đếm thừa. Hãy liệt kê các số theo thứ tự rồi đếm lại.'}])));
+  return {stem:`Có bao nhiêu số nguyên x thỏa mãn ${RG.txt(a,b,k)}?`,opts:[{t:''+c}].concat(wrong),ans:0,exp:countExp(a,b,k)};
+});}
+function genNear(){return tryGen(()=>{
+  const a=ri(3,30),below=ri(0,1)===1;
+  if(below)return {stem:`Số nguyên lớn nhất nhỏ hơn ${N(-a)} là số nào?`,opts:[
+    {t:N(-a-1)},
+    {t:N(-a+1),err:`${N(-a+1)} lớn hơn ${N(-a)} vì điểm ${N(-a+1)} nằm bên phải điểm ${N(-a)} trên trục số.`},
+    {t:N(-a),err:`Số cần tìm phải nhỏ hơn ${N(-a)}, không được bằng ${N(-a)}.`},
+    {t:N(-a-2),err:`${N(-a-2)} nhỏ hơn ${N(-a)} nhưng chưa phải lớn nhất: ${N(-a-1)} còn lớn hơn.`}],ans:0,
+    exp:`Trên trục số, số nguyên đứng ngay bên trái ${N(-a)} là ${N(-a-1)}. Đó là số nguyên lớn nhất nhỏ hơn ${N(-a)}.`};
+  return {stem:`Số nguyên nhỏ nhất lớn hơn ${N(-a)} là số nào?`,opts:[
+    {t:N(-a+1)},
+    {t:N(-a-1),err:`${N(-a-1)} nhỏ hơn ${N(-a)} vì điểm ${N(-a-1)} nằm bên trái điểm ${N(-a)} trên trục số.`},
+    {t:N(-a),err:`Số cần tìm phải lớn hơn ${N(-a)}, không được bằng ${N(-a)}.`},
+    {t:N(-a+2),err:`${N(-a+2)} lớn hơn ${N(-a)} nhưng chưa phải nhỏ nhất: ${N(-a+1)} còn nhỏ hơn.`}],ans:0,
+    exp:`Trên trục số, số nguyên đứng ngay bên phải ${N(-a)} là ${N(-a+1)}. Đó là số nguyên nhỏ nhất lớn hơn ${N(-a)}.`};
+});}
+
+/* ============ Bộ sinh đúng sai ============ */
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function pick4(Ts,Fs){
+  const nT=ri(1,3);
+  return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));
+}
+function mixed(make){ // tạo 4 ý, bảo đảm có cả ý đúng và ý sai
+  for(let n=0;n<60;n++){const items=make();const k=items.filter(i=>i.v).length;if(k>=1&&k<=3)return items;}
+  return null;
+}
+const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
+  IT('−3 ∈ ℤ',true,'na','NB','−3 là số nguyên âm nên thuộc tập hợp ℤ.'),
+  IT('Số 0 là số nguyên dương.',false,'na','NB','Số 0 không phải số nguyên âm, cũng không phải số nguyên dương.'),
+  IT('−5 < −2',true,'ss','NB','Điểm −5 nằm bên trái điểm −2 trên trục số.'),
+  IT('−4 > 1',false,'ss','NB','Số nguyên âm luôn nhỏ hơn số nguyên dương.')]});
+function tfSet(level){return ()=>{
+  let items;
+  if(level==='NB'){
+    const [a,b,c,d,e,f,g,h,i]=sample(9,2,60);
+    items=pick4([
+      IT(`${N(-a)} ∈ ℤ`,true,'na','NB',`${N(-a)} là số nguyên âm nên thuộc tập hợp ℤ.`),
+      IT(`${b} ∈ ℤ`,true,'na','NB',`${b} là số tự nhiên, mà mọi số tự nhiên đều là số nguyên.`),
+      IT(`${N(-c)} ∉ ℕ`,true,'na','NB',`${N(-c)} là số nguyên âm, không phải số tự nhiên.`),
+      IT(`Số ${N(-d)} là số nguyên âm.`,true,'na','NB',`${N(-d)} có dấu "−" đứng trước nên là số nguyên âm.`),
+      IT('0 ∈ ℤ',true,'na','NB','Số 0 là một số nguyên.')],[
+      IT(`${N(-e)} ∈ ℕ`,false,'na','NB',`${N(-e)} là số nguyên âm, không phải số tự nhiên.`),
+      IT(`${f} ∉ ℤ`,false,'na','NB',`${f} là số tự nhiên nên cũng là số nguyên: ${f} ∈ ℤ.`),
+      IT('0 ∉ ℤ',false,'na','NB','Số 0 là một số nguyên nên 0 ∈ ℤ.'),
+      IT(`Số ${N(-g)} là số nguyên dương.`,false,'na','NB',`${N(-g)} có dấu "−" đứng trước nên là số nguyên âm.`),
+      IT(`Số +${h} là số nguyên âm.`,false,'na','NB',`+${h} chính là ${h}, một số nguyên dương.`)]);
+  }else{
+    items=pick4([
+      IT('Mọi số tự nhiên đều là số nguyên.',true,'na','TH','Tập hợp ℤ gồm các số nguyên âm, số 0 và các số nguyên dương, tức là chứa mọi số tự nhiên.'),
+      IT('Số 0 không phải số nguyên âm và cũng không phải số nguyên dương.',true,'na','TH','Số 0 đứng riêng, không âm và không dương.'),
+      IT('Tập hợp ℤ gồm các số nguyên âm, số 0 và các số nguyên dương.',true,'na','TH','Đó chính là cách mô tả tập hợp các số nguyên.'),
+      IT('Mọi số nguyên dương đều là số tự nhiên.',true,'na','TH','Các số nguyên dương 1; 2; 3; ... chính là các số tự nhiên khác 0.'),
+      IT('Có những số nguyên không phải là số tự nhiên.',true,'na','TH','Các số nguyên âm như −1; −2 là số nguyên nhưng không phải số tự nhiên.'),
+      IT('Số nguyên dương 5 còn được viết là +5.',true,'na','TH','Số nguyên dương có thể viết kèm dấu "+" đứng trước.')],[
+      IT('Mọi số nguyên đều là số tự nhiên.',false,'na','TH','Các số nguyên âm là số nguyên nhưng không phải số tự nhiên.'),
+      IT('Số 0 là số nguyên dương.',false,'na','TH','Số 0 không phải số nguyên âm, cũng không phải số nguyên dương.'),
+      IT('Số 0 là số nguyên âm.',false,'na','TH','Số 0 không phải số nguyên âm, cũng không phải số nguyên dương.'),
+      IT('Tập hợp ℤ chỉ gồm các số nguyên âm và các số nguyên dương.',false,'na','TH','Còn thiếu số 0. Số 0 cũng là một số nguyên.'),
+      IT('Mọi số tự nhiên đều là số nguyên dương.',false,'na','TH','Số 0 là số tự nhiên nhưng không phải số nguyên dương.'),
+      IT('Số nguyên nào không phải là số nguyên âm thì là số nguyên dương.',false,'na','TH','Số 0 không phải số nguyên âm nhưng cũng không phải số nguyên dương.')]);
+  }
+  items.forEach(it=>{if(/^\S+ [∈∉] \S+$/.test(it.t))it.t=nb(it.t);});
+  return {stem:'Xét các phát biểu sau về tập hợp ℤ các số nguyên:',items};
+};}
+function tfLine(level){return ()=>{
+  const negs=shuffle([-6,-5,-4,-3,-2,-1]).slice(0,2),poss=shuffle([1,2,3,4,5,6]).slice(0,2);
+  const vals=shuffle(negs.concat(poss)),nm=['A','B','C','D'],pts={};
+  nm.forEach((k,i)=>pts[k]=vals[i]);
+  const side=v=>v<0?'trái':'phải',T=()=>ri(0,1)===1;
+  const items=mixed(()=>{
+    const [p,q,r,s]=shuffle(nm),out=[];
+    {const v=pts[p],t=T(),w=t?v:sel([-v,v+(v<0?-1:1)]);
+     out.push(IT(`Điểm ${p} biểu diễn số ${N(w)}.`,t,'ts','NB',`Điểm ${p} nằm bên ${side(v)} gốc O và cách O ${Math.abs(v)} đơn vị nên biểu diễn số ${N(v)}.`));}
+    {const v=pts[q],t=T(),k=Math.abs(v)+(t?0:1);
+     out.push(IT(`Điểm ${q} cách gốc O ${k} đơn vị.`,t,'ts','TH',`Từ gốc O đến điểm ${q} có ${Math.abs(v)} khoảng, nên ${q} cách O ${Math.abs(v)} đơn vị.`));}
+    {const x=pts[r],y=pts[s];
+     out.push(IT(`Số do điểm ${r} biểu diễn nhỏ hơn số do điểm ${s} biểu diễn.`,x<y,'ss','TH',`Điểm ${r} (số ${N(x)}) nằm bên ${x<y?'trái':'phải'} điểm ${s} (số ${N(y)}) nên ${N(x)} ${x<y?'<':'>'} ${N(y)}.`));}
+    if(level==='VD'){const x=pts[p],y=pts[s],d=Math.abs(x-y),t=T(),k=t?d:(x*y<0?Math.abs(Math.abs(x)-Math.abs(y)):Math.abs(x)+Math.abs(y));
+     out.push(IT(`Hai điểm ${p} và ${s} cách nhau ${k} đơn vị.`,k===d,'ts','VD',`${p} biểu diễn số ${N(x)}, ${s} biểu diễn số ${N(y)}. Đếm số khoảng giữa hai điểm: ${d} đơn vị.`));}
+    else{const t=T(),k=t?2:sel([1,3]);
+     out.push(IT(`Trong hình có đúng ${k} điểm biểu diễn số nguyên âm.`,t,'ts','TH',`Các điểm nằm bên trái gốc O biểu diễn số nguyên âm: ${nm.filter(n=>pts[n]<0).join(', ')}. Có 2 điểm.`));}
+    return shuffle(out);
+  });
+  if(!items)return FB_TF();
+  return {stem:'Cho trục số dưới đây với các điểm A, B, C, D.'+FIG_NOTE+' Xét các phát biểu sau:',fig:truc(-7,7,pts,[0,1]),items};
+};}
+function cmpItem(level){
+  const kind=ri(0,3),[x,y]=sample(2,2,30),big=Math.max(x,y),small=Math.min(x,y);
+  let a,b,why;
+  if(kind===0){a=-big;b=-small;why=`Điểm ${N(-big)} nằm bên trái điểm ${N(-small)} trên trục số nên ${N(-big)} < ${N(-small)}.`;}
+  else if(kind===1){a=-big;b=small;why=`Số nguyên âm luôn nhỏ hơn số nguyên dương nên ${N(-big)} < ${small}.`;}
+  else if(kind===2){a=-x;b=0;why=`Mọi số nguyên âm đều nhỏ hơn 0 nên ${N(-x)} < 0.`;}
+  else{a=-small;b=-big;why=`Điểm ${N(-big)} nằm bên trái điểm ${N(-small)} trên trục số nên ${N(-big)} < ${N(-small)}.`;}
+  if(ri(0,1))[a,b]=[b,a];
+  const op=sel(['<','>']);
+  return IT(nb(`${N(a)} ${op} ${N(b)}`),op==='<'?a<b:a>b,'ss',level,why);
+}
+function tfCmp(level){return ()=>{
+  let items;
+  if(level==='NB')items=mixed(()=>[0,1,2,3].map(()=>cmpItem('NB')));
+  else if(level==='TH')items=mixed(()=>{
+    const T=()=>ri(0,1)===1,out=[cmpItem('TH')];
+    {const d=sortData(),up=asc(d.v),nn=asc(d.negs),t=T();
+     const w=d.negs.slice().sort((x,y)=>y-x).concat(asc(d.v.filter(x=>x>=0)));
+     out.push(IT(`Các số ${L(shuffle(d.v))} xếp theo thứ tự tăng dần là: ${L(t?up:w)}.`,t,'ss','TH',`Thứ tự tăng dần đúng là ${L(up)}; trong các số âm, ${N(nn[0])} nhỏ nhất.`));}
+    {const v=sample(4,2,40).map(x=>-x),t=T(),mx=Math.max(...v),mn=Math.min(...v);
+     out.push(IT(`Số lớn nhất trong các số ${L(v)} là ${N(t?mx:mn)}.`,t,'ss','TH',`Trên trục số, ${N(mx)} nằm bên phải các số còn lại nên ${N(mx)} lớn nhất; ${N(mn)} là số nhỏ nhất.`));}
+    {const s=sel([
+      IT('Số nguyên âm lớn nhất là −1.',true,'ss','TH','Các số nguyên âm −1; −2; −3; ... đều nằm bên trái số 0; số −1 nằm gần 0 nhất nên lớn nhất.'),
+      IT('Số 0 là số nguyên âm lớn nhất.',false,'ss','TH','Số 0 không phải số nguyên âm. Số nguyên âm lớn nhất là −1.'),
+      IT('Mọi số nguyên dương đều lớn hơn mọi số nguyên âm.',true,'ss','TH','Số nguyên dương nằm bên phải gốc O, số nguyên âm nằm bên trái gốc O.'),
+      IT('Số 0 nhỏ hơn mọi số nguyên âm.',false,'ss','TH','Mọi số nguyên âm đều nhỏ hơn 0.')]);out.push(s);}
+    return shuffle(out);
+  });
+  else items=mixed(()=>{
+    const T=()=>ri(0,1)===1,out=[];
+    {const a=ri(3,9),b=ri(2,8),k=ri(0,3),c=RG.hi(b,k)-RG.lo(a,k)+1,t=T(),w=c+sel([-1,1]);
+     out.push(IT(`Có đúng ${t?c:w} số nguyên x thỏa mãn ${RG.txt(a,b,k)}.`,t,'ss','VD',countExp(a,b,k)));}
+    {const a=ri(3,30),t=T();
+     out.push(IT(`Số nguyên nhỏ nhất lớn hơn ${N(-a)} là ${N(t?-a+1:-a-1)}.`,t,'ss','VD',`Số nguyên đứng ngay bên phải ${N(-a)} trên trục số là ${N(-a+1)}; còn ${N(-a-1)} nhỏ hơn ${N(-a)}.`));}
+    {const a=ri(2,4),b=ri(1,3),k=ri(0,2),t=T(),j=t?k:sel([0,1,2,3].filter(z=>z!==k));
+     out.push(IT(`Tập hợp các số nguyên x thỏa mãn ${RG.txt(a,b,k)} là ${SET(range(RG.lo(a,j),RG.hi(b,j)))}.`,t,'ss','TH',`Các số nguyên x thỏa mãn ${RG.txt(a,b,k)} là ${L(range(RG.lo(a,k),RG.hi(b,k)))}.`));}
+    out.push(sel([
+      IT('Nếu a là số nguyên âm và b là số nguyên dương thì a < b.',true,'ss','VD','Mọi số nguyên âm đều nhỏ hơn mọi số nguyên dương.'),
+      IT('Nếu a < b thì trên trục số nằm ngang, điểm a nằm bên phải điểm b.',false,'ss','VD','Nếu a < b thì điểm a nằm bên trái điểm b.'),
+      IT('Nếu a và b là hai số nguyên dương và a > b thì −a > −b.',false,'ss','VD','Ngược lại: nếu a > b > 0 thì −a < −b. Ví dụ 5 > 3 nhưng −5 < −3.'),
+      IT('Nếu a và b là hai số nguyên dương và a > b thì −a < −b.',true,'ss','VD','Điểm −a nằm bên trái điểm −b trên trục số. Ví dụ 5 > 3 nên −5 < −3.')]));
+    return shuffle(out);
+  });
+  if(!items)return FB_TF();
+  return {stem:'Xét các phát biểu sau về thứ tự của các số nguyên:',items};
+};}
+function tfReal(){
+  const [a,c]=sample(2,1,15),b=ri(1,12),lo=Math.max(a,c),hiN=Math.min(a,c);
+  const name=v=>v===a?'A':'C';
+  const items=mixed(()=>{
+    const T=()=>ri(0,1)===1,out=[];
+    {const t=T();out.push(IT(`Nhiệt độ ở A là ${a} độ ${t?'dưới':'trên'} 0°C.`,t,'tt','NB',`${N(-a)}°C là nhiệt độ ${a} độ dưới 0°C.`));}
+    {const t=T();out.push(IT(`Nơi lạnh nhất trong ba nơi là ${name(t?lo:hiN)}.`,t,'tt','TH',`${N(-lo)} < ${N(-hiN)} < ${b} nên nơi lạnh nhất là ${name(lo)} (${N(-lo)}°C).`));}
+    {const t=T();out.push(IT(t?`Ở ${name(lo)} lạnh hơn ở ${name(hiN)}.`:`Ở ${name(hiN)} lạnh hơn ở ${name(lo)}.`,t,'tt','TH',`${N(-lo)} < ${N(-hiN)} nên ở ${name(lo)} lạnh hơn ở ${name(hiN)}.`));}
+    {const t=T();out.push(IT(`Nơi ấm nhất trong ba nơi là ${t?'B':name(hiN)}.`,t,'tt','TH',`${b} là số nguyên dương, lớn hơn hai số nguyên âm ${N(-a)} và ${N(-c)}, nên B ấm nhất.`));}
+    return out;
+  });
+  if(!items)return FB_TF();
+  return {stem:`Nhiệt độ lúc 6 giờ sáng tại ba địa điểm như sau: A: ${N(-a)}°C; B: ${b}°C; C: ${N(-c)}°C. Xét các phát biểu sau:`,items};
+}
+function tfAlt(){
+  const [a,b,c]=sample(3,2,18).map(v=>v*5);
+  const who=[['tàu ngầm',a],['thợ lặn',b],['thiết bị bay',c]],near=who.slice().sort((x,y)=>x[1]-y[1])[0],far2=who.filter(w=>w!==near);
+  const up=asc([-a,-b,c]),wr=[-Math.min(a,b),-Math.max(a,b),c];
+  const cap=s=>s[0].toUpperCase()+s.slice(1);
+  const items=mixed(()=>{
+    const T=()=>ri(0,1)===1,out=[];
+    {const t=T();out.push(IT(t?`Thợ lặn ở phía dưới mực nước biển.`:`Thợ lặn ở phía trên mực nước biển.`,t,'tt','TH',`Độ cao ${N(-b)} m là số nguyên âm, nghĩa là thợ lặn ở dưới mực nước biển ${b} m.`));}
+    {out.push(IT(`Tàu ngầm ở sâu hơn thợ lặn.`,a>b,'tt','VD',`${N(-Math.max(a,b))} < ${N(-Math.min(a,b))} nên ${a>b?'tàu ngầm':'thợ lặn'} ở vị trí thấp hơn, tức là sâu hơn.`));}
+    {const t=T(),w=t?near:sel(far2);out.push(IT(`${cap(w[0])} là vật ở gần mặt nước biển nhất.`,t,'tt','VD',`Khoảng cách đến mặt nước biển: tàu ngầm ${a} m, thợ lặn ${b} m, thiết bị bay ${c} m. Gần nhất là ${near[0]}.`));}
+    {const t=T();out.push(IT(`Ba độ cao trên xếp theo thứ tự tăng dần là ${L(t?up:wr)} (đơn vị: m).`,t,'ss','VD',`Thứ tự tăng dần đúng là ${L(up)}.`));}
+    return out;
+  });
+  if(!items)return FB_TF();
+  return {stem:`So với mực nước biển, một tàu ngầm ở độ cao ${N(-a)} m, một thợ lặn ở độ cao ${N(-b)} m và một thiết bị bay ở độ cao ${c} m. Xét các phát biểu sau:`,items};
+}
+
+/* ============ Câu trả lời ngắn ============ */
+const SA=[
+ {id:'s_na_nb',topic:'na',level:'NB',unit:'số',gen:()=>{const d=mixList(6);return{stem:`Trong các số ${d.txt}, có bao nhiêu số nguyên âm?`,ans:[d.neg],exp:`Các số nguyên âm là ${L(d.negs)}. Có ${d.neg} số. Số 0 không phải số nguyên âm.`};}},
+ {id:'s_na_th',topic:'na',level:'TH',unit:'số',gen:()=>{const d=mixList(7);return{stem:`Trong các số ${d.txt}, có bao nhiêu số là số nguyên nhưng không phải là số tự nhiên?`,ans:[d.neg],exp:`Số nguyên mà không phải số tự nhiên chính là số nguyên âm: ${L(d.negs)}. Có ${d.neg} số.`};}},
+ {id:'s_na_vd',topic:'na',level:'VD',unit:'',gen:()=>{const d=mixList(8);return{stem:`Trong các số ${d.txt}, gọi m là số các số nguyên âm và n là số các số nguyên dương. Tính m + n.`,ans:[d.neg+d.pos],exp:`Số nguyên âm: ${L(d.negs)} (m = ${d.neg}). Số nguyên dương: ${L(d.poss)} (n = ${d.pos}). Số 0 không thuộc nhóm nào. Vậy m + n = ${d.neg+d.pos}.`};}},
+ {id:'s_tt_nb',topic:'tt',level:'NB',unit:'°C',gen:()=>{const x=ri(2,25);return{stem:`Nhiệt độ ${x} độ dưới 0°C được viết bằng số nguyên nào?`,ans:[-x],exp:`Nhiệt độ dưới 0°C được biểu thị bằng số nguyên âm: ${N(-x)}°C.`};}},
+ {id:'s_tt_th',topic:'tt',level:'TH',unit:'triệu đồng',gen:()=>{const [a,b]=sample(2,3,40);return{stem:`Tháng Ba một cửa hàng lãi ${a} triệu đồng, tháng Tư cửa hàng lỗ ${b} triệu đồng. Viết số nguyên biểu thị lợi nhuận tháng Tư của cửa hàng.`,ans:[-b],exp:`Lỗ ${b} triệu đồng được biểu thị bằng số nguyên âm ${N(-b)}. Số liệu của tháng Ba không cần dùng đến.`};}},
+ {id:'s_tt_vd',topic:'tt',level:'TH',unit:'°C',gen:()=>{const t=shuffle(sample(3,1,14).map(v=>-v).concat([ri(0,5)])),mn=Math.min(...t);return{stem:`Nhiệt độ lúc 5 giờ sáng của bốn ngày liên tiếp tại một thị trấn vùng núi là ${t.map(v=>N(v)+'°C').join('; ')}. Nhiệt độ thấp nhất trong bốn ngày đó là bao nhiêu?`,ans:[mn],exp:`Sắp xếp tăng dần: ${L(asc(t))}. Số nhỏ nhất là ${N(mn)}, nên nhiệt độ thấp nhất là ${N(mn)}°C.`};}},
+ {id:'s_ts_nb',topic:'ts',level:'NB',unit:'',gen:()=>{const k=ri(2,6),sg=sel([-1,-1,1]),a=sg*k;return{stem:'Trên trục số dưới đây, điểm A biểu diễn số nào?'+FIG_NOTE,fig:truc(-7,7,{A:a},[0,1]),ans:[a],exp:`Điểm A nằm bên ${sg<0?'trái':'phải'} gốc O và cách O ${k} đơn vị nên A biểu diễn số ${N(a)}.`};}},
+ {id:'s_ts_th',topic:'ts',level:'TH',unit:'đơn vị',gen:()=>{const a=ri(2,60);return{stem:`Trên trục số, điểm biểu diễn số ${N(-a)} cách gốc O bao nhiêu đơn vị?`,ans:[a],exp:`Điểm ${N(-a)} nằm bên trái gốc O và cách gốc O ${a} đơn vị. Khoảng cách không mang dấu "−".`};}},
+ {id:'s_ts_th2',topic:'ts',level:'TH',unit:'',gen:()=>{const k=ri(2,40);return{stem:`Trên trục số nằm ngang, từ gốc O di chuyển sang trái ${k} đơn vị thì đến điểm biểu diễn số nào?`,ans:[-k],exp:`Bên trái gốc O là các số nguyên âm; cách O ${k} đơn vị là điểm ${N(-k)}.`};}},
+ {id:'s_ts_vd',topic:'ts',level:'TH',unit:'',gen:()=>{let D=moveData();for(let n=0;n<50&&D.e===0;n++)D=moveData();const {s,m,left,e}=D;return{stem:`Trên trục số, một con kiến xuất phát từ điểm biểu diễn số ${N(s)} và bò sang ${left?'trái':'phải'} ${m} đơn vị. Con kiến dừng lại ở điểm biểu diễn số nào?`,fig:truc(-7,7,{},'all'),ans:[e],exp:`Từ ${N(s)} bò sang ${left?'trái':'phải'} ${m} đơn vị, con kiến lần lượt đến các điểm ${L(D.path)}. Vậy nó dừng ở điểm ${N(e)}.`};}},
+ {id:'s_ts_vd2',topic:'ts',level:'VD',unit:'đơn vị',gen:()=>{const [a,b]=sample(2,2,30);return{stem:`Trên trục số, điểm A biểu diễn số ${N(-a)} và điểm B biểu diễn số ${b}. Hai điểm A và B cách nhau bao nhiêu đơn vị?`,ans:[a+b],exp:`A cách gốc O ${a} đơn vị về bên trái, B cách gốc O ${b} đơn vị về bên phải. Vậy A và B cách nhau ${a} + ${b} = ${a+b} đơn vị.`};}},
+ {id:'s_ss_nb',topic:'ss',level:'NB',unit:'',gen:()=>{const [a,b]=sample(2,2,40),g=-Math.min(a,b),w=-Math.max(a,b);return{stem:`Trong hai số ${N(-a)} và ${N(-b)}, số nào lớn hơn? Hãy nhập số đó.`,ans:[g],exp:`Trên trục số, điểm ${N(g)} nằm bên phải điểm ${N(w)} nên ${N(g)} > ${N(w)}.`};}},
+ {id:'s_ss_th',topic:'ss',level:'TH',unit:'',gen:()=>{const d=sortData(),mn=Math.min(...d.v);return{stem:`Tìm số nhỏ nhất trong các số ${L(shuffle(d.v))}.`,ans:[mn],exp:`Sắp xếp tăng dần: ${L(asc(d.v))}. Số nhỏ nhất là ${N(mn)}.`};}},
+ {id:'s_ss_th2',topic:'ss',level:'TH',unit:'',gen:()=>{const v=sample(4,2,40).map(x=>-x),mx=Math.max(...v);return{stem:`Tìm số lớn nhất trong các số ${L(v)}.`,ans:[mx],exp:`Sắp xếp tăng dần: ${L(asc(v))}. Số lớn nhất là ${N(mx)}, vì điểm ${N(mx)} nằm bên phải các điểm còn lại trên trục số.`};}},
+ {id:'s_ss_vd',topic:'ss',level:'VD',unit:'số',gen:()=>{const a=ri(4,15),b=ri(3,12),k=ri(0,3);return{stem:`Có bao nhiêu số nguyên x thỏa mãn ${RG.txt(a,b,k)}?`,ans:[RG.hi(b,k)-RG.lo(a,k)+1],exp:countExp(a,b,k)};}},
+ {id:'s_ss_vd2',topic:'ss',level:'TH',unit:'',gen:()=>{const a=ri(3,50),below=ri(0,1)===1;return below?{stem:`Tìm số nguyên lớn nhất nhỏ hơn ${N(-a)}.`,ans:[-a-1],exp:`Trên trục số, số nguyên đứng ngay bên trái ${N(-a)} là ${N(-a-1)}.`}:{stem:`Tìm số nguyên nhỏ nhất lớn hơn ${N(-a)}.`,ans:[-a+1],exp:`Trên trục số, số nguyên đứng ngay bên phải ${N(-a)} là ${N(-a+1)}.`};}},
+ {id:'s_ts_vd3',topic:'ts',level:'VD',unit:'',gen:()=>{const d=vdMidData();return{stem:d.stem,fig:d.fig,ans:[d.M],exp:d.exp};}},
+ {id:'s_ts_vd4',topic:'ts',level:'VD',unit:'',gen:()=>{const a=ri(1,6),d=a+ri(1,8);return{stem:`Trên trục số, điểm A biểu diễn số ${a}. Điểm B biểu diễn một số nguyên âm và cách điểm A đúng ${d} đơn vị. Điểm B biểu diễn số nào?`,ans:[a-d],exp:`Có hai điểm cách A đúng ${d} đơn vị: điểm ${N(a-d)} (bên trái A) và điểm ${a+d} (bên phải A). Vì B biểu diễn số nguyên âm nên B biểu diễn số ${N(a-d)}.`};}},
+ {id:'s_ss_vd3',topic:'ss',level:'VD',unit:'số',gen:()=>{const a=ri(3,15),b=ri(2,12),st=ri(0,1)===1,lo=st?-a+1:-a;return{stem:`Có bao nhiêu số nguyên x thỏa mãn ${nb(`${N(-a)} ${st?'<':'≤'} x < ${b}`)} mà x không phải là số nguyên dương?`,ans:[1-lo],exp:`Các số nguyên x thỏa mãn điều kiện và không phải số nguyên dương là các số từ ${N(lo)} đến 0 (số 0 không phải số nguyên dương). Có ${-lo} số nguyên âm và số 0, tất cả ${1-lo} số.`};}},
+ {id:'s_tt_vd2',topic:'tt',level:'VD',unit:'điểm',gen:()=>{for(;;){const ng=sample(4,1,40).map(v=>-v*5),ps=sample(1,1,40).map(v=>v*5),all=shuffle(ng.concat(ps)),s=asc(ng),ref=sel([s[1],s[2]]),low=asc(all.filter(v=>v<ref));return{stem:`Độ cao so với mực nước biển của năm điểm khảo sát lần lượt là ${all.map(v=>N(v)+' m').join('; ')}. Có bao nhiêu điểm nằm thấp hơn điểm có độ cao ${N(ref)} m?`,ans:[low.length],exp:`Điểm thấp hơn điểm ${N(ref)} m là điểm có độ cao nhỏ hơn ${N(ref)}. Đó là: ${low.map(v=>N(v)+' m').join('; ')}. Có ${low.length} điểm.`};}}},
+ {id:'s_na_vd2',topic:'na',level:'VD',unit:'số',gen:()=>{const ng=sample(ri(2,3),1,30).map(v=>-v),ps=sample(2,1,30),dc=sample(2,1,9).map(v=>v+',5'),z=ri(0,2)>0,list=shuffle(ng.map(N).concat(ps.map(String),dc,z?['0']:[])),k=ng.length+(z?1:0);return{stem:`Trong các số ${list.join('; ')}, có bao nhiêu số thuộc tập hợp ℤ nhưng không phải là số nguyên dương?`,ans:[k],exp:`Các số thuộc ℤ là ${asc(ng.concat(ps,z?[0]:[])).map(N).join('; ')} (${dc.join(' và ')} không phải số nguyên). Trong đó các số không phải số nguyên dương là ${asc(ng.concat(z?[0]:[])).map(N).join('; ')}. Có ${k} số.`};}},
+].map(q=>Object.assign({type:'sa'},q));
+SA.push(...SA.map(q=>Object.assign({},q,{id:q.id+'b'})));
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  na:{short:'Số nguyên âm, tập ℤ',name:'Số nguyên âm và tập hợp ℤ',rule:'Các số −1; −2; −3; ... là các số nguyên âm. Các số tự nhiên khác 0 còn được gọi là các số nguyên dương. Tập hợp ℤ gồm các số nguyên âm, số 0 và các số nguyên dương.',tip:'Số 0 không phải số nguyên âm, cũng không phải số nguyên dương. Mọi số tự nhiên đều là số nguyên, nhưng số nguyên âm không phải là số tự nhiên.'},
+  tt:{short:'Thực tế',name:'Số nguyên trong thực tế',rule:'Số nguyên âm được dùng để chỉ nhiệt độ dưới 0°C, độ cao dưới mực nước biển, số tiền nợ hay tiền lỗ, năm trước Công nguyên. Số nguyên dương chỉ các đại lượng theo chiều ngược lại.',tip:'Xác định mốc 0 trước (0°C, mực nước biển, không lãi không lỗ) rồi mới đặt dấu. Nhiệt độ càng thấp thì số càng nhỏ: −7°C lạnh hơn −3°C.'},
+  ts:{short:'Trục số',name:'Trục số',rule:'Trên trục số nằm ngang, điểm gốc O biểu diễn số 0, chiều dương hướng từ trái sang phải. Các số nguyên dương nằm bên phải gốc O, các số nguyên âm nằm bên trái gốc O. Điểm biểu diễn số nguyên a gọi là điểm a.',tip:'Đếm số khoảng (đơn vị) tính từ gốc O, không đếm số vạch. Hai điểm −a và a nằm ở hai phía và cách đều gốc O.'},
+  ss:{short:'So sánh',name:'So sánh hai số nguyên',rule:'Trên trục số nằm ngang, nếu điểm a nằm bên trái điểm b thì a < b. Mọi số nguyên âm đều nhỏ hơn 0 và nhỏ hơn mọi số nguyên dương. Nếu a, b là hai số nguyên dương và a > b thì −a < −b.',tip:'Với hai số nguyên âm, thứ tự ngược với thứ tự của hai số đứng sau dấu "−": 5 > 3 nhưng −5 < −3.'}
+};
+const TKEYS=['na','tt','ts','ss'];
+const TDESC={na:'Nhận biết số nguyên âm, số nguyên dương, kí hiệu ∈, ∉ với tập ℤ',tt:'Nhiệt độ, độ cao, tiền lãi lỗ, tiền nợ',ts:'Đọc điểm trên trục số, khoảng cách đến gốc O, di chuyển trên trục số',ss:'So sánh, sắp xếp, tìm các số nguyên trong một khoảng'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhận ra số nguyên âm, đọc số trên trục số, so sánh các cặp số đơn giản.',TH:'Dùng số nguyên âm trong thực tế, khoảng cách đến gốc O, sắp xếp và liệt kê số nguyên.',VD:'Hai điểm trên trục số, điểm cách đều, đếm số nguyên trong một khoảng, bài toán thực tế nhiều bước.'};
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const O=(t,err)=>err?{t,err}:{t};
+const MC=[
+ {id:'m1',topic:'na',level:'NB',stem:'Tập hợp các số nguyên được kí hiệu là gì?',ans:0,opts:[
+   O('ℤ'),O('ℕ','ℕ là kí hiệu tập hợp các số tự nhiên.'),O('ℕ*','ℕ* là kí hiệu tập hợp các số tự nhiên khác 0.'),O('ℚ','Kí hiệu này không dùng cho tập hợp các số nguyên. Tập hợp các số nguyên kí hiệu là ℤ.')],
+  exp:'Tập hợp các số nguyên được kí hiệu là ℤ.'},
+ {id:'m2',topic:'na',level:'NB',stem:'Khẳng định nào sau đây đúng về số 0?',ans:0,opts:[
+   O('Số 0 không phải số nguyên âm, cũng không phải số nguyên dương'),
+   O('Số 0 là số nguyên dương','Số nguyên dương là các số 1; 2; 3; ... Số 0 không thuộc nhóm này.'),
+   O('Số 0 là số nguyên âm','Số nguyên âm là các số −1; −2; −3; ... Số 0 không thuộc nhóm này.'),
+   O('Số 0 không phải là số nguyên','Số 0 là một số nguyên: 0 ∈ ℤ.')],
+  exp:'Số 0 là số nguyên, nhưng không phải số nguyên âm và cũng không phải số nguyên dương.'},
+ {id:'m3',topic:'na',level:'NB',stem:'Tập hợp ℤ các số nguyên gồm những số nào?',ans:0,opts:[
+   O('Các số nguyên âm, số 0 và các số nguyên dương'),
+   O('Chỉ các số nguyên âm và các số nguyên dương','Còn thiếu số 0. Số 0 cũng là một số nguyên.'),
+   O('Chỉ các số nguyên âm','Tập hợp ℤ còn có số 0 và các số nguyên dương.'),
+   O('Chỉ các số tự nhiên','Tập hợp ℤ còn có các số nguyên âm −1; −2; −3; ...')],
+  exp:'ℤ = {...; −3; −2; −1; 0; 1; 2; 3; ...}, gồm các số nguyên âm, số 0 và các số nguyên dương.'},
+ {id:'m4',topic:'na',level:'TH',stem:'Khẳng định nào sau đây <b>sai</b>?',ans:0,opts:[
+   O('Mọi số nguyên đều là số tự nhiên'),
+   O('Mọi số tự nhiên đều là số nguyên','Khẳng định này đúng: tập hợp ℤ chứa mọi số tự nhiên. Đề bài hỏi khẳng định sai.'),
+   O('Số 0 là một số nguyên','Khẳng định này đúng: 0 ∈ ℤ. Đề bài hỏi khẳng định sai.'),
+   O('Số nguyên dương 3 còn được viết là +3','Khẳng định này đúng: số nguyên dương có thể viết kèm dấu "+". Đề bài hỏi khẳng định sai.')],
+  exp:'Các số nguyên âm như −1; −2 là số nguyên nhưng không phải số tự nhiên, nên "Mọi số nguyên đều là số tự nhiên" là sai.'},
+ {id:'m5',topic:'na',level:'TH',stem:'Có bao nhiêu số nguyên vừa không phải số nguyên âm, vừa không phải số nguyên dương?',ans:0,opts:[
+   O('1 số'),O('Không có số nào','Có số 0: số 0 là số nguyên nhưng không âm và không dương.'),
+   O('2 số','Chỉ có số 0. Các số nguyên khác đều là số nguyên âm hoặc số nguyên dương.'),
+   O('Vô số','Chỉ có số 0. Các số nguyên khác đều là số nguyên âm hoặc số nguyên dương.')],
+  exp:'Chỉ có số 0 là số nguyên không âm và không dương. Có 1 số.'},
+ {id:'m6',topic:'na',level:'TH',stem:'Số nào sau đây là số nguyên nhưng không phải là số tự nhiên?',ans:0,opts:[
+   O('−8'),O('8','8 vừa là số nguyên vừa là số tự nhiên.'),O('0','0 vừa là số nguyên vừa là số tự nhiên.'),O('+3','+3 chính là 3, vừa là số nguyên vừa là số tự nhiên.')],
+  exp:'−8 là số nguyên âm: thuộc ℤ nhưng không thuộc ℕ.'},
+ {id:'m7',topic:'tt',level:'TH',stem:'Báo cáo của một công ty ghi lợi nhuận tháng Ba là −20 triệu đồng. Điều đó có nghĩa là gì?',ans:0,opts:[
+   O('Tháng Ba công ty lỗ 20 triệu đồng'),
+   O('Tháng Ba công ty lãi 20 triệu đồng','Lãi được biểu thị bằng số nguyên dương. Số nguyên âm biểu thị số tiền lỗ.'),
+   O('Tháng Ba công ty không lãi, không lỗ','Không lãi, không lỗ ứng với số 0.'),
+   O('Tháng Ba công ty lãi ít hơn tháng Hai 20 triệu đồng','Số −20 chỉ nói về lợi nhuận của riêng tháng Ba, không so sánh với tháng khác.')],
+  exp:'Lợi nhuận −20 triệu đồng nghĩa là lỗ 20 triệu đồng.'},
+ {id:'m8',topic:'tt',level:'TH',stem:'Một điểm ở đáy hồ có độ cao −45 m so với mực nước biển. Điều đó có nghĩa là gì?',ans:0,opts:[
+   O('Điểm đó thấp hơn mực nước biển 45 m'),
+   O('Điểm đó cao hơn mực nước biển 45 m','Độ cao trên mực nước biển được biểu thị bằng số nguyên dương.'),
+   O('Điểm đó ngang với mực nước biển','Ngang mực nước biển ứng với độ cao 0 m.'),
+   O('Hồ sâu 45 m','Số −45 so sánh điểm đó với mực nước biển, không cho biết độ sâu của hồ.')],
+  exp:'Độ cao −45 m nghĩa là thấp hơn mực nước biển 45 m.'},
+ {id:'m9',topic:'tt',level:'NB',stem:'Nhà bác học Ác-si-mét sinh năm 287 trước Công nguyên. Dùng số nguyên âm, năm sinh ấy được viết là:',ans:0,opts:[
+   O('−287'),O('287','287 chỉ năm 287 sau Công nguyên. Năm trước Công nguyên được viết bằng số nguyên âm.'),
+   O('+287','+287 chính là 287, chỉ năm 287 sau Công nguyên.'),O('0','Số 0 là mốc, không chỉ năm 287 trước Công nguyên.')],
+  exp:'Năm trước Công nguyên được biểu thị bằng số nguyên âm: năm −287.'},
+ {id:'m10',topic:'tt',level:'VD',stem:'So với mực nước biển, một thợ lặn ở độ cao −12 m, một đàn cá ở độ cao −20 m và một con chim ở độ cao 15 m. Vật nào ở gần mặt nước biển nhất?',ans:0,opts:[
+   O('Thợ lặn'),O('Đàn cá','Đàn cá cách mặt nước 20 m, xa hơn thợ lặn (12 m). Số −20 nhỏ nhất nghĩa là đàn cá ở thấp nhất, không phải gần mặt nước nhất.'),
+   O('Con chim','Con chim cách mặt nước 15 m, xa hơn thợ lặn (12 m).'),
+   O('Thợ lặn và con chim gần như nhau','Thợ lặn cách mặt nước 12 m, con chim cách 15 m.')],
+  exp:'Khoảng cách đến mặt nước biển: thợ lặn 12 m, đàn cá 20 m, con chim 15 m. Gần nhất là thợ lặn.'},
+ {id:'m11',topic:'tt',level:'NB',stem:'Khi dùng số nguyên để chỉ độ cao so với mực nước biển, mực nước biển ứng với số nào?',ans:0,opts:[
+   O('0'),O('1','Mực nước biển là mốc để so sánh nên ứng với số 0.'),O('−1','−1 chỉ vị trí thấp hơn mực nước biển 1 m.'),O('Không ứng với số nào','Mực nước biển là mốc, ứng với độ cao 0 m.')],
+  exp:'Mực nước biển là mốc, ứng với độ cao 0 m.'},
+ {id:'m12',topic:'ts',level:'NB',stem:'Trên trục số nằm ngang, các điểm biểu diễn số nguyên âm nằm ở đâu?',ans:0,opts:[
+   O('Bên trái gốc O'),O('Bên phải gốc O','Bên phải gốc O là các điểm biểu diễn số nguyên dương.'),
+   O('Trùng với gốc O','Gốc O chỉ biểu diễn số 0.'),O('Ở cả hai bên gốc O','Bên phải gốc O là các số nguyên dương.')],
+  exp:'Các điểm biểu diễn số nguyên âm nằm bên trái gốc O, các điểm biểu diễn số nguyên dương nằm bên phải gốc O.'},
+ {id:'m13',topic:'ts',level:'NB',stem:'Trên trục số, điểm gốc O biểu diễn số nào?',ans:0,opts:[
+   O('0'),O('1','Điểm 1 nằm bên phải gốc O, cách O một đơn vị.'),O('−1','Điểm −1 nằm bên trái gốc O, cách O một đơn vị.'),O('Không biểu diễn số nào','Gốc O biểu diễn số 0.')],
+  exp:'Điểm gốc O của trục số biểu diễn số 0.'},
+ {id:'m14',topic:'ts',level:'NB',stem:'Trên trục số nằm ngang, chiều dương là chiều nào?',ans:0,opts:[
+   O('Từ trái sang phải'),O('Từ phải sang trái','Từ phải sang trái là chiều âm.'),
+   O('Từ dưới lên trên','Đó là chiều dương của trục số thẳng đứng. Đề bài hỏi trục số nằm ngang.'),
+   O('Từ trên xuống dưới','Trục số nằm ngang có chiều dương từ trái sang phải.')],
+  exp:'Trên trục số nằm ngang, chiều dương hướng từ trái sang phải (chiều mũi tên), chiều ngược lại là chiều âm.'},
+ {id:'m15',topic:'ts',level:'TH',stem:'Trên trục số, hai điểm −6 và 6 có đặc điểm gì?',ans:0,opts:[
+   O('Nằm ở hai phía của gốc O và cách đều gốc O'),
+   O('Trùng nhau','−6 và 6 là hai số khác nhau nên được biểu diễn bởi hai điểm khác nhau.'),
+   O('Cùng nằm bên phải gốc O','Điểm −6 nằm bên trái gốc O.'),
+   O('Điểm −6 gần gốc O hơn điểm 6','Cả hai điểm đều cách gốc O 6 đơn vị.')],
+  exp:'Điểm −6 ở bên trái, điểm 6 ở bên phải gốc O; cả hai đều cách O 6 đơn vị.'},
+ {id:'m16',topic:'ss',level:'NB',stem:'Trên trục số nằm ngang, nếu điểm a nằm bên trái điểm b thì:',ans:0,opts:[
+   O('a < b'),O('a > b','Điểm nằm bên phải mới biểu diễn số lớn hơn.'),O('a = b','Hai điểm khác nhau biểu diễn hai số khác nhau.'),
+   O('Chưa so sánh được a và b','Chỉ cần biết vị trí trên trục số là so sánh được: điểm bên trái biểu diễn số nhỏ hơn.')],
+  exp:'Trên trục số nằm ngang, nếu điểm a nằm bên trái điểm b thì a nhỏ hơn b.'},
+ {id:'m17',topic:'ss',level:'NB',stem:'Số nguyên âm lớn nhất là số nào?',ans:0,opts:[
+   O('−1'),O('0','Số 0 không phải là số nguyên âm.'),O('−9','−9 nhỏ hơn −1 vì điểm −9 nằm bên trái điểm −1 trên trục số.'),
+   O('Không có số nào như vậy','Không có số nguyên âm nhỏ nhất, nhưng có số nguyên âm lớn nhất là −1.')],
+  exp:'Các số nguyên âm −1; −2; −3; ... đều nằm bên trái số 0; số −1 gần 0 nhất nên là số nguyên âm lớn nhất.'},
+ {id:'m18',topic:'ss',level:'TH',stem:'Số nguyên âm lớn nhất có hai chữ số là số nào?',ans:0,opts:[
+   O('−10'),O('−99','−99 là số nguyên âm nhỏ nhất có hai chữ số.'),O('−11','−10 còn lớn hơn −11.'),O('−1','−1 chỉ có một chữ số.')],
+  exp:'Trong các số −10; −11; ...; −99, số −10 nằm bên phải các số còn lại trên trục số nên lớn nhất.'},
+ {id:'m19',topic:'ss',level:'TH',stem:'Số nguyên âm nhỏ nhất có hai chữ số là số nào?',ans:0,opts:[
+   O('−99'),O('−10','−10 là số nguyên âm lớn nhất có hai chữ số.'),O('−100','−100 có ba chữ số.'),O('−98','−99 còn nhỏ hơn −98.')],
+  exp:'Trong các số −10; −11; ...; −99, số −99 nằm bên trái các số còn lại trên trục số nên nhỏ nhất.'},
+ {id:'m20',topic:'ss',level:'TH',stem:'Khẳng định nào sau đây <b>sai</b>?',ans:0,opts:[
+   O('−100 lớn hơn −1 vì 100 lớn hơn 1'),
+   O('Mọi số nguyên âm đều nhỏ hơn 0','Khẳng định này đúng. Đề bài hỏi khẳng định sai.'),
+   O('Mọi số nguyên dương đều lớn hơn mọi số nguyên âm','Khẳng định này đúng. Đề bài hỏi khẳng định sai.'),
+   O('Số 0 lớn hơn mọi số nguyên âm','Khẳng định này đúng. Đề bài hỏi khẳng định sai.')],
+  exp:'100 > 1 nhưng với số âm thì ngược lại: điểm −100 nằm bên trái điểm −1 nên −100 < −1.'},
+ {id:'m21',topic:'ss',level:'TH',stem:'Cho a là một số nguyên âm và b là một số nguyên dương. Khẳng định nào luôn đúng?',ans:0,opts:[
+   O('a < b'),O('a > b','Số nguyên âm luôn nhỏ hơn số nguyên dương.'),O('a = b','Một số âm và một số dương không thể bằng nhau.'),
+   O('Chưa đủ dữ kiện để so sánh','Không cần biết giá trị cụ thể: mọi số nguyên âm đều nhỏ hơn mọi số nguyên dương.')],
+  exp:'Mọi số nguyên âm đều nhỏ hơn 0, mọi số nguyên dương đều lớn hơn 0, nên a < b.'},
+ {id:'m22',topic:'ss',level:'TH',stem:'Số nguyên âm x thỏa mãn x > −2. Vậy x bằng bao nhiêu?',ans:0,opts:[
+   O('−1'),O('0','0 lớn hơn −2 nhưng 0 không phải là số nguyên âm.'),O('−3','−3 nhỏ hơn −2 vì điểm −3 nằm bên trái điểm −2.'),O('1','1 lớn hơn −2 nhưng 1 là số nguyên dương.')],
+  exp:'Các số nguyên lớn hơn −2 là −1; 0; 1; ... Trong đó chỉ có −1 là số nguyên âm.'},
+ {id:'m23',topic:'ss',level:'TH',stem:'Trên trục số nằm ngang, điểm a nằm bên trái điểm −5. Khẳng định nào chắc chắn đúng?',ans:0,opts:[
+   O('a < −5'),O('a > −5','Điểm nằm bên trái biểu diễn số nhỏ hơn.'),O('a > 0','Điểm a nằm bên trái điểm −5 nên cũng nằm bên trái gốc O: a là số nguyên âm.'),O('a = 5','Điểm 5 nằm bên phải điểm −5.')],
+  exp:'Điểm a nằm bên trái điểm −5 nên a < −5.'}
+].map(q=>Object.assign({type:'mc'},q));
+/* ============ Câu vận dụng bổ sung: hai điểm trên trục số, điểm cách đều, số nguyên âm lớn nhất, sắp xếp độ cao ============ */
+function genVdTwoPts(){return tryGen(()=>{
+  const a=sel([-1,1])*ri(1,8),d=ri(2,6);
+  return {stem:`Trên trục số, điểm A biểu diễn số ${N(a)}. Điểm B cách điểm A đúng ${d} đơn vị. Điểm B có thể biểu diễn số nào?`,opts:[
+    {t:`${N(a-d)} hoặc ${N(a+d)}`},
+    {t:`Chỉ số ${N(a+d)}`,err:`Còn một điểm nữa nằm bên trái điểm A và cũng cách A đúng ${d} đơn vị, đó là điểm ${N(a-d)}.`},
+    {t:`Chỉ số ${N(a-d)}`,err:`Còn một điểm nữa nằm bên phải điểm A và cũng cách A đúng ${d} đơn vị, đó là điểm ${N(a+d)}.`},
+    {t:`${N(-d)} hoặc ${d}`,err:`Đó là hai điểm cách gốc O đúng ${d} đơn vị. Đề bài hỏi điểm cách điểm A.`}],ans:0,
+    exp:`Từ điểm ${N(a)}, đi sang trái ${d} đơn vị đến điểm ${N(a-d)}, đi sang phải ${d} đơn vị đến điểm ${N(a+d)}. Vậy B biểu diễn số ${N(a-d)} hoặc ${N(a+d)}.`};
+});}
+function vdMidData(){
+  for(;;){const a=-ri(1,7),b=ri(1,7);if((a+b)%2!==0||a+b===0)continue;const M=(a+b)/2,h=(b-a)/2;
+    return {a,b,M,h,stem:`Trên trục số dưới đây, điểm A biểu diễn số ${N(a)} và điểm B biểu diễn số ${b}. Điểm M nằm giữa A và B, cách đều hai điểm đó. Điểm M biểu diễn số nào?`+FIG_NOTE,fig:truc(-7,7,{A:a,B:b},[0,1]),
+      exp:`A và B cách nhau ${-a} + ${b} = ${b-a} đơn vị nên M cách mỗi điểm ${h} đơn vị. Từ điểm A (số ${N(a)}) đi sang phải ${h} đơn vị thì đến điểm ${N(M)}. Vậy M biểu diễn số ${N(M)}.`};}
+}
+function genVdMid(){return tryGen(()=>{
+  const d=vdMidData(),{a,b,M,h}=d;
+  return {stem:d.stem,fig:d.fig,opts:[
+    {t:N(M)},
+    {t:N(h),err:`${h} là khoảng cách từ M đến mỗi điểm A, B, chưa phải số mà điểm M biểu diễn.`},
+    {t:'0',err:`Gốc O cách A ${-a} đơn vị và cách B ${b} đơn vị nên không cách đều hai điểm.`},
+    {t:N(-M),err:`Điểm ${N(-M)} nằm ở phía bên kia gốc O: nó cách A ${Math.abs(-M-a)} đơn vị và cách B ${Math.abs(b+M)} đơn vị nên không cách đều.`}],ans:0,exp:d.exp};
+});}
+function genVdExt(){return tryGen(()=>{
+  const big=ri(0,1)===1,three=ri(0,1)===1,lo=three?-999:-99,hi=three?-100:-10,cs=three?'ba':'hai',it=three?'hai':'một';
+  const why=`Với hai số nguyên âm, số nào có phần số tự nhiên lớn hơn thì nhỏ hơn.`;
+  if(big)return {stem:`Số nguyên âm lớn nhất có ${cs} chữ số là số nào?`,opts:[
+    {t:N(hi)},
+    {t:N(lo),err:`${N(lo)} là số nguyên âm nhỏ nhất có ${cs} chữ số. ${why}`},
+    {t:N(hi-1),err:`${N(hi)} còn lớn hơn ${N(hi-1)} vì điểm ${N(hi)} nằm bên phải điểm ${N(hi-1)} trên trục số.`},
+    {t:N(hi+1),err:`${N(hi+1)} chỉ có ${it} chữ số.`}],ans:0,
+    exp:`${why} Số tự nhiên nhỏ nhất có ${cs} chữ số là ${-hi}, nên số nguyên âm lớn nhất có ${cs} chữ số là ${N(hi)}.`};
+  return {stem:`Số nguyên âm nhỏ nhất có ${cs} chữ số là số nào?`,opts:[
+    {t:N(lo)},
+    {t:N(hi),err:`${N(hi)} là số nguyên âm lớn nhất có ${cs} chữ số. ${why}`},
+    {t:N(lo+1),err:`${N(lo)} còn nhỏ hơn ${N(lo+1)} vì điểm ${N(lo)} nằm bên trái điểm ${N(lo+1)} trên trục số.`},
+    {t:N(lo-1),err:`${N(lo-1)} có ${three?'bốn':'ba'} chữ số.`}],ans:0,
+    exp:`${why} Số tự nhiên lớn nhất có ${cs} chữ số là ${-lo}, nên số nguyên âm nhỏ nhất có ${cs} chữ số là ${N(lo)}.`};
+});}
+const VD_DUOI=['tàu ngầm','thợ lặn','đàn cá ngừ','rạn san hô','xác tàu đắm'],VD_TREN=['chim hải âu','khinh khí cầu','ngọn hải đăng','cánh diều','máy bay mô hình'];
+function genVdOrder(){return tryGen(()=>{
+  const ng=sample(2,1,30).map(v=>-v*5),ps=sample(2,2,30).map(v=>v*5);
+  if(Math.min(...ps)>=Math.max(...ng.map(v=>-v)))return null;
+  const nm=shuffle(VD_DUOI).slice(0,2).concat(shuffle(VD_TREN).slice(0,2)),it=ng.concat(ps).map((v,i)=>({v,n:nm[i]}));
+  const J=a=>a.map(x=>x.n).join('; '),up=it.slice().sort((x,y)=>x.v-y.v),ab=it.slice().sort((x,y)=>Math.abs(x.v)-Math.abs(y.v)),sw=[up[1],up[0],up[2],up[3]];
+  return {stem:`So với mực nước biển: ${shuffle(it).map(x=>`${x.n} ở độ cao ${N(x.v)} m`).join(', ')}. Sắp xếp theo độ cao từ thấp đến cao, ta được:`,opts:[
+    {t:J(up)},
+    {t:J(ab),err:`Bạn đã so sánh phần số tự nhiên mà bỏ qua dấu "−". Mọi số nguyên âm đều nhỏ hơn mọi số nguyên dương.`},
+    {t:J(up.slice().reverse()),err:'Đó là thứ tự từ cao đến thấp. Đề bài yêu cầu từ thấp đến cao.'},
+    {t:J(sw),err:`Với hai số nguyên âm, số có phần số tự nhiên lớn hơn thì nhỏ hơn: ${N(up[0].v)} < ${N(up[1].v)}.`}],ans:0,
+    exp:`Sắp xếp các số theo thứ tự tăng dần: ${up.map(x=>N(x.v)).join(' < ')}. Vậy thứ tự từ thấp đến cao là: ${J(up)}.`};
+});}
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b','c'].forEach(x=>{addMC('g_vdtwo_'+x,'ts','VD',genVdTwoPts);addMC('g_vdmid_'+x,'ts','VD',genVdMid);addMC('g_vdorder_'+x,'tt','VD',genVdOrder);});
+['a','b'].forEach(x=>addMC('g_vdext_'+x,'ss','VD',genVdExt));
+const gInc=genSort(true),gDec=genSort(false);
+['a','b','c'].forEach(x=>{
+  addMC('g_neg_'+x,'na','NB',genNeg);
+  addMC('g_in_'+x,'na','TH',genIn);
+  addMC('g_two_'+x,'tt','NB',genTwo);
+  addMC('g_mean_'+x,'tt','TH',genMean);
+  addMC('g_cold_'+x,'tt','TH',genCold);
+  addMC('g_read_'+x,'ts','NB',genRead);
+  addMC('g_move_'+x,'ts','TH',genMove);
+  addMC('g_cmp_'+x,'ss','NB',genCmp);
+  addMC('g_list_'+x,'ss','TH',genList);
+  addMC('g_cnt_'+x,'ss','VD',genCountRange);
+});
+['a','b'].forEach(x=>{
+  addMC('g_count_'+x,'na','TH',genCount);
+  addMC('g_which_'+x,'ts','TH',genWhich);
+  addMC('g_dist_'+x,'ts','TH',genDist);
+  addMC('g_side_'+x,'ts','TH',genSide);
+  addMC('g_both_'+x,'ts','TH',genBoth);
+  addMC('g_ab_'+x,'ts','VD',genAB);
+  addMC('g_inc_'+x,'ss','TH',gInc);
+  addMC('g_dec_'+x,'ss','TH',gDec);
+  addMC('g_near_'+x,'ss','TH',genNear);
+});
+
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+const tSetNB=tfSet('NB'),tSetTH=tfSet('TH'),tLineTH=tfLine('TH'),tLineVD=tfLine('VD'),tCmpNB=tfCmp('NB'),tCmpTH=tfCmp('TH'),tCmpVD=tfCmp('VD');
+['a','b'].forEach(x=>{
+  addTF('tf_set_nb_'+x,'na','NB',tSetNB);
+  addTF('tf_line_vd_'+x,'ts','VD',tLineVD);
+  addTF('tf_cmp_nb_'+x,'ss','NB',tCmpNB);
+  addTF('tf_cmp_th_'+x,'ss','TH',tCmpTH);
+  addTF('tf_cmp_vd_'+x,'ss','VD',tCmpVD);
+  addTF('tf_alt_'+x,'tt','VD',tfAlt);
+});
+['a','b','c'].forEach(x=>{
+  addTF('tf_set_th_'+x,'na','TH',tSetTH);
+  addTF('tf_line_th_'+x,'ts','TH',tLineTH);
+  addTF('tf_real_'+x,'tt','TH',tfReal);
+});
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+const HT=[
+ IT('Số nguyên âm lớn nhất là −1.',true,'ss','VD','Các số nguyên âm là −1; −2; −3; ... và −1 nằm gần gốc O nhất về bên trái nên là số lớn nhất.'),
+ IT('Không có số nguyên âm nhỏ nhất.',true,'ss','VD','Với mỗi số nguyên âm luôn có số nguyên âm đứng bên trái nó trên trục số, nên không có số nhỏ nhất.'),
+ IT('Mọi số nguyên âm đều nhỏ hơn mọi số tự nhiên.',true,'ss','VD','Số nguyên âm nhỏ hơn 0 và nhỏ hơn mọi số nguyên dương, tức là nhỏ hơn mọi số tự nhiên.'),
+ IT('Trong hai số nguyên âm, số nào có điểm biểu diễn xa gốc O hơn thì số đó nhỏ hơn.',true,'ts','VD','Bên trái gốc O, điểm càng xa gốc thì càng nằm về bên trái, nên số càng nhỏ.'),
+ IT('Mọi số tự nhiên đều là số nguyên.',true,'na','VD','Tập hợp ℤ gồm các số nguyên âm, số 0 và các số nguyên dương, nên chứa mọi số tự nhiên.'),
+ IT('Giữa hai số −1 và 1 có đúng một số nguyên.',true,'ss','VD','Chỉ có số 0 lớn hơn −1 và nhỏ hơn 1.')];
+const HF=[
+ IT('Số nguyên nhỏ nhất là 0.',false,'ss','VD','Mọi số nguyên âm đều nhỏ hơn 0, và không có số nguyên nhỏ nhất.'),
+ IT('Số nguyên âm nhỏ nhất là −1.',false,'ss','VD','−1 là số nguyên âm lớn nhất. Không có số nguyên âm nhỏ nhất.'),
+ IT('Mọi số nguyên đều là số tự nhiên.',false,'na','VD','Các số nguyên âm như −3 không phải là số tự nhiên.'),
+ IT('Trong hai số nguyên bất kì, số nào có điểm biểu diễn xa gốc O hơn thì số đó lớn hơn.',false,'ts','VD','Ví dụ điểm −5 xa gốc O hơn điểm 2 nhưng −5 < 2.'),
+ IT('Giữa hai số −1 và 1 không có số nguyên nào.',false,'ss','VD','Số 0 lớn hơn −1 và nhỏ hơn 1.'),
+ IT('Nếu a là số nguyên âm thì số a luôn lớn hơn số −1.',false,'ss','VD','−1 là số nguyên âm lớn nhất, nên mọi số nguyên âm a đều nhỏ hơn hoặc bằng −1.')];
+function tfHardZ(){const nT=ri(1,3);return {stem:'Xét các phát biểu sau:',items:shuffle(shuffle(HT).slice(0,nT).concat(shuffle(HF).slice(0,4-nT)))};}
+const HARD={tf:[{id:'h_kn',type:'tf',topic:'ss',level:'VD',gen:tfHardZ}],sa:[
+ {id:'h_dem',topic:'ss',level:'VD',unit:'số',gen:()=>{const a=ri(4,12),b=ri(3,10);return RNG()<.5
+   ?{stem:`Có bao nhiêu số nguyên âm x thỏa mãn ${nb(`${N(-a)} < x ≤ ${b}`)}?`,ans:[a-1],exp:`Các số nguyên âm lớn hơn ${N(-a)} là ${N(-(a-1))}; ...; −1. Có ${a-1} số. Điều kiện x ≤ ${b} luôn đúng với các số này.`}
+   :{stem:`Có bao nhiêu số nguyên x không phải là số nguyên âm và thỏa mãn ${nb(`${N(-a)} ≤ x < ${b}`)}?`,ans:[b],exp:`Các số không âm nhỏ hơn ${b} là 0; 1; ...; ${b-1}. Có ${b} số (nhớ tính cả số 0).`};}},
+ {id:'h_giua',topic:'ts',level:'VD',unit:'',gen:()=>{let a,b;do{a=ri(3,15);b=ri(3,15);}while(a===b||(a+b)%2);const h=(a+b)/2,m=(b-a)/2;return{stem:`Trên trục số, điểm A biểu diễn số ${N(-a)} và điểm B biểu diễn số ${b}. Điểm M nằm giữa A và B và cách đều hai điểm đó. Điểm M biểu diễn số nào?`,ans:[m],exp:`A và B cách nhau ${a} + ${b} = ${a+b} đơn vị nên M cách mỗi điểm ${h} đơn vị. Từ điểm ${N(-a)} đi sang phải ${h} đơn vị thì đến điểm ${N(m)}.`};}},
+ {id:'h_thu',topic:'ss',level:'VD',unit:'',gen:()=>{const v=shuffle(sample(4,1,30).map(x=>-x).concat(sample(2,1,30),[0])),s=v.slice().sort((x,y)=>x-y),k=ri(2,6);return{stem:`Sắp xếp các số ${v.map(N).join('; ')} theo thứ tự tăng dần. Số đứng ở vị trí thứ ${k} (tính từ trái sang) là số nào?`,ans:[s[k-1]],exp:`Thứ tự tăng dần: ${s.map(N).join('; ')}. Số ở vị trí thứ ${k} là ${N(s[k-1])}.`};}},
+ {id:'h_cs',topic:'ss',level:'VD',unit:'',gen:()=>sel([
+   {stem:'Tìm số nguyên âm lớn nhất có hai chữ số.',ans:[-10],exp:'Các số nguyên âm có hai chữ số là −99; −98; ...; −10. Số lớn nhất là số gần gốc O nhất: −10.'},
+   {stem:'Tìm số nguyên âm nhỏ nhất có hai chữ số.',ans:[-99],exp:'Các số nguyên âm có hai chữ số là −99; −98; ...; −10. Số nhỏ nhất là số xa gốc O nhất: −99.'},
+   {stem:'Tìm số nguyên âm lớn nhất có ba chữ số.',ans:[-100],exp:'Các số nguyên âm có ba chữ số là −999; ...; −100. Số lớn nhất là số gần gốc O nhất: −100.'},
+   {stem:'Tìm số nguyên âm nhỏ nhất có ba chữ số.',ans:[-999],exp:'Các số nguyên âm có ba chữ số là −999; ...; −100. Số nhỏ nhất là số xa gốc O nhất: −999.'}])},
+ {id:'h_ech',topic:'ts',level:'VD',unit:'',gen:()=>{const s=-ri(2,9),d=ri(5,14),e=ri(3,12);return{stem:`Trên trục số, một con ếch xuất phát từ điểm biểu diễn số ${N(s)}. Nó nhảy sang phải ${d} đơn vị, rồi nhảy sang trái ${e} đơn vị. Con ếch dừng lại ở điểm biểu diễn số nào?`,ans:[s+d-e],exp:`Nhảy sang phải ${d} đơn vị: từ điểm ${N(s)} đến điểm ${N(s+d)}. Nhảy sang trái ${e} đơn vị: từ điểm ${N(s+d)} đến điểm ${N(s+d-e)}.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+const CITY=[['Mát-xcơ-va',-14,-6],['Bắc Kinh',-9,-2],['Xơ-un',-7,-1],['Tô-ky-ô',0,6],['Hà Nội',11,18],['Ô-ta-oa',-18,-8],['Hen-xin-ki',-12,-3]];
+const PISA=[
+ ()=>{for(;;){const c=shuffle(CITY).slice(0,5).map(x=>({n:x[0],t:ri(x[1],x[2])})),ts=c.map(x=>x.t);
+   if(new Set(ts).size<5||new Set(ts.map(Math.abs)).size<5)continue;
+   const asc=c.slice().sort((x,y)=>x.t-y.t),nm=a=>a.map(x=>x.n).join(', '),neg=asc.filter(x=>x.t<0);
+   if(neg.length<3)continue;
+   const right=nm(asc),rev=nm(asc.slice().reverse()),abs=nm(c.slice().sort((x,y)=>Math.abs(x.t)-Math.abs(y.t))),sw=nm([asc[1],asc[0]].concat(asc.slice(2)));
+   if(new Set([right,rev,abs,sw]).size<4)continue;
+   const th=neg[neg.length-1].t-1;if(ts.includes(th))continue;const cold=ts.filter(t=>t<th).length;
+   return {title:'Nhiệt độ buổi sáng ở năm thành phố',ctx:`<p class="stem">Bảng sau ghi nhiệt độ lúc 6 giờ sáng của một ngày tháng 1 ở năm thành phố.</p>${tbl(['Thành phố','Nhiệt độ (°C)'],c.map(x=>[x.n,N(x.t)]))}`,qs:[
+   saq('Nhiệt độ thấp nhất trong bảng là bao nhiêu độ C?',asc[0].t,'°C',`Sắp xếp tăng dần: ${asc.map(x=>N(x.t)).join('; ')}. Số nhỏ nhất là ${N(asc[0].t)}, đó là nhiệt độ ở ${asc[0].n}.`,'ss','TH'),
+   saq('Có bao nhiêu thành phố có nhiệt độ dưới 0°C?',neg.length,'thành phố',`Các nhiệt độ âm là ${neg.map(x=>N(x.t)).join('; ')}. Có ${neg.length} thành phố.`,'tt','TH'),
+   mcq('Dãy nào sắp xếp các thành phố theo thứ tự từ lạnh nhất đến ấm nhất?',right,[[rev,'Đây là thứ tự từ ấm nhất đến lạnh nhất.'],[abs,'Dãy này xếp theo phần số mà bỏ qua dấu "−". Với số nguyên âm, phần số càng lớn thì số càng nhỏ.'],[sw,`Hai thành phố lạnh nhất bị đổi chỗ: ${N(asc[0].t)} < ${N(asc[1].t)} nên ${asc[0].n} lạnh hơn ${asc[1].n}.`]],`Sắp xếp nhiệt độ tăng dần: ${asc.map(x=>N(x.t)).join(' < ')}.`,'ss','VD'),
+   saq(`Có bao nhiêu thành phố lạnh hơn ${N(th)}°C?`,cold,'thành phố',`Lạnh hơn ${N(th)}°C nghĩa là nhiệt độ nhỏ hơn ${N(th)}. ${cold?`Các nhiệt độ đó là ${asc.filter(x=>x.t<th).map(x=>N(x.t)).join('; ')}: có ${cold} thành phố.`:'Không có thành phố nào.'}`,'ss','VD')]};}},
+ ()=>{for(;;){const bird=ri(15,60),diver=-ri(8,25),dol=-ri(30,70),wreck=-ri(80,115),sub=-ri(120,300);
+   let o=[['Chim hải âu',bird],['Thợ lặn',diver],['Cá heo',dol],['Tàu ngầm',sub]];
+   o=shuffle(o.concat(RNG()<.5?[['Xác tàu đắm',wreck]]:[['Thuyền đánh cá',0]]));
+   const asc=o.slice().sort((x,y)=>x[1]-y[1]),under=o.filter(x=>x[1]<0),lo=asc[0],hi=asc[1];
+   if(hi[1]-lo[1]<4)continue;
+   const mid=ri(lo[1]+1,hi[1]-1),below=lo[1]-ri(5,40),above=hi[1]+ri(2,6);
+   if(above>=0||o.some(x=>x[1]===above))continue;
+   return {title:'Độ cao so với mực nước biển',ctx:`<p class="stem">Bảng sau ghi độ cao so với mực nước biển của một số vật tại một vùng biển. Độ cao âm nghĩa là vật ở dưới mực nước biển.</p>${tbl(['Vật','Độ cao (m)'],o.map(x=>[x[0],N(x[1])]))}`,qs:[
+   mcq('Vật nào ở vị trí thấp nhất?',lo[0],shuffle(asc.slice(1)).slice(0,3).map(x=>[x[0],`${x[0]} ở độ cao ${N(x[1])} m, cao hơn ${lo[0]} (${N(lo[1])} m).`]),`Số nhỏ nhất trong bảng là ${N(lo[1])}, nên ${lo[0]} ở thấp nhất.`,'tt','TH'),
+   saq('Có bao nhiêu vật ở dưới mực nước biển?',under.length,'vật',`Các độ cao âm là ${under.map(x=>N(x[1])).join('; ')}. Có ${under.length} vật ở dưới mực nước biển.`,'tt','TH'),
+   saq('Chim hải âu và thợ lặn cách nhau bao nhiêu mét theo chiều thẳng đứng?',bird-diver,'m',`Chim hải âu ở trên mặt nước ${bird} m, thợ lặn ở dưới mặt nước ${-diver} m. Khoảng cách là ${bird} + ${-diver} = ${bird-diver} m.`,'ts','VD'),
+   mcq(`Một con cá mập đang bơi ở vị trí cao hơn ${lo[0].toLowerCase()} nhưng thấp hơn ${hi[0].toLowerCase()}. Độ cao nào dưới đây có thể là độ cao của cá mập?`,N(mid)+' m',[[N(below)+' m',`${N(below)} < ${N(lo[1])} nên vị trí này thấp hơn ${lo[0].toLowerCase()}.`],[N(above)+' m',`${N(above)} > ${N(hi[1])} nên vị trí này cao hơn ${hi[0].toLowerCase()}.`],[(-mid)+' m','Độ cao dương nghĩa là ở trên mặt nước biển.']],`Cần ${nb(`${N(lo[1])} < x < ${N(hi[1])}`)}. Chỉ có ${N(mid)} thỏa mãn.`,'ss','VD')]};}}
+];
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'na',fig:'<div class="figbox"><p>Số nguyên âm: ...; −3; −2; −1</p><p>Số 0</p><p>Số nguyên dương: 1; 2; 3; ...</p></div>',extra:'ℤ = {...; −3; −2; −1; 0; 1; 2; 3; ...}'},
+  {k:'tt',fig:'<div class="figbox"><p>−5°C: 5 độ dưới 0°C</p><p>−30 m: thấp hơn mực nước biển 30 m</p><p>−200 nghìn đồng: nợ 200 nghìn đồng</p></div>',extra:'Mốc 0 là 0°C, mực nước biển, không có tiền và không nợ.'},
+  {k:'ts',fig:truc(-5,5,{},'all'),extra:'Điểm −3 nằm bên trái gốc O và cách gốc O 3 đơn vị.'},
+  {k:'ss',fig:truc(-5,5,{A:-4,B:-1},'all'),extra:'Điểm A (số −4) nằm bên trái điểm B (số −1) nên −4 < −1.'}
+];
+
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const names=['An','Bình','Chi','Dũng','Hà'],fl=pk([-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9],5);
+  const neg=fl.filter(x=>x<0);if(neg.length<2||neg.length>3||!fl.some(x=>x>0))throw 0;
+  const p=names.map((n,i)=>({n,f:fl[i]})),asc=p.slice().sort((a,b)=>a.f-b.f),lo=asc[0],hi=asc[4],k=ri(2,5);
+  const between=hi.f-lo.f-1;
+  return {title:'Các tầng của toà nhà',ctx:P('Trong một toà nhà, tầng trệt được ghi là tầng 0, các tầng phía trên ghi là 1; 2; 3; ..., các tầng hầm ghi là −1; −2; −3; ... (tầng −1 ở ngay dưới tầng trệt). Bảng sau cho biết năm bạn đang ở tầng nào.')+T(['Bạn','Tầng'],p.map(x=>[x.n,nm(x.f)])),qs:[
+   A(`Bác bảo vệ đang ở tầng hầm thứ ${k} tính từ tầng trệt xuống. Tầng đó được ghi là số nào?`,-k,'',`Các tầng hầm từ trên xuống là −1; −2; −3; ... Tầng hầm thứ ${k} được ghi là ${nm(-k)}.`,'tt','TH'),
+   M('Bạn nào đang ở tầng thấp nhất?',lo.n,asc.slice(1,4).map(x=>[x.n,`Bạn ${x.n} ở tầng ${nm(x.f)}, mà ${nm(x.f)} > ${nm(lo.f)}.`]),`Số nhỏ nhất trong bảng là ${nm(lo.f)} nên bạn ${lo.n} ở tầng thấp nhất.`,'ss','TH'),
+   A('Có bao nhiêu bạn đang ở dưới tầng trệt?',neg.length,'bạn',`Ở dưới tầng trệt là các tầng ghi số nguyên âm: ${neg.slice().sort((a,b)=>a-b).map(nm).join('; ')}. Có ${neg.length} bạn.`,'na','TH'),
+   A(`Thang máy chở bạn ${lo.n} đi thẳng từ tầng của bạn ${lo.n} lên tầng của bạn ${hi.n}. Không kể hai tầng đó, thang máy đi qua bao nhiêu tầng?`,between,'tầng',`Các số nguyên lớn hơn ${nm(lo.f)} và nhỏ hơn ${nm(hi.f)} là ${Array.from({length:between},(_,i)=>nm(lo.f+1+i)).join('; ')||'(không có)'}. Có ${between} tầng (nhớ kể cả tầng 0).`,'ss','VD')]};}),
+ G(()=>{const st=['A','B','C','D','E'],v=[];
+  while(v.length<5){const x=ri(-15,20);if(x&&!v.some(y=>Math.abs(y)===Math.abs(x)))v.push(x);}
+  const neg=v.filter(x=>x<0);if(neg.length<2||neg.length>3)throw 0;
+  const p=st.map((L,i)=>({L,n:'Cửa hàng '+L,v:v[i]})),asc=p.slice().sort((a,b)=>a.v-b.v),desc=asc.slice().reverse(),lo=asc[0];
+  const k=ri(3,20);if(v.includes(-k))throw 0;
+  const m=ri(2,14);if(v.includes(-m))throw 0;const big=v.filter(x=>x>-m).length;if(big===5||big===5-neg.length)throw 0;
+  const s=a=>a.map(x=>x.L).join(', ');
+  const right=s(desc),wAsc=s(asc),wAbs=s(p.slice().sort((a,b)=>Math.abs(b.v)-Math.abs(a.v))),wSw=s(desc.slice(0,3).concat([desc[4],desc[3]]));
+  return {title:'Kết quả kinh doanh của các cửa hàng',ctx:P('Bảng sau ghi kết quả kinh doanh trong một tháng của năm cửa hàng. Số dương chỉ tiền lãi, số âm chỉ tiền lỗ (đơn vị: triệu đồng).')+T(['Cửa hàng','Kết quả (triệu đồng)'],p.map(x=>[x.L,nm(x.v)])),qs:[
+   A(`Trong tháng đó, cửa hàng F bị lỗ ${k} triệu đồng. Kết quả kinh doanh của cửa hàng F được ghi là số nào?`,-k,'triệu đồng',`Tiền lỗ được ghi bằng số âm: lỗ ${k} triệu đồng ghi là ${nm(-k)}.`,'tt','TH'),
+   M('Cửa hàng nào bị lỗ nhiều nhất?',lo.n,[[desc[0].n,`${desc[0].n} có kết quả ${nm(desc[0].v)}: đây là cửa hàng lãi nhiều nhất.`]].concat(asc.slice(1,4).filter(x=>x!==desc[0]).slice(0,2).map(x=>[x.n,`${x.n} có kết quả ${nm(x.v)} > ${nm(lo.v)}, nên lỗ ít hơn ${lo.n}${x.v>0?' (thực ra cửa hàng này có lãi)':''}.`])),`Lỗ nhiều nhất là cửa hàng có kết quả nhỏ nhất: ${nm(lo.v)} (triệu đồng), đó là ${lo.n}.`,'ss','TH'),
+   A(`Có bao nhiêu cửa hàng có kết quả kinh doanh lớn hơn ${nm(-m)} triệu đồng?`,big,'cửa hàng',`Các kết quả lớn hơn ${nm(-m)} là ${v.filter(x=>x>-m).sort((a,b)=>a-b).map(nm).join('; ')}. Có ${big} cửa hàng (nhớ rằng mọi số dương đều lớn hơn số âm).`,'ss','VD'),
+   M('Dãy nào sắp xếp các cửa hàng theo kết quả kinh doanh từ tốt nhất đến kém nhất?',right,[[wAsc,'Đây là thứ tự từ kém nhất đến tốt nhất.'],[wAbs,'Dãy này xếp theo phần số mà bỏ qua dấu "−". Lỗ càng nhiều thì kết quả càng kém.'],[wSw,`Hai cửa hàng cuối bị đổi chỗ: ${nm(asc[0].v)} < ${nm(asc[1].v)} nên ${asc[0].n} kém hơn ${asc[1].n}.`]],`Sắp xếp kết quả giảm dần: ${desc.map(x=>nm(x.v)).join(' > ')}.`,'ss','VD')]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='sn6_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['na',['NB']],['tt',['NB','TH']],['ts',['NB','TH']],['ss',['NB']],['ss',['TH']],[null,['VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['na','ts','ss'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=[
+    pick(MC.filter(q=>q.topic==='na'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='ts'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='ss'&&q.level==='TH'),used),
+    pick(MC.filter(q=>q.topic==='tt'&&q.level==='TH'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic==='ss'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='ts'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^[1-9]\d{0,2}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}
