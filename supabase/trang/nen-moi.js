@@ -181,6 +181,10 @@
   // Kết quả đã lưu trên máy chủ ngay khi nộp, không gửi sang Google Sheet nữa
   sendResult = function () { if (state.result) state.sentCode = makeCode(state.result); setSent("Đã lưu kết quả cho giáo viên."); };
 
+  // XP, huy hiệu: chưa đồng bộ lên máy chủ mới (làm ở buổi sau). Không gửi sang Google Sheet cũ,
+  // vì mã chỉ có ở nền mới sẽ bị Sheet cũ tính là lần nhập mã sai.
+  if (window.GM) GM.sync = function () {};
+
   // Nhãn nhỏ cho biết đang dùng bản thử của nền mới
   var nhan = document.createElement("div");
   nhan.textContent = "Bản thử nền mới";
