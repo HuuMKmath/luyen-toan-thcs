@@ -1,0 +1,571 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ thu-tu-thuc-hien-cac-phep-tinh/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "thu-tu-thuc-hien-cac-phep-tinh";
+export const TIEN_TO = "PT6-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;
+const L=a=>a.join('; ');                 // các phần tử cách nhau bởi dấu ";"
+const SET=a=>'{'+L(a)+'}';
+const nb=s=>s.replace(/ /g,'\u00a0');    // không ngắt dòng giữa các kí hiệu
+const nbT=o=>Object.assign(o,{t:nb(o.t)});
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const asc=a=>a.slice().sort((x,y)=>x-y);
+const range=(lo,hi)=>{const o=[];for(let v=lo;v<=hi;v++)o.push(v);return o;};
+
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(c&&!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const FB_MC=()=>({stem:'Với biểu thức không có dấu ngoặc, thứ tự thực hiện các phép tính là:',opts:[{t:'Luỹ thừa → Nhân và chia → Cộng và trừ'},{t:'Nhân và chia → Luỹ thừa → Cộng và trừ',err:'Luỹ thừa được thực hiện trước nhân và chia.'},{t:'Cộng và trừ → Nhân và chia → Luỹ thừa',err:'Đây là thứ tự ngược lại.'},{t:'Thực hiện từ trái sang phải',err:'Chỉ khi biểu thức chỉ có cộng, trừ (hoặc chỉ có nhân, chia) mới làm từ trái sang phải.'}],ans:0,exp:'Với biểu thức không có dấu ngoặc: Luỹ thừa → Nhân và chia → Cộng và trừ.'});
+function tryGen(f){for(let n=0;n<200;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>String(o.t))).size===4)return r;}return FB_MC();}
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function mixed(make){for(let n=0;n<80;n++){const items=make();if(!items)continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}return null;}
+const wrap=items=>items?items.map(i=>Object.assign(i,{t:nb(i.t)})):null;
+const F=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0');
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const fl=Math.floor;
+const W=(b,e)=>`${b}<sup>${e}</sup>`;
+const pw=(b,e)=>Math.pow(b,e);
+const NAMES=['Mai','Lan','An','Minh','Hà','Bình','Cường','Dung'];
+
+/* ============ Tính biểu thức (có thể tính "sai cách" để tạo lựa chọn nhiễu) ============
+   Cách viết bên trong: số, + − · :, ^ (luỹ thừa), ( ) [ ] { }.
+   mode: 'ok' đúng quy ước; 'ltr' làm lần lượt từ trái sang phải (bỏ qua ưu tiên); 'add' cộng trừ trước nhân chia;
+         'pow' coi a^n là a · n; 'nobr' bỏ hết dấu ngoặc. Trả về NaN nếu gặp số âm hoặc phép chia không hết. */
+function calc(src,mode){mode=mode||'ok';let s=src.replace(/\s+/g,'');if(mode==='nobr')s=s.replace(/[()[\]{}]/g,'');let i=0;
+  const P=mode==='ltr'?{'+':1,'−':1,'·':1,':':1}:mode==='add'?{'+':2,'−':2,'·':1,':':1}:{'+':1,'−':1,'·':2,':':2};
+  const ap=(a,o,b)=>{if(isNaN(a)||isNaN(b))return NaN;if(o==='+')return a+b;if(o==='−')return a-b<0?NaN:a-b;if(o==='·')return a*b;if(b===0||a%b)return NaN;return a/b;};
+  function atom(){const c=s[i];let v;if(c==='('||c==='['||c==='{'){const cl={'(':')','[':']','{':'}'}[c];i++;v=bin(0);if(s[i]!==cl)throw new Error('ngoặc');i++;}
+    else{let j=i;while(/\d/.test(s[i]||''))i++;if(j===i)throw new Error('lạ '+src);v=+s.slice(j,i);}
+    if(s[i]==='^'){i++;let j=i;while(/\d/.test(s[i]||''))i++;const e=+s.slice(j,i);v=mode==='pow'?v*e:Math.pow(v,e);}return v;}
+  function bin(minP){let v=atom();for(;;){const o=s[i];if(!(o in P)||P[o]<minP)break;i++;const w=bin(P[o]+1);v=ap(v,o,w);}return v;}
+  const v=bin(0);if(i!==s.length)throw new Error('thừa '+src);return v;}
+const show=src=>nb(src.replace(/\^(\d+)/g,'<sup>$1</sup>'));         // cách hiển thị
+const MODE_ERR={ltr:'Không làm lần lượt từ trái sang phải khi có cả cộng trừ và nhân chia: nhân chia trước, cộng trừ sau.',add:'Nhân, chia trước; cộng, trừ sau.',pow:'Luỹ thừa a<sup>n</sup> là tích n thừa số a, không phải a · n.',nobr:'Phải làm phép tính trong ngoặc trước.'};
+const okNat=v=>Number.isInteger(v)&&v>=0&&v<=2000000;
+/* mẫu biểu thức: chữ in hoa là số ngẫu nhiên trong khoảng cho trước */
+function fill(tpl,R){return tpl.replace(/[A-H]/g,c=>String(ri(R[c][0],R[c][1])));}
+function makeExpr(tpls){for(let n=0;n<400;n++){const [tpl,R]=sel(tpls),src=fill(tpl,R),v=calc(src);if(!okNat(v))continue;return {src,v};}return null;}
+function exprMC(tpls,need){return tryGen(()=>{const e=makeExpr(tpls);if(!e)return null;const c=[];
+  for(const m of ['ltr','add','pow','nobr']){let w;try{w=calc(e.src,m);}catch(x){continue;}if(okNat(w)&&w!==e.v&&!c.some(z=>z.v===w))c.push({v:w,err:MODE_ERR[m]});}
+  if(c.length<(need||1))return null;
+  for(const d of [10,1,2,100])for(const w of [e.v+d,e.v-d])if(okNat(w)&&!c.some(z=>z.v===w)&&w!==e.v)c.push({v:w,err:'Tính lại từng bước theo đúng thứ tự.'});
+  return {stem:`Giá trị của biểu thức ${show(e.src)} là:`,opts:[{t:F(e.v)}].concat(c.slice(0,3).map(z=>({t:F(z.v),err:z.err}))),ans:0,exp:`Thực hiện theo thứ tự: ${'trong ngoặc trước, '.repeat(/[([{]/.test(e.src)?1:0)}luỹ thừa → nhân, chia → cộng, trừ. Kết quả ${F(e.v)}.`};});}
+const TK=[ // không ngoặc
+  ['A + B · C',{A:[5,90],B:[2,12],C:[2,12]}],['A − B · C',{A:[60,200],B:[2,9],C:[2,9]}],['A · B + C · D',{A:[2,15],B:[2,15],C:[2,15],D:[2,15]}],
+  ['A + B : C',{A:[5,90],B:[12,96],C:[2,6]}],['A : B · C',{A:[12,120],B:[2,6],C:[2,9]}],['A − B + C',{A:[50,300],B:[10,90],C:[10,90]}],['A · B : C',{A:[4,40],B:[2,12],C:[2,6]}],['A − B : C',{A:[30,150],B:[12,96],C:[2,6]}]];
+const TK2=[ // không ngoặc, có luỹ thừa
+  ['A + B · C^2',{A:[1,40],B:[2,9],C:[2,6]}],['A · B^2 − C',{A:[2,9],B:[2,6],C:[1,30]}],['A^2 + B · C − D',{A:[2,12],B:[2,9],C:[2,9],D:[1,20]}],
+  ['A · 2^3 − B^2 + C',{A:[5,30],B:[2,9],C:[10,150]}],['A · B^2 + C : D · E',{A:[2,5],B:[2,5],C:[12,48],D:[2,6],E:[2,5]}],['A − B : C · D',{A:[50,200],B:[12,60],C:[2,6],D:[2,9]}],
+  ['A − B^2 + C : D',{A:[50,150],B:[2,7],C:[12,90],D:[2,6]}],['A · B^3 − C · D',{A:[2,9],B:[2,4],C:[2,9],D:[2,9]}]];
+const TC=[ // có ngoặc tròn
+  ['(A + B) · C',{A:[2,30],B:[2,30],C:[2,9]}],['A · (B − C)',{A:[2,12],B:[20,60],C:[2,19]}],['(A − B) : C',{A:[20,120],B:[1,19],C:[2,6]}],['A + B · (C + D)',{A:[1,50],B:[2,9],C:[2,9],D:[2,9]}],['(A + B) · C − D',{A:[2,20],B:[2,20],C:[2,9],D:[1,20]}]];
+const TC2=[ // nhiều tầng ngoặc
+  ['[A − (B − C)] · D',{A:[20,60],B:[8,19],C:[1,7],D:[2,9]}],['A + [B − (C − D)] · E',{A:[1,50],B:[15,40],C:[8,14],D:[1,7],E:[2,6]}],['[A + B · (C · D − E^2)] · F',{A:[1,9],B:[2,4],C:[3,6],D:[2,5],E:[2,3],F:[2,7]}],
+  ['{A + B · [C − (D − E)]} : F',{A:[2,40],B:[2,4],C:[8,20],D:[4,8],E:[1,3],F:[3,9]}],['A + [B − (C − D · E)^2] + F^2',{A:[50,150],B:[30,60],C:[10,15],D:[2,3],E:[2,4],F:[2,4]}],
+  ['A · [(B + C) : D^2 − E · F] + G',{A:[2,30],B:[50,400],C:[50,400],D:[2,3],E:[2,9],F:[2,9],G:[1,30]}],['{A^3 + [1 + (B − C)^2]} : D',{A:[2,4],B:[3,9],C:[1,2],D:[2,13]}],['(A − B · C)^2 · D',{A:[10,30],B:[2,4],C:[2,4],D:[2,5]}]];
+function genKN(){return exprMC(TK,1);} function genKN2(){return exprMC(TK2,1);} function genCN(){return exprMC(TC,1);} function genCN2(){return exprMC(TC2,1);}
+/* phép tính được thực hiện đầu tiên (biểu thức không ngoặc) */
+const OPN={'^':'Phép nâng lên luỹ thừa','·':'Phép nhân',':':'Phép chia','+':'Phép cộng','−':'Phép trừ'};
+function genFirst(){return tryGen(()=>{const e=makeExpr(RNG()<.5?TK:TK2);if(!e)return null;const ops=e.src.match(/[+−·:^]/g);let f=ops.includes('^')?'^':ops.find(o=>o==='·'||o===':')||ops[0];
+  const others=['^','·',':','+','−'].filter(o=>o!==f&&ops.includes(o));const fill2=['^','·',':','+','−'].filter(o=>o!==f&&!others.includes(o));const W3=others.concat(fill2).slice(0,3);
+  return {stem:`Trong biểu thức ${show(e.src)}, phép tính nào được thực hiện đầu tiên?`,opts:[{t:OPN[f]}].concat(W3.map(o=>({t:OPN[o],err:ops.includes(o)?'Thứ tự: luỹ thừa → nhân, chia (từ trái sang phải) → cộng, trừ.':'Biểu thức không có phép tính này.'}))),ans:0,exp:`Luỹ thừa → nhân và chia → cộng và trừ; cùng mức thì từ trái sang phải. Phép tính đầu tiên: ${OPN[f].toLowerCase()}.`};});}
+function genRule(){const k=ri(0,1);if(k===0)return FB_MC();
+  return {stem:'Với biểu thức có các dấu ngoặc ( ), [ ], { }, ta thực hiện:',opts:[{t:'( ) → [ ] → { }'},{t:'{ } → [ ] → ( )',err:'Làm từ trong ra ngoài: ngoặc tròn trước.'},{t:'[ ] → ( ) → { }',err:'Ngoặc tròn trước, rồi ngoặc vuông, cuối cùng ngoặc nhọn.'},{t:'Từ trái sang phải, không cần để ý dấu ngoặc',err:'Phép tính trong ngoặc làm trước.'}].map(nbT),ans:0,exp:'Trong ngoặc trước, ngoài ngoặc sau: ( ) → [ ] → { }.'};}
+function genWho(){return tryGen(()=>{const e=makeExpr(TK.concat(TK2));if(!e)return null;let w=null,m0;for(const m of ['ltr','add','pow']){const x=calc(e.src,m);if(okNat(x)&&x!==e.v){w=x;m0=m;break;}}if(w===null)return null;
+  const [p,q]=shuffle(NAMES).slice(0,2),pRight=RNG()<.5,vp=pRight?e.v:w,vq=pRight?w:e.v,r=`${pRight?p:q} đúng`;
+  return {stem:`Tính ${show(e.src)}: bạn ${p} được ${F(vp)}, bạn ${q} được ${F(vq)}. Bạn nào làm đúng?`,opts:[{t:r},{t:`${pRight?q:p} đúng`,err:MODE_ERR[m0]},{t:'Cả hai bạn đều đúng',err:'Một biểu thức chỉ có một giá trị.'},{t:'Cả hai bạn đều sai',err:`Giá trị đúng là ${F(e.v)}.`}],ans:0,exp:`Theo đúng thứ tự, biểu thức có giá trị ${F(e.v)}.`};});}
+/* biểu thức chứa chữ */
+const TL=[['A · a + b^2','2-9','a'],['1 + 2(a + b) − 4^3',null],['a^2 + A · a','2-9'],['(a + b)^2 − a · b',null],['a(a + A) − b','1-9'],['A · (a − b) + a · b','2-9'],['a^2 − b^2',null],['(a + b) · (a − b)',null]];
+const subst=(s,a,b)=>s.replace(/(\d)\(/g,'$1 · (').replace(/(\d)a/g,'$1 · a').replace(/a\(/g,'a · (').replace(/\ba\b/g,'#A').replace(/\bb\b/g,'#B').replace(/#A/g,a).replace(/#B/g,b);
+function letterExpr(){for(let n=0;n<300;n++){const t=sel(TL);let s=t[0];const A=ri(2,9),a=ri(5,40),b=ri(1,a-1);s=s.replace(/A/g,A);
+  const sub=subst(s,a,b);const v=calc(sub);if(!okNat(v)||v>100000)continue;return {s,a,b,sub,v};}return null;}
+const showL=s=>nb(s.replace(/\^(\d+)/g,'<sup>$1</sup>').replace(/\b([ab])\b/g,'<i>$1</i>'));
+function genLetter(){return tryGen(()=>{const L=letterExpr();if(!L)return null;const c=[];for(const m of ['ltr','add','pow','nobr']){let w;try{w=calc(L.sub,m);}catch(x){continue;}if(okNat(w)&&w!==L.v&&!c.some(z=>z.v===w))c.push({v:w,err:MODE_ERR[m]});}
+  let sw=NaN;if(L.s.includes('b')){try{sw=calc(subst(L.s,L.b,L.a));}catch(x){}}if(okNat(sw)&&sw!==L.v&&!c.some(z=>z.v===sw))c.push({v:sw,err:'Thay a và b cho đúng: không đổi chỗ hai giá trị.'});
+  for(const d of [1,10,2])for(const w of [L.v+d,L.v-d])if(okNat(w)&&!c.some(z=>z.v===w))c.push({v:w,err:'Thay giá trị của chữ vào rồi tính lại theo đúng thứ tự.'});
+  return {stem:`Giá trị của biểu thức ${showL(L.s)} khi <i>a</i> = ${L.a}${L.s.includes('b')?`; <i>b</i> = ${L.b}`:''} là:`,opts:[{t:F(L.v)}].concat(c.slice(0,3).map(z=>({t:F(z.v),err:z.err}))),ans:0,exp:`Thay vào: ${show(L.sub)} = ${F(L.v)}.`};});}
+/* hình chữ nhật ghép (Luyện tập 2) */
+function rectFig(parts,h){const unit=p=>p==='a'?44:p==='b'?36:p==='1'?18:22;const ws=parts.map(unit),W2=sum(ws),H=h==='a'?44:36,x0=24,y0=22;let s=`<rect x="${x0}" y="${y0}" width="${W2*2}" height="${H*2}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>`;let x=x0;
+  parts.forEach((p,i)=>{const w=ws[i]*2;s+=`<text class="tl" x="${x+w/2}" y="${y0-6}" text-anchor="middle" style="font-style:italic">${p}</text>`;x+=w;if(i<parts.length-1)s+=`<line x1="${x}" y1="${y0}" x2="${x}" y2="${y0+H*2}" style="stroke:var(--ink);stroke-width:1.2"/>`;});
+  s+=`<text class="tl" x="${x0-10}" y="${y0+H+5}" text-anchor="middle" style="font-style:italic">${h}</text><text class="pl" x="${x0-8}" y="${y0-4}">A</text><text class="pl" x="${x0+W2*2+4}" y="${y0-4}">B</text><text class="pl" x="${x0+W2*2+4}" y="${y0+H*2+16}">C</text><text class="pl" x="${x0-14}" y="${y0+H*2+16}">D</text>`;
+  const desc=`Hình chữ nhật ABCD được chia thành ${parts.length} hình chữ nhật nhỏ xếp cạnh nhau theo chiều ngang. Cạnh AB gồm các đoạn dài lần lượt ${parts.join('; ')}; cạnh AD dài ${h}.`;
+  return `<div class="figbox"><svg viewBox="0 0 ${x0+W2*2+30} ${y0+H*2+26}" role="img" aria-label="${desc}" style="width:100%;max-width:380px;height:auto;display:block;color:var(--ink)">${s}</svg></div>`;}
+const RECTS=[[['a','a','1'],'a'],[['a','2','a'],'a'],[['a','b','1'],'a'],[['b','a','3'],'b'],[['a','1','1'],'a']];
+function genRect(){return tryGen(()=>{const [parts,h]=sel(RECTS),S=parts.join(' + '),good=`${h} · (${S})`;
+  const w=[[`${h} · ${parts[0]} + ${parts.slice(1).join(' + ')}`,'Phải nhân chiều rộng với cả chiều dài, nên cần dấu ngoặc.'],[`${S} + ${h}`,'Diện tích là chiều dài nhân chiều rộng.'],[`2 · (${S} + ${h})`,'Đây là chu vi, không phải diện tích.']];
+  return {stem:'Biểu thức nào sau đây tính diện tích hình chữ nhật ABCD trong hình?',fig:rectFig(parts,h),opts:[{t:good}].concat(w.map(x=>({t:x[0],err:x[1]}))).map(o=>Object.assign(o,{t:showL(o.t)})),ans:0,exp:`Chiều dài AB = ${S}, chiều rộng AD = ${h}: diện tích ${h} · (${S}).`};});}
+/* lập biểu thức cho bài toán */
+function genBike(){return tryGen(()=>{const t1=ri(2,4),v1=ri(10,18),t2=ri(1,3),v2=ri(6,12);if(v1===v2||t1===t2)return null;const good=`${t1} · ${v1} + ${t2} · ${v2}`;if([`(${t1} + ${t2}) · (${v1} + ${v2})`,`${t1} + ${v1} · ${t2} + ${v2}`,`(${t1} + ${t2}) · ${v1} + ${v2}`].some(z=>calc(z)===calc(good)))return null;
+  return {stem:`Một người đi xe đạp ${t1} giờ đầu với vận tốc ${v1} km/h, ${t2} giờ sau với vận tốc ${v2} km/h. Biểu thức nào tính quãng đường người đó đã đi?`,opts:[{t:good},{t:`(${t1} + ${t2}) · (${v1} + ${v2})`,err:'Mỗi đoạn đường có thời gian và vận tốc riêng.'},{t:`${t1} + ${v1} · ${t2} + ${v2}`,err:'Quãng đường mỗi đoạn là thời gian nhân vận tốc.'},{t:`(${t1} + ${t2}) · ${v1} + ${v2}`,err:`${t2} giờ sau đi với vận tốc ${v2} km/h.`}].map(o=>Object.assign(o,{t:show(o.t)})),ans:0,exp:`${t1} · ${v1} + ${t2} · ${v2} = ${t1*v1} + ${t2*v2} = ${t1*v1+t2*v2} (km).`};});}
+function genAvg(){return tryGen(()=>{const m1=sel([6,8,9]),m2=12-m1,av=ri(80,200),b=ri(av-30,av+30),a=12*av-m2*b;if(a<=0||b<=0)return null;
+  const good=`(${F(a)} + ${m2} · ${b}) : 12`;
+  return {stem:`Trong ${m1} tháng đầu năm, một cửa hàng bán được ${F(a)} chiếc ti vi. Trong ${m2} tháng cuối năm, trung bình mỗi tháng bán được ${b} chiếc. Biểu thức nào tính số ti vi trung bình mỗi tháng bán được trong cả năm?`,opts:[{t:good},{t:`${F(a)} + ${m2} · ${b} : 12`,err:'Thiếu dấu ngoặc: phải tính tổng số ti vi cả năm trước rồi mới chia cho 12.'},{t:`(${F(a)} + ${b}) : 12`,err:`${m2} tháng cuối bán được ${m2} · ${b} chiếc.`},{t:`(${F(a)} + ${m2} · ${b}) : ${m1}`,err:'Cả năm có 12 tháng.'}].map(o=>Object.assign(o,{t:show(o.t)})),ans:0,exp:`(${F(a)} + ${m2} · ${b}) : 12 = ${F(a+m2*b)} : 12 = ${av} (chiếc).`};});}
+function genCinema(){return tryGen(()=>{const r=ri(12,20),s=ri(12,20),u=ri(10,60),p=sel([45,50,60,70])*1000;
+  return {stem:`Một phòng chiếu phim có ${r} hàng ghế, mỗi hàng ${s} ghế. Giá mỗi vé là ${F(p)} đồng. Tối nay còn ${u} vé không bán được. Biểu thức nào tính số tiền bán vé tối nay?`,opts:[{t:`(${r} · ${s} − ${u}) · ${F(p)}`},{t:`${r} · ${s} − ${u} · ${F(p)}`,err:'Thiếu dấu ngoặc: phải tính số vé bán được trước rồi nhân với giá vé.'},{t:`${r} · ${s} · ${F(p)} − ${u}`,err:`Phải trừ tiền của ${u} vé, không phải trừ ${u} đồng.`},{t:`(${r} + ${s} − ${u}) · ${F(p)}`,err:`Số ghế là ${r} · ${s}.`}].map(o=>Object.assign(o,{t:show(o.t)})),ans:0,exp:`Số vé bán được: ${r} · ${s} − ${u} = ${r*s-u}. Tiền: ${r*s-u} · ${F(p)} = ${F((r*s-u)*p)} (đồng).`};});}
+
+/* --- Tìm bước làm sai trong lời giải --- */
+function chainF1(){const A=ri(5,60),B=ri(2,9),C=ri(6,15),D=ri(1,C-2),e=C-D,e2=e*e,p=B*e2,r=A+p;
+  return {src:`A + B · (C − D)^2`.replace('A',A).replace('B',B).replace('C',C).replace('D',D),steps:[`${A} + ${B} · ${e}^2`,`${A} + ${B} · ${e2}`,`${A} + ${p}`,`${r}`],
+    bad:[()=>{const e1=C+D,q=e1*e1;return [`${A} + ${B} · ${e1}^2`,`${A} + ${B} · ${q}`,`${A} + ${B*q}`,`${A+B*q}`];},()=>{const q=2*e;return [`${A} + ${B} · ${e}^2`,`${A} + ${B} · ${q}`,`${A} + ${B*q}`,`${A+B*q}`];},()=>[`${A} + ${B} · ${e}^2`,`${A} + ${B} · ${e2}`,`${A+B} · ${e2}`,`${(A+B)*e2}`],()=>[`${A} + ${B} · ${e}^2`,`${A} + ${B} · ${e2}`,`${A} + ${p}`,`${r+10}`]],
+    why:['Trong ngoặc là phép trừ.','Bình phương là nhân số đó với chính nó.','Nhân trước, cộng sau.','Cộng lại cho đúng.']};}
+function chainF2(){for(;;){const A=ri(2,30),B=ri(2,4),C=ri(8,20),D=ri(4,8),E=ri(1,3),d=D-E,c=C-d,bc=B*c,s=A+bc,G=sel([3,5,7,9,11]);if(c<2||s%G)continue;const r=s/G;
+  const bad=[()=>{const d1=D+E,c1=C-d1;if(c1<=0)return null;const s1=A+B*c1;return s1%G?null:[`{${A} + ${B} · [${C} − ${d1}]} : ${G}`,`{${A} + ${B} · ${c1}} : ${G}`,`{${A} + ${B*c1}} : ${G}`,`${s1} : ${G} = ${s1/G}`];},
+    ()=>{const t=(A+B)*c;return t%G?null:[`{${A} + ${B} · [${C} − ${d}]} : ${G}`,`{${A} + ${B} · ${c}} : ${G}`,`{${A+B} · ${c}} : ${G}`,`${t} : ${G} = ${t/G}`];},
+    ()=>{const c1=C+d,s1=A+B*c1;return s1%G?null:[`{${A} + ${B} · [${C} − ${d}]} : ${G}`,`{${A} + ${B} · ${c1}} : ${G}`,`{${A} + ${B*c1}} : ${G}`,`${s1} : ${G} = ${s1/G}`];},
+    ()=>[`{${A} + ${B} · [${C} − ${d}]} : ${G}`,`{${A} + ${B} · ${c}} : ${G}`,`{${A} + ${bc}} : ${G}`,`${s} : ${G} = ${r+1}`]];
+  return {src:`{${A} + ${B} · [${C} − (${D} − ${E})]} : ${G}`,steps:[`{${A} + ${B} · [${C} − ${d}]} : ${G}`,`{${A} + ${B} · ${c}} : ${G}`,`{${A} + ${bc}} : ${G}`,`${s} : ${G} = ${r}`],bad,why:['Trong ngoặc tròn là phép trừ.','Tính lại phép trừ trong ngoặc vuông.','Nhân trước, cộng sau.','Chia lại cho đúng.']};}}
+function genStep(){return tryGen(()=>{const ch=RNG()<.5?chainF1():chainF2();const st=sel(ch.bad)();if(!st)return null;const k=st.findIndex((x,i)=>x!==ch.steps[i]);if(k<0)return null;const nm=sel(NAMES);
+  return {stem:`Bạn ${nm} tính ${show(ch.src)} như sau:<br>${st.map((x,i)=>`Bước ${i+1}: = ${show(x)}`).join('<br>')}<br>Bạn ${nm} làm sai từ bước nào?`,opts:[{t:`Bước ${k+1}`}].concat([0,1,2,3].filter(i=>i!==k).map(i=>({t:`Bước ${i+1}`,err:i<k?`Bước ${i+1} đúng.`:`Đã sai từ bước ${k+1}.`}))),ans:0,exp:`Bước ${k+1} sai: ${ch.why[k]} Lời giải đúng: ${show(ch.src)} = ${ch.steps.map(show).join(' = ')}.`};});}
+/* --- So sánh hai biểu thức chỉ khác nhau ở dấu ngoặc --- */
+const PAIRS=[['A · B^2','(A · B)^2'],['A + B · C','(A + B) · C'],['A : B · C','A : (B · C)'],['A − B − C','A − (B − C)'],['(A + B)^2','A^2 + B^2'],['A · B^3','(A · B)^3'],['A − B + C','A − (B + C)']];
+function cmpPair(){for(;;){const [p,q]=sel(PAIRS),A=ri(12,60),B=ri(2,6),C=ri(2,6);const f=t=>t.replace(/A/g,A).replace(/B/g,B).replace(/C/g,C);const x=f(p),y=f(q),u=calc(x),v=calc(y);if(!okNat(u)||!okNat(v))continue;return {x,y,u,v};}}
+function genCompare(){return tryGen(()=>{const c=cmpPair(),r=c.u<c.v?'<':c.u>c.v?'>':'=';
+  return {stem:`So sánh M = ${show(c.x)} và N = ${show(c.y)}:`,opts:[{t:`M ${r} N`}].concat(['<','>','='].filter(z=>z!==r).map(z=>({t:`M ${z} N`,err:`M = ${F(c.u)}, N = ${F(c.v)}.`})),[{t:'Không so sánh được',err:'Tính giá trị từng biểu thức rồi so sánh.'}]),ans:0,exp:`M = ${F(c.u)}; N = ${F(c.v)}; dấu ngoặc làm thay đổi thứ tự tính.`};});}
+/* --- Đặt dấu ngoặc để được giá trị cho trước --- */
+function genInsert(){return tryGen(()=>{const ns=[ri(2,9),ri(2,9),ri(2,9),ri(2,9)],os=[sel(['+','·']),sel(['+','·','−']),sel(['+','·'])];const plain=ns.map((n,i)=>n+(i<3?' '+os[i]+' ':'')).join('');
+  const B=brackets(ns,os).map(s=>({s,v:calc(s)})).filter(z=>okNat(z.v)&&z.v!==calc(plain));const vals={};B.forEach(z=>{(vals[z.v]=vals[z.v]||[]).push(z.s);});const good=B.filter(z=>vals[z.v].length===1);if(!good.length)return null;const g=sel(good);
+  const wr=B.filter(z=>z.v!==g.v).map(z=>({t:show(z.s),err:`Biểu thức này bằng ${F(z.v)}.`}));if(wr.length<2)return null;const w=shuffle(wr).slice(0,3);if(w.length<3)w.push({t:show(plain),err:`Không có ngoặc thì bằng ${F(calc(plain))}.`});
+  return {stem:`Đặt một cặp dấu ngoặc tròn vào biểu thức ${show(plain)} để được giá trị bằng ${F(g.v)}. Cách đặt đúng là:`,opts:[{t:show(g.s)}].concat(w),ans:0,exp:`${show(g.s)} = ${F(g.v)}.`};});}
+/* --- Lời văn ↔ biểu thức --- */
+const WORDS=[['Hiệu của A và tích của B với C','A − B · C',[['(A − B) · C','Tích của B với C phải tính trước.'],['A · B − C','Lấy A trừ đi tích B · C.'],['A − B − C','Có phép nhân B với C.']]],
+  ['Tích của tổng A và B với C','(A + B) · C',[['A + B · C','Tổng A + B phải đặt trong ngoặc.'],['A · B + C','Nhân tổng (A + B) với C.'],['A + B + C','Có phép nhân với C.']]],
+  ['Thương của tổng A và B cho C','(A + B) : C',[['A + B : C','Tổng A + B phải đặt trong ngoặc.'],['A : C + B','Chia cả tổng cho C.'],['C : (A + B)','Số bị chia là tổng A + B.']]],
+  ['Tổng của A và bình phương của B','A + B^2',[['(A + B)^2','Chỉ bình phương B.'],['A^2 + B','Bình phương B, không phải A.'],['A + 2 · B','Bình phương là B · B.']]],
+  ['Bình phương của tổng A và B','(A + B)^2',[['A + B^2','Bình phương cả tổng.'],['A^2 + B^2','Tính tổng trước rồi bình phương.'],['2 · (A + B)','Bình phương là nhân với chính nó.']]]];
+function genWords(){return tryGen(()=>{const [w,g,bad]=sel(WORDS),A=ri(12,90),B=ri(3,9),C=ri(2,9);if(A===B||B===C||A===C)return null;const f=t=>t.replace(/(?<!\p{L})A(?!\p{L})/gu,A).replace(/(?<!\p{L})B(?!\p{L})/gu,B).replace(/(?<!\p{L})C(?!\p{L})/gu,C);const gv=calc(f(g));if(!okNat(gv)&&!g.includes(':'))return null;if(bad.some(b=>{const v=calc(f(b[0]));return okNat(v)&&v===gv;}))return null;
+  return {stem:`Biểu thức nào sau đây biểu diễn "${f(w).toLowerCase().replace(/^./,c=>c.toUpperCase())}"?`,opts:[{t:show(f(g))}].concat(bad.map(b=>({t:show(f(b[0])),err:b[1]}))),ans:0,exp:`${f(w)}: ${show(f(g))}.`};});}
+/* --- Tìm x cần dùng thứ tự thực hiện --- */
+function eqX(){for(;;){const k=ri(0,3),x=ri(2,30),a=ri(2,9),b=ri(1,30),c=ri(2,5);let st,wr;
+  if(k===0){const r=a*x+pw(c,2);st=`${a} · x + ${c}^2 = ${r}`;wr=[[(r-2*c)/a,`${W(c,2)} = ${c*c}, không phải ${2*c}.`],[(r+c*c)/a,`${a} · x = ${r} − ${c*c}.`],[r-c*c-a,`Tìm thừa số: lấy tích chia cho thừa số đã biết.`]];}
+  else if(k===1){const r=(x+b)*a;st=`(x + ${b}) · ${a} = ${r}`;wr=[[r/a+b,`x + ${b} = ${r/a} nên x = ${r/a} − ${b}.`],[r-b*a,`Tính x + ${b} trước: x + ${b} = ${r} : ${a}.`],[r/a,`Đây là giá trị của x + ${b}.`]];}
+  else if(k===2){if(x*a<=b)continue;const r=x*a-b;st=`${a} · x − ${b} = ${r}`;wr=[[(r-b)/a,`${a} · x = ${r} + ${b}.`],[(r+b)*a,`Lấy ${r+b} chia cho ${a}.`],[r+b,`Đây là giá trị của ${a} · x.`]];}
+  else {const X=a*x;const r=x+b;st=`x : ${a} + ${b} = ${r}`;wr=[[(r+b)*a,`x : ${a} = ${r} − ${b}.`],[x,`Đây là giá trị của x : ${a}.`],[r*a-b,`Trước hết x : ${a} = ${r} − ${b}.`]];return {st,x:X,wr:wr.filter(z=>Number.isInteger(z[0])&&z[0]>=0&&z[0]!==X)};}
+  return {st,x,wr:wr.filter(z=>Number.isInteger(z[0])&&z[0]>=0&&z[0]!==x)};}}
+function genFindX(){return tryGen(()=>{const q=eqX();if(q.wr.length<3||new Set(q.wr.map(z=>z[0])).size<3)return null;
+  return {stem:`Tìm số tự nhiên x, biết ${show(q.st)}.`,opts:[{t:'x = '+F(q.x)}].concat(q.wr.map(z=>({t:'x = '+F(z[0]),err:z[1]}))).map(nbT),ans:0,exp:`Tìm phần chứa x từ ngoài vào trong rồi thử lại: x = ${F(q.x)}.`};});}
+/* --- Điểm trung bình, mua hàng --- */
+function genScore(){return tryGen(()=>{const sc=sample(3,6,10).sort((a,b)=>b-a),n=sc.map(()=>ri(1,6)),N=sum(n),T=sum(sc.map((s,i)=>s*n[i]));if(T%N)return null;const expr=`(${sc.map((s,i)=>`${n[i]} · ${s}`).join(' + ')}) : ${N}`;
+  return {stem:`Bạn ${sel(NAMES)} có ${sc.map((s,i)=>`${n[i]} điểm ${s}`).join(', ')}. Biểu thức nào tính điểm trung bình của bạn ấy?`,opts:[{t:show(expr)},{t:show(`${sc.map((s,i)=>`${n[i]} · ${s}`).join(' + ')} : ${N}`),err:'Thiếu dấu ngoặc: phải tính tổng điểm trước rồi mới chia.'},{t:show(`(${sc.join(' + ')}) : 3`),err:'Mỗi loại điểm có số lần khác nhau.'},{t:show(`(${sc.map((s,i)=>`${n[i]} · ${s}`).join(' + ')}) : 3`),err:`Có tất cả ${N} bài kiểm tra.`}],ans:0,exp:`${show(expr)} = ${T} : ${N} = ${T/N}.`};});}
+function genChange(){return tryGen(()=>{const a=ri(3,10),p=ri(5,12),b=ri(2,6),q=ri(3,8),M=sel([100,200,500]);const T=a*p+b*q;if(T>=M)return null;
+  return {stem:`Bạn ${sel(NAMES)} mua ${a} quyển vở, mỗi quyển ${p} nghìn đồng, và ${b} chiếc bút, mỗi chiếc ${q} nghìn đồng, rồi đưa tờ ${M} nghìn đồng. Biểu thức nào tính số tiền được trả lại (nghìn đồng)?`,opts:[{t:show(`${M} − (${a} · ${p} + ${b} · ${q})`)},{t:show(`${M} − ${a} · ${p} + ${b} · ${q}`),err:'Thiếu dấu ngoặc: phải trừ cả tiền bút.'},{t:show(`${M} − (${a} + ${b}) · (${p} + ${q})`),err:'Vở và bút có giá khác nhau.'},{t:show(`(${M} − ${a}) · ${p} + ${b} · ${q}`),err:'Lấy số tiền đưa trừ tổng số tiền phải trả.'}],ans:0,exp:`${M} − (${a*p} + ${b*q}) = ${M-T} (nghìn đồng).`};});}
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const MC=[];
+const addMC=(id,topic,level,gen,mix)=>MC.push(Object.assign({id,type:'mc',topic,level,gen},mix?{mix}:{}));
+['a','b'].forEach(x=>{
+  addMC('g_kn_'+x,'kn','NB',genKN);
+  addMC('g_first_'+x,'kn','NB',genFirst);
+  addMC('g_kn2_'+x,'kn','TH',genKN2);
+  addMC('g_who_'+x,'kn','TH',genWho);
+  addMC('g_cn_'+x,'cn','NB',genCN);
+  addMC('g_rule_'+x,'cn','NB',genRule);
+  addMC('g_cn2_'+x,'cn','TH',genCN2);
+  addMC('g_letter_'+x,'bc','TH',genLetter);
+  addMC('g_rect_'+x,'bc','TH',genRect);
+  addMC('g_bike_'+x,'lb','TH',genBike);
+  addMC('g_avg_'+x,'lb','VD',genAvg);
+  addMC('g_cinema_'+x,'lb','VD',genCinema);
+});
+addMC('g_kn_c','kn','NB',genKN);addMC('g_cn_c','cn','NB',genCN);
+addMC('g_cn2_c','cn','VD',genCN2);addMC('g_cn2_d','cn','VD',genCN2);addMC('g_kn2_c','kn','VD',genKN2);
+addMC('g_letter_c','bc','NB',genLetter);addMC('g_letter_d','bc','VD',genLetter);
+addMC('g_bike_c','lb','NB',genBike);
+['a','b'].forEach(x=>{
+  addMC('g_step_'+x,'cn','TH',genStep);
+  addMC('g_insert_'+x,'cn','VD',genInsert);
+  addMC('g_words_'+x,'lb','NB',genWords);
+  addMC('g_findx_'+x,'bc','VD',genFindX);
+  addMC('g_score_'+x,'lb','TH',genScore);
+  addMC('g_change_'+x,'lb','TH',genChange);
+});
+addMC('g_kn_d','kn','NB',genKN);addMC('g_cn_d','cn','NB',genCN);addMC('g_first_c','kn','NB',genFirst);addMC('g_words_c','lb','NB',genWords);addMC('g_rule_c','cn','NB',genRule);
+addMC('g_cmp_a','kn','VD',genCompare,[3,6]);addMC('g_cmp_b','kn','VD',genCompare,[3,6]);
+
+/* ============ Câu đúng sai ============ */
+function tfStatic(pool,stem){return ()=>{const items=mixed(()=>shuffle(pool).slice(0,4).map(p=>sel(p)));return {stem,items:wrap(items)};};}
+const POOL_A=[
+  [IT('Với biểu thức chỉ có phép cộng và phép trừ, ta thực hiện từ trái sang phải.',true,'kn','NB','Quy ước trong SGK.'),IT('Với biểu thức chỉ có phép cộng và phép trừ, ta thực hiện phép cộng trước.',false,'kn','NB','Thực hiện từ trái sang phải: 42 − 30 + 8 = 20.')],
+  [IT('Với biểu thức không có dấu ngoặc, ta thực hiện luỹ thừa trước, rồi nhân và chia, cuối cùng cộng và trừ.',true,'kn','NB','Luỹ thừa → nhân và chia → cộng và trừ.'),IT('Với biểu thức không có dấu ngoặc, ta thực hiện nhân và chia trước, rồi đến luỹ thừa.',false,'kn','NB','Luỹ thừa được làm trước nhân, chia.')],
+  [IT('Với biểu thức có dấu ngoặc, ta thực hiện phép tính trong ngoặc trước.',true,'cn','NB','Trong ngoặc trước, ngoài ngoặc sau.'),IT('Với biểu thức có dấu ngoặc, ta thực hiện phép tính ngoài ngoặc trước.',false,'cn','NB','Trong ngoặc trước, ngoài ngoặc sau.')],
+  [IT('Thứ tự thực hiện các dấu ngoặc là ( ) → [ ] → { }.',true,'cn','NB','Ngoặc tròn, ngoặc vuông rồi ngoặc nhọn.'),IT('Thứ tự thực hiện các dấu ngoặc là { } → [ ] → ( ).',false,'cn','NB','Làm từ ngoặc tròn trước.')],
+  [IT('5 + 3 · 2 = 11',true,'kn','NB','Nhân trước: 5 + 6 = 11.'),IT('5 + 3 · 2 = 16',false,'kn','NB','Nhân trước, cộng sau: 5 + 6 = 11.')],
+  [IT('100 : 5 · 2 = 40',true,'kn','NB','Chỉ có nhân chia: làm từ trái sang phải, 20 · 2 = 40.'),IT('100 : 5 · 2 = 10',false,'kn','NB','Làm từ trái sang phải: 100 : 5 = 20, 20 · 2 = 40.')]];
+function tfExprs(tpls,topic,level){return ()=>{const items=mixed(()=>{const o=[];for(let i=0;i<4;i++){const e=makeExpr(tpls);if(!e)return null;const v=RNG()<.5;let sh=e.v;if(!v){const c=['ltr','add','pow','nobr'].map(m=>{try{return calc(e.src,m);}catch(x){return NaN;}}).filter(w=>okNat(w)&&w!==e.v);sh=c.length?sel(c):e.v+10;}
+  o.push(IT(`${e.src.replace(/\^(\d+)/g,'<sup>$1</sup>')} = ${F(sh)}`,sh===e.v,topic,level,`Tính đúng thứ tự được ${F(e.v)}.`));}return o;});return {stem:'Xét các đẳng thức sau:',items:wrap(items)};};}
+function tfLetter(){const items=mixed(()=>{const o=[];const used=new Set();for(let i=0;i<4;i++){const L=letterExpr();if(!L||used.has(L.s))return null;used.add(L.s);const v=RNG()<.5,sh=v?L.v:L.v+sel([1,2,10]);
+  o.push(IT(`Khi a = ${L.a}${L.s.includes('b')?`, b = ${L.b}`:''} thì ${L.s.replace(/\^(\d+)/g,'<sup>$1</sup>')} = ${F(sh)}.`,v,'bc','TH',`Thay vào: ${L.sub.replace(/\^(\d+)/g,'<sup>$1</sup>')} = ${F(L.v)}.`));}return o;});return {stem:'Xét các khẳng định sau:',items:wrap(items)};}
+function tfRect(){const [parts,h]=sel(RECTS),a=ri(3,9),b=ri(2,9),val=x=>x==='a'?a:x==='b'?b:+x,L=sum(parts.map(val)),H=val(h),S=L*H,usesB=parts.includes('b')||h==='b';
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(v?`Diện tích hình chữ nhật ABCD là ${h} · (${parts.join(' + ')}).`:`Diện tích hình chữ nhật ABCD là ${h} · ${parts.join(' + ')}.`,v,'bc','VD','Nhân chiều rộng với cả chiều dài nên cần dấu ngoặc.'));}
+    {const v=R();o.push(IT(`Khi a = ${a}${usesB?`, b = ${b}`:''}, cạnh AB dài ${v?L:L+1}.`,v,'bc','VD',`AB = ${parts.map(val).join(' + ')} = ${L}.`));}
+    {const v=R();o.push(IT(`Khi a = ${a}${usesB?`, b = ${b}`:''}, diện tích hình chữ nhật ABCD là ${v?S:S+H}.`,v,'bc','VD',`${H} · ${L} = ${S}.`));}
+    {const v=R();o.push(IT(`Khi a = ${a}${usesB?`, b = ${b}`:''}, chu vi hình chữ nhật ABCD là ${v?2*(L+H):L+H}.`,v,'bc','VD',`2 · (${L} + ${H}) = ${2*(L+H)}.`));}return o;});
+  return {stem:'Cho hình chữ nhật ABCD như hình dưới đây. Xét các phát biểu sau:',fig:rectFig(parts,h),items:wrap(items)};}
+function tfCinema(){const r=ri(12,20),s=ri(12,20),p=sel([45,50,60])*1000,u=ri(10,60);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Phòng chiếu có ${v?r*s:r+s} ghế.`,v,'lb','VD',`${r} · ${s} = ${r*s}.`));}
+    {const v=R();o.push(IT(`Nếu bán hết vé thì thu được ${F(v?r*s*p:r*s*p/10)} đồng.`,v,'lb','VD',`${r*s} · ${F(p)} = ${F(r*s*p)}.`));}
+    {const v=R();o.push(IT(v?`Khi còn ${u} vé không bán được, số tiền thu được là (${r} · ${s} − ${u}) · ${F(p)} đồng.`:`Khi còn ${u} vé không bán được, số tiền thu được là ${r} · ${s} − ${u} · ${F(p)} đồng.`,v,'lb','VD','Cần dấu ngoặc: tính số vé bán được trước.'));}
+    {const v=R(),T=(r*s-u)*p;o.push(IT(`Khi còn ${u} vé không bán được, số tiền thu được là ${F(v?T:T+p)} đồng.`,v,'lb','VD',`(${r*s} − ${u}) · ${F(p)} = ${F(T)}.`));}return o;});
+  return {stem:`Một phòng chiếu phim có ${r} hàng ghế, mỗi hàng ${s} ghế. Giá mỗi vé là ${F(p)} đồng. Xét các phát biểu sau:`,items:wrap(items)};}
+const TF=[];
+const addTF=(id,topic,level,gen,mix)=>TF.push(Object.assign({id,type:'tf',topic,level,gen},mix?{mix}:{}));
+['a','b'].forEach(x=>{
+  addTF('tf_a_nb_'+x,'kn','NB',tfStatic(POOL_A,'Xét các phát biểu sau:'));
+  addTF('tf_kn_nb_'+x,'kn','NB',tfExprs(TK,'kn','NB'));
+  addTF('tf_kn_th_'+x,'kn','TH',tfExprs(TK2,'kn','TH'));
+  addTF('tf_cn_th_'+x,'cn','TH',tfExprs(TC.concat(TC2),'cn','TH'));
+  addTF('tf_letter_'+x,'bc','TH',tfLetter);
+  addTF('tf_cinema_'+x,'lb','VD',tfCinema);
+});
+addTF('tf_cn_nb','cn','NB',tfExprs(TC,'cn','NB'));
+addTF('tf_rect_vd','bc','VD',tfRect);
+addTF('tf_cn_vd','cn','VD',tfExprs(TC2,'cn','VD'));
+function tfCmp(){const items=mixed(()=>{const o=[],used=new Set();for(let i=0;i<4;i++){const c=cmpPair();if(used.has(c.x))return null;used.add(c.x);const v=RNG()<.5,r=c.u<c.v?'<':c.u>c.v?'>':'=',w=sel(['<','>','='].filter(z=>z!==r));o.push(IT(`${c.x.replace(/\^(\d+)/g,'<sup>$1</sup>')} ${v?r:w} ${c.y.replace(/\^(\d+)/g,'<sup>$1</sup>')}`,v,'kn','VD',`Hai vế bằng ${F(c.u)} và ${F(c.v)}.`));}return o;});return {stem:'Xét các khẳng định sau:',items:wrap(items)};}
+function tfFindX(){const items=mixed(()=>{const o=[],used=new Set();for(let i=0;i<4;i++){const q=eqX();if(used.has(q.st)||!q.wr.length)return null;used.add(q.st);const v=RNG()<.5;o.push(IT(`Nếu ${q.st.replace(/\^(\d+)/g,'<sup>$1</sup>')} thì x = ${F(v?q.x:q.wr[0][0])}.`,v,'bc','TH',`x = ${F(q.x)}.`));}return o;});return {stem:'Xét các khẳng định sau:',items:wrap(items)};}
+addTF('tf_kn_nb_c','kn','NB',tfExprs(TK,'kn','NB'));addTF('tf_cn_nb_b','cn','NB',tfExprs(TC,'cn','NB'));
+addTF('tf_cmp_vd','kn','VD',tfCmp,[3,6]);addTF('tf_findx_a','bc','TH',tfFindX);addTF('tf_findx_b','bc','TH',tfFindX);
+
+/* ============ Câu trả lời ngắn ============ */
+const saE=(tpls,id,topic,level)=>({id,topic,level,unit:'',gen:()=>{const e=makeExpr(tpls);return{stem:`Tính giá trị của biểu thức ${show(e.src)}.`,ans:[e.v],exp:`Thực hiện đúng thứ tự, được ${F(e.v)}.`};}});
+const SA=[
+ saE(TK,'s_kn_nb','kn','NB'),saE(TK2,'s_kn_th','kn','TH'),saE(TC,'s_cn_nb','cn','NB'),saE(TC2,'s_cn_th','cn','TH'),saE(TC2,'s_cn_vd','cn','VD'),
+ {id:'s_bc_th',topic:'bc',level:'TH',unit:'',gen:()=>{const L=letterExpr();return{stem:`Tính giá trị của biểu thức ${showL(L.s)} khi <i>a</i> = ${L.a}${L.s.includes('b')?`; <i>b</i> = ${L.b}`:''}.`,ans:[L.v],exp:`${show(L.sub)} = ${F(L.v)}.`};}},
+ {id:'s_bc_vd',topic:'bc',level:'VD',unit:'cm²',gen:()=>{const [parts,h]=sel(RECTS.filter(r=>!r[0].includes('b')&&r[1]==='a')),a=ri(3,12),L=sum(parts.map(x=>x==='a'?a:+x));return{stem:`Tính diện tích hình chữ nhật ABCD trong hình khi <i>a</i> = ${a} cm.`,fig:rectFig(parts,h),ans:[a*L],exp:`${a} · (${parts.map(x=>x==='a'?a:x).join(' + ')}) = ${a} · ${L} = ${a*L} (cm²).`};}},
+ {id:'s_lb_nb',topic:'lb',level:'NB',unit:'km',gen:()=>{const t1=ri(2,4),v1=ri(10,18),t2=ri(1,3),v2=ri(6,12);return{stem:`Một người đi xe đạp ${t1} giờ đầu với vận tốc ${v1} km/h, ${t2} giờ sau với vận tốc ${v2} km/h. Tính quãng đường người đó đã đi.`,ans:[t1*v1+t2*v2],exp:`${t1} · ${v1} + ${t2} · ${v2} = ${t1*v1+t2*v2} (km).`};}},
+ {id:'s_lb_th',topic:'lb',level:'TH',unit:'chiếc',gen:()=>{const m1=sel([6,8,9]),m2=12-m1,av=ri(80,200),b=ri(av-30,av+30),a=12*av-m2*b;return{stem:`Trong ${m1} tháng đầu năm, một cửa hàng bán được ${F(a)} chiếc ti vi. Trong ${m2} tháng cuối năm, trung bình mỗi tháng bán được ${b} chiếc. Trong cả năm, trung bình mỗi tháng cửa hàng bán được bao nhiêu chiếc ti vi?`,ans:[av],exp:`(${F(a)} + ${m2} · ${b}) : 12 = ${av}.`};}},
+ {id:'s_lb_vd',topic:'lb',level:'VD',unit:'nghìn đồng',gen:()=>{const S=ri(80,140),K=ri(20,40),A1=ri(15,30),p1=ri(30,40)*10,p2=ri(15,22)*10,c=ri(2,4)*10,A2=S-K-A1;return{stem:`Căn hộ diện tích ${S} m², trừ bếp và nhà vệ sinh ${K} m², phần còn lại lát gỗ: ${A1} m² lát gỗ loại 1 giá ${p1} nghìn đồng/m², phần còn lại lát gỗ loại 2 giá ${p2} nghìn đồng/m². Công lát là ${c} nghìn đồng/m². Tính tổng chi phí lát sàn (nghìn đồng).`,ans:[A1*p1+A2*p2+(S-K)*c],exp:`${A1} · ${p1} + (${S} − ${K} − ${A1}) · ${p2} + (${S} − ${K}) · ${c} = ${F(A1*p1)} + ${F(A2*p2)} + ${F((S-K)*c)} = ${F(A1*p1+A2*p2+(S-K)*c)}.`};}},
+ {id:'s_lb_vd2',topic:'lb',level:'VD',unit:'đồng',gen:()=>{const r=ri(12,20),s=ri(12,20),u=ri(10,60),p=sel([45,50,60])*1000;return{stem:`Một phòng chiếu phim có ${r} hàng ghế, mỗi hàng ${s} ghế, giá mỗi vé ${F(p)} đồng. Tối Chủ nhật còn ${u} vé không bán được. Tính số tiền bán vé tối Chủ nhật.`,ans:[(r*s-u)*p],exp:`(${r} · ${s} − ${u}) · ${F(p)} = ${F((r*s-u)*p)}.`};}},
+ {id:'s_lb_vd3',topic:'lb',level:'VD',unit:'vé',gen:()=>{const r=ri(12,20),s=ri(12,20),u=ri(5,60),p=sel([45,50,60])*1000;return{stem:`Một phòng chiếu phim có ${r} hàng ghế, mỗi hàng ${s} ghế, giá mỗi vé ${F(p)} đồng. Tối thứ Hai, số tiền bán vé thu được là ${F((r*s-u)*p)} đồng. Có bao nhiêu vé không bán được?`,ans:[u],exp:`Số vé bán được: ${F((r*s-u)*p)} : ${F(p)} = ${r*s-u}. Không bán được: ${r} · ${s} − ${r*s-u} = ${u}.`};}},
+ {id:'s_findx',topic:'bc',level:'VD',unit:'',gen:()=>{const q=eqX();return{stem:`Tìm số tự nhiên x, biết ${show(q.st)}.`,ans:[q.x],exp:`x = ${F(q.x)}.`};}},
+ {id:'s_lb_th2',topic:'lb',level:'TH',unit:'nghìn đồng',gen:()=>{for(;;){const a=ri(3,10),p=ri(5,12),b=ri(2,6),q=ri(3,8),M=sel([100,200,500]),T=a*p+b*q;if(T>=M)continue;return{stem:`Bạn ${sel(NAMES)} mua ${a} quyển vở, mỗi quyển ${p} nghìn đồng, và ${b} chiếc bút, mỗi chiếc ${q} nghìn đồng, rồi đưa tờ ${M} nghìn đồng. Bạn ấy được trả lại bao nhiêu nghìn đồng?`,ans:[M-T],exp:`${M} − (${a} · ${p} + ${b} · ${q}) = ${M-T}.`};}}},
+ {id:'s_kn_nb2',topic:'kn',level:'NB',unit:'',gen:()=>{const e=makeExpr(TK);return{stem:`Tính giá trị của biểu thức ${show(e.src)}.`,ans:[e.v],exp:`${F(e.v)}.`};}},
+ {id:'s_cn_nb2',topic:'cn',level:'NB',unit:'',gen:()=>{const e=makeExpr(TC);return{stem:`Tính giá trị của biểu thức ${show(e.src)}.`,ans:[e.v],exp:`${F(e.v)}.`};}},
+ {id:'s_bc_nb',topic:'bc',level:'NB',unit:'',gen:()=>{const a=ri(2,20),k=ri(2,9),c=ri(1,30);return{stem:`Tính giá trị của biểu thức ${k}<i>a</i> + ${c} khi <i>a</i> = ${a}.`,ans:[k*a+c],exp:`${k} · ${a} + ${c} = ${k*a+c}.`};}}
+].map(q=>Object.assign({type:'sa'},q));
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  kn:{short:'Không có ngoặc',name:'Biểu thức không có dấu ngoặc',rule:'Nếu chỉ có cộng và trừ (hoặc chỉ có nhân và chia) thì thực hiện từ trái qua phải: 42 − 30 + 8 = 20; 100 : 5 · 2 = 40. Nếu có cộng, trừ, nhân, chia, nâng lên luỹ thừa thì: Luỹ thừa → Nhân và chia → Cộng và trừ.',tip:'5 + 3 · 2 = 11 (nhân trước), không phải 16.'},
+  cn:{short:'Có dấu ngoặc',name:'Biểu thức có dấu ngoặc',rule:'Thực hiện phép tính trong ngoặc trước, ngoài ngoặc sau. Với các dấu ngoặc ( ), [ ], { }: ( ) → [ ] → { }. Trong mỗi ngoặc vẫn theo thứ tự luỹ thừa → nhân, chia → cộng, trừ.',tip:'Làm từ trong ra ngoài, mỗi bước chỉ thay một phần.'},
+  bc:{short:'Biểu thức chứa chữ',name:'Giá trị của biểu thức chứa chữ',rule:'Để tính giá trị của biểu thức chứa chữ khi cho giá trị của các chữ, ta thay giá trị đã cho vào biểu thức rồi tính giá trị của biểu thức nhận được. 2(a + b) nghĩa là 2 · (a + b).',tip:'Thay số vào chữ thì nhớ giữ nguyên dấu ngoặc và dấu nhân.'},
+  lb:{short:'Lập biểu thức',name:'Lập biểu thức cho bài toán thực tế',rule:'Đọc bài toán, viết các phép tính cần làm thành một biểu thức (dùng dấu ngoặc khi cần làm phép cộng, trừ trước) rồi tính giá trị của biểu thức.',tip:'"Trung bình mỗi tháng" phải chia cả tổng cho số tháng: (a + b) : 12, cần dấu ngoặc.'}
+};
+const TKEYS=['kn','cn','bc','lb'];
+const TDESC={kn:'Thứ tự luỹ thừa → nhân, chia → cộng, trừ',cn:'Thứ tự ( ) → [ ] → { }',bc:'Thay giá trị của chữ để tính biểu thức',lb:'Viết biểu thức giải bài toán thực tế'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhận ra phép tính làm trước, tính biểu thức ngắn không có hoặc có một dấu ngoặc.',TH:'Biểu thức có luỹ thừa, có nhiều dấu ngoặc, biểu thức chứa chữ, chọn biểu thức đúng cho bài toán.',VD:'Biểu thức nhiều tầng ngoặc, bài toán thực tế cần lập biểu thức có dấu ngoặc.'};
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+/* mọi cách đặt một cặp ngoặc vào a op b op c op d */
+function brackets(ns,os){const out=new Set();const L=ns.length;for(let i=0;i<L;i++)for(let j=i+1;j<L;j++){if(i===0&&j===L-1)continue;let s='';for(let k=0;k<L;k++){if(k===i)s+='(';s+=ns[k];if(k===j)s+=')';if(k<L-1)s+=' '+os[k]+' ';}out.add(s);}return [...out];}
+function tfHard(){for(;;){const a=ri(2,9),b=ri(2,9),c=ri(2,9),x=ri(3,30),k=ri(2,5),m=ri(2,6),r=k*x+m;
+  const P=[
+    [IT(`2 · 3 + 4 · 5 có giá trị lớn nhất bằng 70 khi đặt thêm một cặp dấu ngoặc.`,true,'cn','VD','2 · (3 + 4) · 5 = 70.'),IT(`2 · 3 + 4 · 5 có giá trị lớn nhất bằng 50 khi đặt thêm một cặp dấu ngoặc.`,false,'cn','VD','2 · (3 + 4) · 5 = 70 > 50.')],
+    [IT(`${W(`(${a} + ${b})`,2)} = ${W(a,2)} + ${W(b,2)}`,false,'kn','VD',`${W(`(${a} + ${b})`,2)} = ${(a+b)*(a+b)}, còn ${W(a,2)} + ${W(b,2)} = ${a*a+b*b}.`),IT(`${W(`(${a} + ${b})`,2)} = ${(a+b)*(a+b)}`,true,'kn','VD','Tính trong ngoặc trước rồi bình phương.')],
+    [IT(`Nếu ${k} · x + ${m} = ${r} thì x = ${x}.`,true,'bc','VD',`${k} · x = ${r} − ${m} = ${r-m}, x = ${x}.`),IT(`Nếu ${k} · x + ${m} = ${r} thì x = ${(r+m)%k===0?(r+m)/k:x+1}.`,false,'bc','VD',`${k} · x = ${r} − ${m}, x = ${x}.`)],
+    [IT(`${c} · ${W(2,3)} = ${W(`(${c} · 2)`,3)}`,false,'kn','VD',`${c} · ${W(2,3)} = ${8*c}, còn ${W(`(${c} · 2)`,3)} = ${pw(2*c,3)}.`),IT(`${c} · ${W(2,3)} = ${8*c}`,true,'kn','VD','Luỹ thừa trước, nhân sau.')],
+    [IT('Hai biểu thức 36 : 4 · 3 và 36 : (4 · 3) có giá trị khác nhau.',true,'cn','VD','36 : 4 · 3 = 27; 36 : (4 · 3) = 3.'),IT('Hai biểu thức 36 : 4 · 3 và 36 : (4 · 3) có cùng giá trị.',false,'cn','VD','36 : 4 · 3 = 27; 36 : 12 = 3.')]];
+  const its=wrap(shuffle(P).slice(0,4).map(p=>sel(p)));if(tfOK(its))return {stem:'Xét các phát biểu sau:',items:its};}}
+const HARD={tf:[{id:'h_kn',type:'tf',topic:'cn',level:'VD',gen:tfHard}],sa:[
+ {id:'h_long',topic:'cn',level:'VD',unit:'',gen:()=>{for(;;){const A=ri(2,30),base=sel([2,3]),k=base===2?ri(3,6):ri(2,4),E=ri(2,12),G=ri(2,12),q=E*G+ri(1,40),T=q*pw(base,k),B=ri(Math.floor(T/4),Math.floor(T*3/4)),C=T-B,H=ri(1,30);if(B<1||C<1)continue;const src=`${A} · [(${B} + ${C}) : ${base}^${k} − ${E} · ${G}] + ${H}`;const v=calc(src);if(!okNat(v))continue;return{stem:`Tính giá trị của biểu thức ${show(src)}.`,ans:[v],exp:`(${F(B)} + ${F(C)}) : ${W(base,k)} = ${F(T)} : ${pw(base,k)} = ${q}; ${q} − ${E} · ${G} = ${q-E*G}; ${A} · ${q-E*G} + ${H} = ${F(v)}.`};}}},
+ {id:'h_max',topic:'cn',level:'VD',unit:'',gen:()=>{const ns=[ri(2,9),ri(2,9),ri(2,9),ri(2,9)],os=shuffle(['+','·',sel(['+','·'])]);const L=brackets(ns,os).map(s=>calc(s)).filter(okNat);const mx=Math.max(calc(ns.map((n,i)=>n+(i<3?' '+os[i]+' ':'')).join('')),...L);return{stem:`Đặt thêm đúng một cặp dấu ngoặc tròn vào biểu thức ${show(ns.map((n,i)=>n+(i<3?' '+os[i]+' ':'')).join(''))} (hoặc không đặt) để được giá trị lớn nhất. Giá trị lớn nhất đó là bao nhiêu?`,ans:[mx],exp:`Thử các cách đặt ngoặc, giá trị lớn nhất là ${mx}.`};}},
+ {id:'h_x',topic:'bc',level:'VD',unit:'',gen:()=>{for(;;){const x=ri(2,40),a=ri(2,20),b=ri(2,6),c=ri(1,50),d=sel([2,3,5,6]);const in1=(x+a)*b-c;if(in1<=0||in1%d)continue;const e=in1/d;return{stem:`Tìm số tự nhiên x, biết ${show(`[(x + ${a}) · ${b} − ${c}] : ${d} = ${e}`)}.`,ans:[x],exp:`(x + ${a}) · ${b} − ${c} = ${e} · ${d} = ${in1}; (x + ${a}) · ${b} = ${in1+c}; x + ${a} = ${(in1+c)/b}; x = ${x}.`};}}},
+ {id:'h_pow',topic:'kn',level:'VD',unit:'',gen:()=>{const k=ri(2,5),a=ri(2,4),c=ri(1,30);const v=pw(2,k+a)+c;return{stem:`Tìm số tự nhiên n, biết ${W(2,a)} · ${W(2,'n')} + ${c} = ${v}.`,ans:[k],exp:`${W(2,a)} · ${W(2,'n')} = ${v} − ${c} = ${pw(2,k+a)} = ${W(2,k+a)}, nên ${a} + n = ${k+a}, n = ${k}.`};}},
+ {id:'h_cube',topic:'lb',level:'VD',unit:'cm³',gen:()=>{const w=4,t=[ri(3,5),ri(5,6),ri(6,7),ri(7,9)].sort((x,y)=>x-y),e=sel([2,3]);const n=sum(t.map(z=>w*z));return{stem:`Một hình khối gồm ${t.length} tầng ghép từ các khối lập phương cạnh ${e} cm: các tầng lần lượt có ${t.map(z=>`${w} · ${z}`).join('; ')} khối. Tính thể tích của hình khối.`,ans:[n*e*e*e],exp:`Số khối: ${t.map(z=>`${w} · ${z}`).join(' + ')} = ${n}. Thể tích: ${n} · ${W(e,3)} = ${n*e*e*e} (cm³).`};}},
+ {id:'h_age',topic:'lb',level:'VD',unit:'tuổi',gen:()=>{const c=ri(8,13),k=sel([3,4]),m=c*k,y=ri(2,10);return{stem:`Năm nay mẹ ${m} tuổi, gấp ${k} lần tuổi con. Tính tổng số tuổi của hai mẹ con sau ${y} năm nữa.`,ans:[m+y+c+y],exp:`Tuổi con: ${m} : ${k} = ${c}. Tổng sau ${y} năm: (${m} + ${y}) + (${c} + ${y}) = ${m+c+2*y}.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+
+const qsOK=u=>u.qs.every(q=>q.type!=='mc'||(q.opts.length===4&&new Set(q.opts.map(o=>o.t)).size===4));
+const PISA=[
+ ()=>{for(;;){const r=ri(14,20),s=ri(14,20),p=sel([45,50,60])*1000,u1=ri(10,50),u2=ri(5,60);if(u1===u2)continue;const N=r*s;
+   const u={title:'Phòng chiếu phim',ctx:`<p class="stem">Một phòng chiếu phim có ${r} hàng ghế, mỗi hàng ${s} ghế. Giá mỗi vé là ${F(p)} đồng. Bảng sau ghi số vé không bán được trong hai tối.</p>${tbl(['Tối','Số vé không bán được'],[['Thứ Bảy','0 (bán hết)'],['Chủ nhật',u1],['Thứ Hai','?']])}`,qs:[
+    saq('Tối thứ Bảy thu được bao nhiêu tiền bán vé (đồng)?',N*p,'đồng',`${r} · ${s} · ${F(p)} = ${F(N*p)}.`,'lb','TH'),
+    mcq('Biểu thức nào tính số tiền bán vé tối Chủ nhật?',show(`(${r} · ${s} − ${u1}) · ${F(p)}`),[[show(`${r} · ${s} − ${u1} · ${F(p)}`),'Thiếu dấu ngoặc: tính số vé bán được trước.'],[show(`${r} · ${s} · ${F(p)} − ${u1}`),`Phải trừ tiền của ${u1} vé.`],[show(`(${r} + ${s} − ${u1}) · ${F(p)}`),`Số ghế là ${r} · ${s}.`]],`(${N} − ${u1}) · ${F(p)} = ${F((N-u1)*p)}.`,'lb','VD'),
+    saq(`Tối thứ Hai thu được ${F((N-u2)*p)} đồng. Có bao nhiêu vé không bán được?`,u2,'vé',`${F((N-u2)*p)} : ${F(p)} = ${N-u2}; ${N} − ${N-u2} = ${u2}.`,'lb','VD')]};if(qsOK(u))return u;}},
+ ()=>{for(;;){const S=ri(80,140),K=ri(20,40),A1=ri(15,30),p1=ri(30,40)*10,p2=ri(15,22)*10,c=ri(2,4)*10,A2=S-K-A1;if(A2<10)continue;const T=A1*p1+A2*p2+(S-K)*c;
+   const u={title:'Lát sàn gỗ',ctx:`<p class="stem">Căn hộ nhà bác Cường có diện tích ${S} m². Trừ bếp và nhà vệ sinh rộng ${K} m², phần còn lại được lát gỗ. Công lát là ${c} nghìn đồng/m².</p>${tbl(['Loại gỗ','Diện tích lát','Giá gỗ (nghìn đồng/m²)'],[['Loại 1',`${A1} m²`,p1],['Loại 2','phần còn lại',p2]])}`,qs:[
+    saq('Diện tích lát gỗ loại 2 là bao nhiêu mét vuông?',A2,'m²',`${S} − ${K} − ${A1} = ${A2}.`,'lb','NB'),
+    mcq('Biểu thức nào tính tổng chi phí (nghìn đồng)?',show(`${A1} · ${p1} + (${S} − ${K} − ${A1}) · ${p2} + (${S} − ${K}) · ${c}`),[[show(`${A1} · ${p1} + ${S} − ${K} − ${A1} · ${p2} + (${S} − ${K}) · ${c}`),'Thiếu dấu ngoặc ở diện tích gỗ loại 2.'],[show(`${A1} · ${p1} + (${S} − ${K} − ${A1}) · ${p2} + ${S} · ${c}`),'Công lát chỉ tính cho phần được lát gỗ.'],[show(`(${A1} + ${S} − ${K}) · (${p1} + ${p2} + ${c})`),'Mỗi loại gỗ có diện tích và giá riêng.']],`Tổng: ${F(T)} nghìn đồng.`,'lb','VD'),
+    saq('Tính tổng chi phí lát sàn (nghìn đồng).',T,'nghìn đồng',`${F(A1*p1)} + ${F(A2*p2)} + ${F((S-K)*c)} = ${F(T)}.`,'lb','VD')]};if(qsOK(u))return u;}},
+ ()=>{for(;;){const t=[ri(2,4),ri(1,3)],v=[ri(10,18),ri(6,12)],rest=ri(1,2);if(v[0]===v[1])continue;if(calc(`${t[0]} + ${v[0]} · ${t[1]} + ${v[1]}`)===t[0]*v[0]+t[1]*v[1]||(t[0]+t[1])*(v[0]+v[1])===t[0]*v[0]+t[1]*v[1])continue;const D=t[0]*v[0]+t[1]*v[1];
+   const u={title:'Đạp xe về quê',ctx:`<p class="stem">Bạn Minh đạp xe về quê. Bảng sau ghi thời gian và vận tốc ở hai chặng đường. Giữa hai chặng, Minh nghỉ ${rest} giờ.</p>${tbl(['Chặng','Thời gian (giờ)','Vận tốc (km/h)'],[['Chặng 1',t[0],v[0]],['Chặng 2',t[1],v[1]]])}`,qs:[
+    saq('Quãng đường chặng 1 dài bao nhiêu kilômét?',t[0]*v[0],'km',`${t[0]} · ${v[0]} = ${t[0]*v[0]}.`,'lb','NB'),
+    mcq('Biểu thức nào tính cả quãng đường về quê?',show(`${t[0]} · ${v[0]} + ${t[1]} · ${v[1]}`),[[show(`(${t[0]} + ${t[1]}) · (${v[0]} + ${v[1]})`),'Mỗi chặng có thời gian và vận tốc riêng.'],[show(`(${t[0]} + ${t[1]} + ${rest}) · ${v[0]}`),'Thời gian nghỉ không đi được quãng đường nào.'],[show(`${t[0]} + ${v[0]} · ${t[1]} + ${v[1]}`),'Quãng đường = thời gian · vận tốc.']],`${t[0]*v[0]} + ${t[1]*v[1]} = ${D} (km).`,'lb','TH'),
+    saq('Từ lúc xuất phát đến lúc về quê mất tất cả bao nhiêu giờ?',t[0]+t[1]+rest,'giờ',`${t[0]} + ${rest} + ${t[1]} = ${t[0]+t[1]+rest}.`,'lb','TH')]};if(qsOK(u))return u;}},
+ ()=>{for(;;){const n=ri(3,6),w=sel([3,4]),e=sel([2,3]),base=ri(3,5),T=range(0,n-1).map(i=>w*(base+i));const N=sum(T);
+   const u={title:'Khối bậc thang',ctx:`<p class="stem">Một khối bậc thang được ghép từ các khối lập phương nhỏ cạnh ${e} cm. Khối có ${n} tầng; bảng sau ghi số khối nhỏ ở mỗi tầng (tính từ trên xuống).</p>${tbl(['Tầng','Số khối nhỏ'],T.map((x,i)=>[`Tầng ${i+1}`,`${w} · ${base+i}`]))}`,qs:[
+    saq('Khối bậc thang có tất cả bao nhiêu khối lập phương nhỏ?',N,'khối',`${T.map((x,i)=>`${w} · ${base+i}`).join(' + ')} = ${N}.`,'lb','TH'),
+    mcq('Biểu thức nào tính thể tích của khối bậc thang (cm³)?',show(`(${T.map((x,i)=>`${w} · ${base+i}`).join(' + ')}) · ${e}^3`),[[show(`${T.map((x,i)=>`${w} · ${base+i}`).join(' + ')} · ${e}^3`),'Thiếu dấu ngoặc: chỉ tầng cuối được nhân với thể tích mỗi khối.'],[show(`(${T.map((x,i)=>`${w} · ${base+i}`).join(' + ')}) · ${e} · 3`),`Thể tích mỗi khối là ${W(e,3)} = ${e*e*e} cm³.`],[show(`(${T.map((x,i)=>`${w} · ${base+i}`).join(' + ')}) · ${e}^2`),`Thể tích khối lập phương cạnh ${e} là ${W(e,3)}.`]],`${N} · ${W(e,3)} = ${N*e*e*e} (cm³).`,'lb','VD'),
+    saq('Tính thể tích của khối bậc thang (cm³).',N*e*e*e,'cm³',`${N} · ${e*e*e} = ${N*e*e*e}.`,'lb','VD')]};if(qsOK(u))return u;}}
+];
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'kn',fig:'<div class="figbox"><p>42 − 30 + 8 = 20; 100 : 5 · 2 = 40</p><p>1 + 2 · 3<sup>2</sup> = 1 + 2 · 9 = 1 + 18 = 19</p></div>',extra:'Luỹ thừa → Nhân và chia → Cộng và trừ.'},
+  {k:'cn',fig:'<div class="figbox"><p>{15 + 2 · [8 − (5 − 3)]} : 9 = {15 + 2 · [8 − 2]} : 9</p><p>= {15 + 2 · 6} : 9 = {15 + 12} : 9 = 27 : 9 = 3</p></div>',extra:'( ) → [ ] → { }.'},
+  {k:'bc',fig:'<div class="figbox"><p>1 + 2(<i>a</i> + <i>b</i>) − 4<sup>3</sup> khi <i>a</i> = 25; <i>b</i> = 9:</p><p>1 + 2 · (25 + 9) − 64 = 1 + 68 − 64 = 5</p></div>',extra:'Thay giá trị của chữ rồi tính.'},
+  {k:'lb',fig:'<div class="figbox"><p>3 giờ đi 14 km/h, 2 giờ đi 9 km/h:</p><p>3 · 14 + 2 · 9 = 42 + 18 = 60 (km)</p></div>',extra:'Dùng dấu ngoặc khi cần tính tổng hoặc hiệu trước.'}
+];
+
+/* ============ Câu trộn kiến thức cả Chương I (bài cuối chương) ============ */
+const ROMAN_U=['','I','II','III','IV','V','VI','VII','VIII','IX'];
+const ROM=n=>'X'.repeat(fl(n/10))+ROMAN_U[n%10];
+const dset=n=>[...new Set(String(n))].map(Number);
+function exprVal(lo,hi){for(;;){const e=makeExpr(TK2.concat(TC2));if(e&&e.v>=lo&&e.v<=hi)return e;}}
+function x7Digits(){return tryGen(()=>{const e=exprVal(100,99999),S=dset(e.v),all=String(e.v).split('').map(Number);if(S.length===all.length)return null;
+  return {stem:`Gọi n là giá trị của biểu thức ${show(e.src)}. Tập hợp các chữ số của n là:`,opts:[{t:SET(S)},{t:SET(all),err:'Mỗi phần tử chỉ viết một lần.'},{t:SET(S.slice(0,-1)),err:`Còn thiếu chữ số ${S[S.length-1]}.`},(()=>{const key=a=>a.slice().sort().join();let w=dset(calc(e.src,'ltr')||e.v+1);if(key(w)===key(S))w=S.concat([range(0,9).find(d=>!S.includes(d))]);return {t:SET(w),err:'Tính n theo đúng thứ tự thực hiện các phép tính.'};})()].map(nbT),ans:0,exp:`n = ${F(e.v)}, tập hợp các chữ số của n là ${SET(S)}.`};});}
+function x7Next(){return tryGen(()=>{const e=exprVal(10,99999),prev=RNG()<.5,r=prev?e.v-1:e.v+1;
+  return {stem:`Số liền ${prev?'trước':'sau'} của giá trị biểu thức ${show(e.src)} là:`,opts:[{t:F(r)}].concat(pickOpts(F(r),[{t:F(prev?e.v+1:e.v-1),err:`Đây là số liền ${prev?'sau':'trước'}.`},{t:F(e.v),err:'Đây là giá trị của biểu thức.'},{t:F((()=>{let w=NaN;for(const m of ['ltr','add','pow','nobr']){try{w=calc(e.src,m);}catch(x){}if(okNat(w)&&w!==e.v)break;}return okNat(w)&&w!==e.v?(prev?w-1:w+1):r+10;})()),err:'Tính giá trị biểu thức theo đúng thứ tự trước.'},{t:F(r+10),err:'Tính lại.'}])),ans:0,exp:`Biểu thức có giá trị ${F(e.v)}; số liền ${prev?'trước':'sau'} là ${F(r)}.`};});}
+function x7QR(){return tryGen(()=>{const b=ri(101,399),q=ri(11,49),r=ri(1,b-1),a=b*q+r;
+  return {stem:`Phép chia ${F(a)} : ${b} có thương và số dư là:`,opts:[{t:`Thương ${q}, số dư ${r}`}].concat(pickOpts(`Thương ${q}, số dư ${r}`,[{t:`Thương ${q-1}, số dư ${r+b}`,err:'Số dư phải nhỏ hơn số chia.'},{t:`Thương ${q+1}, số dư ${r}`,err:`${b} · ${q+1} > ${F(a)}.`},{t:`Thương ${q}, số dư ${b-r}`,err:`${b} · ${q} + ${b-r} khác ${F(a)}.`}])),ans:0,exp:`${F(a)} = ${b} · ${q} + ${r} và ${r} < ${b}.`};});}
+function x7Pow(){return tryGen(()=>{const b=ri(2,9),m=ri(3,8),n=ri(2,6),k=ri(1,Math.min(m+n-1,6));
+  return {stem:`Viết kết quả phép tính ${show(`${b}^${m} · ${b}^${n} : ${b}^${k}`)} dưới dạng một luỹ thừa:`,opts:[{t:W(b,m+n-k)}].concat(pickOpts(W(b,m+n-k),[{t:W(b,m*n-k),err:'Nhân hai luỹ thừa cùng cơ số thì cộng các số mũ.'},{t:W(b,m+n+k),err:'Chia thì trừ số mũ.'},{t:W(b,Math.max(1,m-n+k)),err:'Làm từ trái sang phải: nhân trước rồi chia.'},{t:W(b,m+n-k+1),err:'Tính lại các số mũ.'}])),ans:0,exp:`${W(b,m)} · ${W(b,n)} : ${W(b,k)} = ${W(b,`${m} + ${n} − ${k}`)} = ${W(b,m+n-k)}.`};});}
+function x7Set(){return tryGen(()=>{const k=ri(2,5),c=ri(1,20),N=k*ri(3,6)+c+ri(1,k-1)||k*4+c+1;const L=[];for(let x=0;k*x+c<N;x++)L.push(x);
+  return {stem:`Viết tập hợp A các số tự nhiên x thoả mãn ${show(`${k} · x + ${c} < ${N}`)}:`,opts:[{t:'A = '+SET(L)}].concat(pickOpts('A = '+SET(L),[{t:'A = '+SET(L.slice(1)),err:`x = 0 cũng thoả mãn: ${k} · 0 + ${c} = ${c} < ${N}.`},{t:'A = '+SET(L.concat([L.length])),err:`${k} · ${L.length} + ${c} = ${k*L.length+c} không nhỏ hơn ${N}.`},{t:'A = '+SET(L.slice(0,-1)),err:`${k} · ${L[L.length-1]} + ${c} = ${k*L[L.length-1]+c} < ${N}.`}])).map(nbT),ans:0,exp:`Thử lần lượt x = 0; 1; 2; …: A = ${SET(L)}.`};});}
+function x7Roman(){return tryGen(()=>{const a=ri(2,9),b=ri(2,5),c=ri(1,9);const v=a*b+c;if(v>30)return null;
+  return {stem:`Giá trị của biểu thức ${show(`${a} · ${b} + ${c}`)} viết bằng số La Mã là:`,opts:[{t:ROM(v)}].concat(pickOpts(ROM(v),[{t:ROM(a*(b+c)>30?v-1:a*(b+c)),err:'Nhân trước, cộng sau.'},{t:ROM(v+1),err:'Tính lại.'},{t:ROM(Math.max(1,v-1)),err:'Tính lại.'},{t:ROM(v>=10?v-10:v+10),err:'Đọc lại số chữ X.'}])),ans:0,exp:`${a} · ${b} + ${c} = ${v} = ${ROM(v)}.`};});}
+[['x7_digits','kn','TH',x7Digits,[1,2]],['x7_next','cn','TH',x7Next,[3]],['x7_qr','lb','TH',x7QR,[5]],['x7_pow','kn','TH',x7Pow,[6]],['x7_set','bc','VD',x7Set,[1,3]],['x7_roman','kn','NB',x7Roman,[2]]].forEach(([id,t,l,g,mx])=>{['a','b'].forEach(s=>{MC.push({id:id+'_'+s,type:'mc',topic:t,level:l,gen:g,mix:mx});});});
+function tfX7(){const e=exprVal(100,9999),n=e.v,d=String(n),r9=n%9;
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`n có ${v?d.length:d.length+1} chữ số.`,v,'kn','VD',`n = ${F(n)}.`));}
+    {const v=R();o.push(IT(`Chữ số hàng chục của n là ${v?d[d.length-2]:(+d[d.length-2]+1)%10}.`,v,'kn','VD',`n = ${F(n)}.`));}
+    {const v=R();o.push(IT(`n chia cho 9 dư ${v?r9:(r9+1)%9}.`,v,'cn','VD',`${F(n)} = 9 · ${fl(n/9)} + ${r9}.`));}
+    {const v=R(),k=fl(Math.sqrt(n));o.push(IT(v?`${W(k,2)} ≤ n < ${W(k+1,2)}`:`${W(k+1,2)} ≤ n`,v,'kn','VD',`${W(k,2)} = ${k*k}, ${W(k+1,2)} = ${(k+1)*(k+1)}.`));}return o;});
+  return {stem:`Gọi n là giá trị của biểu thức ${show(e.src)}. Xét các phát biểu sau:`,items:wrap(items)};}
+['a','b'].forEach(s=>TF.push({id:'x7_tf_'+s,type:'tf',topic:'kn',level:'VD',gen:tfX7,mix:[2,3,5,6]}));
+SA.push(
+ {id:'x7_s_bus',type:'sa',topic:'lb',level:'VD',unit:'xe',mix:[5],gen:()=>{for(;;){const n=ri(150,600),s=sel([29,35,45]);if(n%s===0)continue;return{stem:`Khối 6 có ${n} học sinh đi tham quan. Nhà trường cần thuê ít nhất bao nhiêu xe ô tô ${s} chỗ ngồi để đủ chỗ cho tất cả học sinh?`,ans:[fl(n/s)+1],exp:`${n} : ${s} = ${fl(n/s)} (dư ${n%s}), cần thêm 1 xe: ${fl(n/s)+1} xe.`};}}},
+ {id:'x7_s_val',type:'sa',topic:'kn',level:'TH',unit:'',mix:[2,6],gen:()=>{const a=ri(1,9),b=ri(1,9),c=ri(1,9),k=ri(4,6);return{stem:`Tính giá trị của biểu thức ${show(`${a} · 10^${k} + ${b} · 10^2 + ${c}`)}.`,ans:[a*pw(10,k)+b*100+c],exp:`${F(a*pw(10,k))} + ${b*100} + ${c} = ${F(a*pw(10,k)+b*100+c)}.`};}},
+ {id:'x7_s_set',type:'sa',topic:'bc',level:'VD',unit:'phần tử',mix:[1,3],gen:()=>{const k=ri(2,6),c=ri(1,30),N=ri(c+10,c+80);let m=0;for(let x=0;k*x+c<=N;x++)m++;return{stem:`Tập hợp ${nb(`{x ∈ ℕ | ${k} · x + ${c} ≤ ${N}}`)} có bao nhiêu phần tử?`,ans:[m],exp:`x = 0; 1; …; ${m-1}: có ${m} phần tử.`};}});
+HARD.sa.push({id:'x7_h_mix',type:'sa',topic:'cn',level:'VD',unit:'',mix:[5,6],gen:()=>{for(;;){const e=makeExpr(TC2);if(!e||e.v<20)continue;const d=ri(7,13);return{stem:`Tìm số dư khi chia giá trị của biểu thức ${show(e.src)} cho ${d}.`,ans:[e.v%d],exp:`Biểu thức có giá trị ${F(e.v)} = ${d} · ${fl(e.v/d)} + ${e.v%d}.`};}}});
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='pt6_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['kn',['NB']],['cn',['NB','TH']],['bc',['NB','TH']],['lb',['NB']],['lb',['TH']],[null,['VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['kn','cn','bc'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=[
+    pick(MC.filter(q=>q.topic==='kn'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='cn'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='bc'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='lb'&&q.level==='TH'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic==='kn'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='cn'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^[1-9]\d{0,2}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}

@@ -9,6 +9,20 @@ Thư mục này chứa cơ sở dữ liệu của nền mới (Bước 1 trong t
 | `cong-cu/tao_bai_hoc.py` | Sinh lại `du-lieu/bai_hoc.sql`. |
 | `cong-cu/chuyen_tu_sheet.py` | Chuyển học sinh, kết quả, điểm thưởng từ Google Sheet sang (sinh tệp SQL để dán vào Supabase). |
 | `kiem-tra/phan_quyen.sql` | 22 kiểm tra phân quyền, chạy trên Postgres thử. |
+| `functions/bai-lam/` | Hàm máy chủ cho học sinh: đăng nhập bằng mã, nhận đề (không kèm đáp án), kiểm tra từng câu khi luyện tập, nộp bài để máy chủ chấm. |
+| `functions/bai-lam/bai/*.js` | Ngân hàng câu, bộ sinh số liệu, cách dựng gói và cách chấm của 36 bài – **sinh tự động** từ trang bài bằng `cong-cu/tach_bai.py`, không sửa tay. |
+| `kiem-tra/thu_bai.mjs` | Chạy thử mọi bài: đúng hết được điểm tối đa, bỏ trống 0 điểm, cùng mã đề cùng đề, không lộ đáp án. |
+| `kiem-tra/thu_may_chu.mjs` | Chạy thử hàm máy chủ với cơ sở dữ liệu giả (23 kiểm tra). |
+
+## Khi sửa hoặc thêm bài
+
+Câu hỏi vẫn soạn trong trang bài như trước. Sau khi sửa trang, chạy:
+
+```
+python3 supabase/cong-cu/tach_bai.py      # tách lại ngân hàng câu cho máy chủ
+python3 supabase/cong-cu/tao_bai_hoc.py > supabase/du-lieu/bai_hoc.sql
+node supabase/kiem-tra/thu_bai.mjs        # phải ra "0 lỗi"
+```
 
 ## Các bảng
 

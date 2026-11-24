@@ -1,0 +1,825 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ quy-tac-dau-ngoac/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "quy-tac-dau-ngoac";
+export const TIEN_TO = "DN6-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Số nguyên: cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;          // viết số nguyên, số âm dùng dấu trừ "−"
+const L=a=>a.map(N).join('; ');
+const P=x=>x<0?'('+N(x)+')':N(x);       // số âm đặt trong ngoặc khi đứng sau dấu phép tính
+const nb=s=>s.replace(/ /g,' ');   // khoảng trắng không ngắt dòng, để phép tính không bị tách đôi
+const ADD=(a,b)=>nb(N(a)+' + '+P(b));
+const SUB=(a,b)=>nb(N(a)+' − '+P(b));
+const SUMX=v=>nb(v.map((x,i)=>i===0?N(x):'+ '+P(x)).join(' '));   // 3 + (−5) + 7
+function EX(v0,ops){let s=N(v0),val=v0;for(const [g,v] of ops){s+=(g>0?' + ':' − ')+P(v);val+=g*v;}return {txt:nb(s),val};}
+const sum=v=>v.reduce((s,x)=>s+x,0);
+const sgn=()=>RNG()<.5?-1:1;
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const asc=a=>a.slice().sort((x,y)=>x-y);
+
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const C=(t,err)=>({t,err});
+const mk=(stem,good,cands,exp)=>({stem,opts:[{t:good}].concat(pickOpts(good,cands)),ans:0,exp});
+function tryGen(f){
+  for(let n=0;n<100;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>o.t)).size===4)return r;}
+  return FB_MC();
+}
+
+
+/* ============ Biểu thức có dấu ngoặc ============ */
+const tm=x=>typeof x==='number'?[x<0?-1:1,''+Math.abs(x)]:x;      // số nguyên -> [dấu, chữ]
+const TS=v=>v.map(tm).map(([s,t],i)=>i===0?(s<0?'−':'')+t:(s<0?'− ':'+ ')+t).join(' ');   // tổng: 5 − 3 + 7
+const G=(g,v)=>({g,v});                                             // một ngoặc, g là dấu đứng trước
+const fval=flat=>flat.reduce((a,[sg,t])=>a+sg*(+t),0);
+/* mode: ok | none (bỏ ngoặc, giữ nguyên mọi dấu) | first (chỉ đổi dấu số hạng đầu) | all (đổi dấu mọi số hạng trong mọi ngoặc) */
+function EXP(parts,mode){
+  let s='';const flat=[];
+  parts.forEach((p,i)=>{
+    if(p&&p.v){
+      s+=(i===0?(p.g<0?'−':''):(p.g<0?' − ':' + '))+'('+TS(p.v)+')';
+      p.v.map(tm).forEach(([sg,t],j)=>{let k=p.g;if(mode==='none')k=1;else if(mode==='all')k=-1;else if(mode==='first')k=(j===0?p.g:1);flat.push([k*sg,t]);});
+    }else{const [sg,t]=tm(p);s+=i===0?(sg<0?'−':'')+t:(sg<0?' − ':' + ')+t;flat.push([sg,t]);}
+  });
+  return {txt:nb(s),flat,open:nb(TS(flat)),val:fval(flat)};
+}
+/* dãy tính có số âm đặt trong ngoặc: (−23) − 15 − (−23) + 5 + (−10)
+   w: lỗi khi viết gọn. 1: "− (−x)" thành "− x"; 2: "+ (−x)" thành "+ x"; 3: cả hai */
+function CH(v0,ops,w){
+  let s=P(v0);const flat=[v0],bad=[v0];
+  for(const [g,v] of ops){s+=(g>0?' + ':' − ')+P(v);flat.push(g*v);let k=g*v;if(v<0&&g<0&&(w&1))k=v;if(v<0&&g>0&&(w&2))k=-v;bad.push(k);}
+  return {txt:nb(s),flat,open:nb(TS(flat)),val:sum(flat),bad:nb(TS(bad)),badVal:sum(bad)};
+}
+const E_FIRST='Bạn mới đổi dấu số hạng đầu trong ngoặc. Dấu "−" đứng trước ngoặc thì phải đổi dấu tất cả các số hạng trong ngoặc.';
+const E_NONE='Dấu "−" đứng trước ngoặc nên phải đổi dấu tất cả các số hạng trong ngoặc, không được giữ nguyên.';
+const E_ALL='Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng trong ngoặc, không đổi dấu.';
+const E_W1='Trừ đi một số âm thì thành cộng: − (−b) viết gọn thành + b.';
+const E_W2='Cộng với một số âm thì thành trừ: + (−b) viết gọn thành − b.';
+const E_W3='Sai ở cả hai chỗ: + (−b) viết gọn thành − b, còn − (−b) viết gọn thành + b.';
+const R_MINUS='Dấu "−" đứng trước ngoặc: bỏ ngoặc và đổi dấu tất cả các số hạng trong ngoặc.';
+const R_PLUS='Dấu "+" đứng trước ngoặc: bỏ ngoặc và giữ nguyên dấu các số hạng trong ngoặc.';
+const LET=()=>shuffle(['a','b','c','m','n','x','y']);
+
+const FB_MC=()=>({stem:`Bỏ dấu ngoặc, biểu thức ${nb('a − (b − c)')} bằng biểu thức nào?`,opts:[{t:nb('a − b + c')},{t:nb('a − b − c'),err:E_FIRST},{t:nb('a + b − c'),err:E_NONE},{t:nb('a + b + c'),err:'Bạn đã đổi dấu sai: b phải thành −b.'}],ans:0,exp:R_MINUS});
+
+/* ============ Bộ sinh câu nhiều lựa chọn ============ */
+/* --- Viết gọn tổng (bỏ ngoặc quanh một số) --- */
+function genVgOne(){return tryGen(()=>{
+  const [a,b]=sample(2,2,60),s1=sgn(),g=sgn(),e=CH(s1*a,[[g,-b]]),s2=-g;
+  return mk(`Viết ${e.txt} dưới dạng không có dấu ngoặc, ta được:`,e.open,[
+    C(nb(TS([s1*a,-s2*b])),g>0?E_W2:E_W1),
+    C(nb(TS([-s1*a,s2*b])),`Số hạng đầu ${N(s1*a)} giữ nguyên dấu của nó.`),
+    C(nb(TS([-s1*a,-s2*b])),'Bạn đã đổi dấu sai cả hai số hạng.')],
+    `${g>0?'Cộng với một số âm thì thành trừ':'Trừ đi một số âm thì thành cộng'}: ${e.txt} = ${e.open}.`);
+});}
+function genVgChain(){return tryGen(()=>{
+  const [v,x,y,z]=sample(4,2,40),ops=shuffle([[-1,-x],[1,-y],[sgn(),z]]),v0=sgn()*v;
+  const e=CH(v0,ops,0);
+  return mk(`Viết ${e.txt} dưới dạng không có dấu ngoặc, ta được:`,e.open,[
+    C(CH(v0,ops,1).bad,E_W1),C(CH(v0,ops,2).bad,E_W2),C(CH(v0,ops,3).bad,E_W3)],
+    `Cộng với ${P(-y)} thành trừ ${y}; trừ đi ${P(-x)} thành cộng ${x}. Vậy ${e.txt} = ${e.open}.`);
+});}
+function genVgVal(){return tryGen(()=>{
+  const [v,x,y]=sample(3,2,30),ops=shuffle([[-1,-x],[1,-y]]),v0=sgn()*v,e=CH(v0,ops,0);
+  return mk(`Tính ${e.txt}.`,N(e.val),[
+    C(N(CH(v0,ops,1).badVal),E_W1),C(N(CH(v0,ops,2).badVal),E_W2),C(N(CH(v0,ops,3).badVal),E_W3)],
+    `${e.txt} = ${e.open} = ${N(e.val)}.`);
+});}
+function vg5(){
+  const [p,q,r,s]=sample(4,5,40),ops=[[-1,q],[-1,-p]].concat(shuffle([[1,r],[1,-s]])),e=CH(-p,ops,0);
+  const rest=e.flat.slice(1).filter(x=>x!==p);
+  return {p,q,r,s,ops,e,exp:`Viết gọn: ${e.open}. Hai số ${N(-p)} và ${p} đối nhau nên có tổng bằng 0. Còn lại ${nb(TS(rest))} = ${N(e.val)}.`};
+}
+function genVgVD(){return tryGen(()=>{
+  const o=vg5();
+  return mk(`Tính ${o.e.txt}.`,N(o.e.val),[
+    C(N(CH(-o.p,o.ops,1).badVal),E_W1),C(N(CH(-o.p,o.ops,2).badVal),E_W2),C(N(CH(-o.p,o.ops,3).badVal),E_W3)],o.exp);
+});}
+
+/* --- Bỏ dấu ngoặc --- */
+/* các cách bỏ ngoặc sai của một ngoặc: đổi sai dấu một số số hạng */
+function brMC(pre,g,grp,stemFn){
+  const e=EXP(pre.concat([G(g,grp)])),n=grp.length,full=(1<<n)-1,T=grp.map(tm),numeric=!isNaN(e.val);
+  const make=m=>{const fl=pre.map(tm).concat(T.map(([sg,t],j)=>[(m>>j&1?-1:1)*g*sg,t]));return {t:nb(TS(fl)),val:fval(fl)};};
+  const order=g<0?[full-1,full]:[full];
+  shuffle([...Array(full).keys()].map(i=>i+1)).forEach(m=>{if(!order.includes(m))order.push(m);});
+  const cands=[];
+  order.forEach(m=>{const w=make(m);if(numeric&&w.val===e.val)return;
+    const err=g<0?(m===full?E_NONE:m===full-1&&n>1?E_FIRST:'Dấu "−" đứng trước ngoặc: mọi số hạng trong ngoặc đều phải đổi dấu, bạn đổi dấu chưa đúng.'):(m===full?E_ALL:'Dấu "+" đứng trước ngoặc: mọi số hạng trong ngoặc đều giữ nguyên dấu.');
+    cands.push(C(w.t,err));});
+  return mk(stemFn(e.txt),e.open,cands,`${g<0?R_MINUS:R_PLUS} ${e.txt} = ${e.open}.`);
+}
+function genBnSym(){return tryGen(()=>{
+  const [p,q,r]=LET(),f=ri(0,5);
+  const cfg=[[[[1,p]],-1,[[1,q],[-1,r]]],[[[1,p]],-1,[[1,q],[1,r]]],[[[1,p]],1,[[1,q],[-1,r]]],[[],-1,[[1,p],[-1,q]]],[[[1,p]],-1,[[-1,q],[1,r]]],[[[1,p]],1,[[-1,q],[1,r]]]][f];
+  return brMC(cfg[0],cfg[1],cfg[2],t=>`Bỏ dấu ngoặc, biểu thức ${t} bằng biểu thức nào?`);
+});}
+function genBnNum3(){return tryGen(()=>{
+  const [a,b,c,d]=sample(4,2,50),g=RNG()<.7?-1:1,grp=[sel([b,-b]),sgn()*c,sgn()*d];
+  if(grp.every(x=>x>0)||grp.every(x=>x<0))return null;
+  return brMC([a],g,grp,t=>`Bỏ dấu ngoặc trong biểu thức ${t}, ta được:`);
+});}
+function genBnVal(){return tryGen(()=>{
+  const [a,b,c]=sample(3,2,40),f=ri(0,4);
+  const parts=[[a,G(-1,[b,-c])],[a,G(-1,[b,c])],[a,G(1,[b,-c])],[G(-1,[a,-b]),c],[a,G(-1,[-b,c])]][f],e=EXP(parts);
+  return mk(`Tính ${e.txt}.`,N(e.val),[
+    C(N(EXP(parts,'first').val),E_FIRST),C(N(EXP(parts,'none').val),E_NONE),C(N(EXP(parts,'all').val),E_ALL),
+    C(N(-e.val),'Kết quả bị sai dấu. Hãy bỏ dấu ngoặc rồi tính lại từ trái sang phải.'),C(N(e.val+2),'Hãy bỏ dấu ngoặc rồi tính lại cẩn thận.')],
+    `${f===2?R_PLUS:R_MINUS} ${e.txt} = ${e.open} = ${N(e.val)}.`);
+});}
+function bnTwo(){
+  const [a,b,c,d,x]=sample(5,2,40),A=RNG()<.5;
+  const parts=A?[G(1,[a,-b]),G(-1,[c,-d,x])]:[a,G(-1,[b,-c]),G(1,[-d,x])];
+  return {A,parts,e:EXP(parts)};
+}
+function genBnTwo(){return tryGen(()=>{
+  const {A,parts,e}=bnTwo(),w=m=>EXP(parts,m),vals=[e.val,w('first').val,w('none').val,w('all').val];
+  if(new Set(vals).size<4)return null;
+  return mk(`Bỏ dấu ngoặc trong biểu thức ${e.txt}, ta được:`,e.open,[
+    C(w('first').open,E_FIRST),C(w('none').open,E_NONE),
+    C(w('all').open,A?'Ngoặc thứ nhất không có dấu "−" đứng trước nên các số hạng trong đó giữ nguyên dấu.':E_ALL)],
+    `Ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng trong ngoặc, ngoặc còn lại giữ nguyên dấu: ${e.txt} = ${e.open}.`);
+});}
+function genBnOpp(){return tryGen(()=>{
+  const [p,q,r]=LET(),t=[[1,p],[sgn(),q],[sgn(),r]],ng=v=>v.map(([s,x])=>[-s,x]);
+  const good=nb(TS(ng(t)));
+  return mk(`Số đối của tổng ${nb(TS(t))} là:`,good,[
+    C(nb(TS([[-1,p],t[1],t[2]])),'Bạn mới đổi dấu số hạng đầu. Số đối của một tổng là tổng các số đối, nên phải đổi dấu tất cả các số hạng.'),
+    C(nb(TS([[1,p],[-t[1][0],q],[-t[2][0],r]])),`Số hạng ${p} cũng phải đổi dấu thành −${p}.`),
+    C(nb(TS([[-1,p],[-t[1][0],q],t[2]])),`Số hạng cuối cũng phải đổi dấu.`)],
+    `Số đối của ${nb(TS(t))} là ${nb('−('+TS(t)+')')} = ${good}: đổi dấu tất cả các số hạng.`);
+});}
+
+/* --- Đặt dấu ngoặc, đổi chỗ số hạng --- */
+function genDnPut(){return tryGen(()=>{
+  const f=ri(0,4),sym=RNG()<.5,[p,q,r]=sym?LET().map(x=>[1,x]):sample(3,2,60).map(x=>[1,''+x]);
+  const ng=([s,t])=>[-s,t];
+  // [vế trái, phần đứng trước ngoặc, dấu trước ngoặc, trong ngoặc]
+  const cfg=[[[p,ng(q),ng(r)],[p],-1,[q,r]],[[p,ng(q),r],[p],-1,[q,ng(r)]],[[p,q,ng(r)],[p],1,[q,ng(r)]],[[ng(p),ng(q)],[],-1,[p,q]],[[ng(p),q],[],-1,[p,ng(q)]]][f];
+  const [Lh,pre,g,ins]=cfg,blank=(pre.length?TS(pre)+(g<0?' − ':' + '):(g<0?'−':''))+'(…)';
+  const flip=m=>ins.map((t,j)=>m>>j&1?ng(t):t);
+  return mk(`Điền vào chỗ trống: ${nb(TS(Lh))} = ${nb(blank)}. Biểu thức trong ngoặc là:`,nb(TS(ins)),[
+    C(nb(TS(flip(2))),g<0?'Đặt vào ngoặc có dấu "−" đằng trước thì phải đổi dấu tất cả các số hạng, kể cả số hạng thứ hai.':'Ngoặc có dấu "+" đằng trước: các số hạng đưa vào ngoặc giữ nguyên dấu.'),
+    C(nb(TS(flip(3))),g<0?'Bạn đã giữ nguyên dấu. Đặt vào ngoặc có dấu "−" đằng trước thì phải đổi dấu tất cả các số hạng.':'Ngoặc có dấu "+" đằng trước: các số hạng đưa vào ngoặc giữ nguyên dấu, không đổi dấu.'),
+    C(nb(TS(flip(1))),g<0?'Số hạng đầu trong ngoặc cũng phải đổi dấu.':'Ngoặc có dấu "+" đằng trước: các số hạng đưa vào ngoặc giữ nguyên dấu.')],
+    `${g<0?'Đặt các số hạng vào ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng đó':'Đặt các số hạng vào ngoặc có dấu "+" đằng trước thì giữ nguyên dấu'}: ${nb(TS(Lh))} = ${nb(blank.replace('…',TS(ins)))}.`);
+});}
+function genDnSwap(){return tryGen(()=>{
+  const [a,b,c]=sample(3,2,60),sg=[sgn(),sgn(),sgn()];
+  if(sg[0]===sg[1]&&sg[1]===sg[2])return null;
+  const t=[sg[0]*a,sg[1]*b,sg[2]*c],perms=shuffle([[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]]),ab=[a,b,c];
+  const good=perms[0].map(i=>t[i]),v=sum(t),cands=[];
+  if(v===0)return null;
+  perms.slice(1).concat([perms[0]]).forEach(pm=>{const w=pm.map((i,j)=>sg[j]*ab[i]);if(sum(w)!==v)cands.push(C(nb(TS(w)),'Khi đổi chỗ các số hạng, mỗi số hạng phải mang theo dấu đứng trước nó. Ở đây các số đã đổi chỗ nhưng dấu vẫn nằm ở vị trí cũ.'));});
+  cands.splice(2,0,C(nb(TS(good.map(x=>-x))),'Đổi chỗ các số hạng thì không đổi dấu của chúng. Ở đây mọi số hạng đều bị đổi dấu.'));
+  return mk(`Biểu thức ${nb(TS(t))} bằng biểu thức nào dưới đây?`,nb(TS(good)),cands,
+    `Đổi chỗ các số hạng kèm theo dấu của chúng: ${nb(TS(t))} = ${nb(TS(good))}.`);
+});}
+function grp4(){
+  const [a,b,c,d]=sample(4,11,90),pat=sel([[1,-1,1,-1],[1,-1,-1,1],[1,1,-1,-1]]),v=[a,b,c,d],t=v.map((x,i)=>pat[i]*x);
+  const ps=v.filter((_,i)=>pat[i]>0),ns=v.filter((_,i)=>pat[i]<0);
+  return {t,ps,ns,txt:nb(TS(t)),good:nb(`(${ps[0]} + ${ps[1]}) − (${ns[0]} + ${ns[1]})`)};
+}
+function genDnGroup(){return tryGen(()=>{
+  const {ps,ns,txt,good}=grp4();
+  return mk(`Biểu thức ${txt} bằng biểu thức nào dưới đây?`,good,[
+    C(nb(`(${ps[0]} + ${ps[1]}) − (${ns[0]} − ${ns[1]})`),`Đặt −${ns[0]} và −${ns[1]} vào ngoặc có dấu "−" đằng trước thì phải đổi dấu cả hai: −(${ns[0]} + ${ns[1]}).`),
+    C(nb(`(${ps[0]} − ${ps[1]}) − (${ns[0]} + ${ns[1]})`),`Số hạng ${ps[1]} mang dấu "+", đưa vào ngoặc thứ nhất thì giữ nguyên dấu.`),
+    C(nb(`(${ps[0]} + ${ps[1]}) + (${ns[0]} + ${ns[1]})`),`Hai số hạng −${ns[0]} và −${ns[1]} gộp lại thành −(${ns[0]} + ${ns[1]}), không phải +(${ns[0]} + ${ns[1]}).`)],
+    `Nhóm các số hạng mang dấu "+" với nhau, các số hạng mang dấu "−" với nhau: ${txt} = ${good}.`);
+});}
+
+/* --- Tính hợp lí, vận dụng --- */
+function genHlPair(){return tryGen(()=>{
+  const p=ri(101,900),[q,r]=sample(2,11,99),t=[p].concat(shuffle([-q,-p,r]));
+  return mk(`Sau khi bỏ dấu ngoặc ta được tổng ${nb(TS(t))}. Hai số hạng nào đối nhau (có tổng bằng 0)?`,`${p} và ${N(-p)}`,[
+    C(`${N(-q)} và ${r}`,`${N(-q)} và ${r} không đối nhau: tổng của chúng là ${N(r-q)}.`),
+    C(`${p} và ${N(-q)}`,`${p} và ${N(-q)} không đối nhau: tổng của chúng là ${N(p-q)}.`),
+    C(`${N(-p)} và ${r}`,`${N(-p)} và ${r} không đối nhau: tổng của chúng là ${N(r-p)}.`)],
+    `${p} và ${N(-p)} là hai số đối nhau nên ${nb(p+' − '+p+' = 0')}. Nhóm hai số này lại để tính nhanh.`);
+});}
+function hlCancel(){
+  const p=ri(101,900),q=ri(11,99),f=ri(0,4);
+  const parts=[[G(1,[p,-q]),-p],[p,G(-1,[p,-q])],[G(1,[p,q]),-p],[-q,G(-1,[p,-q])],[G(1,[-p,q]),p]][f],e=EXP(parts);
+  const zero=Math.abs(e.val)===q?p:q;
+  return {p,q,f,parts,e,exp:`Bỏ dấu ngoặc: ${e.txt} = ${e.open}. Hai số ${zero} và ${N(-zero)} đối nhau nên có tổng bằng 0. Kết quả là ${N(e.val)}.`};
+}
+function genHlCancel(){return tryGen(()=>{
+  const {p,q,parts,e,exp}=hlCancel();
+  return mk(`Tính một cách hợp lí: ${e.txt}.`,N(e.val),[
+    C(N(-e.val),'Kết quả bị sai dấu. Sau khi bỏ dấu ngoặc và bỏ đi hai số đối nhau, hãy giữ đúng dấu của số hạng còn lại.'),
+    C(N(EXP(parts,'none').val),E_NONE),C(N(EXP(parts,'all').val),E_ALL),
+    C(N(p+q),'Bạn đã cộng hai số lại. Hãy bỏ dấu ngoặc rồi tìm hai số đối nhau.'),C(N(p-q),'Sau khi bỏ dấu ngoặc có hai số đối nhau, tổng của chúng bằng 0.'),C(N(-(p+q)),'Hãy bỏ dấu ngoặc rồi tìm hai số đối nhau, tổng của chúng bằng 0.')],exp);
+});}
+function hlTwo(){
+  const p=ri(120,980),[q,r]=sample(2,11,99),f=ri(0,2);
+  const parts=[[G(1,[-p,q]),G(1,[p,-r])],[G(1,[q,-p]),G(-1,[-p,r])],[G(1,[p,-q]),G(-1,[p,-r])]][f],e=EXP(parts);
+  const rest=e.flat.filter(([s,t])=>+t!==p);
+  return {p,q,r,f,parts,e,exp:`Bỏ dấu ngoặc: ${e.txt} = ${e.open}. Hai số ${p} và ${N(-p)} đối nhau nên có tổng bằng 0. Còn lại ${nb(TS(rest))} = ${N(e.val)}.`};
+}
+function genHlTwo(){return tryGen(()=>{
+  const {q,r,parts,e,exp}=hlTwo();
+  return mk(`Tính một cách hợp lí: ${e.txt}.`,N(e.val),[
+    C(N(-e.val),'Kết quả bị sai dấu. Sau khi bỏ đi hai số đối nhau, hãy giữ đúng dấu của hai số hạng còn lại.'),
+    C(N(q+r),`Sau khi bỏ dấu ngoặc, hai số ${q} và ${r} mang dấu khác nhau nên không cộng lại.`),
+    C(N(-(q+r)),`Sau khi bỏ dấu ngoặc, hai số ${q} và ${r} mang dấu khác nhau nên không cộng lại.`),
+    C(N(EXP(parts,'none').val),E_NONE)],exp);
+});}
+function hlSub(){
+  const [a,b]=sample(2,11,60),k=ri(2,15),X=[1,'x'],NX=[-1,'x'],f=ri(0,2);
+  const parts=[[G(1,[a,X]),G(-1,[b,NX])],[G(1,[a,NX]),G(-1,[b,NX])],[G(1,[X,-a]),G(-1,[X,-b])]][f];
+  const at=m=>EXP(parts,m).flat.reduce((s,[sg,t])=>s+sg*(t==='x'?k:+t),0),e=EXP(parts),val=at();
+  return {a,b,k,f,parts,e,at,val,exp:`Bỏ dấu ngoặc: ${e.txt} = ${e.open}${f===0?'':'. Hai số hạng x và −x đối nhau nên có tổng bằng 0'}. ${f===0?`Thay x = ${k}: ${nb(`${a} + ${k} − ${b} + ${k} = ${N(val)}`)}.`:`Giá trị của biểu thức là ${N(val)}, không phụ thuộc vào x.`}`};
+}
+function genHlSub(){return tryGen(()=>{
+  const {k,e,at,val,exp}=hlSub();
+  return mk(`Tính giá trị của biểu thức ${e.txt} khi ${nb('x = '+k)}.`,N(val),[
+    C(N(at('first')),E_FIRST),C(N(at('none')),E_NONE),C(N(-val),'Kết quả bị sai dấu. Hãy bỏ dấu ngoặc rồi tính lại.'),C(N(val+k),'Hãy bỏ dấu ngoặc, thay x rồi tính lại cẩn thận.'),C(N(val-k),'Hãy bỏ dấu ngoặc, thay x rồi tính lại cẩn thận.')],exp);
+});}
+const NAMES=['An','Bình','Chi','Dũng','Hà','Lan','Minh','Nam'];
+function genHlReal(){return tryGen(()=>{
+  const b=ri(11,45),c=ri(11,45),a=10*ri(Math.ceil((b+c)/10)+2,20);if(b===c)return null;
+  const st=RNG()<.5?`Bạn ${sel(NAMES)} có ${a} nghìn đồng, mua vở hết ${b} nghìn đồng và mua bút hết ${c} nghìn đồng. Số tiền còn lại (tính bằng nghìn đồng) được tính bằng biểu thức nào?`
+    :`Một cửa hàng có ${a} kg gạo. Buổi sáng cửa hàng bán ${b} kg, buổi chiều bán ${c} kg. Số gạo còn lại (tính bằng kg) được tính bằng biểu thức nào?`;
+  return mk(st,nb(`${a} − (${b} + ${c})`),[
+    C(nb(`${a} − (${b} − ${c})`),`Biểu thức này bằng ${nb(`${a} − ${b} + ${c}`)}, tức là ${c} lại được cộng thêm vào thay vì trừ đi.`),
+    C(nb(`${a} + (${b} + ${c})`),'Tiêu đi hoặc bán đi thì phải trừ, không cộng vào.'),
+    C(nb(`(${b} + ${c}) − ${a}`),'Phải lấy số ban đầu trừ đi tổng hai lần đã dùng, không làm ngược lại.')],
+    `Còn lại: ${nb(`${a} − ${b} − ${c} = ${a} − (${b} + ${c}) = ${a-b-c}`)}.`);
+});}
+
+/* ============ Bộ sinh đúng sai ============ */
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function pick4(Ts,Fs){
+  const nT=ri(1,3);
+  return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));
+}
+function mixed(make){ // tạo 4 ý khác nhau, bảo đảm có cả ý đúng và ý sai
+  for(let n=0;n<80;n++){const items=make();if(items.some(i=>!i))continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}
+  return null;
+}
+const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
+  IT(nb('8 − (5 − 3) = 8 − 5 + 3'),true,'bn','TH',R_MINUS),
+  IT(nb('8 − (5 + 3) = 8 − 5 + 3'),false,'bn','TH','Bỏ ngoặc đúng là 8 − 5 − 3: phải đổi dấu cả hai số hạng.'),
+  IT(nb('7 + (−2) = 7 − 2'),true,'vg','TH','Cộng với một số âm thì thành trừ.'),
+  IT(nb('9 − 4 − 1 = 9 − (4 − 1)'),false,'dn','TH','Đặt vào ngoặc có dấu "−" đằng trước phải đổi dấu: 9 − 4 − 1 = 9 − (4 + 1).')]});
+const four=f=>()=>{const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+
+function vgItem(){
+  const [v,x,y]=sample(3,2,30),ops=[[sgn(),-x],[sgn(),-y]],v0=sgn()*v,e=CH(v0,ops,0),t=RNG()<.5;
+  const ws=[1,2,3].filter(w=>CH(v0,ops,w).bad!==e.open),w=sel(ws),shown=t?e.open:CH(v0,ops,w).bad;
+  return IT(`${e.txt} = ${shown}`,t,'vg','TH',t?'Cộng với một số âm thì thành trừ, trừ đi một số âm thì thành cộng.':`Viết gọn đúng là ${e.open}. ${[E_W1,E_W2,E_W3][w-1]}`);
+}
+function vgVal(){
+  const [v,x,y,z]=sample(4,2,25),ops=shuffle([[-1,-x],[1,-y],[sgn(),z]]),v0=sgn()*v,e=CH(v0,ops,0),t=RNG()<.5;
+  const shown=t?e.val:CH(v0,ops,sel([1,2,3])).badVal;
+  return IT(`${e.txt} = ${N(shown)}`,t,'vg','VD',`${e.txt} = ${e.open} = ${N(e.val)}${t?'.':`, không phải ${N(shown)}.`}`);
+}
+function bnItem(){
+  const [a,b,c,d]=sample(4,2,40),three=RNG()<.4,g=RNG()<.7?-1:1,t=RNG()<.5;
+  const grp=three?[b,sgn()*c,sgn()*d]:[sel([b,-b]),sgn()*c],parts=[a,G(g,grp)],e=EXP(parts);
+  const ws=['first','none','all'].map(m=>EXP(parts,m)).filter(w=>w.val!==e.val);if(!ws.length)return null;
+  const shown=t?e.open:sel(ws).open;
+  return IT(`${e.txt} = ${shown}`,t,'bn','TH',t?(g<0?R_MINUS:R_PLUS):`Bỏ ngoặc đúng là ${e.open}. ${g<0?'Dấu "−" đứng trước ngoặc thì đổi dấu tất cả các số hạng trong ngoặc.':'Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng trong ngoặc.'}`);
+}
+function bnVal(){
+  const {parts,e}=bnTwo(),t=RNG()<.5;
+  const ws=['first','none','all'].map(m=>EXP(parts,m).val).filter(w=>w!==e.val);if(!ws.length)return null;
+  const shown=t?e.val:sel(ws);
+  return IT(`${e.txt} = ${N(shown)}`,t,'bn','VD',`${e.txt} = ${e.open} = ${N(e.val)}${t?'.':`, không phải ${N(shown)}.`}`);
+}
+function dnItem(){
+  const [a,b,c]=sample(3,2,60),s2=sgn(),s3=s2>0?-1:sgn(),g=s2,t=RNG()<.5;       // dấu trước ngoặc là dấu của số hạng thứ hai
+  const Lh=nb(TS([a,s2*b,s3*c])),ins=[b,g*s3*c],bad=sel([[b,-g*s3*c]].concat(g<0?[]:[[-b,g*s3*c]]));
+  const R=v=>nb(`${a} ${g<0?'−':'+'} (${TS(v)})`);
+  return IT(`${Lh} = ${R(t?ins:bad)}`,t,'dn','TH',t?(g<0?'Đặt các số hạng vào ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng đó.':'Đặt các số hạng vào ngoặc có dấu "+" đằng trước thì giữ nguyên dấu.'):`Viết đúng là ${Lh} = ${R(ins)}.`);
+}
+function dnItem4(){
+  const {ps,ns,txt,good}=grp4(),t=RNG()<.5;
+  const bad=sel([nb(`(${ps[0]} + ${ps[1]}) − (${ns[0]} − ${ns[1]})`),nb(`(${ps[0]} − ${ps[1]}) − (${ns[0]} + ${ns[1]})`),nb(`(${ps[0]} + ${ps[1]}) + (${ns[0]} + ${ns[1]})`)]);
+  return IT(`${txt} = ${t?good:bad}`,t,'dn','VD',t?'Nhóm các số hạng mang dấu "+" với nhau; các số hạng mang dấu "−" đặt vào ngoặc có dấu "−" đằng trước thì đổi dấu.':`Viết đúng là ${txt} = ${good}.`);
+}
+function hlItem(){
+  const {p,q,e,exp}=hlCancel(),t=RNG()<.5,shown=t?e.val:sel([-e.val,p-q,p+q].filter(x=>x!==e.val));
+  return IT(`${e.txt} = ${N(shown)}`,t,'hl','TH',exp);
+}
+function hlItem2(){
+  const {q,r,e,exp}=hlTwo(),t=RNG()<.5,shown=t?e.val:sel([-e.val,q+r,-(q+r)].filter(x=>x!==e.val));
+  return IT(`${e.txt} = ${N(shown)}`,t,'hl','VD',exp);
+}
+const PT=[
+  IT('Bỏ dấu ngoặc có dấu "+" đằng trước thì giữ nguyên dấu của các số hạng trong ngoặc.',true,'bn','NB','Đây là quy tắc dấu ngoặc. Ví dụ 10 + (3 − 4) = 10 + 3 − 4.'),
+  IT('Bỏ dấu ngoặc có dấu "−" đằng trước thì phải đổi dấu tất cả các số hạng trong ngoặc.',true,'bn','NB','Đây là quy tắc dấu ngoặc. Ví dụ 10 − (3 − 4) = 10 − 3 + 4.'),
+  IT(nb('a − (−b) = a + b')+' với mọi số nguyên a, b.',true,'vg','NB','Trừ đi một số là cộng với số đối của nó, số đối của −b là b.'),
+  IT(nb('a + (−b) = a − b')+' với mọi số nguyên a, b.',true,'vg','NB','Cộng với số đối của b chính là trừ đi b.'),
+  IT('Trong một tổng, ta có thể đổi chỗ các số hạng kèm theo dấu của chúng.',true,'dn','NB','Ví dụ 12 − 45 + 8 = 12 + 8 − 45.'),
+  IT(nb('−(a − b) = −a + b')+' với mọi số nguyên a, b.',true,'bn','NB',R_MINUS),
+  IT(nb('a − b − c = a − (b + c)')+' với mọi số nguyên a, b, c.',true,'dn','NB','Đặt −b và −c vào ngoặc có dấu "−" đằng trước thì đổi dấu thành b + c.'),
+  IT('Khi đặt các số hạng vào ngoặc có dấu "−" đằng trước, ta phải đổi dấu tất cả các số hạng đưa vào ngoặc.',true,'dn','NB','Ví dụ 20 − 7 − 3 = 20 − (7 + 3).')];
+const PF=[
+  IT('Bỏ dấu ngoặc có dấu "−" đằng trước thì chỉ cần đổi dấu số hạng đầu tiên trong ngoặc.',false,'bn','NB','Phải đổi dấu tất cả các số hạng trong ngoặc. Ví dụ 10 − (3 − 4) = 10 − 3 + 4.'),
+  IT('Bỏ dấu ngoặc có dấu "+" đằng trước thì phải đổi dấu tất cả các số hạng trong ngoặc.',false,'bn','NB','Dấu "+" đứng trước ngoặc thì giữ nguyên dấu các số hạng.'),
+  IT(nb('a − (−b) = a − b')+' với mọi số nguyên a, b.',false,'vg','NB','a − (−b) = a + b. Ví dụ 5 − (−2) = 7, còn 5 − 2 = 3.'),
+  IT(nb('a − (b − c) = a − b − c')+' với mọi số nguyên a, b, c.',false,'bn','NB','Bỏ ngoặc đúng là a − b + c. Ví dụ 10 − (5 − 2) = 7, còn 10 − 5 − 2 = 3.'),
+  IT(nb('a − b + c = a − (b + c)')+' với mọi số nguyên a, b, c.',false,'dn','NB','Viết đúng là a − b + c = a − (b − c). Ví dụ 10 − 5 + 2 = 7, còn 10 − (5 + 2) = 3.'),
+  IT(nb('−(a + b) = −a + b')+' với mọi số nguyên a, b.',false,'bn','NB','Phải đổi dấu cả hai số hạng: −(a + b) = −a − b.'),
+  IT('Khi đổi chỗ các số hạng trong một tổng, chỉ đổi chỗ các số còn các dấu "+", "−" giữ nguyên ở vị trí cũ.',false,'dn','NB','Mỗi số hạng phải mang theo dấu của nó. Ví dụ 12 − 45 + 8 = 12 + 8 − 45, không phải 12 − 8 + 45.'),
+  IT(nb('a + (b − c) = a − b + c')+' với mọi số nguyên a, b, c.',false,'bn','NB','Dấu "+" đứng trước ngoặc thì giữ nguyên dấu: a + (b − c) = a + b − c.')];
+function tfNB(){return ()=>({stem:'Xét các phát biểu sau:',items:pick4(PT,PF)});}
+const wrongOf=(s,list)=>{const l=list.filter(x=>x!==s);return l.length?sel(l):s+1;};
+/* tình huống: một biểu thức, các bước bỏ ngoặc và tính */
+function ctxExpr(){
+  const [p,q]=sample(2,120,480),r=ri(11,60),v=[0,1,2,3].map(()=>RNG()<.5);
+  const parts=[p,G(-1,[q,-r]),G(1,[q,-p])],e=EXP(parts),bad=EXP(parts,'first');
+  const s3=v[2]?r:wrongOf(r,[-r,r+2*q,2*p-r]);
+  return {stem:`Cho biểu thức ${nb('A = ')}${e.txt}.`,items:[
+    IT(`Bỏ dấu ngoặc ta được ${nb('A = ')}${v[0]?e.open:bad.open}.`,v[0],'bn','TH',`${R_MINUS} ${R_PLUS} Vậy ${nb('A = ')}${e.open}.`),
+    IT(v[1]?`Sau khi bỏ dấu ngoặc, trong A có hai cặp số đối nhau.`:`Sau khi bỏ dấu ngoặc, trong A chỉ có một cặp số đối nhau.`,v[1],'hl','TH',`Có hai cặp số đối nhau: ${p} và ${N(-p)}; ${q} và ${N(-q)}.`),
+    IT(`Giá trị của A bằng ${N(s3)}.`,v[2],'hl','VD',`${nb(`A = (${p} − ${p}) + (${q} − ${q}) + ${r} = ${r}`)}${v[2]?'.':`, không phải ${N(s3)}.`}`),
+    IT(`Giá trị của A ${v[3]?'không thay đổi':'thay đổi'} nếu ta đổi số ${p} thành một số nguyên khác (ở cả hai chỗ).`,v[3],'hl','VD',`Số ${p} xuất hiện một lần với dấu "+" và một lần với dấu "−" nên triệt tiêu nhau. Giá trị của A luôn bằng ${r}.`)]};
+}
+/* tình huống: tài khoản */
+function ctxMoney(){
+  const b=10*ri(5,20),c=10*ri(5,20),d=10*ri(3,25),S0=10*ri(Math.ceil((b+c)/10)+5,60),v=[0,1,2,3].map(()=>RNG()<.5);
+  if(b===c||d===b+c)return ctxMoney();
+  const fin=S0-b-c+d,s3=v[2]?fin:wrongOf(fin,[S0-b+c+d,S0-b-c-d]),up=d>b+c;
+  return {stem:`Thẻ của chị Mai có ${S0} nghìn đồng. Chị thanh toán hai hóa đơn ${b} nghìn đồng và ${c} nghìn đồng, sau đó được hoàn lại ${d} nghìn đồng.`,items:[
+    IT(`Số tiền còn lại sau khi thanh toán hai hóa đơn (nghìn đồng) là ${nb(v[0]?`${S0} − (${b} + ${c})`:`${S0} − (${b} − ${c})`)}.`,v[0],'dn','TH',`Trừ lần lượt hai hóa đơn: ${nb(`${S0} − ${b} − ${c} = ${S0} − (${b} + ${c})`)}.`),
+    IT(`Số tiền cuối cùng trong thẻ (nghìn đồng) là ${nb(v[1]?`${S0} − (${b} + ${c} − ${d})`:`${S0} − (${b} + ${c} + ${d})`)}.`,v[1],'bn','VD',`Số tiền cuối cùng là ${nb(`${S0} − ${b} − ${c} + ${d} = ${S0} − (${b} + ${c} − ${d})`)}: đặt vào ngoặc có dấu "−" đằng trước thì +${d} đổi thành −${d}.`),
+    IT(`Cuối cùng trong thẻ có ${fmtN(s3)} nghìn đồng.`,v[2],'hl','VD',`${nb(`${S0} − ${b} − ${c} + ${d} = ${fin}`)} (nghìn đồng)${v[2]?'.':`, không phải ${fmtN(s3)} nghìn đồng.`}`),
+    IT(`Cuối cùng số tiền trong thẻ ${v[3]===up?'nhiều':'ít'} hơn lúc đầu.`,v[3],'hl','VD',up?`Số tiền hoàn lại ${d} lớn hơn tổng hai hóa đơn ${b+c} nên thẻ nhiều hơn lúc đầu ${d-b-c} nghìn đồng.`:`Tổng hai hóa đơn ${b+c} lớn hơn số tiền hoàn lại ${d} nên thẻ ít hơn lúc đầu ${b+c-d} nghìn đồng.`)]};
+}
+const fmtN=x=>N(x);
+function tfCtx(make){return ()=>{
+  for(let n=0;n<60;n++){const q=make(),k=q.items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(q.items.map(i=>i.t)).size===4)return q;}
+  return FB_TF();};}
+
+/* ============ Bộ sinh trả lời ngắn ============ */
+function saVg1(){const [a,b]=sample(2,2,60),g=sgn(),e=CH(sgn()*a,[[g,-b]],0);return{stem:`Bỏ dấu ngoặc rồi tính: ${e.txt}.`,ans:[e.val],exp:`${e.txt} = ${e.open} = ${N(e.val)}.`};}
+function saVg3(){const [v,x,y,z]=sample(4,2,30),e=CH(sgn()*v,shuffle([[-1,-x],[1,-y],[sgn(),z]]),0);return{stem:`Tính ${e.txt}.`,ans:[e.val],exp:`${e.txt} = ${e.open} = ${N(e.val)}.`};}
+function saVg5(){const o=vg5();return{stem:`Tính ${o.e.txt}.`,ans:[o.e.val],exp:o.exp};}
+function saBn0(){const [a,b,c]=sample(3,2,40),e=EXP(RNG()<.5?[a,G(-1,[b,c])]:[a,G(1,[b,-c])]);return{stem:`Bỏ dấu ngoặc rồi tính: ${e.txt}.`,ans:[e.val],exp:`${e.txt} = ${e.open} = ${N(e.val)}.`};}
+function saBn1(){const [a,b,c,d]=sample(4,2,40),e=EXP([sgn()*a,G(-1,RNG()<.5?[b,-c,sgn()*d]:[-b,sgn()*c])]);return{stem:`Tính ${e.txt}.`,ans:[e.val],exp:`${R_MINUS} ${e.txt} = ${e.open} = ${N(e.val)}.`};}
+function saBn2(){const {e}=bnTwo();return{stem:`Bỏ dấu ngoặc rồi tính: ${e.txt}.`,ans:[e.val],exp:`${e.txt} = ${e.open} = ${N(e.val)}.`};}
+function saDnFill(){const [a,b,c]=sample(3,2,60),f=ri(0,1);return f===0
+  ?{stem:`Tìm số thích hợp thay cho dấu ? trong đẳng thức ${nb(`${a} − ${b} − ${c} = ${a} − (${b} + ?)`)}.`,ans:[c],exp:`Đặt −${b} và −${c} vào ngoặc có dấu "−" đằng trước thì đổi dấu cả hai: ${nb(`${a} − ${b} − ${c} = ${a} − (${b} + ${c})`)}. Số cần tìm là ${c}.`}
+  :{stem:`Tìm số thích hợp thay cho dấu ? trong đẳng thức ${nb(`${a} − ${b} + ${c} = ${a} − (${b} − ?)`)}.`,ans:[c],exp:`Đặt −${b} và +${c} vào ngoặc có dấu "−" đằng trước thì đổi dấu cả hai: ${nb(`${a} − ${b} + ${c} = ${a} − (${b} − ${c})`)}. Số cần tìm là ${c}.`};}
+function saDn3(){const R=100*ri(1,2),b=ri(11,R-11),c=R-b,a=ri(R+20,R+400);return{stem:`Tính một cách hợp lí: ${nb(`${a} − ${b} − ${c}`)}.`,ans:[a-R],exp:`${nb(`${a} − ${b} − ${c} = ${a} − (${b} + ${c}) = ${a} − ${R} = ${a-R}`)}.`};}
+function saDn4(){let a,c,b,d,R1,R2;do{R1=100*ri(1,3);R2=100*ri(1,3);a=ri(11,R1-11);c=R1-a;b=ri(11,R2-11);d=R2-b;}while(new Set([a,b,c,d]).size<4||a%10===0||b%10===0);
+  const t=sel([[a,-b,c,-d],[a,-b,-d,c],[-b,a,-d,c]]);
+  return{stem:`Tính một cách hợp lí: ${nb(TS(t))}.`,ans:[R1-R2],exp:`${nb(`${TS(t)} = (${a} + ${c}) − (${b} + ${d}) = ${R1} − ${R2} = ${N(R1-R2)}`)}.`};}
+function saHl0(){const {e,exp}=hlCancel();return{stem:`Tính một cách hợp lí: ${e.txt}.`,ans:[e.val],exp};}
+function saHl2(){const {e,exp}=hlTwo();return{stem:`Tính một cách hợp lí: ${e.txt}.`,ans:[e.val],exp};}
+function saHlSub(){const {k,e,val,exp}=hlSub();return{stem:`Tính giá trị của biểu thức ${e.txt} khi ${nb('x = '+k)}.`,ans:[val],exp};}
+function saHlReal(){const R=100*ri(1,2),b=ri(21,R-21),c=R-b,d=10*ri(3,15),S0=R+10*ri(5,40)+ri(1,9);return{stem:`Một kho có ${S0} kg gạo. Buổi sáng kho xuất ${b} kg, buổi chiều xuất tiếp ${c} kg, sau đó nhập về ${d} kg. Hỏi cuối ngày kho có bao nhiêu kg gạo?`,ans:[S0-R+d],exp:`${nb(`${S0} − ${b} − ${c} + ${d} = ${S0} − (${b} + ${c}) + ${d} = ${S0} − ${R} + ${d} = ${S0-R+d}`)} (kg).`};}
+
+const SA=[
+ {id:'s_vg_nb',topic:'vg',level:'NB',unit:'',gen:saVg1},
+ {id:'s_vg_th',topic:'vg',level:'TH',unit:'',gen:saVg3},
+ {id:'s_vg_vd',topic:'vg',level:'TH',unit:'',gen:saVg5},
+ {id:'s_bn_nb',topic:'bn',level:'NB',unit:'',gen:saBn0},
+ {id:'s_bn_th',topic:'bn',level:'TH',unit:'',gen:saBn1},
+ {id:'s_bn_vd',topic:'bn',level:'VD',unit:'',gen:saBn2},
+ {id:'s_dn_nb',topic:'dn',level:'NB',unit:'',gen:saDnFill},
+ {id:'s_dn_th',topic:'dn',level:'TH',unit:'',gen:saDn3},
+ {id:'s_dn_vd',topic:'dn',level:'VD',unit:'',gen:saDn4},
+ {id:'s_hl_nb',topic:'hl',level:'NB',unit:'',gen:saHl0},
+ {id:'s_hl_th',topic:'hl',level:'TH',unit:'',gen:saHl2},
+ {id:'s_hl_vd',topic:'hl',level:'VD',unit:'',gen:saHlSub},
+ {id:'s_hl_vd2',topic:'hl',level:'VD',unit:'kg',gen:saHlReal}
+].map(q=>Object.assign({type:'sa'},q));
+SA.push(...SA.map(q=>Object.assign({},q,{id:q.id+'b'})));
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  vg:{short:'Viết gọn tổng',name:'Bỏ ngoặc quanh một số',rule:'Trong một dãy tính, số âm đứng sau dấu phép tính được viết trong ngoặc. Cộng với một số âm thì thành trừ: a + (−b) = a − b. Trừ đi một số âm thì thành cộng: a − (−b) = a + b.',tip:'Hay nhầm − (−b) thành − b. Hai dấu "−" liền nhau cho dấu "+".'},
+  bn:{short:'Bỏ dấu ngoặc',name:'Quy tắc bỏ dấu ngoặc',rule:'Bỏ dấu ngoặc có dấu "+" đằng trước thì giữ nguyên dấu của các số hạng trong ngoặc: a + (b − c) = a + b − c. Bỏ dấu ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng trong ngoặc: a − (b − c) = a − b + c.',tip:'Phải đổi dấu tất cả các số hạng trong ngoặc, không chỉ số hạng đầu. Số hạng đầu trong ngoặc không ghi dấu thì mang dấu "+".'},
+  dn:{short:'Đặt dấu ngoặc, đổi chỗ',name:'Đặt dấu ngoặc và đổi chỗ số hạng',rule:'Trong một tổng, có thể đổi chỗ các số hạng kèm theo dấu của chúng và đặt dấu ngoặc để nhóm các số hạng. Nếu đằng trước ngoặc là dấu "−" thì phải đổi dấu tất cả các số hạng đưa vào ngoặc: a − b − c = a − (b + c).',tip:'Đổi chỗ thì mang theo dấu. Đưa vào ngoặc sau dấu "−" thì đổi dấu, sau dấu "+" thì giữ nguyên.'},
+  hl:{short:'Tính hợp lí, vận dụng',name:'Tính hợp lí và vận dụng',rule:'Để tính hợp lí: bỏ dấu ngoặc, tìm các số đối nhau (tổng bằng 0) hoặc các số cộng lại được số tròn chục, tròn trăm, rồi nhóm chúng với nhau.',tip:'Bỏ ngoặc đúng dấu trước, rồi mới nhóm. Kiểm tra lại dấu của số hạng còn lại sau khi bỏ đi các số đối nhau.'}
+};
+const TKEYS=['vg','bn','dn','hl'];
+const TDESC={vg:'a + (−b) = a − b; a − (−b) = a + b; viết gọn một dãy tính',bn:'Dấu "+" trước ngoặc giữ nguyên dấu, dấu "−" trước ngoặc đổi dấu',dn:'Đổi chỗ số hạng kèm dấu, đưa số hạng vào trong ngoặc',hl:'Tính nhanh, tính giá trị biểu thức, bài toán thực tế'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhớ quy tắc dấu ngoặc, cách viết gọn một tổng, nhận ra hai số đối nhau.',TH:'Bỏ dấu ngoặc, đặt dấu ngoặc, đổi chỗ số hạng, tính hợp lí một bước.',VD:'Biểu thức có hai ngoặc, nhóm bốn số hạng, tính giá trị biểu thức, bài toán thực tế.'};
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const O=(t,err)=>err?{t,err}:{t};
+const MC=[
+ {id:'m1',topic:'vg',level:'NB',stem:'Trừ đi một số nguyên âm, chẳng hạn '+nb('a − (−b)')+', viết gọn thành:',ans:0,opts:[
+   O(nb('a + b')),O(nb('a − b'),E_W1),O(nb('−a − b'),'Số hạng a giữ nguyên dấu, còn − (−b) thành + b.'),O(nb('−a + b'),'Số hạng a giữ nguyên dấu của nó.')],
+  exp:'Trừ đi một số là cộng với số đối của nó: a − (−b) = a + b. Ví dụ 7 − (−2) = 7 + 2 = 9.'},
+ {id:'m2',topic:'vg',level:'TH',stem:'Bạn Nam viết: '+nb('8 − (−3) + (−6) = 8 − 3 + 6')+'. Nhận xét nào đúng?',ans:0,opts:[
+   O('Nam sai ở cả hai chỗ, viết đúng là '+nb('8 + 3 − 6')),
+   O('Nam chỉ sai ở − (−3), viết đúng là '+nb('8 + 3 + 6'),'+ (−6) cũng phải viết gọn thành − 6.'),
+   O('Nam chỉ sai ở + (−6), viết đúng là '+nb('8 − 3 − 6'),'− (−3) cũng phải viết gọn thành + 3.'),
+   O('Nam viết đúng','8 − (−3) + (−6) = 5, còn 8 − 3 + 6 = 11, hai kết quả khác nhau.')],
+  exp:'− (−3) thành + 3 và + (−6) thành − 6. Vậy 8 − (−3) + (−6) = 8 + 3 − 6 = 5.'},
+ {id:'m3',topic:'vg',level:'VD',stem:'Cho '+nb('A = 20 − (−5) + (−12)')+' và '+nb('B = 20 + (−5) − (−12)')+'. Khẳng định nào đúng?',ans:0,opts:[
+   O('A < B'),O('A = B','A = 20 + 5 − 12 = 13 còn B = 20 − 5 + 12 = 27.'),O('A > B','A = 13 nhỏ hơn B = 27.'),O('A và B là hai số đối nhau','A = 13 và B = 27 không đối nhau.')],
+  exp:'A = 20 + 5 − 12 = 13; B = 20 − 5 + 12 = 27. Vậy A < B.'},
+ {id:'m4',topic:'bn',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "−" đằng trước, ta phải:',ans:0,opts:[
+   O('đổi dấu tất cả các số hạng trong ngoặc'),O('giữ nguyên dấu các số hạng trong ngoặc','Đó là quy tắc khi có dấu "+" đứng trước ngoặc.'),O('chỉ đổi dấu số hạng đầu tiên trong ngoặc','Phải đổi dấu tất cả các số hạng, không riêng số hạng đầu.'),O('chỉ đổi dấu số hạng cuối cùng trong ngoặc','Phải đổi dấu tất cả các số hạng trong ngoặc.')],
+  exp:'Dấu "+" đổi thành "−" và dấu "−" đổi thành "+". Ví dụ 10 − (3 − 4) = 10 − 3 + 4 = 11.'},
+ {id:'m5',topic:'bn',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "+" đằng trước, các số hạng trong ngoặc:',ans:0,opts:[
+   O('giữ nguyên dấu'),O('đổi dấu tất cả','Đó là quy tắc khi có dấu "−" đứng trước ngoặc.'),O('chỉ số hạng đầu đổi dấu','Với dấu "+" đứng trước, không số hạng nào đổi dấu.'),O('đều trở thành số dương','Các số hạng vẫn giữ dấu của mình.')],
+  exp:'Ví dụ 10 + (3 − 4) = 10 + 3 − 4 = 9.'},
+ {id:'m6',topic:'bn',level:'TH',stem:'Bạn Hà làm: '+nb('30 − (12 − 5 + 8) = 30 − 12 − 5 + 8')+'. Nhận xét nào đúng?',ans:0,opts:[
+   O('Hà mới đổi dấu số 12, chưa đổi dấu −5 và +8'),O('Hà làm đúng','Vế trái bằng 30 − 15 = 15, còn vế phải bằng 21.'),
+   O('Lẽ ra phải giữ nguyên dấu cả ba số hạng trong ngoặc','Dấu "−" đứng trước ngoặc nên phải đổi dấu cả ba số hạng.'),O('Lẽ ra chỉ cần đổi dấu số hạng cuối cùng','Phải đổi dấu tất cả các số hạng trong ngoặc.')],
+  exp:'Bỏ ngoặc đúng: 30 − (12 − 5 + 8) = 30 − 12 + 5 − 8 = 15.'},
+ {id:'m7',topic:'bn',level:'VD',stem:'Giá trị của biểu thức '+nb('−(−15 + 6) − (9 − 20)')+' là:',ans:0,opts:[
+   O('20'),O('−20',E_NONE),O('−8',E_FIRST),O('−2','Ngoặc thứ hai cũng có dấu "−" đằng trước nên phải đổi dấu: −9 + 20.')],
+  exp:'−(−15 + 6) − (9 − 20) = 15 − 6 − 9 + 20 = 20.'},
+ {id:'m8',topic:'bn',level:'TH',stem:'Bỏ dấu ngoặc, biểu thức '+nb('x − (y − z) − (−t)')+' bằng biểu thức nào?',ans:0,opts:[
+   O(nb('x − y + z + t')),O(nb('x − y − z + t'),E_FIRST),O(nb('x − y + z − t'),E_W1),O(nb('x + y − z − t'),'Bạn đã đổi dấu sai tất cả các số hạng.')],
+  exp:'x − (y − z) = x − y + z và − (−t) = + t. Vậy biểu thức bằng x − y + z + t.'},
+ {id:'m9',topic:'dn',level:'NB',stem:'Khi đưa các số hạng vào trong dấu ngoặc có dấu "−" đằng trước, ta phải:',ans:0,opts:[
+   O('đổi dấu tất cả các số hạng đưa vào ngoặc'),O('giữ nguyên dấu các số hạng đó','Giữ nguyên dấu là khi ngoặc có dấu "+" đằng trước.'),O('chỉ đổi dấu số hạng đầu tiên','Phải đổi dấu tất cả các số hạng đưa vào ngoặc.'),O('bỏ hết dấu của các số hạng đó','Mỗi số hạng trong ngoặc vẫn có dấu, và là dấu ngược với dấu ban đầu.')],
+  exp:'Ví dụ 20 − 7 − 3 = 20 − (7 + 3); 20 − 7 + 3 = 20 − (7 − 3).'},
+ {id:'m10',topic:'dn',level:'NB',stem:'Trong một tổng nhiều số hạng, khi đổi chỗ các số hạng ta phải:',ans:0,opts:[
+   O('đổi chỗ mỗi số hạng kèm theo dấu của nó'),O('chỉ đổi chỗ các số, còn các dấu giữ ở vị trí cũ','Mỗi số hạng phải mang theo dấu của nó. Ví dụ 12 − 45 + 8 = 12 + 8 − 45.'),O('đổi dấu các số hạng đã đổi chỗ','Đổi chỗ không làm thay đổi dấu của số hạng.'),O('đặt tất cả các số hạng trong dấu ngoặc','Không cần đặt dấu ngoặc khi đổi chỗ.')],
+  exp:'Ví dụ 12 − 45 + 8 = 12 + 8 − 45 = −25.'},
+ {id:'m11',topic:'dn',level:'NB',stem:'Đẳng thức nào đúng với mọi số nguyên a, b, c?',ans:0,opts:[
+   O(nb('a − b − c = a − (b + c)')),O(nb('a − b − c = a − (b − c)'),'a − (b − c) = a − b + c, khác a − b − c.'),O(nb('a − b + c = a − (b + c)'),'a − (b + c) = a − b − c, khác a − b + c.'),O(nb('a + b − c = a + (b + c)'),'a + (b + c) = a + b + c, khác a + b − c.')],
+  exp:'Đặt −b và −c vào ngoặc có dấu "−" đằng trước thì đổi dấu: a − b − c = a − (b + c).'},
+ {id:'m12',topic:'dn',level:'TH',stem:'Để tính nhanh '+nb('123 − 67 + 77 − 33')+', cách nhóm nào đúng?',ans:0,opts:[
+   O(nb('(123 + 77) − (67 + 33)')),O(nb('(123 + 77) − (67 − 33)'),'Đặt −67 và −33 vào ngoặc có dấu "−" đằng trước thì phải là −(67 + 33).'),O(nb('(123 − 77) − (67 + 33)'),'Số hạng 77 mang dấu "+" nên trong ngoặc thứ nhất phải là 123 + 77.'),O(nb('(123 + 77) + (67 + 33)'),'−67 − 33 = −(67 + 33), không phải +(67 + 33).')],
+  exp:'123 − 67 + 77 − 33 = (123 + 77) − (67 + 33) = 200 − 100 = 100.'},
+ {id:'m13',topic:'hl',level:'NB',stem:'Bỏ dấu ngoặc trong '+nb('(318 − 45) − 318')+' rồi nhóm các số hạng một cách hợp lí, ta được:',ans:0,opts:[
+   O(nb('(318 − 318) − 45')),O(nb('(318 + 318) − 45'),'Số hạng thứ hai là −318, phải mang theo dấu "−" khi nhóm.'),O(nb('(318 − 318) + 45'),'Số hạng 45 mang dấu "−" và ngoặc có dấu "+" đằng trước nên vẫn là −45.'),O(nb('(−318 − 318) − 45'),'Số 318 đầu tiên mang dấu "+".')],
+  exp:'(318 − 45) − 318 = 318 − 45 − 318 = (318 − 318) − 45 = −45.'},
+ {id:'m14',topic:'hl',level:'NB',stem:'Với mọi số nguyên a, b, biểu thức '+nb('(a − b) + b')+' bằng:',ans:0,opts:[
+   O('a'),O('b','Hai số −b và +b đối nhau nên triệt tiêu, còn lại là a chứ không phải b.'),O('0','Chỉ có −b và +b triệt tiêu nhau, số hạng a vẫn còn.'),O('−a','Số hạng a mang dấu "+" và không đổi dấu.')],
+  exp:'(a − b) + b = a − b + b = a, vì −b và b là hai số đối nhau.'},
+ {id:'m15',topic:'hl',level:'VD',stem:'Tìm số nguyên x, biết '+nb('25 − (x + 10) = 7')+'.',ans:0,opts:[
+   O(nb('x = 8')),O(nb('x = 28'),'Bạn đã bỏ ngoặc thành 25 − x + 10. Phải đổi dấu cả 10: 25 − x − 10.'),O(nb('x = −8'),'15 − x = 7 thì x = 15 − 7 = 8.'),O(nb('x = 22'),'Sau khi bỏ ngoặc: 15 − x = 7, nên x = 8.')],
+  exp:'25 − (x + 10) = 25 − x − 10 = 15 − x. Từ 15 − x = 7 suy ra x = 15 − 7 = 8.'},
+ {id:'m16',topic:'hl',level:'VD',stem:'Một thợ lặn đang ở độ cao −12 m so với mực nước biển. Anh lặn xuống thêm 8 m rồi nổi lên 5 m. Biểu thức nào tính đúng độ cao mới của anh (tính bằng mét)?',ans:0,opts:[
+   O(nb('−12 − (8 − 5)')),O(nb('−12 − (8 + 5)'),'Biểu thức này bằng −12 − 8 − 5, tức là lặn xuống cả hai lần.'),O(nb('−12 + (8 − 5)'),'Biểu thức này bằng −12 + 8 − 5, tức là nổi lên 8 m rồi lặn xuống 5 m.'),O(nb('12 − (8 − 5)'),'Độ cao ban đầu là −12 m, không phải 12 m.')],
+  exp:'Lặn xuống thì trừ, nổi lên thì cộng: −12 − 8 + 5 = −12 − (8 − 5) = −15 (m).'}
+].map(q=>Object.assign({type:'mc'},q));
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b','c'].forEach(x=>{
+  addMC('g_vgone_'+x,'vg','NB',genVgOne);
+  addMC('g_vgchain_'+x,'vg','TH',genVgChain);
+  addMC('g_vgval_'+x,'vg','TH',genVgVal);
+  addMC('g_vgvd_'+x,'vg','TH',genVgVD);
+  addMC('g_bnsym_'+x,'bn','NB',genBnSym);
+  addMC('g_bnnum_'+x,'bn','TH',genBnNum3);
+  addMC('g_bnval_'+x,'bn','TH',genBnVal);
+  addMC('g_bntwo_'+x,'bn','TH',genBnTwo);
+  addMC('g_bnopp_'+x,'bn','TH',genBnOpp);
+  addMC('g_dnput_'+x,'dn','TH',genDnPut);
+  addMC('g_dnswap_'+x,'dn','TH',genDnSwap);
+  addMC('g_dngrp_'+x,'dn','TH',genDnGroup);
+  addMC('g_hlpair_'+x,'hl','NB',genHlPair);
+  addMC('g_hlcan_'+x,'hl','TH',genHlCancel);
+  addMC('g_hlreal_'+x,'hl','TH',genHlReal);
+  addMC('g_hltwo_'+x,'hl','VD',genHlTwo);
+  addMC('g_hlsub_'+x,'hl','VD',genHlSub);
+});
+['a','b'].forEach(x=>addMC('g_dnputnb_'+x,'dn','NB',genDnPut));
+
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+const tVgTH=four(vgItem),tVgVD=four(vgVal),tBnTH=four(bnItem),tBnVD=four(bnVal),tDnTH=four(dnItem),tDnVD=four(dnItem4),tHlTH=four(hlItem),tHlVD=four(hlItem2);
+['a','b'].forEach(x=>{
+  addTF('tf_vg_th_'+x,'vg','TH',tVgTH);
+  addTF('tf_vg_vd_'+x,'vg','VD',tVgVD);
+  addTF('tf_bn_th_'+x,'bn','TH',tBnTH);
+  addTF('tf_bn_vd_'+x,'bn','VD',tBnVD);
+  addTF('tf_dn_th_'+x,'dn','TH',tDnTH);
+  addTF('tf_dn_vd_'+x,'dn','VD',tDnVD);
+  addTF('tf_hl_th_'+x,'hl','TH',tHlTH);
+  addTF('tf_hl_vd_'+x,'hl','VD',tHlVD);
+});
+addTF('tf_ctx_bt','hl','VD',tfCtx(ctxExpr));
+addTF('tf_ctx_the','hl','VD',tfCtx(ctxMoney));
+addTF('tf_nb_a','bn','NB',tfNB());
+addTF('tf_nb_b','dn','NB',tfNB());
+addTF('tf_nb_c','vg','NB',tfNB());
+addTF('tf_nb_d','hl','NB',tfNB());
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+function tfHardC(){
+  for(let n=0;n<60;n++){
+    const [p,q,r]=sample(3,11,60),v=[0,1,2,3].map(()=>RNG()<.5);
+    const items=shuffle([
+      IT(`Số đối của ${nb(`${p} − ${q} + ${r}`)} là ${nb(v[0]?`−${p} + ${q} − ${r}`:`−${p} − ${q} + ${r}`)}.`,v[0],'bn','VD',`Số đối của một tổng: đổi dấu tất cả các số hạng. ${nb(`−(${p} − ${q} + ${r}) = −${p} + ${q} − ${r}`)}.`),
+      IT(nb(v[1]?`(a − ${q}) − (${p} − ${q}) = a − ${p}`:`(a − ${q}) − (${p} − ${q}) = a − ${p+2*q}`)+' với mọi số nguyên a.',v[1],'hl','VD',`Bỏ dấu ngoặc: ${nb(`a − ${q} − ${p} + ${q} = a − ${p}`)}, vì −${q} và +${q} đối nhau.`),
+      IT(nb(v[2]?`a − (b − c) = (a − b) + c`:`a − (b − c) = (a − b) − c`)+' với mọi số nguyên a, b, c.',v[2],'bn','VD','a − (b − c) = a − b + c = (a − b) + c. Ví dụ 10 − (5 − 2) = 7, còn (10 − 5) − 2 = 3.'),
+      IT(`Với mọi số nguyên a, b: ${nb('−(a − b)')} và ${nb(v[3]?'b − a':'−a − b')} là hai biểu thức bằng nhau.`,v[3],'dn','VD','−(a − b) = −a + b = b − a (đổi chỗ hai số hạng kèm theo dấu).')]);
+    if(tfOK(items))return {stem:'Xét các phát biểu sau:',items};
+  }
+  return FB_TF();
+}
+const HARD={tf:[{id:'h_tc',type:'tf',topic:'bn',level:'VD',gen:tfHardC}],sa:[
+ {id:'h_hl',topic:'hl',level:'VD',unit:'',gen:()=>{const [p,q]=sample(2,120,480),r=ri(11,60);return RNG()<.5
+   ?{stem:`Tính một cách hợp lí: ${nb(`${p} − (${q} − ${r}) + (${q} − ${p})`)}.`,ans:[r],exp:`Bỏ dấu ngoặc: ${nb(`${p} − ${q} + ${r} + ${q} − ${p}`)}. Nhóm các số đối nhau: ${nb(`(${p} − ${p}) + (${q} − ${q}) + ${r} = ${r}`)}.`}
+   :{stem:`Tính một cách hợp lí: ${nb(`(${p} − ${q}) − (${p} + ${r}) + ${q}`)}.`,ans:[-r],exp:`Bỏ dấu ngoặc: ${nb(`${p} − ${q} − ${p} − ${r} + ${q}`)}. Nhóm các số đối nhau: ${nb(`(${p} − ${p}) + (${q} − ${q}) − ${r} = ${N(-r)}`)}.`};}},
+ {id:'h_x',topic:'hl',level:'VD',unit:'',gen:()=>{const a=sgn()*ri(5,30),b=ri(5,30),c=sgn()*ri(5,30),x=c-a+b;return{stem:`Tìm số nguyên x, biết ${nb(`${N(a)} − (${b} − x) = ${N(c)}`)}.`,ans:[x],exp:`Bỏ dấu ngoặc: ${nb(`${N(a)} − ${b} + x = ${N(c)}`)}, tức là ${nb(`${N(a-b)} + x = ${N(c)}`)}. Vậy ${nb(`x = ${N(c)} − ${P(a-b)} = ${N(x)}`)}.`};}},
+ {id:'h_day',topic:'dn',level:'VD',unit:'',gen:()=>{const n=ri(20,60);return{stem:`Tính ${nb(`S = 1 − 2 + 3 − 4 + … + ${2*n-1} − ${2*n}`)}.`,ans:[-n],exp:`Đặt dấu ngoặc để nhóm thành ${n} cặp: ${nb(`(1 − 2) + (3 − 4) + … + (${2*n-1} − ${2*n})`)}. Mỗi cặp bằng −1 nên S = ${N(-n)}.`};}},
+ {id:'h_gt',topic:'hl',level:'VD',unit:'',gen:()=>{const [a,c]=sample(2,120,480),b=ri(11,60),f=RNG()<.5;return f
+   ?{stem:`Tính giá trị của biểu thức ${nb('(a − b + c) − (a + c)')} khi ${nb(`a = ${a}`)}, ${nb(`b = ${b}`)}, ${nb(`c = ${c}`)}.`,ans:[-b],exp:`Bỏ dấu ngoặc trước khi thay số: ${nb('(a − b + c) − (a + c) = a − b + c − a − c = −b')}. Vậy giá trị của biểu thức là ${N(-b)}.`}
+   :{stem:`Tính giá trị của biểu thức ${nb('(a + b) − (c − b) − (a − c)')} khi ${nb(`a = ${a}`)}, ${nb(`b = ${b}`)}, ${nb(`c = ${c}`)}.`,ans:[2*b],exp:`Bỏ dấu ngoặc trước khi thay số: ${nb('a + b − c + b − a + c = b + b')}. Vậy giá trị của biểu thức là ${nb(`${b} + ${b} = ${2*b}`)}.`};}},
+ {id:'h_long',topic:'bn',level:'VD',unit:'',gen:()=>{const [a,b,c,d]=sample(4,11,60),e=EXP([G(-1,[-a,b]),G(-1,[c,-d,-a]),G(1,[b,-d])]);return{stem:`Tính ${e.txt}.`,ans:[e.val],exp:`Bỏ dấu ngoặc: ${e.open}. Hai số ${N(-b)} và ${b} đối nhau, hai số ${d} và ${N(-d)} đối nhau. Còn lại ${nb(`${a} − ${c} + ${a} = ${N(e.val)}`)}.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+const SG=x=>x>0?'+'+x:N(x);
+const PISA=[
+ ()=>{let S0,b,n,B;do{S0=10*ri(40,80);b=[0,0,0,0].map(()=>5*ri(8,24));n=10*ri(15,30);B=sum(b);}while(B===n||new Set(b).size<4);const fin=S0-B+n,T=(Math.floor(fin/100)+2)*100;
+  const rows=[['Thứ Hai',-b[0]],['Thứ Ba',-b[1]],['Thứ Tư',n],['Thứ Năm',-b[2]],['Thứ Sáu',-b[3]]],bs=b.join(' + ');
+  return {title:'Kho gạo của cửa hàng',ctx:`<p class="stem">Đầu tuần, kho của một cửa hàng có ${S0} kg gạo. Chủ cửa hàng ghi lại số gạo nhập về (số dương) và bán ra (số âm) mỗi ngày, đơn vị kg.</p>${tbl(['Ngày','Số gạo (kg)'],rows.map(r=>[r[0],SG(r[1])]))}`,qs:[
+   saq('Trong tuần cửa hàng đã bán tất cả bao nhiêu kg gạo? (Ghi một số dương.)',B,'kg',`${nb(bs+' = '+B)} (kg).`,'vg','TH'),
+   mcq('Biểu thức nào tính đúng số gạo còn lại trong kho cuối ngày Thứ Sáu (tính bằng kg)?',nb(`${S0} − (${bs}) + ${n}`),[
+     [nb(`${S0} − (${bs} + ${n})`),`Số gạo nhập về ${n} kg phải được cộng vào kho. Đặt trong ngoặc có dấu "−" đằng trước thì nó bị trừ đi.`],
+     [nb(`${S0} − (${b[0]} + ${b[1]}) + ${n} + (${b[2]} + ${b[3]})`),'Số gạo bán Thứ Năm và Thứ Sáu cũng phải trừ đi.'],
+     [nb(`${S0} + (${bs}) − ${n}`),'Bán ra thì trừ, nhập về thì cộng. Biểu thức này làm ngược lại.']],
+     `Bán ra thì trừ, nhập về thì cộng: ${nb(`${S0} − ${b[0]} − ${b[1]} + ${n} − ${b[2]} − ${b[3]} = ${S0} − (${bs}) + ${n}`)}.`,'dn','VD'),
+   saq('Cuối ngày Thứ Sáu trong kho còn bao nhiêu kg gạo?',fin,'kg',`${nb(`${S0} − (${bs}) + ${n} = ${S0} − ${B} + ${n} = ${fin}`)} (kg).`,'hl','VD'),
+   saq(`Chủ cửa hàng muốn đầu tuần sau kho có ${T} kg gạo. Cần nhập thêm bao nhiêu kg?`,T-fin,'kg',`Kho đang có ${fin} kg. Cần nhập thêm ${nb(`${T} − ${fin} = ${T-fin}`)} (kg).`,'hl','VD')]};},
+ ()=>{for(;;){const A=[0,0,0,0].map(()=>5*sgn()*ri(2,8)),Bv=[0,0,0,0].map(()=>5*sgn()*ri(2,8)),sA=sum(A),sB=sum(Bv);
+   if(sA===sB||!A.some(x=>x<0)||!Bv.some(x=>x<0)||!A.some(x=>x>0)||!Bv.some(x=>x>0))continue;
+   const lo=sA<sB?'Sao Mai':'Bình Minh',hi=sA<sB?'Bình Minh':'Sao Mai',l=Math.min(sA,sB),h=Math.max(sA,sB),after=(l+20)-(h-10);
+   return {title:'Cuộc thi Đố vui toán học',ctx:`<p class="stem">Trong một cuộc thi, mỗi vòng đội chơi được cộng điểm nếu trả lời đúng và bị trừ điểm nếu trả lời sai. Bảng sau ghi điểm của hai đội qua bốn vòng (số âm là bị trừ điểm). Lúc đầu mỗi đội có 0 điểm.</p>${tbl(['Vòng','Đội Sao Mai','Đội Bình Minh'],[0,1,2,3].map(i=>['Vòng '+(i+1),SG(A[i]),SG(Bv[i])]))}`,qs:[
+   saq('Sau bốn vòng, đội Sao Mai có bao nhiêu điểm?',sA,'điểm',`${nb(A.map((x,i)=>i?(x<0?'− '+(-x):'+ '+x):N(x)).join(' ')+' = '+N(sA))} (điểm).`,'vg','TH'),
+   saq('Sau bốn vòng, đội Bình Minh có bao nhiêu điểm?',sB,'điểm',`${nb(Bv.map((x,i)=>i?(x<0?'− '+(-x):'+ '+x):N(x)).join(' ')+' = '+N(sB))} (điểm).`,'vg','TH'),
+   saq('Sau bốn vòng, điểm của đội Sao Mai hơn điểm của đội Bình Minh bao nhiêu? (Nếu kém hơn thì ghi số âm.)',sA-sB,'điểm',`${nb(`${N(sA)} − ${P(sB)} = ${N(sA-sB)}`)} (điểm).`,'bn','VD'),
+   saq(`Ở vòng 5, đội ${lo} được cộng 20 điểm còn đội ${hi} bị trừ 10 điểm. Sau vòng 5, điểm của đội ${lo} hơn điểm của đội ${hi} bao nhiêu? (Nếu kém hơn thì ghi số âm.)`,after,'điểm',`${nb(`(${N(l)} + 20) − (${N(h)} − 10) = ${N(l)} + 20 − ${P(h)} + 10 = ${N(after)}`)} (điểm).`,'hl','VD')]};}}
+];
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'vg',fig:'<div class="figbox"><p>a + (−b) = a − b</p><p>a − (−b) = a + b</p><p>2 + (−9) = 2 − 9</p></div>',extra:'Ví dụ: (−23) − 15 − (−23) + 5 + (−10) = −23 − 15 + 23 + 5 − 10.'},
+  {k:'bn',fig:'<div class="figbox"><p>a + (b − c) = a + b − c</p><p>a − (b − c) = a − b + c</p><p>a − (b + c) = a − b − c</p></div>',extra:'Ví dụ: 20 − (15 − 8 + 3) = 20 − 15 + 8 − 3 = 10.'},
+  {k:'dn',fig:'<div class="figbox"><p>a − b + c = a + c − b</p><p>a − b − c = a − (b + c)</p><p>a − b + c = a − (b − c)</p></div>',extra:'Ví dụ: 12 − 45 + 8 = 12 + 8 − 45; 157 − 43 − 57 = 157 − (43 + 57).'},
+  {k:'hl',fig:'<div class="figbox"><p>(−385 + 210) + (385 − 217)</p><p>= −385 + 210 + 385 − 217</p><p>= (385 − 385) + (210 − 217) = −7</p></div>',extra:'Bỏ ngoặc trước, sau đó nhóm các số đối nhau hoặc các số cho tổng tròn chục, tròn trăm.'}
+];
+
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const a=sel([200,300,500]),x=ri(12,45),y=5*ri(14,30),z=5*ri(8,20),r=a-(x+y+z);if(r<=0)throw 0;
+  const b=a+sel([50,100,150,200]),bk=r+x;
+  return {title:'Mẹ đi chợ',ctx:P(`Mẹ mang theo ${a} nghìn đồng đi chợ. Mẹ mua rau hết ${x} nghìn đồng, thịt hết ${y} nghìn đồng và cá hết ${z} nghìn đồng.`),qs:[
+   M('Biểu thức nào tính đúng số tiền mẹ còn lại (nghìn đồng)?',`${a} − (${x} + ${y} + ${z})`,[[`${a} − (${x} + ${y}) + ${z}`,'Tiền mua cá cũng phải trừ đi, không được cộng vào.'],[`${a} − ${x} + ${y} + ${z}`,'Đây là bỏ dấu ngoặc sai: trước ngoặc có dấu "−" thì phải đổi dấu mọi số hạng trong ngoặc.'],[`${a} + (${x} + ${y} + ${z})`,'Tiền đã tiêu làm số tiền giảm đi, phải trừ.']],`Số tiền còn lại bằng số tiền mang theo trừ đi tổng số tiền đã mua: ${a} − (${x} + ${y} + ${z}).`,'bn','TH'),
+   A('Mẹ còn lại bao nhiêu nghìn đồng?',r,'nghìn đồng',`${a} − (${x} + ${y} + ${z}) = ${a} − ${x+y+z} = ${r}.`,'bn','TH'),
+   A('Về nhà, mẹ thấy bó rau bị héo nên mang ra chợ đổi trả và được trả lại đủ tiền rau. Lúc này mẹ có bao nhiêu nghìn đồng?',bk,'nghìn đồng',`${a} − (${x} + ${y} + ${z}) + ${x} = ${a} − ${x} − ${y} − ${z} + ${x} = ${a} − ${y} − ${z} = ${bk}.`,'hl','VD'),
+   A(`Hôm sau mẹ mang ${b} nghìn đồng đi chợ và mua đúng các món như hôm trước, giá không đổi (không đổi trả gì). Số tiền mẹ còn lại hôm sau nhiều hơn hôm trước bao nhiêu nghìn đồng?`,b-a,'nghìn đồng',`[${b} − (${x} + ${y} + ${z})] − [${a} − (${x} + ${y} + ${z})] = ${b} − ${a} = ${b-a}. Không cần tính số tiền còn lại của từng ngày.`,'hl','VD')]};}),
+ G(()=>{const t=-ri(5,20),a=ri(2,9),b=ri(2,9),c=ri(2,9);if(a===b||b===c||a===c)throw 0;
+  const t14=t-a+b-c,d=ri(-6,6);if(!d)throw 0;const s=t14+d;
+  const br=x=>x<0?`(${nm(x)})`:nm(x);
+  return {title:'Tủ bảo quản lạnh',ctx:P(`Lúc 8 giờ, nhiệt độ trong một tủ bảo quản là ${nm(t)}°C. Từ 8 giờ đến 10 giờ nhiệt độ giảm ${a}°C, từ 10 giờ đến 12 giờ nhiệt độ tăng ${b}°C, từ 12 giờ đến 14 giờ nhiệt độ giảm ${c}°C.`),qs:[
+   M('Biểu thức nào cho biết nhiệt độ trong tủ lúc 14 giờ?',`${nm(t)} − (${a} − ${b} + ${c})`,[[`${nm(t)} − (${a} + ${b} + ${c})`,`Nhiệt độ có lúc tăng ${b}°C, nên trong ngoặc không thể cộng ${b}.`],[`${nm(t)} − (${a} − ${b} − ${c})`,`Bỏ ngoặc: ${nm(t)} − (${a} − ${b} − ${c}) = ${nm(t)} − ${a} + ${b} + ${c}, tức là nhiệt độ lại tăng ${c}°C.`],[`${nm(t)} + (${a} − ${b} + ${c})`,`Bỏ ngoặc ra được ${nm(t)} + ${a} − ${b} + ${c}: nhiệt độ tăng ${a}°C và tăng ${c}°C, ngược với đề bài.`]],`Nhiệt độ lúc 14 giờ là ${nm(t)} − ${a} + ${b} − ${c} = ${nm(t)} − (${a} − ${b} + ${c}).`,'dn','TH'),
+   A('Nhiệt độ trong tủ lúc 14 giờ là bao nhiêu độ C?',t14,'°C',`${nm(t)} − (${a} − ${b} + ${c}) = ${nm(t)} − ${br(a-b+c)} = ${nm(t14)}.`,'bn','TH'),
+   A('Nhiệt độ lúc 14 giờ thay đổi bao nhiêu độ C so với lúc 8 giờ? (Nhập số âm nếu nhiệt độ giảm.)',t14-t,'°C',`${nm(t14)} − ${br(t)} = ${nm(t14-t)}. Có thể tính nhanh: −${a} + ${b} − ${c} = ${nm(t14-t)}.`,'hl','VD'),
+   A(`Lúc 16 giờ nhiệt độ trong tủ là ${nm(s)}°C. Từ 14 giờ đến 16 giờ nhiệt độ đã thay đổi bao nhiêu độ C? (Nhập số âm nếu nhiệt độ giảm.)`,d,'°C',`${nm(s)} − ${br(t14)} = ${nm(d)}.`,'hl','VD')]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='dn6_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['vg',['NB']],['vg',['TH']],['bn',['NB']],['bn',['TH','VD']],['dn',['NB','TH']],['hl',['TH','VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['bn','dn','hl'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=[
+    pick(MC.filter(q=>q.topic==='vg'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='bn'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='dn'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='hl'&&q.level==='TH'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic==='bn'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='dn'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^[1-9]\d{0,2}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}

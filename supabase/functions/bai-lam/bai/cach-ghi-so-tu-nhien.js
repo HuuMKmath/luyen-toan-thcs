@@ -1,0 +1,721 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ cach-ghi-so-tu-nhien/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "cach-ghi-so-tu-nhien";
+export const TIEN_TO = "GS6-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;
+const L=a=>a.join('; ');                 // các phần tử cách nhau bởi dấu ";"
+const SET=a=>'{'+L(a)+'}';
+const nb=s=>s.replace(/ /g,'\u00a0');    // không ngắt dòng giữa các kí hiệu
+const nbT=o=>Object.assign(o,{t:nb(o.t)});
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const asc=a=>a.slice().sort((x,y)=>x-y);
+const range=(lo,hi)=>{const o=[];for(let v=lo;v<=hi;v++)o.push(v);return o;};
+
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(c&&!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const FB_MC=()=>({stem:'Trong hệ thập phân, mỗi số tự nhiên được viết bởi các chữ số lấy trong bao nhiêu chữ số?',opts:[{t:'10'},{t:'9',err:'Có 10 chữ số: 0; 1; 2; ...; 9 (tính cả chữ số 0).'},{t:'2',err:'Hai chữ số 0 và 1 dùng trong hệ nhị phân.'},{t:'Vô số',err:'Chỉ có 10 chữ số: 0; 1; 2; ...; 9.'}],ans:0,exp:'Trong hệ thập phân, mỗi số tự nhiên được viết dưới dạng một dãy những chữ số lấy trong 10 chữ số 0; 1; 2; ...; 9.'});
+function tryGen(f){
+  for(let n=0;n<100;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>String(o.t))).size===4)return r;}
+  return FB_MC();
+}
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+function mixed(make){for(let n=0;n<60;n++){const items=make();if(!items)continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}return null;}
+
+/* ============ Viết và đọc số (theo SGK: tách lớp bằng khoảng trắng, dấu nhân ×) ============ */
+const F=n=>{const s=String(n);if(s.length<4)return s;return s.replace(/\B(?=(\d{3})+(?!\d))/g,' ');};
+const HANG=['đơn vị','chục','trăm','nghìn','chục nghìn','trăm nghìn','triệu','chục triệu','trăm triệu','tỉ'];
+const P10=k=>Math.pow(10,k);
+const DG=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+function read3(h,t,u,full){const o=[];
+  if(full||h>0)o.push(DG[h]+' trăm');
+  if(t===0){if(u>0&&(full||h>0))o.push('linh');}else if(t===1)o.push('mười');else o.push(DG[t]+' mươi');
+  if(u>0)o.push(t>=2&&u===1?'mốt':(t>=1&&u===5?'lăm':DG[u]));
+  return o.join(' ');}
+function docSo(n){if(n===0)return 'không';const g=[];let x=n;while(x>0){g.push(x%1000);x=Math.floor(x/1000);}
+  const U=['','nghìn','triệu','tỉ'],o=[];
+  for(let i=g.length-1;i>=0;i--){const v=g[i];if(v===0)continue;const s=read3(Math.floor(v/100),Math.floor(v/10)%10,v%10,i<g.length-1);o.push(s+(U[i]?' '+U[i]:''));}
+  return o.join(', ');}
+// Sinh số "dễ đọc": các lớp sau lớp đầu tiên có chữ số hàng trăm khác 0 (hoặc cả lớp bằng 0); tránh "bốn/tư" sau "mươi".
+function niceNum(groups){for(;;){const g=[];for(let i=0;i<groups;i++){if(i===0)g.push(ri(1,999));else if(RNG()<.15)g.push(0);else g.push(ri(100,999));}
+  if(g.some(v=>Math.floor(v/10)%10>=2&&v%10===4))continue;let n=0;g.forEach(v=>{n=n*1000+v;});return n;}}
+const digits=n=>String(n).split('').map(Number);
+const ROMAN1=['','I','II','III','IV','V','VI','VII','VIII','IX'];
+const LM=n=>'X'.repeat(Math.floor(n/10))+ROMAN1[n%10];
+const OVL=s=>`<span style="text-decoration:overline">${s}</span>`;
+
+/* ============ Bộ sinh câu nhiều lựa chọn ============ */
+/* --- Hệ thập phân: chữ số, hàng, lớp, đọc và viết số (tp) --- */
+function genTenDigits(){return sel([FB_MC(),
+  {stem:'Trong hệ thập phân, cứ 10 đơn vị ở một hàng thì bằng bao nhiêu đơn vị ở hàng liền trước nó?',opts:[{t:'1'},{t:'10',err:'10 đơn vị ở một hàng gộp lại thành 1 đơn vị ở hàng liền trước.'},{t:'100',err:'10 đơn vị ở một hàng chỉ bằng 1 đơn vị ở hàng liền trước, ví dụ 10 chục bằng 1 trăm.'},{t:'0',err:'10 chục bằng 1 trăm, 10 trăm bằng 1 nghìn, ...'}],ans:0,exp:'Cứ 10 đơn vị ở một hàng thì bằng 1 đơn vị ở hàng liền trước nó. Chẳng hạn, 10 chục bằng 1 trăm; 10 trăm bằng 1 nghìn.'},
+  {stem:'Lớp nghìn gồm những hàng nào?',opts:[{t:'Hàng nghìn, hàng chục nghìn, hàng trăm nghìn'},{t:'Hàng trăm, hàng chục, hàng đơn vị',err:'Đây là các hàng của lớp đơn vị.'},{t:'Hàng triệu, hàng chục triệu, hàng trăm triệu',err:'Đây là các hàng của lớp triệu.'},{t:'Hàng trăm, hàng nghìn, hàng chục nghìn',err:'Hàng trăm thuộc lớp đơn vị.'}],ans:0,exp:'Mỗi lớp là một nhóm ba hàng. Lớp nghìn gồm hàng nghìn, hàng chục nghìn, hàng trăm nghìn.'}]);}
+function genPlaceDigit(){return tryGen(()=>{
+  const n=ri(10000,9999999),d=digits(n).reverse(),k=ri(1,d.length-1),v=d[k];
+  const others=d.map((x,i)=>({x,i})).filter(o=>o.i!==k&&o.x!==v);
+  const w=pickOpts(''+v,shuffle(others).map(o=>({t:''+o.x,err:`${o.x} là chữ số hàng ${HANG[o.i]}.`})));
+  return {stem:`Chữ số hàng ${HANG[k]} của số ${F(n)} là:`,opts:[{t:''+v}].concat(w),ans:0,exp:`Đếm từ phải sang trái: hàng đơn vị, chục, trăm, nghìn, chục nghìn, trăm nghìn, triệu, ... Chữ số hàng ${HANG[k]} của ${F(n)} là ${v}.`};
+});}
+function genWriteFromWords(){return tryGen(()=>{
+  const n=niceNum(ri(2,3)),s=String(n),w=docSo(n);
+  const c=[];
+  const noZ=s.replace(/0/,'');if(noZ!==s&&noZ.length)c.push({t:F(+noZ),err:'Thiếu chữ số 0. Mỗi lớp (trừ lớp đầu tiên) phải đủ ba chữ số.'});
+  c.push({t:F(n*10),err:'Thừa một chữ số 0.'});
+  const g=s.length;const sw=+(s.slice(0,g-3).split('').reverse().join('')+s.slice(g-3));if(sw!==n)c.push({t:F(sw),err:'Các chữ số của lớp đầu tiên bị viết đảo thứ tự.'});
+  c.push({t:F(n+ (RNG()<.5?10:100)),err:'Một chữ số chưa đúng; hãy viết lại từng lớp.'},{t:F(Math.floor(n/1000)*10000+n%1000),err:'Lớp nghìn bị thừa chữ số.'});
+  return {stem:`Số "${w}" được viết là:`,opts:[{t:F(n)}].concat(pickOpts(F(n),c)),ans:0,exp:`Viết từng lớp từ trái sang phải: ${F(n)}.`};
+});}
+function genReadNum(){return tryGen(()=>{
+  const n=niceNum(ri(2,3)),s=String(n);
+  const alt=[n+100,n+10,n-1000,Math.floor(n/10)*10+((n%10)+1)%10,n+1000].filter(x=>x>0&&x!==n);
+  const c=shuffle(alt).map(x=>({t:docSo(x),err:`Đây là cách đọc số ${F(x)}.`}));
+  return {stem:`Số ${F(n)} được đọc là:`,opts:[{t:docSo(n)}].concat(pickOpts(docSo(n),c)),ans:0,exp:`Đọc từng lớp từ trái sang phải, kèm tên lớp: ${docSo(n)}.`};
+});}
+function genSoChuc(){return tryGen(()=>{
+  const n=ri(1000,99999),tram=RNG()<.5,name=tram?'trăm':'chục',k=tram?2:1,soX=Math.floor(n/P10(k)),cs=Math.floor(n/P10(k))%10;
+  if(soX===cs)return null;
+  return {stem:`Số ${name} của số ${F(n)} là:`,opts:[{t:F(soX)},{t:''+cs,err:`${cs} là chữ số hàng ${name}, không phải số ${name}.`},{t:F(Math.floor(n/P10(k+1))),err:`Đây là số ${tram?'nghìn':'trăm'}.`},{t:F(n%P10(k+1)),err:`Số ${name} là số tạo bởi các chữ số từ hàng ${name} trở về bên trái.`}],ans:0,exp:`Bỏ ${k} chữ số cuối của ${F(n)} ta được số ${name}: ${F(soX)}. Còn chữ số hàng ${name} là ${cs}.`};
+});}
+function genCompose(){return tryGen(()=>{
+  const a=ri(1,99),b=ri(1,999),c=ri(1,999),n=a*1000000+b*1000+c;
+  return {stem:`Số gồm ${a} triệu, ${b} nghìn và ${c} đơn vị được viết là:`,opts:[{t:F(n)},{t:F(+(`${a}${b}${c}`)),err:'Mỗi lớp nghìn và lớp đơn vị phải đủ ba chữ số; thiếu thì thêm chữ số 0 ở đầu lớp.'},{t:F(a*1000000+b*100+c),err:`${b} nghìn là ${F(b*1000)}.`},{t:F(a*100000+b*1000+c),err:`${a} triệu là ${F(a*1000000)}.`}],ans:0,exp:`${F(a*1000000)} + ${F(b*1000)} + ${c} = ${F(n)}.`};
+});}
+
+/* --- Giá trị các chữ số (gt) --- */
+function genDigitValue(){return tryGen(()=>{
+  const n=ri(10000,9999999),d=digits(n).reverse(),idx=d.map((x,i)=>i).filter(i=>d[i]!==0&&d.filter(y=>y===d[i]).length===1&&i>=1);if(!idx.length)return null;
+  const k=sel(idx),v=d[k],val=v*P10(k);
+  return {stem:`Trong số ${F(n)}, chữ số ${v} có giá trị là:`,opts:[{t:F(val)},{t:''+v,err:`Giá trị của một chữ số phụ thuộc vào hàng của nó; chữ số ${v} ở hàng ${HANG[k]}.`},{t:F(val*10),err:`Chữ số ${v} ở hàng ${HANG[k]}, không phải hàng ${HANG[k+1]}.`},{t:F(val/10),err:`Chữ số ${v} ở hàng ${HANG[k]}, không phải hàng ${HANG[k-1]}.`}],ans:0,exp:`Chữ số ${v} đứng ở hàng ${HANG[k]} nên có giá trị ${v} × ${F(P10(k))} = ${F(val)}.`};
+});}
+function sumExpr(ds){const L=ds.length;return ds.map((x,i)=>{const p=L-1-i;return p===0?''+x:`(${x} × ${F(P10(p))})`;}).join(' + ');}
+function genSumForm(){return tryGen(()=>{
+  const L=ri(3,4),ds=[ri(1,9)].concat(Array.from({length:L-1},()=>ri(1,9))),n=+ds.join('');
+  const sh=ds.map((x,i)=>{const p=L-i;return `(${x} × ${F(P10(p))})`;}).join(' + ');
+  return {stem:`Viết số ${F(n)} thành tổng giá trị các chữ số của nó, ta được:`,opts:[{t:sumExpr(ds)},{t:sumExpr(ds.slice().reverse()),err:'Các chữ số bị đảo thứ tự hàng.'},{t:ds.join(' + '),err:'Đây là tổng các chữ số, chưa nhân với giá trị của hàng.'},{t:sh,err:'Mỗi chữ số bị nhân thừa 10 lần; chữ số cuối cùng ở hàng đơn vị.'}].map(nbT),ans:0,exp:`${F(n)} = ${sumExpr(ds)}.`};
+});}
+function genWhichPlace(){return tryGen(()=>{
+  const v=ri(1,9),k=ri(0,4),val=v*P10(k);
+  const w=[0,1,2,3,4].filter(i=>i!==k).map(i=>({t:'Hàng '+HANG[i],err:`Ở hàng ${HANG[i]}, chữ số ${v} có giá trị ${F(v*P10(i))}.`}));
+  return {stem:`Chữ số ${v} đứng ở hàng nào trong một số tự nhiên nếu nó có giá trị bằng ${F(val)}?`,opts:[{t:'Hàng '+HANG[k]}].concat(shuffle(w).slice(0,3)),ans:0,exp:`${F(val)} = ${v} × ${F(P10(k))} nên chữ số ${v} đứng ở hàng ${HANG[k]}.`};
+});}
+function genFromSum(){return tryGen(()=>{
+  const ks=shuffle([0,1,2,3,4]).slice(0,3).sort((a,b)=>b-a),ds=ks.map(()=>ri(1,9)),n=ks.reduce((s,k,i)=>s+ds[i]*P10(k),0);
+  if(ks[0]<2)return null;
+  const ex=ks.map((k,i)=>k===0?''+ds[i]:`(${ds[i]} × ${F(P10(k))})`).join(' + ');
+  return {stem:`Tổng ${nb(ex)} bằng số nào?`,opts:[{t:F(n)},{t:F(+ds.join('')),err:'Chỉ ghép các chữ số lại mà quên các hàng có chữ số 0.'},{t:F(n*10),err:'Thừa một chữ số 0.'},{t:F(ks.reduce((s,k,i)=>s+ds[i]*P10(Math.max(0,k-1)),0)),err:'Mỗi chữ số bị đặt thấp hơn một hàng.'}],ans:0,exp:`Các hàng không có trong tổng thì chữ số là 0: ${F(n)}.`};
+});}
+function genAbc(){return sel([
+  {stem:`Với a ≠ 0, số ${OVL('abc')} bằng:`,opts:[{t:'(a × 100) + (b × 10) + c'},{t:'a + b + c',err:'Đây là tổng các chữ số, không phải số.'},{t:'(a × 10) + (b × 100) + c',err:'a ở hàng trăm, b ở hàng chục.'},{t:'a × b × c',err:'Số không phải là tích các chữ số của nó.'}],ans:0,exp:`${OVL('abc')} là số có hàng trăm là a, hàng chục là b, hàng đơn vị là c: ${OVL('abc')} = (a × 100) + (b × 10) + c.`},
+  {stem:`Với a ≠ 0, số ${OVL('ab')} bằng:`,opts:[{t:'(a × 10) + b'},{t:'a + b',err:'Đây là tổng hai chữ số.'},{t:'a × b',err:'Số không phải là tích các chữ số.'},{t:'(b × 10) + a',err:'a là chữ số hàng chục, b là chữ số hàng đơn vị.'}],ans:0,exp:`${OVL('ab')} = (a × 10) + b.`}]);}
+function genTwiceDigit(){return tryGen(()=>{
+  const v=ri(1,9),i=ri(3,6),j=ri(0,i-2),L=i+1,ds=Array.from({length:L},(_,p)=>p===0?ri(1,9):ri(0,9));
+  const pos=x=>L-1-x;ds[pos(i)]=v;ds[pos(j)]=v;for(let p=0;p<L;p++)if(p!==pos(i)&&p!==pos(j)&&ds[p]===v)ds[p]=(v+1)%10||1;
+  const n=+ds.join(''),r=P10(i-j);
+  return {stem:`Trong số ${F(n)}, giá trị của chữ số ${v} đứng bên trái gấp bao nhiêu lần giá trị của chữ số ${v} đứng bên phải?`,opts:[{t:F(r)},{t:''+(i-j),err:`Hai chữ số cách nhau ${i-j} hàng, mỗi hàng gấp 10 lần, nên phải là ${F(r)} lần.`},{t:F(r*10),err:'Đếm lại số hàng giữa hai chữ số.'},{t:'1',err:'Cùng là chữ số nhưng ở hai hàng khác nhau nên giá trị khác nhau.'}],ans:0,exp:`Chữ số ${v} bên trái ở hàng ${HANG[i]} có giá trị ${F(v*P10(i))}, bên phải ở hàng ${HANG[j]} có giá trị ${F(v*P10(j))}. ${F(v*P10(i))} : ${F(v*P10(j))} = ${F(r)}.`};
+});}
+
+/* --- Số La Mã (lm) --- */
+function genReadLM(){return tryGen(()=>{
+  const n=ri(1,30),s=LM(n),c=[];
+  const sw=s.replace('IV','VI').replace(/IX$/,'XI');if(sw!==s){let v=0;for(let k=1;k<=30;k++)if(LM(k)===sw)v=k;if(v)c.push({t:''+v,err:`${sw} mới biểu diễn số ${v}. Thành phần IV là 4, IX là 9.`});}
+  c.push({t:''+(n+1),err:'Hãy cộng lại giá trị các thành phần.'},{t:''+(n-1),err:'Hãy cộng lại giá trị các thành phần.'},{t:''+(n+10),err:'Đếm lại số chữ X (mỗi X là 10).'},{t:''+(n+5),err:'Hãy cộng lại giá trị các thành phần.'});
+  return {stem:`Số La Mã ${s} biểu diễn số nào?`,opts:[{t:''+n}].concat(pickOpts(''+n,c.filter(x=>+x.t>0&&+x.t<=39))),ans:0,exp:`${s} = ${parts(n).join(' + ')} → ${parts(n).map(p=>VAL[p]).join(' + ')} = ${n}.`};
+});}
+const VAL={I:1,V:5,X:10,IV:4,IX:9,II:2,III:3};
+function parts(n){const o=[];for(let i=0;i<Math.floor(n/10);i++)o.push('X');const u=n%10;if(u===4)o.push('IV');else if(u===9)o.push('IX');else{if(u>=5)o.push('V');for(let i=0;i<u%5;i++)o.push('I');}return o;}
+function genWriteLM(){return tryGen(()=>{
+  const n=sel([4,9,14,19,24,29,6,16,26,11,21,8,18,28,23,27,13,17,12,22,25,15]),s=LM(n),u=n%10,t='X'.repeat(Math.floor(n/10));
+  const c=[];
+  if(u===4)c.push({t:t+'IIII',err:'Không viết bốn chữ I liền nhau; 4 viết là IV.'},{t:t+'VI',err:`VI là 6; số ${n} có hàng đơn vị là 4, viết là IV.`});
+  if(u===9)c.push({t:t+'VIIII',err:'9 viết là IX.'},{t:t+'XI',err:'XI là 11; 9 viết là IX.'});
+  if(u===6)c.push({t:t+'IV',err:'IV là 4; 6 viết là VI.'});
+  if(u===8)c.push({t:t+'IIX',err:'8 viết là VIII.'});
+  if(u===1)c.push({t:t.slice(1)+'IX',err:'IX là 9.'});
+  c.push({t:'X'.repeat(Math.floor(n/10)+1)+ROMAN1[u],err:'Thừa một chữ X.'},{t:(t.slice(1))+ROMAN1[u]||'I',err:'Thiếu một chữ X.'},{t:t+ROMAN1[(u+1)%10],err:'Hàng đơn vị chưa đúng.'},{t:t+ROMAN1[(u+9)%10],err:'Hàng đơn vị chưa đúng.'});
+  return {stem:`Số ${n} được viết bằng số La Mã là:`,opts:[{t:s}].concat(pickOpts(s,c.filter(x=>x.t&&x.t!==s))),ans:0,exp:`${n} = ${parts(n).map(p=>VAL[p]).join(' + ')}, ghép các thành phần ${parts(n).join(', ')}: ${s}.`};
+});}
+function genLMValid(){return tryGen(()=>{
+  const n=ri(1,30),bad=shuffle([['IIII','Không viết bốn chữ I liền nhau; 4 viết là IV.'],['VV','Chữ V không có mặt quá một lần; 10 viết là X.'],['VIIII','9 viết là IX.'],['IIX','8 viết là VIII.'],['XXXX','Chữ X không lặp lại quá ba lần liên tiếp.'],['VX','5 viết là V.'],['IVI','5 viết là V.'],['XVV','20 viết là XX.']]).slice(0,3);
+  return {stem:'Cách viết số La Mã nào sau đây đúng?',opts:[{t:LM(n)}].concat(bad.map(b=>({t:b[0],err:b[1]}))),ans:0,exp:`${LM(n)} biểu diễn số ${n}.`};
+});}
+function genLMMax(){return tryGen(()=>{
+  const ns=sample(4,1,30),mx=Math.max(...ns),big=sel([true,false]),pick=big?mx:Math.min(...ns);
+  return {stem:`Số La Mã nào sau đây biểu diễn số ${big?'lớn':'nhỏ'} nhất?`,opts:[{t:LM(pick)}].concat(ns.filter(x=>x!==pick).map(x=>({t:LM(x),err:`${LM(x)} biểu diễn số ${x}.`}))),ans:0,exp:`Đổi ra hệ thập phân: ${ns.map(x=>`${LM(x)} = ${x}`).join('; ')}. Số ${big?'lớn':'nhỏ'} nhất là ${LM(pick)} = ${pick}.`};
+});}
+
+/* --- Lập số từ các chữ số (cs) --- */
+function genMaxMin(){return tryGen(()=>{
+  const k=ri(2,4),C=sel([
+    {w:`lớn nhất có ${k} chữ số khác nhau`,v:+[9,8,7,6].slice(0,k).join(''),c:[[P10(k)-1,'Các chữ số của số này giống nhau.'],[+[9,8,7,6].slice(0,k).reverse().join(''),'Muốn lớn nhất thì chữ số lớn đặt ở hàng cao.'],[+[9,8,7,5].slice(0,k).join('')||98,'Còn số lớn hơn.']]},
+    {w:`nhỏ nhất có ${k} chữ số khác nhau`,v:+[1,0,2,3].slice(0,k).join(''),c:[[+[1,2,3,4].slice(0,k).join(''),'Quên chữ số 0: chữ số 0 được đứng sau chữ số đầu tiên.'],[P10(k-1),'Các chữ số 0 bị lặp lại, không khác nhau.'],[+[0,1,2,3].slice(0,k).join(''),'Chữ số đầu tiên phải khác 0, nên đây không phải số có '+k+' chữ số.']]}]);
+  return {stem:`Số tự nhiên ${C.w} là:`,opts:[{t:F(C.v)}].concat(pickOpts(F(C.v),C.c.filter(x=>x[1]).map(x=>({t:(String(x[0]).length<k&&C.w.includes('khác nhau')&&x[0]<P10(k-1))?'0'+String(x[0]):F(x[0]),err:x[1]})))),ans:0,exp:`Đáp án: ${F(C.v)}.`};
+});}
+function genUseDigits(){return tryGen(()=>{
+  const [a,b]=sample(2,1,9),ds=shuffle([0,a,b]);
+  const nums=[];for(const p of [a,b])for(const q of [0,a,b])for(const r of [0,a,b])if(p!==q&&q!==r&&p!==r)nums.push(100*p+10*q+r);
+  const target=sel([a,b]),t=nums.filter(x=>Math.floor(x/10)%10===target);if(t.length!==1)return null;
+  const wr=nums.filter(x=>x!==t[0]).map(x=>{const pos=String(x).indexOf(''+target);return {t:''+x,err:`Trong số ${x}, chữ số ${target} có giá trị ${target*P10(2-pos)}.`};});
+  wr.push({t:'0'+(target*10+(a+b-target)),err:'Chữ số đầu tiên phải khác 0.'});
+  return {stem:`Dùng ba chữ số ${L(ds)}, viết số tự nhiên có ba chữ số khác nhau mà chữ số ${target} có giá trị là ${target*10}. Số đó là:`,opts:[{t:''+t[0]}].concat(pickOpts(''+t[0],shuffle(wr))),ans:0,exp:`Chữ số ${target} có giá trị ${target*10} nên đứng ở hàng chục. Hàng trăm khác 0, nên số cần tìm là ${t[0]}.`};
+});}
+function genAlternate(){return tryGen(()=>{
+  const a=ri(1,9),k=3,s=(''+a+'0').repeat(k),wr=[('0'+a).repeat(k),(''+a+'0').repeat(k-1)+a,(''+a+a+'0'+'0').repeat(1)+a+'0'];
+  return {stem:`Một số tự nhiên được viết bởi ba chữ số 0 và ba chữ số ${a} nằm xen kẽ nhau. Đó là số nào?`,opts:[{t:F(+s)},{t:wr[0].replace(/^0/,'0'),err:'Chữ số đầu tiên của số tự nhiên khác 0 phải khác 0.'},{t:F(+wr[1]),err:`Số này chỉ có hai chữ số 0.`},{t:F(+wr[2]),err:'Các chữ số chưa nằm xen kẽ.'}],ans:0,exp:`Chữ số đầu tiên phải khác 0 nên bắt đầu bằng ${a}: ${F(+s)}.`};
+});}
+
+
+/* --- Bổ sung --- */
+function genLop(){return tryGen(()=>{
+  const n=ri(1000000,999999999),g=[];let x=n;while(x>0){g.push(x%1000);x=Math.floor(x/1000);}
+  const p3=v=>String(v).padStart(3,'0'),k=sel([0,1]),nm=['đơn vị','nghìn'][k],right=p3(g[k]).split('').join('; ');
+  const other=[p3(g[1-k]).split('').join('; '),String(g[g.length-1]).split('').join('; '),String(n%100).padStart(2,'0').split('').join('; ')+'; '+String(Math.floor(n/100)%10)];
+  return {stem:`Lớp ${nm} của số ${F(n)} gồm các chữ số nào (theo thứ tự từ trái sang phải)?`,opts:[{t:right}].concat(pickOpts(right,[{t:other[0],err:`Đây là các chữ số của lớp ${['nghìn','đơn vị'][k]}.`},{t:other[1],err:'Đây là các chữ số của lớp triệu.'},{t:other[2],err:'Các chữ số bị đảo thứ tự.'},{t:p3(g[k]).split('').reverse().join('; '),err:'Các chữ số bị đảo thứ tự.'}])),ans:0,exp:`Tách lớp từ phải sang trái: ${F(n)}. Lớp ${nm} gồm các chữ số ${right}.`};
+});}
+function genWhichHang(){return tryGen(()=>{
+  const n=ri(100000,9999999),d=digits(n).reverse(),idx=d.map((x,i)=>i).filter(i=>d.filter(y=>y===d[i]).length===1);if(!idx.length)return null;
+  const k=sel(idx),v=d[k],w=shuffle(range(0,d.length-1).filter(i=>i!==k)).slice(0,3);
+  return {stem:`Trong số ${F(n)}, chữ số ${v} đứng ở hàng nào?`,opts:[{t:'Hàng '+HANG[k]}].concat(w.map(i=>({t:'Hàng '+HANG[i],err:`Ở hàng ${HANG[i]} là chữ số ${d[i]}.`}))),ans:0,exp:`Đếm từ phải sang trái, chữ số ${v} đứng ở vị trí thứ ${k+1}, tức là hàng ${HANG[k]}.`};
+});}
+function genHasDigitAt(){return tryGen(()=>{
+  const v=ri(1,9),k=ri(1,4),mk=pos=>{const ds=digits(ri(10000,99999)).reverse();ds[pos]=v;for(let i=0;i<5;i++)if(i!==pos&&ds[i]===v)ds[i]=(v%9)+1;if(ds[4]===0)ds[4]=1;return +ds.reverse().join('');};
+  const r=mk(k),w=shuffle([0,1,2,3,4].filter(i=>i!==k)).slice(0,3).map(i=>({t:F(mk(i)),err:`Trong số này chữ số ${v} ở hàng ${HANG[i]}.`}));
+  return {stem:`Số nào sau đây có chữ số ${v} ở hàng ${HANG[k]}?`,opts:[{t:F(r)}].concat(w),ans:0,exp:`Trong số ${F(r)}, chữ số ${v} đứng ở vị trí thứ ${k+1} kể từ phải sang, tức là hàng ${HANG[k]}.`};
+});}
+function genAddX(){return tryGen(()=>{
+  const u=ri(1,10),k=ri(1,2),s=LM(u),n=u+10*k;
+  return {stem:`Viết thêm ${'X'.repeat(k)} vào bên trái số La Mã ${s}, ta được số La Mã biểu diễn số nào?`,opts:[{t:''+n},{t:''+(u+10*(k+1)),err:`Mỗi chữ X có giá trị 10; thêm ${k} chữ X thì tăng ${10*k}.`},{t:''+u,err:'Số mới có thêm chữ X nên lớn hơn.'},{t:''+(u*10*k||10),err:'Viết thêm X là cộng thêm 10, không phải nhân.'}],ans:0,exp:`${'X'.repeat(k)}${s} = ${10*k} + ${u} = ${n}.`};
+});}
+function genComp(){return tryGen(()=>{
+  const C=sel([['IV',4,[['VI','VI biểu diễn 6.'],['IIII','Không viết bốn chữ I liền nhau.'],['IX','IX có giá trị 9.']]],['IX',9,[['XI','XI biểu diễn 11.'],['VIIII','9 viết là IX.'],['IV','IV có giá trị 4.']]],['X',10,[['V','V có giá trị 5.'],['IX','IX có giá trị 9.'],['XI','XI biểu diễn 11.']]],['V',5,[['IV','IV có giá trị 4.'],['VI','VI biểu diễn 6.'],['X','X có giá trị 10.']]]]);
+  return {stem:`Thành phần nào của số La Mã có giá trị ${C[1]}?`,opts:[{t:C[0]}].concat(C[2].map(w=>({t:w[0],err:w[1]}))),ans:0,exp:`Bảng giá trị: I = 1, V = 5, X = 10, IV = 4, IX = 9. Thành phần có giá trị ${C[1]} là ${C[0]}.`};
+});}
+function genSumLM(){return tryGen(()=>{
+  const a=ri(2,20),b=ri(2,30-a),n=a+b,c=[{t:LM(n+1),err:'Hãy đổi ra hệ thập phân rồi cộng lại.'},{t:LM(n-1),err:'Hãy đổi ra hệ thập phân rồi cộng lại.'},{t:LM(a)+LM(b),err:'Không ghép hai số La Mã cạnh nhau; phải cộng giá trị rồi viết lại.'},{t:LM(Math.min(30,n+10)),err:'Đếm lại số chữ X.'}];
+  return {stem:`Tổng của hai số được biểu diễn bởi ${LM(a)} và ${LM(b)} được viết bằng số La Mã là:`,opts:[{t:LM(n)}].concat(pickOpts(LM(n),c.filter(x=>x.t&&x.t!==LM(n)))),ans:0,exp:`${LM(a)} = ${a}, ${LM(b)} = ${b}; ${a} + ${b} = ${n} = ${LM(n)}.`};
+});}
+function genMaxFrom4(){return tryGen(()=>{
+  const ds=[0].concat(sample(3,1,9)),de=asc(ds).reverse(),big=RNG()<.5;
+  const r=big?+de.slice(0,3).join(''):+(''+asc(ds)[1]+'0'+asc(ds)[2]);
+  const c=big?[{t:''+(+de.slice(0,2).join('')*10),err:'Các chữ số phải khác nhau và lấy chữ số lớn nhất còn lại.'},{t:''+(+[de[0],de[2],de[1]].join('')),err:'Chữ số lớn hơn phải đứng ở hàng cao hơn.'},{t:''+(+[de[1],de[0],de[2]].join('')),err:'Chữ số lớn nhất phải đứng ở hàng trăm.'}]
+    :[{t:'0'+asc(ds)[1]+asc(ds)[2],err:'Chữ số đầu tiên phải khác 0.'},{t:''+(+asc(ds).slice(1,4).join('')),err:'Chưa dùng chữ số 0 ở hàng chục để có số nhỏ hơn.'},{t:''+(+(''+asc(ds)[1]+asc(ds)[2]+'0')),err:'Chữ số 0 nên đặt ở hàng chục.'}];
+  return {stem:`Từ bốn chữ số ${L(shuffle(ds))}, số ${big?'lớn':'nhỏ'} nhất có ba chữ số khác nhau lập được là:`,opts:[{t:''+r}].concat(pickOpts(''+r,c)),ans:0,exp:big?`Chọn ba chữ số lớn nhất và xếp giảm dần: ${r}.`:`Hàng trăm là chữ số nhỏ nhất khác 0, hàng chục là 0, hàng đơn vị là chữ số nhỏ nhất còn lại: ${r}.`};
+});}
+function genMaxMinNB(){return tryGen(()=>{
+  const k=ri(2,5),big=RNG()<.5,v=big?P10(k)-1:P10(k-1);
+  const c=big?[{t:F(P10(k-1)),err:`Đây là số nhỏ nhất có ${k} chữ số.`},{t:F(P10(k)),err:`Số này có ${k+1} chữ số.`},{t:F(P10(k)-2),err:`Còn số lớn hơn mà vẫn có ${k} chữ số.`}]:[{t:F(P10(k-1)+1),err:`Còn số nhỏ hơn mà vẫn có ${k} chữ số.`},{t:F(P10(k)-1),err:`Đây là số lớn nhất có ${k} chữ số.`},{t:F(P10(k-1)-1),err:`Số này chỉ có ${k-1} chữ số.`}];
+  return {stem:`Số tự nhiên ${big?'lớn':'nhỏ'} nhất có ${k} chữ số là:`,opts:[{t:F(v)}].concat(c),ans:0,exp:big?`Gồm ${k} chữ số 9: ${F(v)}.`:`Chữ số đầu là 1, các chữ số sau là 0: ${F(v)}.`};
+});}
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const MC=[];
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b'].forEach(x=>{
+  addMC('g_ten_'+x,'tp','NB',genTenDigits);
+  addMC('g_place_'+x,'tp','NB',genPlaceDigit);
+  addMC('g_write_'+x,'tp','TH',genWriteFromWords);
+  addMC('g_read_'+x,'tp','TH',genReadNum);
+  addMC('g_sochuc_'+x,'tp','VD',genSoChuc);
+  addMC('g_comp_'+x,'tp','TH',genCompose);
+  addMC('g_val_'+x,'gt','NB',genDigitValue);
+  addMC('g_sum_'+x,'gt','NB',genSumForm);
+  addMC('g_wplace_'+x,'gt','TH',genWhichPlace);
+  addMC('g_fsum_'+x,'gt','TH',genFromSum);
+  addMC('g_twice_'+x,'gt','VD',genTwiceDigit);
+  addMC('g_rlm_'+x,'lm','NB',genReadLM);
+  addMC('g_wlm_'+x,'lm','NB',genWriteLM);
+  addMC('g_vlm_'+x,'lm','TH',genLMValid);
+  addMC('g_mlm_'+x,'lm','VD',genLMMax);
+  addMC('g_mm_'+x,'cs','TH',genMaxMin);
+  addMC('g_use_'+x,'cs','VD',genUseDigits);
+});
+addMC('g_abc','gt','TH',genAbc);
+['a','b'].forEach(x=>{
+  addMC('g_lop_'+x,'tp','NB',genLop);
+  addMC('g_whang_'+x,'tp','NB',genWhichHang);
+  addMC('g_hasd_'+x,'gt','NB',genHasDigitAt);
+  addMC('g_addx_'+x,'lm','TH',genAddX);
+  addMC('g_comp_lm_'+x,'lm','NB',genComp);
+  addMC('g_sumlm_'+x,'lm','VD',genSumLM);
+  addMC('g_max4_'+x,'cs','TH',genMaxFrom4);
+  addMC('g_mmnb_'+x,'cs','NB',genMaxMinNB);
+});
+addMC('g_alt_a','cs','VD',genAlternate);addMC('g_alt_b','cs','VD',genAlternate);
+
+/* ============ Câu đúng sai ============ */
+const wrap=items=>items?items.map(i=>Object.assign(i,{t:nb(i.t)})):null;
+function tfStatic(pool,stem){return ()=>{const items=mixed(()=>shuffle(pool).slice(0,4).map(p=>sel(p)));return {stem,items:wrap(items)};};}
+const POOL_TP=[
+  [IT('Trong hệ thập phân, ta dùng 10 chữ số để viết các số tự nhiên.',true,'tp','NB','Đó là các chữ số 0; 1; 2; ...; 9.'),IT('Trong hệ thập phân, ta dùng 9 chữ số để viết các số tự nhiên.',false,'tp','NB','Có 10 chữ số, tính cả chữ số 0.')],
+  [IT('10 trăm bằng 1 nghìn.',true,'tp','NB','Cứ 10 đơn vị ở một hàng thì bằng 1 đơn vị ở hàng liền trước.'),IT('10 trăm bằng 1 chục nghìn.',false,'tp','NB','10 trăm bằng 1 nghìn; 10 nghìn mới bằng 1 chục nghìn.')],
+  [IT('Với các số tự nhiên khác 0, chữ số đầu tiên (từ trái sang phải) khác 0.',true,'tp','NB','Đây là quy ước khi viết số tự nhiên.'),IT('Chữ số đầu tiên (từ trái sang phải) của một số tự nhiên có hai chữ số có thể là 0.',false,'tp','NB','Với số tự nhiên khác 0, chữ số đầu tiên khác 0.')],
+  [IT('Mỗi lớp là một nhóm ba chữ số kể từ phải sang trái.',true,'tp','NB','Ta tách lớp từ phải sang trái.'),IT('Mỗi lớp là một nhóm ba chữ số kể từ trái sang phải.',false,'tp','NB','Ta tách lớp kể từ phải sang trái.')],
+  [IT('Lớp triệu gồm hàng triệu, hàng chục triệu và hàng trăm triệu.',true,'tp','NB','Mỗi lớp gồm ba hàng.'),IT('Hàng chục nghìn thuộc lớp đơn vị.',false,'tp','NB','Hàng chục nghìn thuộc lớp nghìn.')]];
+const POOL_LM=[
+  [IT('Không có số La Mã nào biểu diễn số 0.',true,'lm','NB','Đây là nhận xét trong SGK.'),IT('Số La Mã O biểu diễn số 0.',false,'lm','NB','Không có số La Mã nào biểu diễn số 0.')],
+  [IT('Thành phần IX có giá trị 9.',true,'lm','NB','Bảng giá trị: I = 1, V = 5, X = 10, IV = 4, IX = 9.'),IT('Thành phần IX có giá trị 11.',false,'lm','NB','IX có giá trị 9; XI mới biểu diễn số 11.')],
+  [IT('IV và VI biểu diễn hai số khác nhau.',true,'lm','NB','IV = 4, VI = 6.'),IT('IV và VI biểu diễn cùng một số.',false,'lm','NB','IV = 4, còn VI = 6.')],
+  [IT('Giá trị của mỗi thành phần không thay đổi dù nó đứng ở bất kì vị trí nào.',true,'lm','NB','Đây là quy tắc viết số La Mã trong SGK.'),IT('Để viết các số La Mã không quá 30, ta dùng bốn kí tự I, V, X và L.',false,'lm','NB','Chỉ dùng ba kí tự I, V và X.')]];
+const POOL_CS=[
+  [IT('Số tự nhiên nhỏ nhất có hai chữ số là 10.',true,'cs','NB','Các số có hai chữ số là 10; 11; ...; 99.'),IT('Số tự nhiên nhỏ nhất có hai chữ số là 11.',false,'cs','NB','10 cũng là số có hai chữ số.')],
+  [IT('Số tự nhiên lớn nhất có ba chữ số là 999.',true,'cs','NB','999 là số lớn nhất có ba chữ số.'),IT('Số tự nhiên lớn nhất có ba chữ số là 900.',false,'cs','NB','999 > 900.')],
+  [IT('Số tự nhiên lớn nhất có hai chữ số khác nhau là 98.',true,'cs','NB','99 có hai chữ số giống nhau.'),IT('Số tự nhiên lớn nhất có hai chữ số khác nhau là 99.',false,'cs','NB','99 có hai chữ số giống nhau; số cần tìm là 98.')],
+  [IT('Số tự nhiên nhỏ nhất có ba chữ số khác nhau là 102.',true,'cs','NB','Hàng trăm nhỏ nhất là 1, sau đó dùng 0 và 2.'),IT('Số tự nhiên nhỏ nhất có ba chữ số khác nhau là 123.',false,'cs','NB','102 < 123 và có ba chữ số khác nhau.')]];
+function tfNum(level){return ()=>{
+  const n=niceNum(ri(2,3)),d=digits(n).reverse();
+  const items=mixed(()=>{const T=()=>RNG()<.5,o=[];
+    {const v=T(),x=v?n:sel([n+100,n+10,n+1000].filter(y=>docSo(y)!==docSo(n)));o.push(IT(`Số ${F(n)} được đọc là "${docSo(x)}".`,v,'tp',level,`Đọc đúng: ${docSo(n)}.`));}
+    {const v=T();o.push(IT(`Số ${F(n)} có ${v?d.length:d.length+1} chữ số.`,v,'tp',level,`Số ${F(n)} có ${d.length} chữ số.`));}
+    {const k=ri(1,Math.min(5,d.length-1)),v=T(),w=d[(k+1)%d.length]===d[k]?(d[k]+1)%10:d[(k+1)%d.length];o.push(IT(`Chữ số hàng ${HANG[k]} của ${F(n)} là ${v?d[k]:w}.`,v,'tp',level,`Chữ số hàng ${HANG[k]} là ${d[k]}.`));}
+    {const v=T(),ch=Math.floor(n/10);o.push(IT(`Số chục của ${F(n)} là ${v?F(ch):d[1]}.`,v||ch===d[1],'tp',level,`Số chục là ${F(ch)}; chữ số hàng chục là ${d[1]}.`));}
+    return o;});
+  return {stem:`Cho số ${F(n)}. Xét các phát biểu sau:`,items:wrap(items)};
+};}
+function tfVal(level){return ()=>{
+  const ds=[ri(1,9),ri(1,9),ri(1,9),ri(1,9),ri(1,9)],n=+ds.join(''),L=5;
+  const items=mixed(()=>{const T=()=>RNG()<.5,o=[];
+    {const k=ri(1,4),v=T(),x=ds[L-1-k];o.push(IT(`Chữ số ${x} ở hàng ${HANG[k]} có giá trị ${F(v?x*P10(k):x*P10(k+1))}.`,v,'gt',level,`Giá trị là ${x} × ${F(P10(k))} = ${F(x*P10(k))}.`));}
+    {const v=T();o.push(IT(`${F(n)} = ${v?sumExpr(ds):sumExpr(ds.slice().reverse())}`,v||ds.join('')===ds.slice().reverse().join(''),'gt',level,`${F(n)} = ${sumExpr(ds)}.`));}
+    {const v=T(),s=ds.reduce((a,b)=>a+b,0);o.push(IT(`${F(n)} = ${ds.join(' + ')}`,false,'gt',level,`${ds.join(' + ')} = ${s}, chỉ là tổng các chữ số.`));}
+    {const v=T(),x=ds[0];o.push(IT(`Chữ số đầu tiên của ${F(n)} có giá trị ${F(v?x*P10(4):x*P10(3))}.`,v,'gt',level,`Chữ số ${x} ở hàng chục nghìn, có giá trị ${F(x*P10(4))}.`));}
+    return o;});
+  return {stem:`Cho số ${F(n)}. Xét các phát biểu sau:`,items:wrap(items)};
+};}
+function tfLM(level){return ()=>{
+  const ns=sample(4,1,30);
+  const items=mixed(()=>ns.map(n=>{const v=RNG()<.5,m=v?n:sel([n+1,n-1,n+10,n-10,n+5].filter(x=>x>=1&&x<=30&&x!==n));return IT(`${LM(n)} biểu diễn số ${m}.`,v,'lm',level,`${LM(n)} = ${parts(n).map(p=>VAL[p]).join(' + ')} = ${n}.`);}));
+  return {stem:'Xét các phát biểu sau về số La Mã:',items:wrap(items)};
+};}
+function tfDigits(level){return ()=>{
+  const [a,b,c]=sample(3,1,9),ds=[0,a,b,c],mx=+asc(ds).reverse().join(''),mn=+(''+Math.min(a,b,c)+'0'+asc([a,b,c]).slice(1).join(''));
+  const all=[];for(let n=1000;n<=9999;n++){const x=digits(n);if(new Set(x).size===4&&x.every(y=>ds.includes(y)))all.push(n);}
+  const items=mixed(()=>{const T=()=>RNG()<.5,o=[];
+    {const v=T(),m=String(mx),w=+(m.slice(0,2)+m[3]+m[2]);o.push(IT(`Số lớn nhất có bốn chữ số khác nhau lập từ các chữ số trên là ${F(v?mx:w)}.`,v,'cs',level,`Xếp các chữ số giảm dần: ${F(mx)}.`));}
+    {const v=T(),bad=+asc(ds).join('');o.push(IT(`Số nhỏ nhất có bốn chữ số khác nhau lập từ các chữ số trên là ${F(v?mn:bad)}.`,v||bad===mn,'cs',level,`Chữ số đầu tiên khác 0, nên số nhỏ nhất là ${F(mn)}.`));}
+    {const v=T();o.push(IT(`Lập được ${v?all.length:24} số có bốn chữ số khác nhau từ các chữ số trên.`,v||all.length===24,'cs',level,`Hàng nghìn có 3 cách chọn (khác 0), mỗi hàng sau lần lượt có 3, 2, 1 cách: 3 × 3 × 2 × 1 = ${all.length} số.`));}
+    {const v=T(),x=v?sel(all):+(''+0+asc([a,b,c]).join(''));o.push(IT(`${F(x)} là một số có bốn chữ số khác nhau lập từ các chữ số trên.`,v,'cs',level,v?`${F(x)} dùng đủ bốn chữ số ${L(ds)}.`:'Số bắt đầu bằng chữ số 0 không phải là số có bốn chữ số.'));}
+    return o;});
+  return {stem:`Cho bốn chữ số ${L(shuffle(ds))}. Xét các phát biểu sau:`,items:wrap(items)};
+};}
+function tfMoney(){
+  const T=ri(101,999),d=digits(T),c=d[0]+d[1]+d[2];if(d.includes(0)||d[0]===d[1])return tfMoney();
+  const items=mixed(()=>{const R=()=>RNG()<.5,o=[];
+    {const v=R();o.push(IT(`Bác cần ${v?d[0]:d[1]} tờ loại 100 nghìn đồng.`,v||d[0]===d[1],'gt','VD',`${T} nghìn = ${d[0]} × 100 + ${d[1]} × 10 + ${d[2]}; cần ${d[0]} tờ 100 nghìn.`));}
+    {const v=R();o.push(IT(`Bác cần ${v?d[2]:d[2]+1} tờ loại 1 nghìn đồng.`,v,'gt','VD',`Chữ số hàng đơn vị là ${d[2]} nên cần ${d[2]} tờ 1 nghìn.`));}
+    {const v=R();o.push(IT(`Bác trả tất cả ${v?c:c+1} tờ tiền.`,v,'gt','VD',`${d[0]} + ${d[1]} + ${d[2]} = ${c} tờ.`));}
+    {const v=R();o.push(IT(v?`Số tờ 10 nghìn đồng bằng chữ số hàng chục của ${T}.`:`Số tờ 10 nghìn đồng bằng chữ số hàng trăm của ${T}.`,v||d[1]===d[0],'gt','VD',`Số tờ 10 nghìn đồng là ${d[1]}, bằng chữ số hàng chục.`));}
+    return o;});
+  return {stem:`Bác Hoa đi chợ, chỉ mang ba loại tiền: 1 nghìn, 10 nghìn và 100 nghìn đồng, mỗi loại không quá 9 tờ. Bác phải trả ${T} nghìn đồng và người bán không phải trả lại tiền thừa. Xét các phát biểu sau:`,items:wrap(items)};
+}
+function tfCandy(){
+  const t=ri(1,9),h=ri(1,9),g=ri(1,9),k=ri(0,9),tot=t*1000+h*100+g*10+k;
+  const items=mixed(()=>{const R=()=>RNG()<.5,o=[];
+    {const v=R();o.push(IT(`Mỗi thùng có ${v?'1 000':'100'} cái kẹo.`,v,'gt','VD','10 hộp × 10 gói × 10 cái = 1 000 cái.'));}
+    {const v=R();o.push(IT(`Người đó mua tất cả ${F(v?tot:+(''+t+h+g+k)+(k===0?1:0)+90)} cái kẹo.`,v,'gt','VD',`${t} × 1 000 + ${h} × 100 + ${g} × 10 + ${k} = ${F(tot)}.`));}
+    {const v=R();o.push(IT(`Số kẹo trong ${h} hộp là ${F(v?h*100:h*10)} cái.`,v,'gt','VD',`Mỗi hộp có 100 cái, ${h} hộp có ${F(h*100)} cái.`));}
+    {const v=R();o.push(IT(`Chữ số hàng trăm của tổng số kẹo là ${v?h:g}.`,v||h===g,'tp','VD',`Tổng số kẹo là ${F(tot)}, chữ số hàng trăm là ${h}.`));}
+    return o;});
+  return {stem:`Một cửa hàng đóng gói kẹo: mỗi gói có 10 cái, mỗi hộp có 10 gói, mỗi thùng có 10 hộp. Một người mua ${t} thùng, ${h} hộp, ${g} gói và ${k} cái kẹo lẻ. Xét các phát biểu sau:`,items:wrap(items)};
+}
+function tfClock(){
+  const items=mixed(()=>{const R=()=>RNG()<.5,o=[];
+    {const v=R(),h=ri(1,12);o.push(IT(`Trên mặt đồng hồ, số ${h} được ghi là ${v?LM(h):LM(h===12?11:h+1)}.`,v,'lm','VD',`${h} viết bằng số La Mã là ${LM(h)}.`));}
+    {const v=R();o.push(IT(v?'Trên mặt đồng hồ có đúng 2 số dùng thành phần IV hoặc IX.':'Trên mặt đồng hồ có đúng 4 số dùng thành phần IV hoặc IX.',v,'lm','VD','Từ I đến XII, chỉ có IV (4) và IX (9).'));}
+    {const v=R(),x=v?3:sel([2,4]);o.push(IT(`Từ I đến XII, có ${x} số được viết bằng đúng một chữ số La Mã (I, V hoặc X).`,v,'lm','VD','Chỉ có I, V, X: 3 số.'));}
+    {const v=R();o.push(IT(`Số ghi bằng nhiều kí tự nhất trên mặt đồng hồ là ${v?'VIII':'XII'}.`,v,'lm','VD','VIII có 4 kí tự; XII chỉ có 3 kí tự.'));}
+    return o;});
+  return {stem:'Một đồng hồ treo tường ghi các số từ 1 đến 12 bằng số La Mã. Xét các phát biểu sau:',items:wrap(items)};
+}
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+['a','b'].forEach(x=>{
+  addTF('tf_tp_nb_'+x,'tp','NB',tfStatic(POOL_TP,'Xét các phát biểu sau về hệ thập phân:'));
+  addTF('tf_lm_nb_'+x,'lm','NB',tfStatic(POOL_LM,'Xét các phát biểu sau về số La Mã:'));
+  addTF('tf_cs_nb_'+x,'cs','NB',tfStatic(POOL_CS,'Xét các phát biểu sau:'));
+  addTF('tf_num_th_'+x,'tp','TH',tfNum('TH'));
+  addTF('tf_val_th_'+x,'gt','TH',tfVal('TH'));
+  addTF('tf_lm_th_'+x,'lm','TH',tfLM('TH'));
+  addTF('tf_dig_th_'+x,'cs','TH',tfDigits('TH'));
+  addTF('tf_money_'+x,'gt','VD',tfMoney);
+  addTF('tf_candy_'+x,'gt','VD',tfCandy);
+  addTF('tf_clock_'+x,'lm','VD',tfClock);
+  addTF('tf_dig_vd_'+x,'cs','VD',tfDigits('VD'));
+});
+addTF('tf_num_vd','tp','VD',tfNum('VD'));
+addTF('tf_val_nb','gt','NB',tfVal('NB'));
+
+/* ============ Câu trả lời ngắn ============ */
+const SA=[
+ {id:'s_tp_nb',topic:'tp',level:'NB',unit:'chữ số',gen:()=>{const n=ri(10000,999999999);return{stem:`Số ${F(n)} có bao nhiêu chữ số?`,ans:[String(n).length],exp:`Đếm các chữ số: ${String(n).length} chữ số.`};}},
+ {id:'s_tp_nb2',topic:'tp',level:'NB',unit:'',gen:()=>{const n=ri(10000,9999999),d=digits(n).reverse(),k=ri(2,d.length-1);return{stem:`Tìm chữ số hàng ${HANG[k]} của số ${F(n)}.`,ans:[d[k]],exp:`Kể từ phải sang trái, chữ số hàng ${HANG[k]} là ${d[k]}.`};}},
+ {id:'s_tp_th',topic:'tp',level:'TH',unit:'',gen:()=>{const n=niceNum(ri(2,3));return{stem:`Viết bằng chữ số: "${docSo(n)}".`,ans:[n],exp:`${F(n)}.`};}},
+ {id:'s_tp_th2',topic:'tp',level:'TH',unit:'',gen:()=>{const n=ri(1000,99999),tr=RNG()<.5;return{stem:`Tìm số ${tr?'trăm':'chục'} của số ${F(n)}.`,ans:[Math.floor(n/(tr?100:10))],exp:`Bỏ ${tr?'hai':'một'} chữ số cuối: số ${tr?'trăm':'chục'} là ${F(Math.floor(n/(tr?100:10)))}.`};}},
+ {id:'s_tp_vd',topic:'tp',level:'VD',unit:'',gen:()=>{const a=ri(1,99),b=ri(1,99),c=ri(1,99),n=a*1000000+b*1000+c;return{stem:`Viết số gồm ${a} triệu, ${b} nghìn và ${c} đơn vị.`,ans:[n],exp:`Lớp nghìn và lớp đơn vị phải đủ ba chữ số: ${F(n)}.`};}},
+ {id:'s_gt_nb',topic:'gt',level:'NB',unit:'',gen:()=>{let n,d,k;do{n=ri(10000,9999999);d=digits(n).reverse();k=d.findIndex((x,i)=>i>=1&&x===7&&d.filter(y=>y===7).length===1);}while(k<0);return{stem:`Chữ số 7 trong số ${F(n)} có giá trị là bao nhiêu?`,ans:[7*P10(k)],exp:`Chữ số 7 ở hàng ${HANG[k]}, có giá trị 7 × ${F(P10(k))} = ${F(7*P10(k))}.`};}},
+ {id:'s_gt_th',topic:'gt',level:'TH',unit:'',gen:()=>{const a=ri(1,9),b=ri(1,9),c=ri(1,9),n=a*10000+b*100+c;return{stem:`Tính: ${nb(`(${a} × 10 000) + (${b} × 100) + ${c}`)}.`,ans:[n],exp:`Các hàng nghìn và chục có chữ số 0: ${F(n)}.`};}},
+ {id:'s_gt_th2',topic:'gt',level:'TH',unit:'lần',gen:()=>{const v=ri(1,9),i=ri(2,5),j=ri(0,i-1);return{stem:`Giá trị của chữ số ${v} ở hàng ${HANG[i]} gấp bao nhiêu lần giá trị của chữ số ${v} ở hàng ${HANG[j]}?`,ans:[P10(i-j)],exp:`${F(v*P10(i))} : ${F(v*P10(j))} = ${F(P10(i-j))}.`};}},
+ {id:'s_gt_vd',topic:'gt',level:'VD',unit:'cái',gen:()=>{const t=ri(1,9),h=ri(1,9),g=ri(1,9);return{stem:`Trong một cửa hàng bánh kẹo, mỗi gói có 10 cái kẹo, mỗi hộp có 10 gói, mỗi thùng có 10 hộp. Một người mua ${t} thùng, ${h} hộp và ${g} gói kẹo. Người đó đã mua tất cả bao nhiêu cái kẹo?`,ans:[t*1000+h*100+g*10],exp:`Mỗi thùng 1 000 cái, mỗi hộp 100 cái, mỗi gói 10 cái: ${t} × 1 000 + ${h} × 100 + ${g} × 10 = ${F(t*1000+h*100+g*10)}.`};}},
+ {id:'s_gt_vd2',topic:'gt',level:'VD',unit:'',gen:()=>{const a=ri(1,9);return{stem:`Một số có hai chữ số có chữ số hàng chục là ${a}. Nếu viết thêm chữ số 0 vào giữa hai chữ số của nó thì số mới lớn hơn số cũ bao nhiêu đơn vị?`,ans:[90*a],exp:`Số cũ: (${a} × 10) + b. Số mới: (${a} × 100) + b. Hiệu: ${a} × 100 − ${a} × 10 = ${90*a}, không phụ thuộc chữ số hàng đơn vị.`};}},
+ {id:'s_lm_nb',topic:'lm',level:'NB',unit:'',gen:()=>{const n=ri(1,30);return{stem:`Số La Mã ${LM(n)} biểu diễn số nào?`,ans:[n],exp:`${LM(n)} = ${parts(n).map(p=>VAL[p]).join(' + ')} = ${n}.`};}},
+ {id:'s_lm_th',topic:'lm',level:'TH',unit:'',gen:()=>{const [a,b]=sample(2,1,30);return{stem:`Tính tổng của hai số được biểu diễn bởi hai số La Mã ${LM(a)} và ${LM(b)}.`,ans:[a+b],exp:`${LM(a)} = ${a}, ${LM(b)} = ${b}. Tổng: ${a+b}.`};}},
+ {id:'s_lm_th2',topic:'lm',level:'TH',unit:'thành phần',gen:()=>{const n=sel([14,19,24,29,23,28,17,26,9,4,13,18]);return{stem:`Số La Mã ${LM(n)} gồm bao nhiêu thành phần (mỗi thành phần là I, V, X, IV hoặc IX)?`,ans:[parts(n).length],exp:`${LM(n)} gồm các thành phần ${parts(n).join(', ')}: ${parts(n).length} thành phần.`};}},
+ {id:'s_lm_vd',topic:'lm',level:'VD',unit:'số',gen:()=>{const c=sel(['V','IX','IV','XX']);const k=range(1,30).filter(n=>LM(n).includes(c)).length;return{stem:`Trong các số La Mã từ I đến XXX, có bao nhiêu số có chứa "${c}" khi viết?`,ans:[k],exp:`Các số đó là ${range(1,30).filter(n=>LM(n).includes(c)).map(LM).join('; ')}: ${k} số.`};}},
+ {id:'s_cs_nb',topic:'cs',level:'NB',unit:'',gen:()=>{const k=ri(2,6),big=RNG()<.5;return{stem:`Viết số tự nhiên ${big?'lớn':'nhỏ'} nhất có ${k} chữ số.`,ans:[big?P10(k)-1:P10(k-1)],exp:big?`${F(P10(k)-1)} (gồm ${k} chữ số 9).`:`${F(P10(k-1))} (chữ số đầu là 1, sau đó là các chữ số 0).`};}},
+ {id:'s_cs_th',topic:'cs',level:'TH',unit:'',gen:()=>sel([
+   {stem:'Viết số tự nhiên lẻ nhỏ nhất có ba chữ số khác nhau.',ans:[103],exp:'Hàng trăm nhỏ nhất là 1, hàng chục là 0, hàng đơn vị lẻ nhỏ nhất khác 1 là 3: 103.'},
+   {stem:'Viết số tự nhiên chẵn nhỏ nhất có ba chữ số khác nhau.',ans:[102],exp:'Hàng trăm 1, hàng chục 0, hàng đơn vị chẵn nhỏ nhất khác 0 là 2: 102.'},
+   {stem:'Viết số tự nhiên chẵn lớn nhất có ba chữ số khác nhau.',ans:[986],exp:'Hàng trăm 9, hàng chục 8, hàng đơn vị chẵn lớn nhất khác 8 là 6: 986.'},
+   {stem:'Viết số tự nhiên lẻ lớn nhất có ba chữ số khác nhau.',ans:[987],exp:'Hàng trăm 9, hàng chục 8, hàng đơn vị lẻ lớn nhất khác 9 là 7: 987.'},
+   {stem:'Viết số tự nhiên lớn nhất có hai chữ số khác nhau.',ans:[98],exp:'99 có hai chữ số giống nhau; số cần tìm là 98.'},
+   {stem:'Viết số tự nhiên nhỏ nhất có bốn chữ số khác nhau.',ans:[1023],exp:'Hàng nghìn 1, rồi 0, 2, 3: 1 023.'}])},
+ {id:'s_cs_vd',topic:'cs',level:'VD',unit:'số',gen:()=>{const z=RNG()<.6,d=z?[0].concat(sample(2,1,9)):sample(3,1,9),n=z?4:6;return{stem:`Có bao nhiêu số tự nhiên có ba chữ số khác nhau được viết từ ba chữ số ${L(shuffle(d))}?`,ans:[n],exp:z?'Hàng trăm có 2 cách chọn (khác 0), hàng chục 2 cách, hàng đơn vị 1 cách: 4 số.':'Hàng trăm 3 cách, hàng chục 2 cách, hàng đơn vị 1 cách: 6 số.'};}},
+ {id:'s_cs_vd2',topic:'cs',level:'VD',unit:'số',gen:()=>sel([
+   {stem:'Có bao nhiêu số tự nhiên có hai chữ số?',ans:[90],exp:'Từ 10 đến 99: 99 − 10 + 1 = 90 số.'},
+   {stem:'Có bao nhiêu số tự nhiên có ba chữ số?',ans:[900],exp:'Từ 100 đến 999: 999 − 100 + 1 = 900 số.'},
+   {stem:'Có bao nhiêu số tự nhiên chẵn có ba chữ số?',ans:[450],exp:'Từ 100 đến 998, cách nhau 2: (998 − 100) : 2 + 1 = 450 số.'},
+   {stem:'Có bao nhiêu số tự nhiên lẻ có hai chữ số?',ans:[45],exp:'Từ 11 đến 99, cách nhau 2: (99 − 11) : 2 + 1 = 45 số.'},
+   {stem:'Có bao nhiêu số tự nhiên có hai chữ số mà hai chữ số giống nhau?',ans:[9],exp:'11; 22; ...; 99: 9 số.'}])},
+].map(q=>Object.assign({type:'sa'},q));
+
+/* ============ Chủ đề ============ */
+const TOPICS={
+  tp:{short:'Hệ thập phân',name:'Hệ thập phân',rule:'Trong hệ thập phân, mỗi số tự nhiên được viết dưới dạng một dãy những chữ số lấy trong 10 chữ số 0; 1; 2; ...; 9; vị trí của các chữ số gọi là hàng. Cứ 10 đơn vị ở một hàng thì bằng 1 đơn vị ở hàng liền trước nó.',tip:'Với các số có bốn chữ số trở lên, ta viết tách riêng từng lớp, mỗi lớp là một nhóm ba chữ số kể từ phải sang trái. Số chục khác chữ số hàng chục: số chục của 2 715 là 271, chữ số hàng chục là 1.'},
+  gt:{short:'Giá trị chữ số',name:'Giá trị các chữ số',rule:'Mỗi số tự nhiên viết trong hệ thập phân đều biểu diễn được thành tổng giá trị các chữ số của nó, ví dụ 236 = (2 × 100) + (3 × 10) + 6; ab = (a × 10) + b, abc = (a × 100) + (b × 10) + c với a ≠ 0.',tip:'Giá trị của một chữ số phụ thuộc vào hàng của nó: chữ số 2 ở hàng nghìn có giá trị 2 × 1 000 = 2 000.'},
+  lm:{short:'Số La Mã',name:'Số La Mã',rule:'Để viết các số La Mã không quá 30, ta dùng ba chữ số I, V, X cùng hai cụm IV, IX; giá trị: I = 1, V = 5, X = 10, IV = 4, IX = 9. Mỗi số La Mã biểu diễn số bằng tổng giá trị các thành phần viết nên số đó.',tip:'Từ 11 đến 20 thêm X vào bên trái mỗi số từ I đến X; từ 21 đến 30 thêm XX. Không có số La Mã nào biểu diễn số 0.'},
+  cs:{short:'Lập số',name:'Lập số từ các chữ số',rule:'Với các số tự nhiên khác 0, chữ số đầu tiên (từ trái sang phải) khác 0. Muốn số lớn nhất thì đặt chữ số lớn ở hàng cao; muốn số nhỏ nhất thì đặt chữ số nhỏ khác 0 ở hàng cao nhất.',tip:'Chữ số 0 không đứng đầu nhưng có thể đứng ở các hàng sau: số nhỏ nhất có ba chữ số khác nhau là 102.'}
+};
+const TKEYS=['tp','gt','lm','cs'];
+const TDESC={tp:'Chữ số, hàng, lớp; đọc và viết số; số chục, số trăm',gt:'Giá trị của chữ số, viết số thành tổng giá trị các chữ số',lm:'Đọc và viết số La Mã từ 1 đến 30',cs:'Số lớn nhất, nhỏ nhất; lập số từ các chữ số cho trước'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhận ra chữ số ở một hàng, giá trị chữ số, đọc số La Mã đơn giản.',TH:'Đọc, viết số nhiều lớp, viết số thành tổng giá trị các chữ số, số La Mã có IV, IX.',VD:'Số chục, số trăm, lập số theo điều kiện, bài toán tiền và đóng gói, so sánh số La Mã.'};
+
+/* ============ Gói Thử thách (30 phút) và gói Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const saq=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const tfOK=its=>{const k=its.filter(i=>i.v).length;return k>=1&&k<=3&&new Set(its.map(i=>i.t)).size===its.length;};
+const QUE=s=>s.split('').reduce((t,c)=>t+(c==='I'?1:2),0);   // I: 1 que, V và X: 2 que
+function tfHard(){for(;;){
+  const k=ri(4,7),cnt=range(1,30).filter(n=>QUE(LM(n))===k).length,s=ri(4,9),S3=range(100,999).filter(n=>digits(n).reduce((a,b)=>a+b,0)===s).length;
+  const P=[
+    [IT(`Dùng đúng ${k} que tính (chữ I cần 1 que, chữ V và chữ X mỗi chữ cần 2 que) xếp được ${cnt} số La Mã từ 1 đến 30.`,true,'lm','VD',`Liệt kê các số dùng đúng ${k} que: ${range(1,30).filter(n=>QUE(LM(n))===k).map(LM).join('; ')}.`),IT(`Dùng đúng ${k} que tính (chữ I cần 1 que, chữ V và chữ X mỗi chữ cần 2 que) xếp được ${cnt+1} số La Mã từ 1 đến 30.`,false,'lm','VD',`Chỉ có ${cnt} số.`)],
+    [IT(`Có ${S3} số có ba chữ số mà tổng các chữ số bằng ${s}.`,true,'cs','VD','Liệt kê theo chữ số hàng trăm rồi đếm.'),IT(`Có ${S3+1} số có ba chữ số mà tổng các chữ số bằng ${s}.`,false,'cs','VD',`Chỉ có ${S3} số.`)],
+    [IT('Viết thêm chữ số 0 vào bên phải một số tự nhiên khác 0 thì số đó tăng gấp 10 lần.',true,'gt','VD','Mỗi chữ số lên một hàng, giá trị gấp 10 lần.'),IT('Viết thêm chữ số 0 vào bên phải một số tự nhiên khác 0 thì số đó tăng thêm 10 đơn vị.',false,'gt','VD','Số đó gấp 10 lần, ví dụ 7 thành 70 (tăng 63).')],
+    [IT('Có 9 000 số tự nhiên có bốn chữ số.',true,'cs','VD','Từ 1 000 đến 9 999: 9 999 − 1 000 + 1 = 9 000.'),IT('Có 8 999 số tự nhiên có bốn chữ số.',false,'cs','VD','Từ 1 000 đến 9 999 có 9 000 số.')],
+    [IT('Số XXIX lớn hơn số XXVIII.',true,'lm','VD','XXIX = 29, XXVIII = 28.'),IT('Số La Mã có nhiều kí tự hơn thì luôn biểu diễn số lớn hơn.',false,'lm','VD','Ví dụ VIII (8) có 4 kí tự nhưng nhỏ hơn X (10).')]];
+  const its=wrap(shuffle(P).slice(0,4).map(p=>sel(p)));if(tfOK(its))return {stem:'Xét các phát biểu sau:',items:its};}}
+const HARD={tf:[{id:'h_kn',type:'tf',topic:'lm',level:'VD',gen:tfHard}],sa:[
+ {id:'h_que',topic:'lm',level:'VD',unit:'số',gen:()=>{const k=ri(3,8),l=range(1,30).filter(n=>QUE(LM(n))===k);return{stem:`Một chữ I được xếp bằng 1 que tính, mỗi chữ V hoặc X được xếp bằng 2 que tính. Dùng đúng ${k} que tính, ta xếp được bao nhiêu số La Mã từ 1 đến 30?`,ans:[l.length],exp:`Các số đó là ${l.map(LM).join('; ')||'(không có)'}: ${l.length} số.`};}},
+ {id:'h_dau',topic:'tp',level:'VD',unit:'',gen:()=>{const m=ri(10,180);let s='';for(let i=1;s.length<m;i++)s+=i;return{stem:`Viết liên tiếp các số tự nhiên 1; 2; 3; ...; 99; 100; ... thành một dãy chữ số: 123456789101112... Chữ số thứ ${m} (kể từ trái sang) của dãy là chữ số nào?`,ans:[+s[m-1]],exp:`9 chữ số đầu là các số từ 1 đến 9; từ chữ số thứ 10, mỗi số có hai chữ số chiếm 2 vị trí. Đếm tiếp đến vị trí ${m}: chữ số đó là ${s[m-1]}.`};}},
+ {id:'h_tong',topic:'cs',level:'VD',unit:'số',gen:()=>{const s=ri(3,7),l=range(100,999).filter(n=>digits(n).reduce((a,b)=>a+b,0)===s);return{stem:`Có bao nhiêu số tự nhiên có ba chữ số mà tổng các chữ số bằng ${s}?`,ans:[l.length],exp:`Xét chữ số hàng trăm từ 1 đến ${s}, đếm các cặp chữ số hàng chục và đơn vị có tổng còn lại: ${l.length} số.`};}},
+ {id:'h_them0',topic:'gt',level:'VD',unit:'',gen:()=>{const n=ri(12,999),d=9*n;return{stem:`Khi viết thêm chữ số 0 vào bên phải một số tự nhiên thì số đó tăng thêm ${F(d)} đơn vị. Tìm số đó.`,ans:[n],exp:`Viết thêm chữ số 0 vào bên phải thì số mới gấp 10 lần số cũ, tức là tăng thêm 9 lần số cũ. Số cũ là ${F(d)} : 9 = ${n}.`};}},
+ {id:'h_tien',topic:'gt',level:'VD',unit:'tờ',gen:()=>{const T=ri(111,999);const d=digits(T);if(d.includes(0))return{stem:`Bác Hoa chỉ mang ba loại tiền: 1 nghìn, 10 nghìn và 100 nghìn đồng, mỗi loại không quá 9 tờ. Bác trả vừa đủ 999 nghìn đồng. Bác đã trả tất cả bao nhiêu tờ tiền?`,ans:[27],exp:'999 = 9 × 100 + 9 × 10 + 9: 27 tờ.'};return{stem:`Bác Hoa chỉ mang ba loại tiền: 1 nghìn, 10 nghìn và 100 nghìn đồng, mỗi loại không quá 9 tờ. Bác trả vừa đủ ${T} nghìn đồng. Bác đã trả tất cả bao nhiêu tờ tiền?`,ans:[d[0]+d[1]+d[2]],exp:`Mỗi loại không quá 9 tờ nên số tờ mỗi loại chính là chữ số ở hàng tương ứng: ${d[0]} tờ 100 nghìn, ${d[1]} tờ 10 nghìn, ${d[2]} tờ 1 nghìn; tổng ${d[0]+d[1]+d[2]} tờ.`};}},
+ {id:'h_xoa',topic:'gt',level:'VD',unit:'',gen:()=>{const a=ri(1,9),b=ri(0,9),n=10*a+b,big=100*a+10*b+b===0?0:a*100+b;return{stem:`Cho số có hai chữ số ${n}. Viết thêm chữ số ${a} vào bên trái số đó, ta được một số có ba chữ số. Số mới lớn hơn số cũ bao nhiêu đơn vị?`,ans:[a*100],exp:`Chữ số ${a} thêm vào ở hàng trăm, có giá trị ${a} × 100 = ${a*100}. Số mới hơn số cũ ${a*100} đơn vị.`};}}
+].map(q=>Object.assign({type:'sa'},q))};
+
+const PISA=[
+ ()=>{for(;;){const items=[['Gạo',ri(10,30)*10+ri(1,9)],['Thịt',ri(10,25)*10+ri(1,9)],['Rau và hoa quả',ri(3,9)*10+ri(1,9)]],T=items.reduce((s,x)=>s+x[1],0),d=digits(T);
+   if(T>999||d.length!==3||d.includes(0))continue;
+   const sTo=d[0]+d[1]+d[2],tx3=(x,y,z)=>`${x} tờ 100 nghìn, ${y} tờ 10 nghìn, ${z} tờ 1 nghìn`,RT=tx3(d[0],d[1],d[2]),WR=[];
+   [[tx3(d[2],d[1],d[0]),'Số tờ 100 nghìn là chữ số hàng trăm, không phải hàng đơn vị.'],[tx3(d[1],d[0],d[2]),'Số tờ 100 nghìn ứng với chữ số hàng trăm, số tờ 10 nghìn ứng với chữ số hàng chục.'],[tx3(d[0],d[1]+1,d[2]),'Kiểm tra lại chữ số hàng chục của tổng số tiền.'],[tx3(d[0],d[1],d[2]+1),'Kiểm tra lại chữ số hàng đơn vị của tổng số tiền.'],[tx3(d[0]-1,d[1],d[2]),'Kiểm tra lại chữ số hàng trăm.']].forEach(w=>{if(w[0]!==RT&&!/\b10 tờ/.test(w[0])&&!w[0].startsWith('0 ')&&!WR.some(x=>x[0]===w[0]))WR.push(w);});
+   if(WR.length<3)continue;
+   return {title:'Đi chợ với ba loại tiền',ctx:`<p class="stem">Bác Hoa đi chợ, chỉ mang ba loại tiền: tờ 1 nghìn đồng, tờ 10 nghìn đồng và tờ 100 nghìn đồng; mỗi loại bác mang không quá 9 tờ. Bảng sau ghi số tiền bác phải trả (đơn vị: nghìn đồng). Bác trả vừa đủ, người bán không phải trả lại tiền thừa.</p>${tbl(['Món hàng','Số tiền (nghìn đồng)'],items.map(x=>[x[0],x[1]]))}`,qs:[
+    saq('Tổng số tiền bác Hoa phải trả là bao nhiêu nghìn đồng?',T,'nghìn đồng',`${items.map(x=>x[1]).join(' + ')} = ${T}.`,'gt','TH'),
+    mcq('Bác phải trả bao nhiêu tờ tiền mỗi loại?',RT,WR.slice(0,3),`${T} = (${d[0]} × 100) + (${d[1]} × 10) + ${d[2]}.`,'gt','TH'),
+    saq('Bác Hoa trả tất cả bao nhiêu tờ tiền?',sTo,'tờ',`${d[0]} + ${d[1]} + ${d[2]} = ${sTo} tờ.`,'gt','TH'),
+    saq(`Nếu bác chỉ dùng tờ 10 nghìn và tờ 1 nghìn (không giới hạn số tờ) và dùng ít tờ 1 nghìn nhất, thì cần bao nhiêu tờ 10 nghìn?`,Math.floor(T/10),'tờ',`Số chục của ${T} là ${Math.floor(T/10)}, nên cần ${Math.floor(T/10)} tờ 10 nghìn và ${d[2]} tờ 1 nghìn.`,'tp','VD')]};}},
+ ()=>{for(;;){const n=ri(18,30),pages=[1];for(let i=1;i<n;i++)pages.push(pages[i-1]+ri(8,15));const show=sample(5,1,n).sort((a,b)=>a-b);const pick=sel(range(1,n).filter(x=>!show.includes(x)));
+   const q4=sel(show.filter(x=>x!==pick));if(!q4)continue;const w=[];
+   const wl=[[LM(pick+1),'Đây là chương tiếp theo.'],[LM(pick).replace('IV','VI').replace(/IX$/,'XI'),'Đổi chỗ các kí tự làm thay đổi số.'],['X'.repeat(Math.floor(pick/10)+1)+ROMAN1[pick%10],'Thừa một chữ X.'],[LM(Math.max(1,pick-1)),'Đây là chương liền trước.']].filter(x=>x[0]!==LM(pick));
+   const uniq=[];wl.forEach(x=>{if(!uniq.some(y=>y[0]===x[0]))uniq.push(x);});if(uniq.length<3)continue;
+   return {title:'Mục lục của cuốn sách',ctx:`<p class="stem">Các chương của một cuốn sách được đánh số liên tiếp bằng số La Mã, từ chương I đến chương ${LM(n)}. Bảng sau trích một phần mục lục.</p>${tbl(['Chương','Bắt đầu từ trang'],show.map(c=>[LM(c),pages[c-1]]))}`,qs:[
+    saq('Cuốn sách có bao nhiêu chương?',n,'chương',`Chương cuối là ${LM(n)}, biểu diễn số ${n}.`,'lm','NB'),
+    mcq(`Chương thứ ${pick} được ghi bằng số La Mã nào?`,LM(pick),uniq.slice(0,3),`${pick} viết bằng số La Mã là ${LM(pick)}.`,'lm','TH'),
+    saq(`Chương ${LM(q4)} bắt đầu từ trang nào?`,pages[q4-1],'',`Tra bảng: chương ${LM(q4)} bắt đầu từ trang ${pages[q4-1]}.`,'lm','TH'),
+    saq(`Từ chương ${LM(show[0])} đến hết chương ${LM(show[4])} có bao nhiêu chương (kể cả hai chương đó)?`,show[4]-show[0]+1,'chương',`${LM(show[0])} = ${show[0]}, ${LM(show[4])} = ${show[4]}. Số chương: ${show[4]} − ${show[0]} + 1 = ${show[4]-show[0]+1}.`,'lm','VD')]};}},
+ ()=>{const rows=['Cửa hàng A','Cửa hàng B','Cửa hàng C'].map(n=>[n,ri(1,9),ri(0,9),ri(1,9)]),tot=r=>r[1]*1000+r[2]*100+r[3]*10,N=ri(1200,9800);
+   const best=rows.reduce((a,b)=>tot(b)>tot(a)?b:a);
+   if(new Set(rows.map(tot)).size<3)return PISA[2]();
+   return {title:'Đóng gói kẹo',ctx:`<p class="stem">Một xưởng đóng gói kẹo: mỗi gói có 10 cái kẹo, mỗi hộp có 10 gói, mỗi thùng có 10 hộp. Bảng sau ghi số kẹo ba cửa hàng đặt mua.</p>${tbl(['Cửa hàng','Số thùng','Số hộp','Số gói'],rows)}`,qs:[
+    saq('Mỗi thùng có bao nhiêu cái kẹo?',1000,'cái','10 hộp × 10 gói × 10 cái = 1 000 cái.','gt','NB'),
+    saq(`${rows[0][0]} đặt mua tất cả bao nhiêu cái kẹo?`,tot(rows[0]),'cái',`(${rows[0][1]} × 1 000) + (${rows[0][2]} × 100) + (${rows[0][3]} × 10) = ${F(tot(rows[0]))}.`,'gt','TH'),
+    mcq('Cửa hàng nào đặt mua nhiều kẹo nhất?',best[0],rows.filter(r=>r!==best).map(r=>[r[0],`${r[0]} mua ${F(tot(r))} cái, ít hơn ${best[0]} (${F(tot(best))} cái).`]).concat([['Ba cửa hàng mua bằng nhau','Số kẹo của ba cửa hàng khác nhau.']]),`Số kẹo: ${rows.map(r=>`${r[0]}: ${F(tot(r))}`).join('; ')}.`,'gt','TH'),
+    saq(`Xưởng cần đóng ${F(N)} cái kẹo thành gói. Được bao nhiêu gói kẹo đủ 10 cái?`,Math.floor(N/10),'gói',`Số chục của ${F(N)} là ${F(Math.floor(N/10))}, nên đóng được ${F(Math.floor(N/10))} gói (còn thừa ${N%10} cái).`,'tp','VD')]};},
+ ()=>{for(;;){const names=['Bảo tàng Lịch sử','Bảo tàng Mỹ thuật','Bảo tàng Dân tộc học','Bảo tàng Phụ nữ'],v=names.map(()=>niceNum(2)+ri(1,9)*1000000);
+   if(new Set(v).size<4)continue;const mx=v.indexOf(Math.max(...v)),k=ri(0,3),n=v[k],d=digits(n).reverse();
+   return {title:'Số lượt khách tham quan',ctx:`<p class="stem">Bảng sau ghi số lượt khách tham quan trong một năm của bốn bảo tàng.</p>${tbl(['Bảo tàng','Số lượt khách'],names.map((x,i)=>[x,F(v[i])]))}`,qs:[
+    mcq(`Số lượt khách của ${names[k]} được đọc là:`,docSo(n),[n+100000,n+1000,n-1000000].filter(x=>x>0&&docSo(x)!==docSo(n)).map(x=>[docSo(x),`Đây là cách đọc số ${F(x)}.`]),`Đọc từng lớp: ${docSo(n)}.`,'tp','TH'),
+    saq(`Chữ số hàng trăm nghìn trong số lượt khách của ${names[k]} là bao nhiêu?`,d[5],'',`${F(n)}: chữ số hàng trăm nghìn là ${d[5]}.`,'tp','TH'),
+    mcq('Bảo tàng nào có nhiều lượt khách nhất?',names[mx],names.filter((_,i)=>i!==mx).map(x=>[x,`${x} có ${F(v[names.indexOf(x)])} lượt, ít hơn ${F(v[mx])}.`]),`So sánh từ lớp triệu: số lớn nhất là ${F(v[mx])}.`,'tp','TH'),
+    saq(`Chữ số hàng triệu trong số lượt khách của ${names[k]} có giá trị là bao nhiêu?`,d[6]*1000000,'',`Chữ số ${d[6]} ở hàng triệu có giá trị ${d[6]} × 1 000 000 = ${F(d[6]*1000000)}.`,'gt','VD')]};}}
+];
+
+const BANK={mc:MC,tf:TF,sa:SA};
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Ôn nhanh ============ */
+const RECAP=[
+  {k:'tp',fig:`<div class="figbox">${tbl(['Lớp','Triệu','Nghìn','Đơn vị'],[['Chữ số','2 7','6 3 0','5 9 8']])}</div>`,extra:'27 630 598 đọc là: hai mươi bảy triệu, sáu trăm ba mươi nghìn, năm trăm chín mươi tám.'},
+  {k:'gt',fig:'<div class="figbox"><p>236 = (2 × 100) + (3 × 10) + 6</p><p>32 019: chữ số 2 ở hàng nghìn, có giá trị 2 × 1 000 = 2 000</p></div>',extra:'Giá trị của chữ số phụ thuộc vào hàng của nó.'},
+  {k:'lm',fig:`<div class="figbox">${tbl(['Thành phần','I','V','X','IV','IX'],[['Giá trị','1','5','10','4','9']])}<p>XXIV = X + X + IV = 10 + 10 + 4 = 24</p></div>`,extra:'Không có số La Mã nào biểu diễn số 0.'},
+  {k:'cs',fig:'<div class="figbox"><p>Số lớn nhất có ba chữ số khác nhau: 987</p><p>Số nhỏ nhất có ba chữ số khác nhau: 102</p></div>',extra:'Chữ số đầu tiên của số tự nhiên khác 0 phải khác 0.'}
+];
+
+
+/* ============ Câu kết hợp kiến thức bài trước (Bài 1. Tập hợp) ============ */
+const MIXID={};
+const digSet=n=>{const o=[];String(n).split('').map(Number).forEach(d=>{if(!o.includes(d))o.push(d);});return o;};
+function x2SetDigits(){return tryGen(()=>{let n;do{n=ri(100000,999999);}while(digSet(n).length===6||digSet(n).length<4);const S=digSet(n),all=String(n).split('').map(Number);
+  const miss=S.slice(0,S.length-1),wrongs=[[all,'Mỗi phần tử chỉ viết một lần, dù chữ số lặp lại.'],[miss,`Còn thiếu chữ số ${S[S.length-1]}.`],[[n],'Các phần tử là các chữ số, không phải cả số.']];
+  return {stem:`Tập hợp M các chữ số của số ${F(n)} là:`,opts:[{t:'M = '+SET(S)}].concat(wrongs.map(w=>({t:'M = '+SET(w[0].map(x=>typeof x==='number'&&x>9?F(x):x)),err:w[1]}))).map(nbT),ans:0,exp:`Các chữ số của ${F(n)} là ${S.join('; ')} (mỗi chữ số viết một lần): M = ${SET(S)}.`};});}
+function x2InSet(){return tryGen(()=>{const n=ri(100000,999999),S=digSet(n),non=range(0,9).filter(d=>!S.includes(d));if(!non.length)return null;const d=sel(S),e=sel(non);
+  return {stem:`Gọi M là tập hợp các chữ số của số ${F(n)}. Khẳng định nào sau đây đúng?`,opts:[{t:`${d} ∈ M`},{t:`${d} ∉ M`,err:`Chữ số ${d} có trong số ${F(n)}.`},{t:`${e} ∈ M`,err:`Số ${F(n)} không có chữ số ${e}.`},{t:`${F(n)} ∈ M`,err:'Phần tử của M là các chữ số.'}].map(nbT),ans:0,exp:`M = ${SET(S)}, nên ${d} ∈ M và ${e} ∉ M.`};});}
+function x2LMSet(){return tryGen(()=>{const v=sample(4,1,30).sort((a,b)=>a-b),R=v.map(LM);
+  const bad1=v.map(x=>x===4?6:x===9?11:x===14?16:x===19?21:x+1),bad2=v.slice(0,3);
+  return {stem:`Cho A = ${nb(SET(R))}. Viết tập hợp A bằng các số tự nhiên thông thường:`,opts:[{t:'A = '+SET(v)},{t:'A = '+SET(bad1),err:'Đọc lại từng số La Mã: chữ số nhỏ đứng trước chữ số lớn thì lấy số lớn trừ số nhỏ.'},{t:'A = '+SET(bad2),err:'Tập hợp A có bốn phần tử.'},{t:'A = '+SET(v.map(x=>x+10)),err:'Đọc lại số chữ X.'}].map(nbT),ans:0,exp:`${R.map((r,i)=>`${r} = ${v[i]}`).join('; ')}.`};});}
+function x2TwoDig(){return tryGen(()=>{const s=ri(3,9),L=range(10,99).filter(x=>Math.floor(x/10)+x%10===s);
+  return {stem:`Viết tập hợp B các số tự nhiên có hai chữ số mà tổng hai chữ số bằng ${s}:`,opts:[{t:'B = '+SET(L)},{t:'B = '+SET(L.concat([s])),err:`${s} là số có một chữ số.`},{t:'B = '+SET(L.slice(1)),err:`Thiếu số ${L[0]}.`},{t:'B = '+SET(L.slice(0,-1)),err:`Thiếu số ${L[L.length-1]}.`}].map(nbT),ans:0,exp:`Chữ số hàng chục từ 1 đến ${s}: B = ${SET(L)}.`};});}
+function x2SetPlace(){return tryGen(()=>{const n=ri(1000000,9999999),d=String(n),k=ri(0,6),names=['hàng triệu','hàng trăm nghìn','hàng chục nghìn','hàng nghìn','hàng trăm','hàng chục','hàng đơn vị'];const ks=sample(3,0,6).sort();const S=digSet(ks.map(i=>d[i]).join('')),key=a=>[...new Set(a.map(String))].sort().join(),seen=new Set([key(S)]),uniq=c=>c.filter(o=>{if(o.dup)return true;const k=key(o.v);if(seen.has(k))return false;seen.add(k);return true;});
+  return {stem:`Cho số ${F(n)}. Gọi C là tập hợp các chữ số ở ${names[ks[0]]}, ${names[ks[1]]} và ${names[ks[2]]}. Tập hợp C là:`,opts:[{t:'C = '+SET(S)}].concat(pickOpts('C = '+SET(S),uniq([{v:digSet(ks.map(i=>d[6-i]).join('')),err:'Hàng đơn vị là chữ số cuối cùng bên phải.'},{v:digSet(ks.map(i=>d[Math.min(6,i+1)]).join('')),err:'Xác định lại vị trí từng hàng.'},{v:ks.map(i=>+d[i]),dup:S.length<3,err:'Mỗi phần tử chỉ viết một lần.'},{v:digSet(d).slice(0,3),err:'Chỉ lấy chữ số ở ba hàng đã nêu.'},{v:digSet(ks.map(i=>d[Math.max(0,i-1)]).join('')),err:'Xác định lại vị trí từng hàng.'}]).map(o=>({t:'C = '+SET(o.v),err:o.err})))).map(nbT),ans:0,exp:`Các chữ số đó là ${ks.map(i=>d[i]).join('; ')}, nên C = ${SET(S)}.`};});}
+[['x2_setdig','tp','TH',x2SetDigits],['x2_inset','tp','TH',x2InSet],['x2_lmset','lm','TH',x2LMSet],['x2_twodig','cs','VD',x2TwoDig],['x2_setplace','gt','VD',x2SetPlace]].forEach(([id,t,l,g])=>{['a','b'].forEach(s=>{MC.push({id:id+'_'+s,type:'mc',topic:t,level:l,gen:g,mix:[1]});});});
+function tfX2(){const n=ri(100000,999999),S=digSet(n),d=String(n);
+  const items=mixed(()=>{const o=[],R=()=>RNG()<.5;
+    {const v=R();o.push(IT(`Tập hợp các chữ số của số ${F(n)} có ${v?S.length:6} phần tử.`,v||S.length===6,'tp','VD',`M = ${SET(S)}.`));}
+    {const c=sel(S),v=R(),e=range(0,9).find(z=>!S.includes(z));o.push(IT(`${v?c:e} ∈ M, với M là tập hợp các chữ số của số ${F(n)}.`,v||e===undefined,'tp','VD',`M = ${SET(S)}.`));}
+    {const v=R();o.push(IT(`Chữ số hàng chục nghìn của số ${F(n)} là ${v?d[1]:d[2]}.`,v||d[1]===d[2],'gt','VD',`Chữ số hàng chục nghìn là ${d[1]}.`));}
+    {const v=R(),k=+d[0];o.push(IT(`Chữ số ${k} ở hàng trăm nghìn có giá trị ${F(v?k*100000:k*10000)}.`,v,'gt','VD',`${k} × 100 000 = ${F(k*100000)}.`));}return o;});
+  return {stem:`Cho số ${F(n)}. Gọi M là tập hợp các chữ số của số đó. Xét các phát biểu sau:`,items:wrap(items)};}
+['a','b'].forEach(s=>TF.push({id:'x2_tf_'+s,type:'tf',topic:'tp',level:'VD',gen:tfX2,mix:[1]}));
+SA.push(
+ {id:'x2_s_count',type:'sa',topic:'tp',level:'TH',unit:'phần tử',mix:[1],gen:()=>{let n;do{n=ri(1000000,9999999);}while(digSet(n).length===7);return{stem:`Tập hợp các chữ số của số ${F(n)} có bao nhiêu phần tử?`,ans:[digSet(n).length],exp:`Tập hợp đó là ${SET(digSet(n))} (mỗi chữ số viết một lần).`};}},
+ {id:'x2_s_kdig',type:'sa',topic:'cs',level:'VD',unit:'phần tử',mix:[1],gen:()=>{const k=ri(2,4);return{stem:`Tập hợp các số tự nhiên có ${k} chữ số có bao nhiêu phần tử?`,ans:[9*Math.pow(10,k-1)],exp:`Từ ${F(Math.pow(10,k-1))} đến ${F(Math.pow(10,k)-1)}: có ${F(Math.pow(10,k)-1)} − ${F(Math.pow(10,k-1))} + 1 = ${F(9*Math.pow(10,k-1))} số.`};}},
+ {id:'x2_s_ktimes',type:'sa',topic:'cs',level:'VD',unit:'phần tử',mix:[1],gen:()=>{const k=ri(2,4),L=range(10,99).filter(x=>x%10===k*Math.floor(x/10));return{stem:`Tập hợp các số tự nhiên có hai chữ số mà chữ số hàng đơn vị gấp ${k} lần chữ số hàng chục có bao nhiêu phần tử?`,ans:[L.length],exp:`Đó là ${SET(L)}: ${L.length} phần tử.`};}});
+function x2Form(){return tryGen(()=>{const z=RNG()<.5,ds=z?[0].concat(sample(2,1,9)):sample(3,1,9);const L=[];for(const a of ds)for(const b of ds)for(const c of ds)if(a&&a!==b&&b!==c&&a!==c)L.push(100*a+10*b+c);L.sort((x,y)=>x-y);
+  const wrong1=[];for(const a of ds)for(const b of ds)for(const c of ds)if(a!==b&&b!==c&&a!==c)wrong1.push(+(''+a+b+c));wrong1.sort((x,y)=>x-y);
+  const W=[[z?wrong1.map(x=>String(x).padStart(3,'0')):L.slice(0,-1),z?'Chữ số 0 không đứng đầu một số có ba chữ số.':`Còn thiếu số ${L[L.length-1]}.`],[L.slice(1),`Còn thiếu số ${L[0]}.`],[L.filter((_,i)=>i%2===0),'Phải kể đủ các cách sắp xếp ba chữ số.']];
+  return {stem:`Viết tập hợp D các số tự nhiên có ba chữ số khác nhau được lập từ các chữ số của tập hợp ${SET(ds)}:`,opts:[{t:'D = '+SET(L)}].concat(W.map(w=>({t:'D = '+SET(w[0]),err:w[1]}))).map(nbT),ans:0,exp:`Chữ số hàng trăm phải khác 0. D = ${SET(L)}.`};});}
+['a','b'].forEach(s=>MC.push({id:'x2_form_'+s,type:'mc',topic:'cs',level:'VD',gen:x2Form,mix:[1]}));
+SA.push({id:'x2_s_lm',type:'sa',topic:'lm',level:'TH',unit:'',mix:[1],gen:()=>{const v=sample(4,1,30);return{stem:`Cho A = ${nb(SET(v.map(LM)))}. Phần tử lớn nhất của A biểu diễn số tự nhiên nào?`,ans:[Math.max(...v)],exp:`${v.map(x=>`${LM(x)} = ${x}`).join('; ')}.`};}});
+HARD.sa.push({id:'x2_h_form',type:'sa',topic:'cs',level:'VD',unit:'phần tử',mix:[1],gen:()=>{const z=RNG()<.5,ds=z?[0].concat(sample(3,1,9)):sample(4,1,9);let c=0;for(const a of ds)for(const b of ds)for(const d of ds)if(a&&a!==b&&b!==d&&a!==d)c++;return{stem:`Cho E = ${SET(ds)}. Tập hợp các số tự nhiên có ba chữ số khác nhau, mỗi chữ số đều thuộc E, có bao nhiêu phần tử?`,ans:[c],exp:z?`Hàng trăm có 3 cách chọn (khác 0), hàng chục 3 cách, hàng đơn vị 2 cách: 3 × 3 × 2 = ${c}.`:`Hàng trăm 4 cách, hàng chục 3 cách, hàng đơn vị 2 cách: 4 × 3 × 2 = ${c}.`};}});
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='gs6_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['tp',['NB']],['tp',['TH']],['gt',['NB','TH']],['lm',['NB']],['lm',['TH']],[null,['VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>(!t||q.topic===t)&&l.includes(q.level)),used));
+  const tf=['tp','gt','lm'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set();
+  const mc=[
+    pick(MC.filter(q=>q.topic==='tp'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='gt'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='lm'&&q.level==='NB'),used),
+    pick(MC.filter(q=>q.topic==='cs'&&q.level==='TH'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic==='gt'&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic==='lm'&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^[1-9]\d{0,2}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}

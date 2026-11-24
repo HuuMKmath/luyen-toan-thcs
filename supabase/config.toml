@@ -1,0 +1,6 @@
+# Cấu hình tối thiểu để công cụ Supabase CLI đưa hàm lên dự án.
+project_id = "luyen-toan-thcs"
+
+[functions.bai-lam]
+# Học sinh không đăng nhập bằng Supabase Auth: hàm tự kiểm tra mã học sinh và phiên ký riêng.
+verify_jwt = false

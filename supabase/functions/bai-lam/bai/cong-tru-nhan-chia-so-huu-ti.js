@@ -1,0 +1,1019 @@
+// SINH TỰ ĐỘNG bởi supabase/cong-cu/tach_bai.py từ cong-tru-nhan-chia-so-huu-ti/index.html – KHÔNG SỬA TAY.
+// Mã bên trong giữ nguyên văn từ trang bài; chỉ bọc lại để chạy trên máy chủ.
+export const MA_BAI = "cong-tru-nhan-chia-so-huu-ti";
+export const TIEN_TO = "CT7-";
+
+export function taoBai() {
+  "use strict";
+  // Thay cho các đối tượng của trình duyệt (phần ngân hàng chỉ khai báo, không dùng tới)
+  // GM: lớp điểm thưởng của trang (gamify.js) – trên máy chủ chỉ là vỏ rỗng, mọi lời gọi trả về null
+  const GM = new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => null), set: (t, k, v) => { t[k] = v; return true; } });
+  const window = { GM };
+  const localStorage = { getItem() { return null; }, setItem() {} };
+  const document = { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const setInterval = () => 0, clearInterval = () => {};
+
+// ===== Ngân hàng câu hỏi, bộ sinh số liệu, trạng thái (nguyên văn) =====
+if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
+
+/* ============ Số hữu tỉ: cách viết ============ */
+const N=x=>x<0?'−'+(-x):''+x;            // số nguyên, số âm dùng dấu trừ "−"
+const nb=s=>s.replace(/ /g,' ');     // khoảng trắng không ngắt dòng
+const fr=(n,d)=>`<span class="fr"><span>${N(n)}</span><span>${N(d)}</span></span>`;   // phân số n/d (HTML)
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const Rq=(n,d)=>{const g=gcd(n,d)||1;n/=g;d/=g;if(d<0){n=-n;d=-d;}return [n,d];};   // tối giản, mẫu dương
+const cmpQ=(a,b)=>a[0]*b[1]-b[0]*a[1];     // cùng dấu với a − b (hai mẫu dương)
+const negQ=a=>[-a[0],a[1]];
+const floorQ=a=>Math.floor(a[0]/a[1]);
+const SH=q=>q[1]===1?N(q[0]):fr(q[0],q[1]);                // hiển thị dạng tối giản
+const canDec=q=>q[1]>1&&100%q[1]===0;
+const DEC=q=>{const k=100/q[1],v=Math.abs(q[0])*k;let s=String(Math.floor(v/100));const r=v%100;if(r)s+=','+(r%10?String(r).padStart(2,'0'):String(r/10));return (q[0]<0?'−':'')+s;};   // số thập phân hữu hạn
+const MIXD=q=>{const a=Math.abs(q[0]),w=Math.floor(a/q[1]),r=a%q[1];return (q[0]<0?'−':'')+w+fr(r,q[1]);};   // hỗn số
+const val=q=>q[0]/q[1];
+
+/* ============ Ngẫu nhiên có hạt giống ============ */
+let RNG=Math.random,SEEDED=false;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0;}
+const ri=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const sel=a=>a[ri(0,a.length-1)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function sample(n,lo,hi){const all=[];for(let v=lo;v<=hi;v++)all.push(v);return shuffle(all).slice(0,n);}
+const sgn=()=>RNG()<.5?-1:1;
+
+/* số hữu tỉ ngẫu nhiên, không nguyên, tối giản */
+function qr(maxN,maxD){for(;;){const d=ri(2,maxD),n=ri(1,maxN)*sgn(),q=Rq(n,d);if(q[1]>1)return q;}}
+/* một số hữu tỉ viết ở nhiều dạng: nguyên, phân số, phân số chưa rút gọn (có thể mẫu âm), thập phân, hỗn số */
+const UNR=q=>{const k=ri(2,4);return (RNG()<.5||q[0]===0)?fr(q[0]*k,q[1]*k):fr(-q[0]*k,-q[1]*k);};
+const KINDS=q=>{const ks=[];if(q[1]===1)ks.push('int','unr');else{ks.push('frac','unr');if(canDec(q))ks.push('dec');if(Math.abs(q[0])>q[1])ks.push('mix');}return ks;};
+function disp(q,kind){return kind==='int'?N(q[0]):kind==='frac'?SH(q):kind==='dec'?DEC(q):kind==='mix'?MIXD(q):UNR(q);}
+const FORM=(q,kinds)=>{const ks=KINDS(q),ok=kinds?ks.filter(k=>kinds.includes(k)):ks;return disp(q,sel(ok.length?ok:ks));};
+const tbl=(head,rows)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+
+/* ============ Phép tính trên số hữu tỉ (biểu diễn [tử, mẫu], mẫu dương, tối giản) ============ */
+const qa=(a,b)=>Rq(a[0]*b[1]+b[0]*a[1],a[1]*b[1]);
+const qs=(a,b)=>qa(a,negQ(b));
+const qm=(a,b)=>Rq(a[0]*b[0],a[1]*b[1]);
+const qinv=a=>Rq(a[1],a[0]);
+const qd=(a,b)=>qm(a,qinv(b));
+const eqQ=(a,b)=>a[0]===b[0]&&a[1]===b[1];
+const E=s=>`<i class="ex">${s}</i>`;                       // bọc biểu thức để chương trình kiểm tra đọc lại
+const PA=(q,h)=>q[0]<0?`(${h})`:h;                         // số âm đứng sau dấu phép tính thì đặt trong ngoặc
+const disp2=(q,dec)=>(dec&&canDec(q)&&q[1]>1)?DEC(q):SH(q);
+const I=(q,dec)=>({q,h:disp2(q,dec)});
+const X=(items,ops)=>items.map((it,i)=>i===0?it.h:`${ops[i-1]} ${it.n?it.h:PA(it.q,it.h)}`).join(' ');
+const show=(q,dec)=>disp2(q,dec);
+const rfr=()=>{for(;;){const d=ri(2,9),q=Rq(ri(1,2*d)*sgn(),d);if(q[1]>1)return q;}};   // phân số không nguyên
+const rnz=()=>RNG()<.2?[sgn()*ri(1,6),1]:rfr();                                      // số hữu tỉ khác 0
+const rdec=()=>{for(;;){const q=Rq(sgn()*ri(1,59),sel([2,4,5,10]));if(q[1]>1&&canDec(q))return q;}};
+const rdiff=()=>{for(;;){const A=rfr(),B=rfr();if(A[1]!==B[1])return [A,B];}};
+const SGN2=q=>q[0]<0?'âm':q[0]>0?'dương':'bằng 0';
+
+/* ============ Dựng câu nhiều lựa chọn ============ */
+function pickOpts(goodT,cands){
+  const seen=new Set([goodT]),out=[];
+  for(const c of cands){if(c&&!seen.has(c.t)){seen.add(c.t);out.push({t:c.t,err:c.err});}if(out.length===3)break;}
+  return out;
+}
+const C=(t,err)=>({t,err});
+const mk=(stem,good,cands,exp)=>({stem,opts:[{t:good}].concat(pickOpts(good,cands)),ans:0,exp});
+const Wq=(good,q,err,dec)=>(!q||q[1]===0||!isFinite(q[0]/q[1]))?null:(eqQ(Rq(q[0],q[1]),good)?null:C(show(Rq(q[0],q[1]),dec),err));
+const FB_MC=()=>({stem:`Kết quả của phép tính ${E(fr(1,2)+' + '+fr(1,3))} là:`,opts:[{t:fr(5,6)},{t:fr(2,5),err:'Không được cộng tử với tử và mẫu với mẫu.'},{t:fr(1,6),err:'Đó là tích của hai phân số, không phải tổng.'},{t:fr(1,5),err:'Quy đồng mẫu số rồi mới cộng các tử.'}],ans:0,exp:`Quy đồng: ${fr(1,2)} + ${fr(1,3)} = ${fr(3,6)} + ${fr(2,6)} = ${fr(5,6)}.`});
+function tryGen(f){
+  for(let n=0;n<300;n++){const r=f();if(r&&r.opts.length===4&&new Set(r.opts.map(o=>o.t)).size===4)return r;}
+  return FB_MC();
+}
+const lcmQ=(a,b)=>lcm(a[1],b[1]);
+const QD=(A,B)=>{const L=lcmQ(A,B);return `${fr(A[0],A[1])} = ${fr(A[0]*L/A[1],L)} và ${fr(B[0],B[1])} = ${fr(B[0]*L/B[1],L)}`;};
+
+/* ============ Nội dung 1: cộng, trừ số hữu tỉ ============ */
+function genCtSame(){return tryGen(()=>{
+  const d=ri(3,12),a=ri(1,2*d)*sgn(),b=ri(1,2*d)*sgn(),A=Rq(a,d),B=Rq(b,d);if(A[1]===1&&B[1]===1)return null;
+  const good=qa(A,B);
+  return mk(`Tính ${E(X([{q:A,h:fr(a,d)},{q:B,h:fr(b,d)}],['+']))}.`,show(good),[
+    Wq(good,[a+b,2*d],'Cộng hai phân số cùng mẫu thì giữ nguyên mẫu, không cộng hai mẫu.'),
+    Wq(good,[a-b,d],'Bạn đã trừ hai tử số thay vì cộng.'),
+    Wq(good,[a*b,d],'Bạn đã nhân hai tử số thay vì cộng.'),
+    Wq(good,[-(a+b),d],'Sai dấu của kết quả.')],
+    `${fr(a,d)} + ${PA(B,fr(b,d))} = ${fr(a+b,d)} = ${SH(good)}.`);
+});}
+function genCtDiff(){return tryGen(()=>{
+  const [A,B]=rdiff(),L=lcmQ(A,B),good=qa(A,B);
+  return mk(`Tính ${E(X([I(A),I(B)],['+']))}.`,show(good),[
+    Wq(good,[A[0]+B[0],A[1]+B[1]],'Không được cộng tử với tử và mẫu với mẫu. Phải quy đồng mẫu số trước.'),
+    Wq(good,[A[0]+B[0],L],'Bạn quy đồng mẫu nhưng chưa đổi tử số tương ứng.'),
+    Wq(good,qs(A,B),'Bạn đã trừ thay vì cộng.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `Quy đồng mẫu số ${L}: ${QD(A,B)}. Do đó tổng bằng ${fr(A[0]*L/A[1]+B[0]*L/B[1],L)} = ${SH(good)}.`);
+});}
+function genCtSub(){return tryGen(()=>{
+  const [A,B]=rdiff(),L=lcmQ(A,B),good=qs(A,B);
+  return mk(`Tính ${E(X([I(A),I(B)],['−']))}.`,show(good),[
+    Wq(good,qs(B,A),'Bạn đã lấy số trừ trừ đi số bị trừ (ngược thứ tự).'),
+    Wq(good,qa(A,B),'Bạn đã cộng thay vì trừ.'),
+    Wq(good,[A[0]-B[0],A[1]-B[1]],'Không được trừ tử với tử và mẫu với mẫu. Phải quy đồng mẫu số trước.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `Quy đồng mẫu số ${L}: ${QD(A,B)}. Hiệu bằng ${fr(A[0]*L/A[1]-B[0]*L/B[1],L)} = ${SH(good)}.`);
+});}
+function genCtDec(){return tryGen(()=>{
+  const A=rdec(),B=rfr(),good=qa(A,B);if(good[1]>60)return null;
+  const ops=RNG()<.5?['+']:['−'],g=ops[0]==='+'?good:qs(A,B);
+  return mk(`Tính ${E(X([I(A,true),I(B)],ops))}. Chọn kết quả (dạng tối giản).`,show(g),[
+    Wq(g,ops[0]==='+'?qs(A,B):qa(A,B),'Bạn đã dùng sai phép tính (cộng thay cho trừ hoặc ngược lại).'),
+    Wq(g,negQ(g),'Sai dấu của kết quả.'),
+    Wq(g,ops[0]==='+'?qs(B,A):qs(B,A),'Bạn đã lấy số hạng thứ hai trừ số hạng thứ nhất.'),
+    Wq(g,[A[0]+B[0],A[1]+B[1]],'Không được cộng tử với tử và mẫu với mẫu.')],
+    `${DEC(A)} = ${SH(A)}. Quy đồng rồi ${ops[0]==='+'?'cộng':'trừ'}: ${SH(A)} ${ops[0]} ${PA(B,SH(B))} = ${SH(g)}.`);
+});}
+function genCtThree(){return tryGen(()=>{
+  const A=rnz(),B=rnz(),Cc=rnz(),o1=sel(['+','−']),o2=sel(['+','−']);
+  const f=(s1,s2)=>qa(qa(A,s1===1?B:negQ(B)),s2===1?Cc:negQ(Cc));
+  const s1=o1==='+'?1:-1,s2=o2==='+'?1:-1,good=f(s1,s2);if(good[1]>80)return null;
+  return mk(`Tính ${E(X([I(A),I(B),I(Cc)],[o1,o2]))}.`,show(good),[
+    Wq(good,f(-s1,s2),`Bạn đã đổi phép tính thứ nhất (${o1}).`),Wq(good,f(s1,-s2),`Bạn đã đổi phép tính thứ hai (${o2}).`),Wq(good,f(-s1,-s2),'Bạn đã đổi cả hai phép tính.'),Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `Tính từ trái sang phải: ${SH(A)} ${o1} ${PA(B,SH(B))} = ${SH(qa(A,s1===1?B:negQ(B)))}; rồi ${o2} ${PA(Cc,SH(Cc))} = ${SH(good)}.`);
+});}
+function genCtOpp(){return tryGen(()=>{
+  const A=rfr(),B=rfr();if(eqQ(A,B))return null;
+  const hA=SH(A),nb2=negQ(B),right=`${hA} + ${PA(nb2,SH(nb2))}`;
+  return mk(`Phép tính nào dưới đây cho kết quả bằng ${E(X([I(A),I(B)],['−']))}?`,right,[
+    C(`${hA} + ${PA(B,SH(B))}`,'Phải cộng với số đối của số trừ, không phải cộng với chính số trừ.'),
+    C(`${SH(B)} − ${PA(A,hA)}`,'Đó là phép trừ theo thứ tự ngược lại (B − A).'),
+    C(`${SH(negQ(A))} − ${PA(B,SH(B))}`,'Bạn đã đổi dấu số bị trừ chứ không phải số trừ.')],
+    `Trừ hai số hữu tỉ: x − y = x + (−y). Vậy ${hA} − ${PA(B,SH(B))} = ${right}.`);
+});}
+function genCtTemp(){return tryGen(()=>{
+  const T0=Rq(sgn()*ri(1,60),10),u=Rq(ri(11,70),10),v=Rq(ri(11,70),10);
+  if(![T0,u,v].every(q=>canDec(q)||q[1]===1))return null;
+  const good=qs(qa(T0,u),v),t=ri(0,1)?'sáng':'sáng';
+  return mk(`Nhiệt độ buổi sáng là ${DEC(T0)} °C. Buổi trưa nhiệt độ tăng ${DEC(u)} °C so với buổi sáng, buổi tối nhiệt độ giảm ${DEC(v)} °C so với buổi trưa. Nhiệt độ buổi tối là:`,DEC(good)+' °C',[
+    C(DEC(qa(qa(T0,u),v))+' °C','Buổi tối nhiệt độ giảm nên phải trừ đi, không cộng.'),
+    C(DEC(qs(qs(T0,u),v))+' °C','Buổi trưa nhiệt độ tăng nên phải cộng thêm, không trừ.'),
+    C(DEC(qa(qs(T0,u),v))+' °C','Bạn đã đổi cả hai chiều thay đổi nhiệt độ.'),
+    C(DEC(negQ(good))+' °C','Sai dấu của kết quả.')].filter(c=>c.t!==DEC(good)+' °C'),
+    `${DEC(T0)} + ${DEC(u)} − ${DEC(v)} = ${DEC(good)} (°C).`);
+});}
+
+/* ============ Nội dung 2: nhân số hữu tỉ ============ */
+function genNhInt(){return tryGen(()=>{
+  const k=sgn()*ri(2,9),A=rfr(),good=qm([k,1],A);
+  return mk(`Tính ${E(X([{q:[k,1],h:N(k)},I(A)],['·']))}.`,show(good),[
+    Wq(good,qa([k,1],A),'Bạn đã cộng thay vì nhân.'),
+    Wq(good,[A[0],A[1]*k],'Nhân với số nguyên thì nhân vào tử số, không nhân vào mẫu số.'),
+    Wq(good,negQ(good),'Sai dấu của tích.'),
+    Wq(good,qd([k,1],A),'Bạn đã chia thay vì nhân.')],
+    `${N(k)} · ${PA(A,SH(A))} = ${fr(k*A[0],A[1])} = ${SH(good)}.`);
+});}
+function genNhFr(){return tryGen(()=>{
+  const A=rfr(),B=rfr(),good=qm(A,B);
+  return mk(`Tính ${E(X([I(A),I(B)],['·']))}.`,show(good),[
+    Wq(good,[A[0]*B[0],A[1]+B[1]],'Nhân hai phân số: nhân tử với tử và nhân mẫu với mẫu, không cộng mẫu.'),
+    Wq(good,qa(A,B),'Bạn đã cộng thay vì nhân.'),
+    Wq(good,qd(A,B),'Bạn đã chia thay vì nhân (đảo ngược phân số thứ hai).'),
+    Wq(good,negQ(good),'Sai dấu của tích: hai số cùng dấu thì tích dương, khác dấu thì tích âm.')],
+    `${PA(A,SH(A))} · ${PA(B,SH(B))} = ${fr(A[0]*B[0],A[1]*B[1])} = ${SH(good)}.`);
+});}
+function genNhDec(){return tryGen(()=>{
+  const A=rdec(),B=rfr(),good=qm(A,B);if(good[1]>60)return null;
+  return mk(`Tính ${E(X([I(A,true),I(B)],['·']))}. Chọn kết quả (dạng tối giản).`,show(good),[
+    Wq(good,negQ(good),'Sai dấu của tích.'),
+    Wq(good,[good[0]*10,good[1]],'Bạn đã đổi số thập phân ra phân số sai (mẫu thiếu một chữ số 0).'),
+    Wq(good,[good[0],good[1]*10],'Bạn đã đổi số thập phân ra phân số sai (mẫu thừa một chữ số 0).'),
+    Wq(good,qa(A,B),'Bạn đã cộng thay vì nhân.')],
+    `${DEC(A)} = ${SH(A)}. Vậy ${SH(A)} · ${PA(B,SH(B))} = ${SH(good)}.`);
+});}
+function genNhSign(){return tryGen(()=>{
+  const n=3,zero=RNG()<.2,vals=[];
+  for(let i=0;i<n;i++)vals.push(rnz());
+  if(zero)vals[ri(0,n-1)]=[0,1];
+  const P=vals.reduce((a,b)=>qm(a,b),[1,1]),neg=vals.filter(q=>q[0]<0).length,s=zero?'bằng 0':P[0]<0?'âm':'dương';
+  const lab={'dương':'dương','âm':'âm','bằng 0':'bằng 0','chưa xác định':'chưa xác định được dấu'};
+  const errs={'dương':`Có ${neg} thừa số âm: số thừa số âm chẵn thì tích dương.`,'âm':`Có ${neg} thừa số âm: số thừa số âm lẻ thì tích âm.`,'bằng 0':'Chỉ khi một thừa số bằng 0 thì tích mới bằng 0.','chưa xác định':'Biết dấu của từng thừa số thì xác định được dấu của tích.'};
+  const exp2=zero?'Có một thừa số bằng 0 nên tích bằng 0.':`Có ${neg} thừa số âm. ${neg%2?'Số thừa số âm lẻ nên tích âm.':'Số thừa số âm chẵn nên tích dương.'}`;
+  return mk(`Không cần tính, hãy cho biết tích ${E(X(vals.map(q=>I(q)),['·','·']))} là số nào dưới đây?`,'Số '+lab[s],Object.keys(lab).filter(k=>k!==s).map(k=>C((k==='bằng 0'?'Số ':'Số ')+lab[k],errs[k])),exp2);
+});}
+function genNhThree(){return tryGen(()=>{
+  const A=rnz(),B=rnz(),Cc=rnz(),good=qm(qm(A,B),Cc);if(good[1]>200||Math.abs(good[0])>400)return null;
+  return mk(`Tính ${E(X([I(A),I(B),I(Cc)],['·','·']))}.`,show(good),[
+    Wq(good,qm(A,B),'Bạn quên nhân với thừa số thứ ba.'),
+    Wq(good,negQ(good),'Sai dấu của tích.'),
+    Wq(good,qa(qa(A,B),Cc),'Bạn đã cộng thay vì nhân.'),
+    Wq(good,qm(qm(A,B),qinv(Cc)),'Bạn đã chia cho thừa số thứ ba thay vì nhân.')],
+    `${PA(A,SH(A))} · ${PA(B,SH(B))} = ${SH(qm(A,B))}; rồi · ${PA(Cc,SH(Cc))} = ${SH(good)}.`);
+});}
+function genNhArea(){return tryGen(()=>{
+  const A=Rq(ri(3,19),ri(2,6)),B=Rq(ri(3,19),ri(2,6));if(A[1]===1||B[1]===1||eqQ(A,B))return null;
+  const good=qm(A,B),per=qm([2,1],qa(A,B));
+  return mk(`Một mảnh vườn hình chữ nhật có chiều dài ${SH(A)} m và chiều rộng ${SH(B)} m. Diện tích mảnh vườn là:`,show(good)+' m²',[
+    C(show(per)+' m²','Đó là chu vi, không phải diện tích. Diện tích bằng dài nhân rộng.'),
+    C(show(qa(A,B))+' m²','Diện tích bằng tích hai kích thước, không phải tổng.'),
+    C(show(qd(A,B))+' m²','Diện tích bằng chiều dài nhân chiều rộng, không phải chia.'),
+    C(show(qs(A,B))+' m²','Diện tích bằng tích hai kích thước, không phải hiệu.')].filter(c=>c.t!==show(good)+' m²'),
+    `Diện tích = dài · rộng = ${SH(A)} · ${SH(B)} = ${SH(good)} (m²).`);
+});}
+
+/* ============ Nội dung 3: chia số hữu tỉ ============ */
+function genChInv(){return tryGen(()=>{
+  const A=RNG()<.35?[sgn()*ri(2,9),1]:rfr();if(Math.abs(A[0])===A[1])return null;
+  const good=qinv(A);
+  return mk(`Nghịch đảo của số hữu tỉ ${E(SH(A))} là:`,show(good),[
+    Wq(good,negQ(A),'Đó là số đối, không phải nghịch đảo.'),
+    Wq(good,A,'Đó là chính số đã cho. Nghịch đảo là số nhân với nó được 1.'),
+    Wq(good,negQ(good),'Nghịch đảo của một số khác 0 cùng dấu với số đó.')],
+    `${SH(A)} · ${SH(good)} = 1 nên nghịch đảo của ${SH(A)} là ${SH(good)}.`);
+});}
+function genChDiv(){return tryGen(()=>{
+  const A=rfr(),B=rfr(),good=qd(A,B);if(good[1]>80||Math.abs(good[0])>80)return null;
+  return mk(`Tính ${E(X([I(A),I(B)],[':']))}.`,show(good),[
+    Wq(good,qm(A,B),'Chia cho một phân số là nhân với nghịch đảo của nó; bạn đã nhân thẳng.'),
+    Wq(good,qd(B,A),'Bạn đã chia ngược thứ tự (số chia chia cho số bị chia).'),
+    Wq(good,negQ(good),'Sai dấu của thương.'),
+    Wq(good,[A[0]*B[0],A[1]*B[1]+1],'Bạn thực hiện sai khi nhân với nghịch đảo.')],
+    `${PA(A,SH(A))} : ${PA(B,SH(B))} = ${PA(A,SH(A))} · ${PA(qinv(B),SH(qinv(B)))} = ${SH(good)}.`);
+});}
+function genChDec(){return tryGen(()=>{
+  const A=rdec(),B=rfr(),good=qd(A,B);if(good[1]>80||Math.abs(good[0])>80)return null;
+  return mk(`Tính ${E(X([I(A,true),I(B)],[':']))}. Chọn kết quả (dạng tối giản).`,show(good),[
+    Wq(good,qm(A,B),'Chia cho một phân số là nhân với nghịch đảo của nó; bạn đã nhân thẳng.'),
+    Wq(good,qd(B,A),'Bạn đã chia ngược thứ tự.'),
+    Wq(good,negQ(good),'Sai dấu của thương.')],
+    `${DEC(A)} = ${SH(A)}. Vậy ${SH(A)} : ${PA(B,SH(B))} = ${SH(good)}.`);
+});}
+function genChInt(){return tryGen(()=>{
+  const A=rfr(),k=sgn()*ri(2,9),good=qd(A,[k,1]);
+  return mk(`Tính ${E(X([I(A),{q:[k,1],h:N(k)}],[':']))}.`,show(good),[
+    Wq(good,qm(A,[k,1]),'Chia cho số nguyên k là nhân với 1/k, không phải nhân với k.'),
+    Wq(good,qd([k,1],A),'Bạn đã chia ngược thứ tự.'),
+    Wq(good,negQ(good),'Sai dấu của thương.'),
+    Wq(good,[A[0]/1,A[1]*Math.abs(k)],'Bạn quên xét dấu của số chia.')],
+    `${PA(A,SH(A))} : ${PA([k,1],N(k))} = ${SH(good)}.`);
+});}
+function genChChain(){return tryGen(()=>{
+  const A=rnz(),B=rnz(),Cc=rnz(),good=qm(qd(A,B),Cc);if(good[1]>100||Math.abs(good[0])>200)return null;
+  return mk(`Tính ${E(X([I(A),I(B),I(Cc)],[':','·']))}.`,show(good),[
+    Wq(good,qd(A,qm(B,Cc)),'Phép chia và phép nhân cùng cấp: thực hiện từ trái sang phải, không nhân trước.'),
+    Wq(good,qm(qm(A,B),Cc),'Bạn đã nhân thay vì chia ở phép tính đầu.'),
+    Wq(good,qd(qd(A,B),Cc),'Bạn đã chia thay vì nhân ở phép tính sau.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `Làm từ trái sang phải: ${PA(A,SH(A))} : ${PA(B,SH(B))} = ${SH(qd(A,B))}; rồi · ${PA(Cc,SH(Cc))} = ${SH(good)}.`);
+});}
+function genChFind(){return tryGen(()=>{
+  const A=rnz(),B=rnz(),good=qd(B,A);
+  return mk(`Tìm x biết ${E('x · '+PA(A,SH(A))+' = '+SH(B))}.`,show(good),[
+    Wq(good,qm(B,A),'Muốn tìm thừa số chưa biết, ta chia tích cho thừa số đã biết, không nhân.'),
+    Wq(good,qd(A,B),'Bạn đã chia ngược thứ tự (thừa số chia cho tích).'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `x · ${PA(A,SH(A))} = ${SH(B)} nên x = ${SH(B)} : ${PA(A,SH(A))} = ${SH(good)}.`);
+});}
+function genChCtx(){return tryGen(()=>{
+  const Y=Rq(1,ri(2,6)),n=ri(3,15),Xq=qm(Y,[n,1]);if(Xq[1]===1)return null;
+  return mk(`Một sợi dây dài ${SH(Xq)} m được cắt thành các đoạn bằng nhau, mỗi đoạn dài ${SH(Y)} m. Số đoạn dây cắt được là:`,N(n)+' đoạn',[
+    C(show(qm(Xq,Y))+' đoạn','Số đoạn bằng chiều dài sợi dây chia cho chiều dài mỗi đoạn, không phải nhân.'),
+    C(N(n+1)+' đoạn','Bạn đếm thừa một đoạn.'),
+    C(N(n-1)+' đoạn','Bạn đếm thiếu một đoạn.'),
+    C(show(qs(Xq,Y))+' đoạn','Số đoạn bằng thương, không phải hiệu hai chiều dài.')],
+    `${SH(Xq)} : ${SH(Y)} = ${N(n)} (đoạn).`);
+});}
+
+/* ============ Nội dung 4: tính chất, quy tắc dấu ngoặc ============ */
+const sg1=o=>o==='+'?1:-1, flip=o=>o==='+'?'−':'+', sq=(q,f)=>f>0?q:negQ(q), opq=(o,a,b)=>o==='+'?qa(a,b):qs(a,b);
+/* ba dạng biểu thức bỏ dấu ngoặc; mỗi dạng trả về {e: biểu thức, good: giá trị, wr: [[giá trị sai, lỗi]], exp} */
+function br1(){ // A − (B ± C)
+  const A=rnz(),B=rnz(),Cc=rnz(),o=sel(['+','−']),f=sg1(o),good=qs(A,qa(B,sq(Cc,f)));
+  const val=(a,b)=>qa(A,qa(sq(B,a),sq(Cc,b)));
+  return {e:`${SH(A)} − (${SH(B)} ${o} ${PA(Cc,SH(Cc))})`,good,
+    wr:[[val(-1,f),'Trước ngoặc có dấu "−" nên khi bỏ ngoặc phải đổi dấu tất cả các số hạng trong ngoặc; bạn đã giữ nguyên dấu số hạng cuối.'],
+        [val(1,-f),'Trước ngoặc có dấu "−" nên phải đổi dấu cả số hạng đầu tiên trong ngoặc, bạn chưa đổi.'],
+        [val(1,f),'Bạn đã bỏ ngoặc mà không đổi dấu số hạng nào; trước ngoặc là dấu "−" nên phải đổi dấu tất cả.'],
+        [negQ(good),'Sai dấu của kết quả.']],
+    exp:`Bỏ dấu ngoặc có dấu "−" đằng trước, ta đổi dấu các số hạng trong ngoặc: ${SH(A)} − (${SH(B)} ${o} ${PA(Cc,SH(Cc))}) = ${SH(A)} − ${PA(B,SH(B))} ${flip(o)} ${PA(Cc,SH(Cc))} = ${SH(good)}.`};
+}
+function br2(){ // A ± (B ± C)
+  const A=rnz(),B=rnz(),Cc=rnz(),s=sel(['+','−']),o=sel(['+','−']),f=sg1(o),e1=sg1(s),good=qa(A,sq(qa(B,sq(Cc,f)),e1));
+  const val=(a,b)=>qa(A,qa(sq(B,a),sq(Cc,b))),ok=[e1,e1*f],wr=[];
+  [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(p=>{if(p[0]===ok[0]&&p[1]===ok[1])return;
+    wr.push([val(p[0],p[1]),s==='+'?'Trước ngoặc có dấu "+" nên khi bỏ ngoặc ta giữ nguyên dấu các số hạng trong ngoặc.':'Trước ngoặc có dấu "−" nên khi bỏ ngoặc ta đổi dấu tất cả các số hạng trong ngoặc.']);});
+  const rule=s==='+'?'Bỏ dấu ngoặc có dấu "+" đằng trước, giữ nguyên dấu các số hạng trong ngoặc':'Bỏ dấu ngoặc có dấu "−" đằng trước, đổi dấu các số hạng trong ngoặc';
+  const o2=s==='+'?o:flip(o);
+  return {e:`${SH(A)} ${s} (${SH(B)} ${o} ${PA(Cc,SH(Cc))})`,good,wr,
+    exp:`${rule}: ${SH(A)} ${s} (${SH(B)} ${o} ${PA(Cc,SH(Cc))}) = ${SH(A)} ${s} ${PA(B,SH(B))} ${o2} ${PA(Cc,SH(Cc))} = ${SH(good)}.`};
+}
+function br3(){ // A ± [B ± (C ± D)]
+  const A=rnz(),B=rnz(),Cc=rnz(),D=rnz(),s1=sel(['+','−']),o=sel(['+','−']),p=sel(['+','−']);
+  if(s1==='+'&&o==='+')return null;
+  const f1=sg1(s1),fo=sg1(o),fp=sg1(p),inner=qa(B,sq(qa(Cc,sq(D,fp)),fo)),good=qa(A,sq(inner,f1));
+  const straight=qa(qa(qa(A,sq(B,f1)),sq(Cc,fo)),sq(D,fp));                         // bỏ cả hai ngoặc mà không đổi dấu
+  const roundOnly=qa(qa(qa(A,sq(B,f1)),sq(Cc,f1*fo)),sq(D,f1*fo*fp));                // bỏ ngoặc tròn đúng, ngoặc vuông không đổi dấu
+  const squareOnly=qa(A,sq(qa(qa(B,sq(Cc,fo)),sq(D,fp)),f1));                        // bỏ ngoặc vuông đúng, ngoặc tròn không đổi dấu
+  const o2=o==='+'?p:flip(p),exp3=`${SH(B)} ${o} (${SH(Cc)} ${p} ${PA(D,SH(D))}) = ${SH(B)} ${o} ${PA(Cc,SH(Cc))} ${o2} ${PA(D,SH(D))} = ${SH(inner)}`;
+  return {e:`${SH(A)} ${s1} [${SH(B)} ${o} (${SH(Cc)} ${p} ${PA(D,SH(D))})]`,good,
+    wr:[[straight,'Bạn đã bỏ cả hai lớp ngoặc mà không đổi dấu. Phải bỏ ngoặc từ trong ra ngoài và đổi dấu khi trước ngoặc có dấu "−".'],
+        [roundOnly,'Bạn bỏ ngoặc tròn đúng nhưng khi bỏ ngoặc vuông chưa đổi dấu các số hạng trong ngoặc (trước ngoặc vuông là dấu "−").'],
+        [squareOnly,'Bạn bỏ ngoặc vuông đúng nhưng ngoặc tròn có dấu "−" đứng trước mà chưa đổi dấu các số hạng trong ngoặc tròn.'],
+        [negQ(good),'Sai dấu của kết quả.']],
+    exp:`Bỏ ngoặc tròn trước: ${exp3}. Rồi bỏ ngoặc vuông: ${SH(A)} ${s1} ${PA(inner,SH(inner))} = ${SH(good)}.`};
+}
+const genBr=f=>()=>tryGen(()=>{const r=f();if(!r)return null;return mk(`Tính ${E(r.e)}.`,show(r.good),r.wr.map(w=>Wq(r.good,w[0],w[1])),r.exp);});
+const genTcBr1=genBr(br1),genTcBr2=genBr(br2),genTcBr3=genBr(br3);
+function genTcHop(){return tryGen(()=>{
+  const A=rfr(),B=rfr();if(eqQ(A,B)||eqQ(A,negQ(B)))return null;
+  const order=sel([0,1,2]),terms=[{q:A,h:SH(A)},{q:B,h:SH(B)},{q:negQ(A),h:SH(negQ(A))}];
+  const lst=[[0,1,2],[0,2,1],[1,0,2]][order].map(i=>terms[i]),good=B;
+  return mk(`Tính một cách hợp lí ${E(X(lst,['+','+']))}.`,show(good),[
+    Wq(good,A,'Bạn đã bỏ nhầm số hạng B thay vì cặp số đối A và −A.'),
+    Wq(good,qa(A,B),'Hai số đối nhau cộng lại bằng 0, nên chỉ còn lại B.'),
+    Wq(good,qa(B,qm([2,1],A)),'Bạn đã cộng hai lần A thay vì triệt tiêu A và −A.'),
+    Wq(good,negQ(B),'Sai dấu của kết quả.')],
+    `Nhóm hai số đối nhau: ${SH(A)} + ${PA(negQ(A),SH(negQ(A)))} = 0 nên tổng bằng ${SH(B)}.`);
+});}
+function genTcDist(){return tryGen(()=>{
+  const A=rfr(),k=sgn()*ri(1,3),B=rfr(),Cc=qs([k,1],B),good=qm(A,[k,1]);if(Cc[1]===1||Cc[0]===0)return null;
+  const ab=qm(A,B),ac=qm(A,Cc);
+  return mk(`Tính một cách hợp lí ${E(X([{q:ab,h:`${PA(A,SH(A))} · ${PA(B,SH(B))}`,n:1},{q:ac,h:`${PA(A,SH(A))} · ${PA(Cc,SH(Cc))}`,n:1}],['+']).replace(/^\((.*?)\) ·/,'$1 ·'))}.`,show(good),[
+    Wq(good,qm(A,qm(B,Cc)),'Đặt A làm thừa số chung được A·(B + C), không phải A·(B·C).'),
+    Wq(good,qa(ab,Cc),'Bạn chỉ nhân A với B rồi cộng C.'),
+    Wq(good,qa(A,qa(B,Cc)),'Bạn đã cộng A vào thay vì nhân A với (B + C).'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `Đặt thừa số chung: ${SH(A)} · [${SH(B)} + ${PA(Cc,SH(Cc))}] = ${SH(A)} · ${N(k)} = ${SH(good)}.`);
+});}
+
+/* ============ Ngân hàng nhiều lựa chọn ============ */
+const O=(t,err)=>err?{t,err}:{t};
+const MC=[
+ {id:'m1',topic:'ct',level:'NB',stem:'Muốn cộng hai số hữu tỉ khác mẫu, ta thường làm thế nào?',ans:0,opts:[
+   O('Quy đồng về cùng mẫu dương, cộng hai tử số và giữ nguyên mẫu'),O('Cộng các tử với nhau và cộng các mẫu với nhau','Không được cộng mẫu với mẫu: đó là lỗi hay gặp nhất khi cộng phân số.'),O('Nhân các tử với nhau và nhân các mẫu với nhau','Đó là cách nhân hai phân số, không phải cách cộng.'),O('Chỉ cộng hai mẫu số rồi giữ nguyên tử số','Tử số cũng thay đổi khi cộng; không chỉ có mẫu.')],
+   exp:'Quy đồng mẫu số rồi cộng hai tử số, giữ nguyên mẫu số chung.'},
+ {id:'m2',topic:'ct',level:'NB',stem:'Với hai số hữu tỉ x, y bất kì, hiệu x − y bằng:',ans:0,opts:[
+   O('x + (−y)'),O('x + y','Trừ y nghĩa là cộng với số đối của y, không phải cộng với y.'),O('y − x','Phép trừ không có tính chất giao hoán: x − y và y − x là hai số đối nhau.'),O('−x − y','Bạn đã đổi dấu cả số bị trừ.')],
+   exp:'Muốn trừ y ta cộng với số đối của y: x − y = x + (−y).'},
+ {id:'m3',topic:'ct',level:'TH',stem:'Kết quả của phép tính x + (−x) với x là một số hữu tỉ bất kì là:',ans:0,opts:[
+   O('0'),O('2x','Hai số đối nhau cộng lại triệt tiêu nhau, không gấp đôi.'),O('−2x','Tổng của hai số đối nhau bằng 0.'),O('1','Tổng của hai số đối nhau bằng 0, không phải 1.')],
+   exp:'x và −x là hai số đối nhau nên tổng của chúng bằng 0.'},
+ {id:'m4',topic:'nh',level:'NB',stem:'Tích của hai số hữu tỉ âm là:',ans:0,opts:[
+   O('một số dương'),O('một số âm','Hai thừa số âm: dấu trừ nhân dấu trừ cho dấu cộng.'),O('bằng 0','Tích chỉ bằng 0 khi có một thừa số bằng 0.'),O('không xác định được dấu','Quy tắc dấu cho biết ngay tích hai số âm là số dương.')],
+   exp:'Hai số hữu tỉ cùng dấu thì tích mang dấu dương.'},
+ {id:'m5',topic:'nh',level:'NB',stem:'Với a, b, c, d là các số nguyên, b ≠ 0, d ≠ 0, tích '+fr('a','b')+' · '+fr('c','d')+' bằng:',ans:0,opts:[
+   O(fr('a·c','b·d')),O(fr('a+c','b+d'),'Nhân hai phân số: nhân tử với tử, nhân mẫu với mẫu, không cộng.'),O(fr('a·d','b·c'),'Đó là kết quả của phép chia '+fr('a','b')+' : '+fr('c','d')+'.'),O(fr('a·c','b'),'Mẫu số của tích bằng tích hai mẫu số, không giữ nguyên mẫu b.')],
+   exp:'Muốn nhân hai phân số, ta nhân các tử số với nhau và các mẫu số với nhau.'},
+ {id:'m6',topic:'nh',level:'TH',stem:'Với x là một số hữu tỉ bất kì, tích x · 0 bằng:',ans:0,opts:[
+   O('0'),O('x','Nhân với 0 cho kết quả 0; nhân với 1 mới cho lại x.'),O('1','Nhân với 0 cho kết quả 0 chứ không phải 1.'),O('không xác định','Phép nhân với 0 luôn thực hiện được và bằng 0.')],
+   exp:'Mọi số hữu tỉ nhân với 0 đều bằng 0.'},
+ {id:'m7',topic:'ch',level:'NB',stem:'Muốn chia '+fr('a','b')+' cho '+fr('c','d')+' (c ≠ 0), ta nhân '+fr('a','b')+' với:',ans:0,opts:[
+   O(fr('d','c')),O(fr('c','d'),'Phải nhân với nghịch đảo của số chia, tức là đảo tử và mẫu.'),O(fr('−c','d'),'Đó là số đối của '+fr('c','d')+', không phải nghịch đảo.'),O(fr('b','a'),'Bạn đã đảo số bị chia thay vì số chia.')],
+   exp:'x : y = x · (1 : y). Nghịch đảo của '+fr('c','d')+' là '+fr('d','c')+'.'},
+ {id:'m8',topic:'ch',level:'NB',stem:'Phép chia một số hữu tỉ cho số nào dưới đây không thực hiện được?',ans:0,opts:[
+   O('0'),O('−1','Có thể chia cho −1 (kết quả là số đối).'),O('0,5','Có thể chia cho 0,5.'),O(fr(-3,4),'Có thể chia cho một phân số khác 0.')],
+   exp:'Không thể chia cho 0. Có thể chia cho mọi số hữu tỉ khác 0.'},
+ {id:'m9',topic:'ch',level:'TH',stem:'Tích của một số hữu tỉ khác 0 với nghịch đảo của nó bằng:',ans:0,opts:[
+   O('1'),O('0','Tích khác 0 vì cả hai thừa số đều khác 0.'),O('−1','Tích này bằng 1; nó chỉ bằng −1 nếu nhân với số đối của nghịch đảo.'),O('chính số đó','Tích với nghịch đảo bằng 1, không bằng số ban đầu.')],
+   exp:'Nghịch đảo của x là số y thoả mãn x · y = 1.'},
+ {id:'m10',topic:'tc',level:'NB',stem:'Khi bỏ dấu ngoặc có dấu "−" đằng trước, ta phải:',ans:0,opts:[
+   O('đổi dấu tất cả các số hạng trong ngoặc'),O('giữ nguyên dấu các số hạng trong ngoặc','Đó là quy tắc khi trước ngoặc có dấu "+".'),O('chỉ đổi dấu số hạng đầu tiên trong ngoặc','Phải đổi dấu tất cả các số hạng trong ngoặc, không chỉ số hạng đầu.'),O('bỏ dấu "−" và giữ nguyên các số hạng','Dấu "−" trước ngoặc làm đổi dấu mọi số hạng trong ngoặc.')],
+   exp:'Khi bỏ dấu ngoặc có dấu "−" đằng trước, ta phải đổi dấu tất cả các số hạng trong ngoặc: a − (b − c) = a − b + c.'},
+ {id:'m11',topic:'tc',level:'TH',stem:'Đẳng thức a · (b + c) = a · b + a · c thể hiện tính chất nào?',ans:0,opts:[
+   O('Phân phối của phép nhân đối với phép cộng'),O('Giao hoán của phép nhân','Tính chất giao hoán là a · b = b · a.'),O('Kết hợp của phép nhân','Tính chất kết hợp là (a · b) · c = a · (b · c).'),O('Nhân với số 1','Nhân với số 1 là a · 1 = a.')],
+   exp:'Đây là tính chất phân phối của phép nhân đối với phép cộng.'},
+ {id:'m12',topic:'tc',level:'TH',stem:'Đẳng thức (a + b) + c = a + (b + c) thể hiện tính chất nào?',ans:0,opts:[
+   O('Kết hợp của phép cộng'),O('Giao hoán của phép cộng','Tính chất giao hoán là a + b = b + a.'),O('Phân phối của phép nhân đối với phép cộng','Đẳng thức này chỉ có phép cộng, chưa có phép nhân.'),O('Cộng với số 0','Cộng với số 0 là a + 0 = a.')],
+   exp:'Đổi cách nhóm các số hạng mà tổng không đổi: tính chất kết hợp của phép cộng.'}
+].map(q=>Object.assign({type:'mc'},q));
+const addMC=(id,topic,level,gen)=>MC.push({id,type:'mc',topic,level,gen});
+['a','b','c'].forEach(x=>{
+  addMC('g_ctsame_'+x,'ct','NB',genCtSame);addMC('g_ctdiff_'+x,'ct','TH',genCtDiff);addMC('g_ctsub_'+x,'ct','TH',genCtSub);addMC('g_ctdec_'+x,'ct','TH',genCtDec);
+  addMC('g_ctthree_'+x,'ct','TH',genCtThree);addMC('g_ctopp_'+x,'ct','TH',genCtOpp);
+  addMC('g_nhint_'+x,'nh','NB',genNhInt);addMC('g_nhfr_'+x,'nh','TH',genNhFr);addMC('g_nhdec_'+x,'nh','TH',genNhDec);addMC('g_nhsign_'+x,'nh','TH',genNhSign);
+  addMC('g_nhthree_'+x,'nh','TH',genNhThree);
+  addMC('g_chinv_'+x,'ch','NB',genChInv);addMC('g_chint_'+x,'ch','NB',genChInt);addMC('g_chdiv_'+x,'ch','TH',genChDiv);addMC('g_chdec_'+x,'ch','TH',genChDec);
+  addMC('g_chchain_'+x,'ch','TH',genChChain);addMC('g_chfind_'+x,'ch','TH',genChFind);
+  addMC('g_tcbr1_'+x,'tc','NB',genTcBr1);addMC('g_tcbr2_'+x,'tc','TH',genTcBr2);addMC('g_tcbr3_'+x,'tc','VD',genTcBr3);addMC('g_tchop_'+x,'tc','TH',genTcHop);addMC('g_tcdist_'+x,'tc','VD',genTcDist);
+});
+['a','b'].forEach(x=>{addMC('g_cttemp_'+x,'ct','VD',genCtTemp);addMC('g_nharea_'+x,'nh','VD',genNhArea);addMC('g_chctx_'+x,'ch','VD',genChCtx);});
+
+/* ============ Đúng sai ============ */
+const IT=(t,v,topic,level,exp)=>({t,v,topic,level,exp});
+const FB_TF=()=>({stem:'Xét các phát biểu sau:',items:[
+  IT(`${fr(1,2)} + ${fr(1,3)} = ${fr(5,6)}`,true,'ct','TH',`${fr(3,6)} + ${fr(2,6)} = ${fr(5,6)}.`),
+  IT(`${fr(1,2)} + ${fr(1,3)} = ${fr(2,5)}`,false,'ct','TH','Không cộng tử với tử và mẫu với mẫu.'),
+  IT(`${fr(1,2)} · ${fr(1,3)} = ${fr(1,6)}`,true,'nh','TH','Nhân tử với tử, mẫu với mẫu.'),
+  IT(`${fr(1,2)} : ${fr(1,3)} = ${fr(1,6)}`,false,'ch','TH',`${fr(1,2)} : ${fr(1,3)} = ${fr(1,2)} · 3 = ${fr(3,2)}.`)]});
+function pick4(Ts,Fs){const nT=ri(1,3);return shuffle(shuffle(Ts).slice(0,nT).concat(shuffle(Fs).slice(0,4-nT)));}
+function mixed(make){
+  for(let n=0;n<120;n++){const items=make();if(items.some(i=>!i))continue;const k=items.filter(i=>i.v).length;if(k>=1&&k<=3&&new Set(items.map(i=>i.t)).size===4)return items;}
+  return null;
+}
+const four=f=>()=>{const items=mixed(()=>[f(),f(),f(),f()]);return items?{stem:'Xét các phát biểu sau:',items}:FB_TF();};
+/* tạo ý đúng hoặc sai: nếu sai thì lấy kết quả sai theo một lỗi có tên */
+function eqItem(left,right,lies,topic,level,exp){const ok=RNG()<.5,pool=lies.filter(q=>q&&q[1]!==0&&!eqQ(Rq(q[0],q[1]),right)),w=ok?right:(pool.length?sel(pool):null);if(!w)return null;return IT(`${left} = ${show(Rq(w[0],w[1]))}`,ok,topic,level,exp);}
+function itCt(){
+  const t=ri(0,5),[A,B]=rdiff(),L=lcmQ(A,B);
+  switch(t){
+    case 0:{const g=qa(A,B);return eqItem(X([I(A),I(B)],['+']),g,[[A[0]+B[0],A[1]+B[1]],[A[0]+B[0],L],qs(A,B)],'ct','TH',`Quy đồng mẫu ${L}: ${QD(A,B)}. Tổng bằng ${SH(g)}.`);}
+    case 1:{const g=qs(A,B);return eqItem(X([I(A),I(B)],['−']),g,[[A[0]-B[0],A[1]-B[1]],qs(B,A),qa(A,B)],'ct','TH',`Quy đồng mẫu ${L}: ${QD(A,B)}. Hiệu bằng ${SH(g)}.`);}
+    case 2:{const ok=RNG()<.5;return IT(`${X([I(A),I(B)],['−'])} = ${ok?X([I(A),I(negQ(B))],['+']):X([I(A),I(B)],['+'])}`,ok,'ct','TH',ok?'Trừ một số bằng cộng với số đối của nó.':'Trừ một số bằng cộng với số đối của nó, không phải cộng với chính nó.');}
+    case 3:{const ok=RNG()<.5;return IT(`${X([I(A),I(B)],['+'])} = ${ok?X([I(B),I(A)],['+']):X([I(B),I(A)],['−'])}`,ok,'ct','TH',ok?'Phép cộng có tính chất giao hoán.':'Phép trừ không có tính chất giao hoán: B − A là số đối của A − B.');}
+    case 4:{const g=qa(A,negQ(B)),ok=RNG()<.5;return IT(`${X([I(A),I(negQ(B))],['+'])} ${ok===(val(g)>0)?'>':'<'} 0`,ok,'ct','TH',`${SH(A)} + ${PA(negQ(B),SH(negQ(B)))} = ${SH(g)}, là số ${SGN2(g)}.`);}
+    default:{const Z=rfr(),ok=RNG()<.5;return IT(`${X([I(Z),I(negQ(Z))],['+'])} = ${ok?'0':SH(Z)}`,ok,'ct','TH',ok?'Hai số đối nhau có tổng bằng 0.':'Hai số đối nhau có tổng bằng 0, không bằng số đã cho.');}
+  }
+}
+function itNh(){
+  const t=ri(0,4),A=rfr(),B=rfr(),g=qm(A,B);
+  switch(t){
+    case 0:return eqItem(X([I(A),I(B)],['·']),g,[[A[0]*B[0],A[1]+B[1]],qa(A,B),negQ(g)],'nh','TH',`${PA(A,SH(A))} · ${PA(B,SH(B))} = ${SH(g)}.`);
+    case 1:{const ok=RNG()<.5;return IT(`${X([I(A),I(B)],['·'])} ${ok===(val(g)>0)?'>':'<'} 0`,ok,'nh','TH',`Hai thừa số ${(A[0]>0)===(B[0]>0)?'cùng dấu':'khác dấu'} nên tích là số ${SGN2(g)}.`);}
+    case 2:{const ok=RNG()<.5;return IT(`${X([I(A),I(B)],['·'])} = ${ok?X([I(B),I(A)],['·']):X([I(B),I(A)],[':'])}`,ok,'nh','TH',ok?'Phép nhân có tính chất giao hoán.':'Phép chia không có tính chất giao hoán.');}
+    case 3:{const k=ri(2,6)*sgn(),ok=RNG()<.5,w=ok?qm([k,1],A):qa([k,1],A);if(!ok&&eqQ(w,qm([k,1],A)))return null;return IT(`${X([{q:[k,1],h:N(k)},I(A)],['·'])} = ${SH(w)}`,ok,'nh','TH',`${N(k)} · ${PA(A,SH(A))} = ${SH(qm([k,1],A))}.`);}
+    default:{const ok=RNG()<.5;return IT(`${X([I(A),{q:[1,1],h:'1'}],['·'])} = ${ok?SH(A):SH(negQ(A))}`,ok,'nh','TH',ok?'Nhân với 1 không làm thay đổi số.':'Nhân với 1 cho lại chính số đó, không phải số đối.');}
+  }
+}
+function itCh(){
+  const t=ri(0,4),A=rfr(),B=rfr(),g=qd(A,B);
+  switch(t){
+    case 0:return eqItem(X([I(A),I(B)],[':']),g,[qm(A,B),qd(B,A),negQ(g)],'ch','TH',`${PA(A,SH(A))} : ${PA(B,SH(B))} = ${PA(A,SH(A))} · ${PA(qinv(B),SH(qinv(B)))} = ${SH(g)}.`);
+    case 1:{const ok=RNG()<.5,w=ok?qinv(A):negQ(A);return IT(`Nghịch đảo của ${SH(A)} là ${SH(w)}`,ok,'ch','TH',ok?`${SH(A)} · ${SH(qinv(A))} = 1.`:`Nghịch đảo của ${SH(A)} là ${SH(qinv(A))}; ${SH(negQ(A))} là số đối của nó.`);}
+    case 2:{const ok=RNG()<.5;return IT(`${X([I(A),I(B)],[':'])} ${ok===(val(g)>0)?'>':'<'} 0`,ok,'ch','TH',`Hai số ${(A[0]>0)===(B[0]>0)?'cùng dấu':'khác dấu'} nên thương là số ${SGN2(g)}.`);}
+    case 3:{const ok=RNG()<.5,k=ri(2,6)*sgn(),w=ok?qd(A,[k,1]):qm(A,[k,1]);return IT(`${X([I(A),{q:[k,1],h:N(k)}],[':'])} = ${SH(w)}`,ok,'ch','TH',`${PA(A,SH(A))} : ${PA([k,1],N(k))} = ${SH(qd(A,[k,1]))}.`);}
+    default:{const ok=RNG()<.5;return IT(`${X([I(A),I(B)],[':'])} = ${ok?X([I(A),I(qinv(B))],['·']):X([I(A),I(B)],['·'])}`,ok,'ch','TH',ok?'Chia cho một số bằng nhân với nghịch đảo của số đó.':'Chia cho một số bằng nhân với nghịch đảo của số đó, không phải nhân với chính số đó.');}
+  }
+}
+function itTc(){
+  const t=ri(0,4),A=rnz(),B=rnz(),Cc=rnz();
+  switch(t){
+    case 0:{const o=sel(['+','−']),f=sg1(o),g=qs(A,qa(B,sq(Cc,f))),ok=RNG()<.5,w=ok?g:sel([qa(A,qa(B,sq(Cc,f))),qa(A,qa(negQ(B),sq(Cc,f))),qs(A,qa(B,sq(Cc,-f)))]);if(!ok&&eqQ(w,g))return null;return IT(`${SH(A)} − (${SH(B)} ${o} ${PA(Cc,SH(Cc))}) = ${SH(w)}`,ok,'tc','TH',`Bỏ ngoặc có dấu "−" đằng trước, đổi dấu các số hạng trong ngoặc: ${SH(A)} − ${PA(B,SH(B))} ${flip(o)} ${PA(Cc,SH(Cc))} = ${SH(g)}.`);}
+    case 1:{const o=sel(['+','−']),f=sg1(o),g=qa(A,qa(B,sq(Cc,f))),ok=RNG()<.5,w=ok?g:sel([qs(A,qa(B,sq(Cc,f))),qa(A,qa(B,sq(Cc,-f))),qa(A,qa(negQ(B),sq(Cc,f)))]);if(!ok&&eqQ(w,g))return null;return IT(`${SH(A)} + (${SH(B)} ${o} ${PA(Cc,SH(Cc))}) = ${SH(w)}`,ok,'tc','TH',`Bỏ ngoặc có dấu "+" đằng trước, giữ nguyên dấu các số hạng trong ngoặc: ${SH(A)} + ${PA(B,SH(B))} ${o} ${PA(Cc,SH(Cc))} = ${SH(g)}.`);}
+    case 2:{const ok=RNG()<.5;if(!ok&&eqQ(qm(A,qa(B,Cc)),qa(qm(A,B),Cc)))return null;return IT(`${PA(A,SH(A))} · (${X([I(B),I(Cc)],['+'])}) = ${ok?X([{q:qm(A,B),h:`${PA(A,SH(A))} · ${PA(B,SH(B))}`,n:1},{q:qm(A,Cc),h:`${PA(A,SH(A))} · ${PA(Cc,SH(Cc))}`,n:1}],['+']):`${PA(A,SH(A))} · ${PA(B,SH(B))} + ${PA(Cc,SH(Cc))}`}`.replace(/^\((.*?)\) ·/,'$1 ·'),ok,'tc','TH',ok?'Tính chất phân phối của phép nhân đối với phép cộng.':'Phải nhân A với cả hai số hạng B và C trong ngoặc.');}
+    case 3:{const g=qm(A,qa(B,Cc)),ok=RNG()<.5,w=ok?g:qa(qm(A,B),Cc);if(!ok&&eqQ(w,g))return null;return IT(`${PA(A,SH(A))} · (${X([I(B),I(Cc)],['+'])}) = ${SH(w)}`.replace(/^\((.*?)\) ·/,'$1 ·'),ok,'tc','TH',`${PA(A,SH(A))} · ${SH(qa(B,Cc))} = ${SH(g)}.`);}
+    default:{const ok=RNG()<.5,sum=qa(A,B);return IT(`${X([I(A),I(B),I(negQ(A))],['+','+'])} = ${SH(ok?B:sum)}`,ok,'tc','TH',`${SH(A)} và ${PA(negQ(A),SH(negQ(A)))} là hai số đối nhau nên tổng bằng ${SH(B)}.`);}
+  }
+}
+/* mức vận dụng: thứ tự thực hiện phép tính */
+function itVD(){
+  const t=ri(0,3),A=rnz(),B=rnz(),Cc=rnz();
+  switch(t){
+    case 0:{const g=qa(A,qm(B,Cc)),ok=RNG()<.5,w=ok?g:qm(qa(A,B),Cc);if(!ok&&eqQ(w,g))return null;return IT(`${X([I(A),I(B),I(Cc)],['+','·'])} = ${SH(w)}`,ok,'ct','VD',`Nhân trước, cộng sau: ${SH(A)} + ${PA(B,SH(B))} · ${PA(Cc,SH(Cc))} = ${SH(A)} + ${PA(qm(B,Cc),SH(qm(B,Cc)))} = ${SH(g)}.`);}
+    case 1:{const g=qm(qd(A,B),Cc),ok=RNG()<.5,w=ok?g:qd(A,qm(B,Cc));if(!ok&&eqQ(w,g))return null;return IT(`${X([I(A),I(B),I(Cc)],[':','·'])} = ${SH(w)}`,ok,'ch','VD',`Chia và nhân cùng cấp, làm từ trái sang phải: ${SH(A)} : ${PA(B,SH(B))} = ${SH(qd(A,B))}; rồi · ${PA(Cc,SH(Cc))} = ${SH(g)}.`);}
+    case 2:{const g=qs(A,qm(B,Cc)),ok=RNG()<.5,w=ok?g:qm(qs(A,B),Cc);if(!ok&&eqQ(w,g))return null;return IT(`${X([I(A),I(B),I(Cc)],['−','·'])} = ${SH(w)}`,ok,'nh','VD',`Nhân trước, trừ sau: ${SH(A)} − ${PA(qm(B,Cc),SH(qm(B,Cc)))} = ${SH(g)}.`);}
+    default:{const g=qm(qa(A,B),Cc),ok=RNG()<.5,w=ok?g:qa(A,qm(B,Cc));if(!ok&&eqQ(w,g))return null;return IT(`(${X([I(A),I(B)],['+'])}) · ${PA(Cc,SH(Cc))} = ${SH(w)}`,ok,'tc','VD',`Tính trong ngoặc trước: ${SH(qa(A,B))} · ${PA(Cc,SH(Cc))} = ${SH(g)}.`);}
+  }
+}
+/* các phát biểu nhận biết (kiến thức, không có số): cố định, đã soát tay */
+const S1=(t,topic,exp)=>({t,topic,exp});
+const PT=[
+ S1('Tổng của hai số đối nhau bằng 0.','ct','Hai số đối nhau là x và −x nên x + (−x) = 0.'),
+ S1('Phép cộng các số hữu tỉ có tính chất giao hoán.','ct','a + b = b + a với mọi số hữu tỉ a, b.'),
+ S1('Phép cộng các số hữu tỉ có tính chất kết hợp.','ct','(a + b) + c = a + (b + c).'),
+ S1('Muốn trừ hai số hữu tỉ, ta cộng số bị trừ với số đối của số trừ.','ct','x − y = x + (−y).'),
+ S1('Mọi số hữu tỉ cộng với 0 đều bằng chính nó.','ct','a + 0 = a.'),
+ S1('Tích của hai số hữu tỉ cùng dấu (đều khác 0) là số dương.','nh','Quy tắc dấu: cùng dấu thì tích dương.'),
+ S1('Tích của hai số hữu tỉ khác dấu (đều khác 0) là số âm.','nh','Quy tắc dấu: khác dấu thì tích âm.'),
+ S1('Mọi số hữu tỉ nhân với 1 đều bằng chính nó.','nh','a · 1 = a.'),
+ S1('Mọi số hữu tỉ nhân với 0 đều bằng 0.','nh','a · 0 = 0.'),
+ S1('Phép nhân các số hữu tỉ có tính chất giao hoán.','nh','a · b = b · a.'),
+ S1('Có thể chia một số hữu tỉ cho mọi số hữu tỉ khác 0.','ch','Chia cho số khác 0 luôn thực hiện được: chia là nhân với nghịch đảo.'),
+ S1('Nghịch đảo của một số hữu tỉ khác 0 cùng dấu với số đó.','ch','Vì tích của chúng bằng 1 (dương), hai số phải cùng dấu.'),
+ S1('Thương của hai số hữu tỉ khác dấu (đều khác 0) là số âm.','ch','Quy tắc dấu của phép chia giống phép nhân.'),
+ S1('Chia cho một số hữu tỉ khác 0 bằng nhân với nghịch đảo của số đó.','ch','x : y = x · (1/y) với y ≠ 0.'),
+ S1('Số 0 không có nghịch đảo.','ch','Không có số nào nhân với 0 được 1.'),
+ S1('Khi bỏ dấu ngoặc có dấu "−" đằng trước, ta phải đổi dấu tất cả các số hạng trong ngoặc.','tc','Ví dụ: a − (b − c) = a − b + c.'),
+ S1('Với mọi số hữu tỉ a, b, c: a · (b + c) = a · b + a · c.','tc','Tính chất phân phối của phép nhân đối với phép cộng.'),
+ S1('Khi bỏ dấu ngoặc có dấu "+" đằng trước, các số hạng trong ngoặc giữ nguyên dấu.','tc','Ví dụ: a + (b − c) = a + b − c.'),
+ S1('Nếu a = b thì a + c = b + c với mọi số hữu tỉ c.','tc','Cộng cùng một số vào hai vế của một đẳng thức thì được đẳng thức mới.'),
+ S1('Có thể đổi chỗ các số hạng của một tổng mà không làm thay đổi giá trị của tổng.','tc','Phép cộng có tính chất giao hoán.')
+];
+const PF=[
+ S1('Tổng của hai số hữu tỉ âm là một số dương.','ct','Tổng của hai số âm là số âm, ví dụ −1 + (−2) = −3.'),
+ S1('Hiệu của hai số hữu tỉ luôn nhỏ hơn số bị trừ.','ct','Nếu số trừ là số âm thì hiệu lớn hơn số bị trừ, ví dụ 1 − (−2) = 3.'),
+ S1('Phép trừ các số hữu tỉ có tính chất giao hoán.','ct','Chẳng hạn 3 − 2 = 1 nhưng 2 − 3 = −1.'),
+ S1('Muốn cộng hai phân số khác mẫu, ta cộng tử với tử và cộng mẫu với mẫu.','ct','Phải quy đồng mẫu số trước; ví dụ 1/2 + 1/3 = 5/6 chứ không phải 2/5.'),
+ S1('Tổng của một số hữu tỉ dương và một số hữu tỉ âm luôn là số âm.','ct','Dấu của tổng phụ thuộc số nào có giá trị tuyệt đối lớn hơn, ví dụ 5 + (−2) = 3.'),
+ S1('Tích của hai số hữu tỉ âm là số âm.','nh','Hai số âm có tích dương.'),
+ S1('Tích của hai số hữu tỉ luôn lớn hơn mỗi thừa số.','nh','Chẳng hạn 1/2 · 1/2 = 1/4 nhỏ hơn 1/2; hoặc có thừa số âm.'),
+ S1('Muốn nhân hai phân số, ta nhân tử với tử và cộng mẫu với mẫu.','nh','Phải nhân cả hai mẫu số với nhau.'),
+ S1('Tích của một số hữu tỉ khác 0 với số đối của nó bằng 1.','nh','Tích của số a với số đối −a bằng −a², không phải 1; tích với nghịch đảo mới bằng 1.'),
+ S1('Tích của hai số hữu tỉ khác 0 luôn là số dương.','nh','Nếu hai thừa số khác dấu thì tích âm.'),
+ S1('Số 0 chia cho số 0 bằng 0.','ch','Không thể chia cho 0.'),
+ S1('Nghịch đảo của một số hữu tỉ khác 0 là số đối của nó.','ch','Số đối của 2 là −2, còn nghịch đảo của 2 là 1/2.'),
+ S1('Phép chia các số hữu tỉ có tính chất giao hoán.','ch','Chẳng hạn 4 : 2 = 2 nhưng 2 : 4 = 1/2.'),
+ S1('Thương của hai số hữu tỉ âm là số âm.','ch','Hai số cùng dấu thì thương dương.'),
+ S1('Chia một số hữu tỉ khác 0 cho 1 ta được số đối của nó.','ch','Chia cho 1 giữ nguyên số đó.'),
+ S1('Khi bỏ dấu ngoặc có dấu "−" đằng trước, các số hạng trong ngoặc được giữ nguyên dấu.','tc','Phải đổi dấu tất cả các số hạng trong ngoặc.'),
+ S1('Với mọi số hữu tỉ a, b, c: a − (b − c) = a − b − c.','tc','Đổi dấu cả b và −c: a − (b − c) = a − b + c.'),
+ S1('Với mọi số hữu tỉ a, b, c khác 0: a : (b + c) = a : b + a : c.','tc','Phép chia chỉ phân phối khi chia tổng cho một số: (b + c) : a = b : a + c : a.'),
+ S1('Với mọi số hữu tỉ a, b, c: a · (b − c) = a · b − c.','tc','Phải nhân a với cả b và c: a · (b − c) = a · b − a · c.'),
+ S1('Nếu a + c = b + c thì a khác b.','tc','Trừ c ở hai vế được a = b.')
+];
+const tfNB=t=>()=>{const f=(L,v)=>shuffle(L.filter(i=>i.topic===t)).map(i=>({t:i.t,v,topic:t,level:'NB',exp:i.exp,s:1}));const nT=ri(1,3);return {stem:'Xét các phát biểu sau:',items:shuffle(f(PT,true).slice(0,nT).concat(f(PF,false).slice(0,4-nT)))};};
+const TF=[];
+const addTF=(id,topic,level,gen)=>TF.push({id,type:'tf',topic,level,gen});
+const TKEYS_LIST=['ct','nh','ch','tc'];
+const ITM={ct:itCt,nh:itNh,ch:itCh,tc:itTc};
+TKEYS_LIST.forEach(t=>{
+  addTF('tf_nb_'+t,t,'NB',tfNB(t));
+  ['a','b'].forEach(x=>addTF(`tf_${t}_th_${x}`,t,'TH',four(ITM[t])));
+  addTF('tf_'+t+'_vd',t,'VD',four(()=>RNG()<.5?itVD():ITM[t]()));
+});
+addTF('tf_mix_a','nh','TH',four(()=>sel([itCt,itNh,itCh,itTc])()));
+addTF('tf_mix_b','ch','VD',four(()=>RNG()<.6?itVD():sel([itCt,itNh,itCh,itTc])()));
+
+/* ============ Gói Thử thách và Toán thực tế ============ */
+const mcq=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+/* mcQ: đáp án và lựa chọn sai là số hữu tỉ [tử, mẫu]; loại lựa chọn trùng đáp án; trả về null nếu không đủ 3 lựa chọn sai */
+const mcQ=(stem,right,wrongs,exp,topic,level)=>{const seen=new Set([SH(right)]),w=[];for(const [q,e] of wrongs){const t=SH(q);if(!seen.has(t)){seen.add(t);w.push([t,e]);}}return w.length<3?null:mcq(stem,SH(right),w.slice(0,3),exp,topic,level);};
+const saq=(stem,ans,unit,exp,topic,level,at)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp,at});
+const ansq=(q,topic,level,stem,exp,unit)=>saq(stem,q[0]/q[1],unit||'',exp,topic,level,SH(q));
+function tfHardC(){return four(()=>RNG()<.75?itVD():sel([itCt,itNh,itCh,itTc])())();}
+const HARD={tf:[{id:'h_tc',type:'tf',topic:'tc',level:'VD',gen:tfHardC}],sa:[
+ {id:'h_br',topic:'tc',level:'VD',unit:'',gen:()=>{for(;;){const A=rfr(),B=rfr(),Cc=rfr(),D=rfr(),E2=rfr(),F=rfr(),num=qs(qs(A,B),Cc),den=qs(qs(D,E2),F);if(den[0]===0)continue;const g=qd(num,den);if(g[1]>60||Math.abs(g[0])>150)continue;
+   return {stem:`Tính ${E(`(${SH(A)} − ${PA(B,SH(B))} − ${PA(Cc,SH(Cc))}) : (${SH(D)} − ${PA(E2,SH(E2))} − ${PA(F,SH(F))})`)}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`Tử số: ${SH(A)} − ${PA(B,SH(B))} − ${PA(Cc,SH(Cc))} = ${SH(num)}. Mẫu số: ${SH(D)} − ${PA(E2,SH(E2))} − ${PA(F,SH(F))} = ${SH(den)}. Thương: ${PA(num,SH(num))} : ${PA(den,SH(den))} = ${SH(g)}.`};}}},
+ {id:'h_sum',topic:'ct',level:'VD',unit:'',gen:()=>{const n=ri(4,9),s=[n,n+1];
+   return {stem:`Cho A = ${fr(1,'1 · 2')} + ${fr(1,'2 · 3')} + ${fr(1,'3 · 4')} + … + ${fr(1,'n · (n + 1)')} với n = ${n}. Giá trị của A là bao nhiêu? Nhập dạng phân số tối giản.`,ans:[n/(n+1)],at:SH(Rq(n,n+1)),exp:`Mỗi số hạng ${fr(1,'k · (k + 1)')} = ${fr(1,'k')} − ${fr(1,'k + 1')}. Các số hạng ở giữa triệt tiêu nên A = 1 − ${fr(1,n+1)} = ${fr(n,n+1)}.`};}},
+ {id:'h_dis',topic:'nh',level:'VD',unit:'',gen:()=>{for(;;){const A=rfr(),k=sgn()*ri(1,3),B=rfr(),Cc=qs([k,1],B),R=qm(A,[k,1]);if(Cc[1]===1||Cc[0]===0||R[1]>60)continue;
+   const f=qm(A,B),g=qm(A,Cc);return {stem:`Tính một cách hợp lí ${E(X([{q:f,h:`${PA(A,SH(A))} · ${PA(B,SH(B))}`,n:1},{q:g,h:`${PA(A,SH(A))} · ${PA(Cc,SH(Cc))}`,n:1}],['+']).replace(/^\((.*?)\) ·/,'$1 ·'))}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[R[0]/R[1]],at:SH(R),exp:`Đặt thừa số chung ${SH(A)}: ${SH(A)} · [${SH(B)} + ${PA(Cc,SH(Cc))}] = ${SH(A)} · ${N(k)} = ${SH(R)}.`};}}},
+ {id:'h_min',topic:'ch',level:'VD',unit:'',gen:()=>{for(;;){const A=Rq(ri(2,9),ri(3,9)),B=Rq(ri(6,40),ri(2,5));if(A[1]===1||qd(B,A)[0]/qd(B,A)[1]<2)continue;let n=1;while(!(cmpQ(qm([n,1],A),B)>0))n++;
+   return {stem:`Tìm số nguyên dương n nhỏ nhất sao cho ${E('n · '+SH(A)+' > '+SH(B))}.`,ans:[n],at:undefined,exp:`n · ${SH(A)} > ${SH(B)} ⇔ n > ${SH(B)} : ${SH(A)} = ${SH(qd(B,A))}. Số nguyên dương nhỏ nhất lớn hơn ${SH(qd(B,A))} là ${n}.`};}}}
+].map(q=>Object.assign({type:'sa'},q))};
+const PISA=[
+ ()=>{for(;;){
+  const fl=Rq(ri(2,9),ri(2,4)),su=Rq(ri(1,7),ri(2,4)),bu=Rq(ri(1,5),ri(2,4)),k=ri(3,6);
+  if([fl,su,bu].some(q=>q[1]===1)||cmpQ(fl,su)===0||cmpQ(su,bu)<=0)continue;
+  const tot=qa(fl,su),cut=qd(bu,[k,1]),times=Rq(3,2),big=qm(fl,times),used=Rq(1,ri(2,3)),left=qs(su,used);
+  if(left[0]<=0)continue;
+  const R1={title:'Công thức làm bánh',ctx:`<p class="stem">Công thức làm một mẻ bánh cần các nguyên liệu sau (đơn vị: cốc).</p>${tbl(['Nguyên liệu','Lượng (cốc)'],[['Bột mì',SH(fl)],['Đường',SH(su)],['Bơ',SH(bu)]])}`,qs:[
+   mcQ('Tổng lượng bột mì và đường trong một mẻ bánh là bao nhiêu cốc?',tot,[[qs(fl,su),'Đề hỏi tổng, bạn đã lấy hiệu.'],[qm(fl,su),'Đề hỏi tổng, bạn đã lấy tích.'],[Rq(fl[0]+su[0],fl[1]+su[1]),'Không cộng tử với tử và mẫu với mẫu.']],`${SH(fl)} + ${SH(su)} = ${SH(tot)} (cốc).`,'ct','TH'),
+   ansq(cut,'ch','TH',`Lượng bơ của một mẻ được chia đều cho ${k} cái bánh. Mỗi cái bánh dùng bao nhiêu cốc bơ? Nhập dạng phân số tối giản.`,`${SH(bu)} : ${k} = ${SH(cut)} (cốc).`,'cốc'),
+   ansq(big,'nh','VD',`Bạn Lan làm số bánh gấp ${SH(times)} lần một mẻ. Lượng bột mì cần dùng là bao nhiêu cốc? Nhập dạng phân số tối giản.`,`${SH(fl)} · ${SH(times)} = ${SH(big)} (cốc).`,'cốc'),
+   ansq(left,'ct','VD',`Trong bình còn ${SH(su)} cốc đường. Sau khi dùng ${SH(used)} cốc, trong bình còn bao nhiêu cốc đường? Nhập dạng phân số tối giản.`,`${SH(su)} − ${SH(used)} = ${SH(left)} (cốc).`,'cốc')]};if(R1.qs[0])return R1;}},
+ ()=>{for(;;){
+  const n=ri(3,8),y=Rq(1,ri(n+1,12)),x=qa(Rq(1,n),y),h=ri(2,4);
+  if(x[1]===1||y[1]===1||x[1]>40)continue;
+  const net=qs(x,y),oneA=qm(x,[h,1]);
+  const R2={title:'Bể nước hai vòi',ctx:`<p class="stem">Một bể nước đang trống. Vòi A bơm vào mỗi giờ ${SH(x)} bể. Vòi B xả ra mỗi giờ ${SH(y)} bể. Cả hai vòi đều chạy đều.</p>`,qs:[
+   mcQ('Khi mở cả hai vòi cùng lúc, sau 1 giờ lượng nước trong bể tăng thêm bao nhiêu phần bể?',net,[[qa(x,y),'Vòi B xả nước ra nên phải trừ, không cộng.'],[qm(x,y),'Cần lấy hiệu hai lượng nước, không phải tích.'],[qs(y,x),'Vòi A bơm nhiều hơn vòi B nên lượng nước tăng, kết quả là số dương.']],`${SH(x)} − ${SH(y)} = ${SH(net)} (bể).`,'ct','TH'),
+   ansq(net,'ct','TH','Sau 1 giờ mở cả hai vòi, trong bể có bao nhiêu phần bể? Nhập dạng phân số tối giản.',`${SH(x)} − ${SH(y)} = ${SH(net)}.`,'bể'),
+   saq('Mở cả hai vòi cùng lúc thì sau bao nhiêu giờ bể đầy?',n,'giờ',`Số giờ = 1 : ${SH(net)} = ${n}.`,'ch','VD'),
+   ansq(oneA,'nh','TH',`Nếu chỉ mở vòi A trong ${h} giờ thì có bao nhiêu phần bể nước? Nhập dạng phân số tối giản.`,`${SH(x)} · ${h} = ${SH(oneA)}.`,'bể')]};if(R2.qs[0])return R2;}}
+];
+
+/* ============ Trả lời ngắn ============ */
+function saCtAdd(){for(;;){const [A,B]=rdiff(),g=qa(A,B);if(g[1]>90)continue;
+  return {stem:`Tính ${E(X([I(A),I(B)],['+']))}. Nhập kết quả dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`Quy đồng mẫu số ${lcmQ(A,B)}: ${QD(A,B)}. Kết quả ${SH(g)}.`};}}
+function saCtDec(){for(;;){const A=rdec(),B=rdec(),op=sel(['+','−']),g=op==='+'?qa(A,B):qs(A,B);if(!canDec(g)&&g[1]!==1)continue;
+  return {stem:`Tính ${E(X([I(A,true),I(B,true)],[op]))}. Nhập kết quả dưới dạng số thập phân (dùng dấu phẩy).`,ans:[g[0]/g[1]],at:DEC(g),exp:`${DEC(A)} ${op} ${PA(B,DEC(B))} = ${DEC(g)}.`};}}
+function saCtNum(){for(;;){const [A,B]=rdiff(),g=qa(A,B);if(g[1]===1)continue;
+  return {stem:`Kết quả của phép tính ${E(X([I(A),I(B)],['−']))} viết được dưới dạng phân số tối giản ${fr('m','n')} với n > 0. Tìm m.`,ans:[qs(A,B)[0]],exp:`${QD(A,B)}. Hiệu bằng ${SH(qs(A,B))}, nên m = ${qs(A,B)[0]}.`};}}
+function saCtThree(){for(;;){const A=rnz(),B=rnz(),Cc=rnz(),o1=sel(['+','−']),o2=sel(['+','−']),g=qa(qa(A,o1==='+'?B:negQ(B)),o2==='+'?Cc:negQ(Cc));if(g[1]>90||g[1]===1)continue;
+  return {stem:`Tính ${E(X([I(A),I(B),I(Cc)],[o1,o2]))}. Nhập kết quả dạng phân số tối giản.`,ans:[g[0]/g[1]],at:SH(g),exp:`Làm từ trái sang phải: ${SH(qa(A,o1==='+'?B:negQ(B)))} ${o2} ${PA(Cc,SH(Cc))} = ${SH(g)}.`};}}
+function saNhFr(){for(;;){const A=rfr(),B=rfr(),g=qm(A,B);
+  return {stem:`Tính ${E(X([I(A),I(B)],['·']))}. Nhập kết quả dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`${PA(A,SH(A))} · ${PA(B,SH(B))} = ${fr(A[0]*B[0],A[1]*B[1])} = ${SH(g)}.`};}}
+function saNhDec(){for(;;){const A=rdec(),B=rdec(),g=qm(A,B);if(!canDec(g))continue;
+  return {stem:`Tính ${E(X([I(A,true),I(B,true)],['·']))}. Nhập kết quả dưới dạng số thập phân (dùng dấu phẩy).`,ans:[g[0]/g[1]],at:DEC(g),exp:`${DEC(A)} · ${PA(B,DEC(B))} = ${DEC(g)}.`};}}
+function saNhNum(){for(;;){const A=rfr(),B=rfr(),g=qm(A,B);if(g[1]===1)continue;
+  return {stem:`Kết quả của phép tính ${E(X([I(A),I(B)],['·']))} viết được dưới dạng phân số tối giản ${fr('m','n')} với n > 0. Tìm n.`,ans:[g[1]],exp:`${PA(A,SH(A))} · ${PA(B,SH(B))} = ${SH(g)}, nên n = ${g[1]}.`};}}
+function saNhArea(){for(;;){const A=Rq(ri(3,19),ri(2,6)),B=Rq(ri(3,19),ri(2,6));if(A[1]===1||B[1]===1)continue;const g=qm(A,B);
+  return {stem:`Một tấm bìa hình chữ nhật có chiều dài ${SH(A)} dm và chiều rộng ${SH(B)} dm. Tính diện tích tấm bìa (đơn vị dm²). Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`Diện tích = ${SH(A)} · ${SH(B)} = ${SH(g)} (dm²).`};}}
+function saChInv(){for(;;){const A=rfr(),g=qinv(A);
+  return {stem:`Tìm nghịch đảo của ${E(SH(A))}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`${SH(A)} · ${SH(g)} = 1 nên nghịch đảo của ${SH(A)} là ${SH(g)}.`};}}
+function saChFr(){for(;;){const A=rfr(),B=rfr(),g=qd(A,B);if(g[1]>90||Math.abs(g[0])>90)continue;
+  return {stem:`Tính ${E(X([I(A),I(B)],[':']))}. Nhập kết quả dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`${PA(A,SH(A))} : ${PA(B,SH(B))} = ${PA(A,SH(A))} · ${PA(qinv(B),SH(qinv(B)))} = ${SH(g)}.`};}}
+function saChFind(){for(;;){const A=rnz(),B=rnz(),g=qd(B,A);if(g[1]>90||Math.abs(g[0])>90)continue;
+  return {stem:`Tìm x biết ${E('x · '+PA(A,SH(A))+' = '+SH(B))}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`x = ${SH(B)} : ${PA(A,SH(A))} = ${SH(g)}.`};}}
+function saChChain(){for(;;){const A=rnz(),B=rnz(),Cc=rnz(),g=qm(qd(A,B),Cc);if(g[1]>90||Math.abs(g[0])>200)continue;
+  return {stem:`Tính ${E(X([I(A),I(B),I(Cc)],[':','·']))}. Nhập kết quả dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:`Từ trái sang phải: ${SH(qd(A,B))}; rồi · ${PA(Cc,SH(Cc))} = ${SH(g)}.`};}}
+function saChCtx(){for(;;){const Y=Rq(1,ri(2,6)),n=ri(3,15),Xq=qm(Y,[n,1]);if(Xq[1]===1)continue;
+  return {stem:`Một thanh gỗ dài ${SH(Xq)} m được cưa thành các đoạn bằng nhau, mỗi đoạn dài ${SH(Y)} m. Cưa được bao nhiêu đoạn?`,ans:[n],exp:`${SH(Xq)} : ${SH(Y)} = ${n} (đoạn).`};}}
+const saBr=f=>()=>{for(;;){const r=f();if(!r)continue;const g=r.good;if(g[1]>90||Math.abs(g[0])>100)continue;
+  return {stem:`Tính ${E(r.e)}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[g[0]/g[1]],at:SH(g),exp:r.exp};}};
+const saTcBr1=saBr(br1),saTcBr2=saBr(br2),saTcBr3=saBr(br3);
+function saTcDist(){for(;;){const A=rfr(),k=sgn()*ri(1,3),B=rfr(),Cc=qs([k,1],B),R=qm(A,[k,1]);if(Cc[1]===1||Cc[0]===0||R[1]>60)continue;const f=qm(A,B),g=qm(A,Cc);
+  return {stem:`Tính một cách hợp lí ${E(X([{q:f,h:`${PA(A,SH(A))} · ${PA(B,SH(B))}`,n:1},{q:g,h:`${PA(A,SH(A))} · ${PA(Cc,SH(Cc))}`,n:1}],['+']).replace(/^\((.*?)\) ·/,'$1 ·'))}. Nhập dạng phân số tối giản hoặc số nguyên.`,ans:[R[0]/R[1]],at:SH(R),exp:`Đặt thừa số chung: ${SH(A)} · [${SH(B)} + ${PA(Cc,SH(Cc))}] = ${SH(A)} · ${N(k)} = ${SH(R)}.`};}}
+
+/* ============ Bổ sung theo các dạng trong tài liệu dạy thêm của giáo viên ============
+   số nguyên cộng trừ phân số, phép tính với hỗn số, tìm x (một bước, hai bước, tích bằng 0),
+   bỏ ngoặc rồi nhóm các phân số cùng mẫu, thừa số chung với hỗn số, chia một tổng cho một số */
+const rmix=()=>{for(;;){const d=ri(2,7),r=ri(1,d-1),w=ri(1,5);if(gcd(r,d)===1)return [sgn()*(w*d+r),d];}};   // hỗn số (không nguyên)
+const MX=q=>PA(q,MIXD(q));
+const okQ=(g,maxD,maxN)=>g[1]<=(maxD||90)&&Math.abs(g[0])<=(maxN||300);
+const saOf=(d,verb)=>({stem:`${verb||'Tính'} ${E(d.h)}. Nhập kết quả dạng phân số tối giản hoặc số nguyên.`,ans:[d.good[0]/d.good[1]],at:SH(d.good),exp:d.exp});
+/* --- số nguyên cộng, trừ phân số --- */
+function genCtInt(){return tryGen(()=>{
+  const z=sgn()*ri(1,6),B=rfr(),plus=RNG()<.5,Z=[z,1],good=plus?qa(Z,B):qs(Z,B),op=plus?'+':'−';
+  return mk(`Tính ${E(`${N(z)} ${op} ${PA(B,SH(B))}`)}.`,show(good),[
+    Wq(good,[plus?z+B[0]:z-B[0],B[1]],`Phải viết ${N(z)} = ${fr(z*B[1],B[1])} rồi mới cộng, trừ các tử số. Bạn đã cộng, trừ số nguyên thẳng vào tử số.`),
+    Wq(good,plus?qs(Z,B):qa(Z,B),'Bạn nhầm phép cộng với phép trừ.'),
+    Wq(good,qm(Z,B),'Bạn đã nhân hai số thay vì cộng, trừ.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],
+    `${N(z)} = ${fr(z*B[1],B[1])} nên ${N(z)} ${op} ${PA(B,SH(B))} = ${SH(good)}.`);
+});}
+/* --- phép tính với hỗn số --- */
+function mixData(op){
+  for(;;){const A=rmix(),B=(op==='+'||op==='−'||RNG()<.6)?rmix():rfr(),bm=Math.abs(B[0])>B[1];
+    const good=op==='+'?qa(A,B):op==='−'?qs(A,B):op==='·'?qm(A,B):qd(A,B);if(!okQ(good,60,400)||good[0]===0)continue;
+    const hb=bm?MX(B):PA(B,SH(B));
+    return {A,B,bm,good,h:`${MIXD(A)} ${op} ${hb}`,exp:`Đổi hỗn số ra phân số: ${MIXD(A)} = ${SH(A)}${bm?`, ${MIXD(B)} = ${SH(B)}`:''}. Khi đó ${SH(A)} ${op} ${PA(B,SH(B))} = ${SH(good)}.`};}
+}
+function genMix(op){return tryGen(()=>{
+  const d=mixData(op),{A,B,good}=d,a=Math.abs(A[0]),b=Math.abs(B[0]),wa=Math.floor(a/A[1]),wb=Math.floor(b/B[1]);
+  const wrongNeg=A[0]<0?[-(wa*A[1])+(a%A[1]),A[1]]:null;      // hiểu −w r/d là −w + r/d
+  const c=(op==='+'||op==='−')?[
+    wrongNeg?Wq(good,op==='+'?qa(wrongNeg,B):qs(wrongNeg,B),`${MIXD(A)} = −(${wa} + ${fr(a%A[1],A[1])}), không phải −${wa} + ${fr(a%A[1],A[1])}.`):null,
+    Wq(good,op==='+'?qs(A,B):qa(A,B),'Bạn nhầm phép cộng với phép trừ.'),
+    Wq(good,qa(good,[1,1]),'Bạn tính sai phần nguyên.'),
+    Wq(good,qs(good,[1,1]),'Bạn tính sai phần nguyên.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')]:[
+    d.bm?Wq(good,qa([Math.sign(A[0]*B[0])*wa*wb,1],[Math.sign(A[0]*B[0])*(a%A[1])*(b%B[1]),A[1]*B[1]]),'Không nhân riêng phần nguyên với phần nguyên, phần phân số với phần phân số. Phải đổi hỗn số ra phân số trước.'):null,
+    Wq(good,op==='·'?qd(A,B):qm(A,B),op==='·'?'Bạn đã chia thay vì nhân.':'Chia cho một số là nhân với nghịch đảo của số đó. Bạn đã nhân thẳng với số chia.'),
+    op===':'?Wq(good,qd(B,A),'Bạn đã chia ngược thứ tự.'):null,
+    Wq(good,negQ(good),'Sai dấu của kết quả.'),
+    Wq(good,qa(good,[1,1]),'Bạn tính sai kết quả.')];
+  return mk(`Tính ${E(d.h)}.`,show(good),c,d.exp);
+});}
+const genCtMix=()=>genMix(sel(['+','−'])),genNhMix=()=>genMix('·'),genChMix=()=>genMix(':');
+const saCtMix=()=>saOf(mixData(sel(['+','−']))),saNhMix=()=>saOf(mixData(sel(['·',':'])));
+/* --- tìm x một bước --- */
+function findData(kind){
+  for(;;){const A=rfr(),B=rfr(),t=kind==='ct'?ri(0,2):ri(3,4);let h,good,exp,lies;
+    if(t===0){good=qs(B,A);h=`x + ${PA(A,SH(A))} = ${SH(B)}`;exp=`x = ${SH(B)} − ${PA(A,SH(A))} = ${SH(good)}.`;lies=[[qa(B,A),'Muốn tìm số hạng chưa biết, ta lấy tổng trừ đi số hạng đã biết. Bạn đã cộng.'],[qs(A,B),'Bạn đã trừ ngược thứ tự.']];}
+    else if(t===1){good=qa(B,A);h=`x − ${PA(A,SH(A))} = ${SH(B)}`;exp=`x = ${SH(B)} + ${PA(A,SH(A))} = ${SH(good)}.`;lies=[[qs(B,A),'Muốn tìm số bị trừ, ta lấy hiệu cộng với số trừ. Bạn đã trừ.'],[qs(A,B),'Muốn tìm số bị trừ, ta lấy hiệu cộng với số trừ.']];}
+    else if(t===2){good=qs(A,B);h=`${SH(A)} − x = ${SH(B)}`;exp=`x = ${SH(A)} − ${PA(B,SH(B))} = ${SH(good)}.`;lies=[[qs(B,A),'Muốn tìm số trừ, ta lấy số bị trừ trừ đi hiệu. Bạn đã trừ ngược thứ tự.'],[qa(A,B),'Muốn tìm số trừ, ta lấy số bị trừ trừ đi hiệu. Bạn đã cộng.']];}
+    else if(t===3){good=qm(B,A);h=`x : ${PA(A,SH(A))} = ${SH(B)}`;exp=`x = ${SH(B)} · ${PA(A,SH(A))} = ${SH(good)}.`;lies=[[qd(B,A),'Muốn tìm số bị chia, ta lấy thương nhân với số chia. Bạn đã chia.'],[qd(A,B),'Muốn tìm số bị chia, ta lấy thương nhân với số chia.']];}
+    else{good=qd(A,B);h=`${SH(A)} : x = ${SH(B)}`;exp=`x = ${SH(A)} : ${PA(B,SH(B))} = ${SH(good)}.`;lies=[[qd(B,A),'Muốn tìm số chia, ta lấy số bị chia chia cho thương. Bạn đã chia ngược thứ tự.'],[qm(A,B),'Muốn tìm số chia, ta lấy số bị chia chia cho thương. Bạn đã nhân.']];}
+    if(!okQ(good,72,200)||good[0]===0)continue;
+    return {h,good,exp,lies};}
+}
+function genFind(kind){return tryGen(()=>{const d=findData(kind);
+  return mk(`Tìm x biết ${E(d.h)}.`,show(d.good),d.lies.map(l=>Wq(d.good,l[0],l[1])).concat([Wq(d.good,negQ(d.good),'Sai dấu của kết quả.'),Wq(d.good,qinv(d.good),'Bạn đã lấy nghịch đảo của kết quả.')]),d.exp);
+});}
+const genCtFind=()=>genFind('ct'),genChFind2=()=>genFind('ch');
+const saCtFind=()=>saOf(findData('ct'),'Tìm x biết'),saChFind2=()=>saOf(findData('ch'),'Tìm x biết');
+/* --- tìm x hai bước --- */
+function find2Data(){
+  for(;;){const x0=rnz(),A=RNG()<.5?[sgn()*ri(2,5),1]:rfr(),B=rfr(),first=RNG()<.5,Cc=first?qa(qm(A,x0),B):qs(B,qm(A,x0));
+    if(!okQ(Cc,60,200)||!okQ(x0,30,60))continue;
+    const ha=`${SH(A)} · x`,t=first?qs(Cc,B):qs(B,Cc);
+    const h=first?`${ha} + ${PA(B,SH(B))} = ${SH(Cc)}`:`${SH(B)} − ${PA(A,SH(A))} · x = ${SH(Cc)}`;
+    const exp=first?`${ha} = ${SH(Cc)} − ${PA(B,SH(B))} = ${SH(t)}, nên x = ${SH(t)} : ${PA(A,SH(A))} = ${SH(x0)}.`:`${ha} = ${SH(B)} − ${PA(Cc,SH(Cc))} = ${SH(t)}, nên x = ${SH(t)} : ${PA(A,SH(A))} = ${SH(x0)}.`;
+    return {h,good:x0,exp,A,B,Cc,first,t};}
+}
+function genTcFind2(){return tryGen(()=>{const d=find2Data(),{A,B,Cc,t,good}=d;
+  return mk(`Tìm x biết ${E(d.h)}.`,show(good),[
+    Wq(good,t,`Bạn mới tìm được ${SH(A)} · x = ${SH(t)}, còn phải chia cho ${SH(A)}.`),
+    Wq(good,qd(d.first?qa(Cc,B):qa(B,Cc),A),'Bước đầu bạn đã cộng thay vì trừ.'),
+    Wq(good,qm(t,A),`Sau khi có ${SH(A)} · x = ${SH(t)}, phải chia cho ${SH(A)}, không nhân.`),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saTcFind2=()=>saOf(find2Data(),'Tìm x biết');
+/* --- tích bằng 0 --- */
+function genTcZero(){return tryGen(()=>{
+  const p=rnz(),q=rfr(),r=sgn()*ri(2,5),r1=negQ(p),r2=qd(q,[r,1]);
+  if(eqQ(r1,r2)||eqQ(r1,negQ(r2))||!okQ(r2,40,60))return null;
+  const f1=p[0]<0?`x − ${SH(negQ(p))}`:`x + ${SH(p)}`,f2=`${SH(q)} − ${PA([r,1],N(r))} · x`;
+  const T=(a,b)=>`x = ${SH(a)} hoặc x = ${SH(b)}`;
+  return mk(`Tìm x biết ${E(`(${f1}) · (${f2}) = 0`)}.`,T(r1,r2),[
+    C(T(negQ(r1),r2),`Từ ${f1} = 0 suy ra x = ${SH(r1)}, không phải ${SH(negQ(r1))}.`),
+    C(T(r1,negQ(r2)),`Từ ${f2} = 0 suy ra ${N(r)} · x = ${SH(q)} nên x = ${SH(r2)}.`),
+    C(`Chỉ có x = ${SH(r1)}`,'Tích bằng 0 khi một trong hai thừa số bằng 0, nên còn phải xét thừa số thứ hai.'),
+    C(T(r1,qm(q,[r,1])),`Từ ${N(r)} · x = ${SH(q)} phải chia ${SH(q)} cho ${N(r)}, không nhân.`)],
+    `Tích bằng 0 khi một trong hai thừa số bằng 0. ${f1} = 0 cho x = ${SH(r1)}; ${f2} = 0 cho ${N(r)} · x = ${SH(q)} nên x = ${SH(r2)}.`);
+});}
+/* --- bỏ ngoặc rồi nhóm các phân số cùng mẫu --- */
+function groupData(){
+  for(;;){const [m,n]=sample(2,2,7),a=ri(1,9),b=ri(1,9),p=ri(1,2*m-1),k1=ri(1,2),r=k1*m-p,q=ri(1,3*n-1),k2=sel([-1,1,2]),s2=q-k2*n;
+    if(r<=0||s2<=0||gcd(p,m)!==1||gcd(r,m)!==1||gcd(q,n)!==1||gcd(s2,n)!==1||gcd(m,n)!==1)continue;
+    const G=a-b-k1+k2;
+    const h=`(${a} − ${fr(p,m)} + ${fr(q,n)}) − (${b} + ${fr(r,m)} + ${fr(s2,n)})`;
+    const exp=`Bỏ ngoặc (đổi dấu các số hạng trong ngoặc thứ hai) rồi nhóm các phân số cùng mẫu: (${a} − ${b}) − (${fr(p,m)} + ${fr(r,m)}) + (${fr(q,n)} − ${fr(s2,n)}) = ${N(a-b)} − ${k1} + ${PA([k2,1],N(k2))} = ${N(G)}.`;
+    return {h,good:[G,1],exp,a,b,p,r,q,s2,m,n};}
+}
+function genTcGroup(){return tryGen(()=>{const d=groupData(),{a,b,p,r,q,s2,m,n,good}=d;
+  return mk(`Tính một cách hợp lí ${E(d.h)}.`,show(good),[
+    Wq(good,qa(qa([a-b,1],Rq(r-p,m)),Rq(q+s2,n)),'Khi bỏ ngoặc có dấu "−" đằng trước, phải đổi dấu tất cả các số hạng trong ngoặc. Bạn chỉ đổi dấu số hạng đầu tiên.'),
+    Wq(good,qa(qa([a+b,1],Rq(r-p,m)),Rq(q+s2,n)),'Khi bỏ ngoặc có dấu "−" đằng trước, phải đổi dấu tất cả các số hạng trong ngoặc.'),
+    Wq(good,[good[0]+1,1],'Bạn tính sai một nhóm phân số cùng mẫu.'),
+    Wq(good,[good[0]-1,1],'Bạn tính sai một nhóm phân số cùng mẫu.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saTcGroup=()=>saOf(groupData(),'Tính một cách hợp lí');
+/* --- thừa số chung với hai hỗn số có cùng phần phân số --- */
+function mixDistData(){
+  for(;;){const A=rfr();if(Math.abs(A[0])>A[1]||A[0]<0)continue;const d=ri(2,5),r=ri(1,d-1);if(gcd(r,d)!==1)continue;
+    const k=sgn()*ri(1,3),m2=ri(3,30),m1=m2+k*A[1];if(m1<1)continue;
+    const M1=[m1*d+r,d],M2=[m2*d+r,d],good=[A[0]*k,1];
+    return {A,M1,M2,m1,m2,good,h:`${SH(A)} · ${MIXD(M1)} − ${SH(A)} · ${MIXD(M2)}`,exp:`Đặt thừa số chung: ${SH(A)} · (${MIXD(M1)} − ${MIXD(M2)}) = ${SH(A)} · ${PA([m1-m2,1],N(m1-m2))} = ${N(good[0])}.`};}
+}
+function genTcMixDist(){return tryGen(()=>{const d=mixDistData(),{A,M1,M2,m1,m2,good}=d;
+  return mk(`Tính một cách hợp lí ${E(d.h)}.`,show(good),[
+    Wq(good,qm(A,qa(M1,M2)),'Hai tích nối với nhau bằng dấu "−" nên trong ngoặc là hiệu của hai hỗn số, không phải tổng.'),
+    Wq(good,[m1-m2,1],`Bạn mới tính hiệu hai hỗn số, còn phải nhân với ${SH(A)}.`),
+    Wq(good,negQ(good),'Sai dấu của kết quả.'),
+    Wq(good,qa(good,[1,1]),'Hai hỗn số có cùng phần phân số nên hiệu của chúng là một số nguyên. Hãy tính lại hiệu đó.')],d.exp);
+});}
+const saTcMixDist=()=>saOf(mixDistData(),'Tính một cách hợp lí');
+/* --- chia một tổng cho một số --- */
+function divDistData(){
+  for(;;){const [m,n]=sample(2,2,7);if(gcd(m,n)!==1)continue;
+    const p1=sgn()*ri(1,2*m-1),k1=sel([-1,1]),p3=k1*m-p1,p2=sgn()*ri(1,2*n-1),k2=sel([1,2]),p4=k2*n-p2;
+    if(gcd(p1,m)!==1||gcd(p3,m)!==1||gcd(p2,n)!==1||gcd(p4,n)!==1||k1+k2===0)continue;
+    const c=rfr();if(c[0]<0)continue;const T=k1+k2,good=qd([T,1],c);
+    const S=(x,y)=>`${fr(x,m)} + ${PA([y,1],fr(y,n))}`;
+    return {good,T,c,h:`(${S(p1,p2)}) : ${SH(c)} + (${S(p3,p4)}) : ${SH(c)}`,
+      exp:`Hai phép chia có cùng số chia nên gộp lại: [(${fr(p1,m)} + ${PA([p3,1],fr(p3,m))}) + (${fr(p2,n)} + ${PA([p4,1],fr(p4,n))})] : ${SH(c)} = (${N(k1)} + ${k2}) : ${SH(c)} = ${N(T)} · ${SH(qinv(c))} = ${SH(good)}.`};}
+}
+function genTcDivDist(){return tryGen(()=>{const d=divDistData(),{good,T,c}=d;
+  return mk(`Tính một cách hợp lí ${E(d.h)}.`,show(good),[
+    Wq(good,qm([T,1],c),`Sau khi gộp được ${N(T)} : ${SH(c)}, phải nhân với nghịch đảo của ${SH(c)}.`),
+    Wq(good,[T,1],`Bạn mới tính tổng trong ngoặc, còn phải chia cho ${SH(c)}.`),
+    Wq(good,qd(c,[T,1]),'Bạn đã chia ngược thứ tự.'),
+    Wq(good,negQ(good),'Sai dấu của kết quả.')],d.exp);
+});}
+const saTcDivDist=()=>saOf(divDistData(),'Tính một cách hợp lí');
+/* --- đúng sai: phép biến đổi nào đúng với mọi số hữu tỉ --- */
+function tTcRules(){
+  const Ts=[IT('a : c + b : c = (a + b) : c với mọi số hữu tỉ a, b, c (c ≠ 0)',true,'tc','VD','Chia cho c là nhân với 1/c, nên a : c + b : c = (a + b) : c theo tính chất phân phối.'),
+    IT('a − (b − c) = a − b + c với mọi số hữu tỉ a, b, c',true,'tc','VD','Bỏ ngoặc có dấu "−" đằng trước thì đổi dấu các số hạng trong ngoặc.'),
+    IT('a · b − a · c = a · (b − c) với mọi số hữu tỉ a, b, c',true,'tc','VD','Đây là tính chất phân phối của phép nhân đối với phép trừ.'),
+    IT('a − b − c = a − (b + c) với mọi số hữu tỉ a, b, c',true,'tc','VD','Đặt dấu ngoặc có dấu "−" đằng trước thì đổi dấu các số hạng đưa vào ngoặc.')];
+  const Fs=[IT('a : b + a : c = a : (b + c) với mọi số hữu tỉ a, b, c khác 0 (b + c ≠ 0)',false,'tc','VD','Chẳng hạn 6 : 2 + 6 : 1 = 9 nhưng 6 : (2 + 1) = 2. Chỉ gộp được khi hai phép chia có cùng số chia.'),
+    IT('a − (b + c) = a − b + c với mọi số hữu tỉ a, b, c',false,'tc','VD','Chẳng hạn 5 − (2 + 1) = 2 nhưng 5 − 2 + 1 = 4. Phải đổi dấu cả c.'),
+    IT('a · (b + c) = a · b + c với mọi số hữu tỉ a, b, c',false,'tc','VD','Chẳng hạn 2 · (3 + 1) = 8 nhưng 2 · 3 + 1 = 7. Phải nhân a với cả c.'),
+    IT('a : (b · c) = (a : b) · c với mọi số hữu tỉ a, b, c khác 0',false,'tc','VD','Chẳng hạn 12 : (2 · 3) = 2 nhưng (12 : 2) · 3 = 18.')];
+  return {stem:'Xét các phát biểu sau:',items:pick4(Ts,Fs)};
+}
+['a','b'].forEach(x=>{
+  addMC('g_ctint_'+x,'ct','NB',genCtInt);addMC('g_ctmix_'+x,'ct','TH',genCtMix);addMC('g_nhmix_'+x,'nh','TH',genNhMix);addMC('g_chmix_'+x,'ch','TH',genChMix);
+  addMC('g_ctfind_'+x,'ct','TH',genCtFind);addMC('g_chfind2_'+x,'ch','TH',genChFind2);addMC('g_tcfind2_'+x,'tc','VD',genTcFind2);addMC('g_tczero_'+x,'tc','VD',genTcZero);
+  addMC('g_tcgroup_'+x,'tc','VD',genTcGroup);addMC('g_tcmixdist_'+x,'tc','VD',genTcMixDist);addMC('g_tcdivdist_'+x,'tc','VD',genTcDivDist);
+});
+addTF('tf_tc_vd2','tc','VD',tTcRules);
+
+const BANK={mc:MC,tf:TF,sa:SA_BUILD()};
+function SA_BUILD(){
+  const S=[];const add=(id,topic,level,gen,unit)=>['a','b'].forEach(x=>S.push({id:id+x,type:'sa',topic,level,unit:unit||'',gen}));
+  add('s_ctadd','ct','NB',saCtAdd);add('s_ctdec','ct','TH',saCtDec);add('s_ctnum','ct','TH',saCtNum);add('s_ctthree','ct','TH',saCtThree);
+  add('s_nhfr','nh','NB',saNhFr);add('s_nhdec','nh','TH',saNhDec);add('s_nhnum','nh','TH',saNhNum);add('s_nharea','nh','VD',saNhArea);
+  add('s_chinv','ch','NB',saChInv);add('s_chfr','ch','TH',saChFr);add('s_chfind','ch','TH',saChFind);add('s_chchain','ch','TH',saChChain);add('s_chctx','ch','VD',saChCtx);
+  add('s_ctmix','ct','TH',saCtMix);add('s_nhmix','nh','TH',saNhMix);add('s_ctfind','ct','TH',saCtFind);add('s_chfind2','ch','TH',saChFind2);
+  add('s_tcfind2','tc','VD',saTcFind2);add('s_tcgroup','tc','VD',saTcGroup);add('s_tcmixdist','tc','VD',saTcMixDist);add('s_tcdivdist','tc','VD',saTcDivDist);
+  add('s_tcbr1','tc','NB',saTcBr1);add('s_tcbr2','tc','TH',saTcBr2);add('s_tcbr3','tc','VD',saTcBr3);add('s_tcdist','tc','VD',saTcDist);
+  return S;
+}
+const SA=BANK.sa;
+const TF_SCORE=[0,0.1,0.25,0.5,1];
+const TYPES=['mc','tf','sa'];
+
+/* ============ Nội dung, mức độ, ôn nhanh ============ */
+const TOPICS={
+  ct:{short:'Cộng, trừ',name:'Cộng, trừ số hữu tỉ',rule:'Viết hai số hữu tỉ dưới dạng phân số cùng mẫu dương rồi cộng (hoặc trừ) hai tử số, giữ nguyên mẫu. Trừ một số bằng cộng với số đối của nó: x − y = x + (−y). Phép cộng có tính chất giao hoán và kết hợp.',tip:'Không cộng (hay trừ) tử với tử và mẫu với mẫu: phải quy đồng mẫu số trước, và chú ý dấu khi trừ một số âm.'},
+  nh:{short:'Nhân',name:'Nhân số hữu tỉ',rule:'Nhân hai số hữu tỉ: nhân tử với tử, mẫu với mẫu. Hai số cùng dấu thì tích dương, khác dấu thì tích âm, nhân với 0 cho kết quả 0. Phép nhân có tính chất giao hoán, kết hợp và phân phối đối với phép cộng.',tip:'Đếm số thừa số âm để biết dấu của tích: số thừa số âm chẵn thì tích dương, lẻ thì tích âm.'},
+  ch:{short:'Chia',name:'Chia số hữu tỉ',rule:'Chia cho một số hữu tỉ khác 0 là nhân với nghịch đảo của số đó: x : y = x · (1/y). Nghịch đảo của a/b là b/a (a ≠ 0). Không thể chia cho 0. Phép chia và phép nhân cùng cấp: làm từ trái sang phải.',tip:'Chỉ đảo ngược số chia, không đảo số bị chia. Nghịch đảo khác số đối: nghịch đảo của 2 là 1/2, số đối của 2 là −2.'},
+  tc:{short:'Tính chất, dấu ngoặc',name:'Tính chất và quy tắc dấu ngoặc',rule:'Khi bỏ dấu ngoặc có dấu "+" đằng trước thì giữ nguyên dấu các số hạng trong ngoặc; khi bỏ dấu ngoặc có dấu "−" đằng trước thì đổi dấu tất cả các số hạng trong ngoặc. Tính chất phân phối: a · (b + c) = a · b + a · c, dùng để tính một cách hợp lí.',tip:'Dấu "−" trước ngoặc làm đổi dấu mọi số hạng trong ngoặc, không chỉ số hạng đầu. Có nhiều lớp ngoặc thì bỏ từ trong ra ngoài.'}
+};
+const TKEYS=['ct','nh','ch','tc'];
+const TDESC={ct:'Cộng, trừ hai số hữu tỉ, quy đồng, trừ một số âm, nhiều số hạng',nh:'Nhân hai số hữu tỉ, quy tắc dấu, nhân số thập phân với phân số',ch:'Nghịch đảo, chia hai số hữu tỉ, chia và nhân cùng cấp',tc:'Quy tắc dấu ngoặc, tính chất giao hoán, kết hợp, phân phối, tính một cách hợp lí'};
+const LEVELS={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng'};
+const LEVEL_DESC={NB:'Nhớ quy tắc, cộng trừ nhân chia các phân số đơn giản, tìm nghịch đảo, xét dấu của tích.',TH:'Cộng, trừ, nhân, chia hai số hữu tỉ khác mẫu hoặc có số thập phân, bỏ dấu ngoặc đúng quy tắc.',VD:'Tính biểu thức nhiều phép tính, tính hợp lí bằng tính chất phân phối, bài toán thực tế và suy luận nhiều bước.'};
+const RECAP=[
+  {k:'ct',fig:`<div class="figbox"><p>${fr('a','b')} + ${fr('c','d')} = ${fr('a·d + c·b','b·d')}</p><p>x − y = x + (−y)</p><p>${fr(1,2)} − ${fr(1,3)} = ${fr(3,6)} − ${fr(2,6)} = ${fr(1,6)}</p></div>`,extra:'Ví dụ: −3/4 + 1/6 = −9/12 + 2/12 = −7/12. Quy đồng trước, cộng tử sau.'},
+  {k:'nh',fig:`<div class="figbox"><p>${fr('a','b')} · ${fr('c','d')} = ${fr('a·c','b·d')}</p><p>(−) · (−) = (+), (+) · (−) = (−)</p><p>${fr(-2,3)} · ${fr(9,4)} = ${fr(-3,2)}</p></div>`,extra:'Ví dụ: (−2/3) · (9/4) = −18/12 = −3/2. Hai dấu khác nhau nên tích âm.'},
+  {k:'ch',fig:`<div class="figbox"><p>${fr('a','b')} : ${fr('c','d')} = ${fr('a','b')} · ${fr('d','c')}</p><p>Nghịch đảo của ${fr('c','d')} là ${fr('d','c')}</p><p>${fr(3,4)} : ${fr(-9,8)} = ${fr(-2,3)}</p></div>`,extra:'Ví dụ: (3/4) : (−9/8) = (3/4) · (−8/9) = −24/36 = −2/3.'},
+  {k:'tc',fig:`<div class="figbox"><p>a + (b − c) = a + b − c</p><p>a − (b − c) = a − b + c</p><p>a · (b + c) = a · b + a · c</p></div>`,extra:'Ví dụ: 1/2 − (1/3 − 1/4) = 1/2 − 1/3 + 1/4 = 5/12.'}
+];
+
+/* ==== Toán thực tế bổ sung: bắt đầu ==== */
+{
+const nm=x=>{const r=Math.round(x*1e6)/1e6;return (r<0?'−':'')+String(Math.abs(r)).replace('.',',');};
+const T=(h,r)=>`<div style="overflow-x:auto"><table class="dt"><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(w=>`<tr>${w.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const P=s=>`<p class="stem">${s}</p>`;
+const Fh=(n,d)=>`<span class="fr"><span>${nm(n)}</span><span>${nm(d)}</span></span>`;
+const MCQ=(stem,right,wrongs,exp,topic,level)=>({type:'mc',topic,level,stem,ans:0,opts:[{t:right}].concat(wrongs.map(w=>({t:w[0],err:w[1]}))),exp});
+const SAQ=(stem,ans,unit,exp,topic,level)=>({type:'sa',topic,level,unit,stem,ans:[ans],exp});
+const M=(stem,right,wr,exp,tp,lv)=>{const q=MCQ(stem,right,wr,exp,tp,lv);if(q.opts.length!==4||new Set(q.opts.map(o=>String(o.t))).size!==4||q.opts.slice(1).some(o=>!o.err))throw 0;return q;};
+const A=(stem,ans,unit,exp,tp,lv,at)=>{if(!isFinite(ans))throw 0;return Object.assign(SAQ(stem,ans,unit,exp,tp,lv),{at:at||nm(ans)});};
+const G=f=>()=>{for(let k=0;k<3000;k++){try{const u=f();if(u)return u;}catch(e){if(e!==0)throw e;}}throw new Error('Toán thực tế: không sinh được tình huống');};
+const pk=(a,n)=>shuffle(a).slice(0,n);
+const near5=(x,k)=>{const v=Math.abs(x)*Math.pow(10,k);return Math.abs(v-Math.floor(v)-0.5)<0.02;};
+const rd=(x,k)=>{const p=Math.pow(10,k);return Math.round(x*p+(x>=0?1e-9:-1e-9))/p;};
+const dexp=(p,q)=>{const I=Math.floor(p/q);let r=p%q;const seen={},ds=[];while(r&&seen[r]===undefined){seen[r]=ds.length;r*=10;ds.push(Math.floor(r/q));r%=q;}if(!r)return {I,pre:ds.join(''),per:''};const k=seen[r];return {I,pre:ds.slice(0,k).join(''),per:ds.slice(k).join('')};};
+const dstr=o=>o.per?`${o.I},${o.pre}(${o.per})`:(o.pre?`${o.I},${o.pre}`:`${o.I}`);
+const dig=(p,q,k)=>{let r=p%q,d=0;for(let i=0;i<k;i++){r*=10;d=Math.floor(r/q);r%=q;}return d;};
+const gc=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a;};
+const fin=(p,q)=>{q/=gc(p,q);while(q%2===0)q/=2;while(q%5===0)q/=5;return q===1;};
+PISA.push(
+ G(()=>{const it=pk([['Táo',5*ri(8,16)],['Cam',5*ri(6,12)],['Nho',10*ri(8,15)],['Xoài',5*ri(6,12)]],3),w=it.map(()=>sel([0.5,1.5,2,2.5,0.75,1.25]));
+  const c=it.map((x,i)=>rd(x[1]*w[i],2));if(c.some(v=>Math.abs(v*10-Math.round(v*10))>1e-9))throw 0;
+  const tot=rd(c[0]+c[1]+c[2],2),B=tot<200?200:500;if(tot>=B)throw 0;const back=rd(B-tot,2);
+  const pr=it[0][1],k=sel([1.5,2.5,0.5,3.5]),M2=rd(pr*k,2);
+  const ex=it.map((x,i)=>`${x[1]} · ${nm(w[i])}`);
+  return {title:'Mua trái cây',ctx:P('Cô Lan đi mua trái cây. Bảng sau ghi giá bán và khối lượng cô Lan mua mỗi loại.')+T(['Loại','Giá (nghìn đồng/kg)','Khối lượng mua (kg)'],it.map((x,i)=>[x[0],x[1],nm(w[i])])),qs:[
+   A(`Số tiền mua ${it[0][0].toLowerCase()} là bao nhiêu nghìn đồng?`,c[0],'nghìn đồng',`${it[0][1]} · ${nm(w[0])} = ${nm(c[0])}.`,'nh','TH'),
+   A('Tổng số tiền cô Lan phải trả là bao nhiêu nghìn đồng?',tot,'nghìn đồng',`${ex.join(' + ')} = ${c.map(nm).join(' + ')} = ${nm(tot)}.`,'ct','TH'),
+   M(`Cô Lan đưa người bán ${B} nghìn đồng. Biểu thức nào tính số tiền cô Lan được trả lại (nghìn đồng)?`,`${B} − (${ex.join(' + ')})`,[[`${B} − ${ex.join(' + ')}`,'Thiếu dấu ngoặc: chỉ trừ tiền loại thứ nhất mà lại cộng tiền hai loại sau.'],[`${B} − (${it.map(x=>x[1]).join(' + ')}) · (${w.map(nm).join(' + ')})`,'Mỗi loại có giá và khối lượng riêng, phải nhân từng cặp rồi mới cộng.'],[`${B} + (${ex.join(' + ')})`,'Tiền đã trả làm số tiền giảm đi, phải trừ.']],`Tiền trả lại = ${B} − tổng tiền mua = ${B} − (${ex.join(' + ')}) = ${nm(back)} (nghìn đồng).`,'tc','VD'),
+   A(`Hôm sau cô Lan có ${nm(M2)} nghìn đồng và chỉ mua ${it[0][0].toLowerCase()} với giá như cũ. Cô mua được bao nhiêu ki-lô-gam ${it[0][0].toLowerCase()}?`,k,'kg',`${nm(M2)} : ${pr} = ${nm(k)} (kg).`,'ch','VD')]};}),
+ G(()=>{const a=sel([3,4,5,6]),c=sel([3,4,5]),b=ri(1,c-1),k=ri(2,8),Pg=a*c*k;if(Pg<120||Pg>400||gc(b,c)!==1)throw 0;
+  const d1=Pg/a,r1=Pg-d1,d2=r1*b/c,rem=[(a-1)*(c-b),a*c],g=gc(rem[0],rem[1]),rf=[rem[0]/g,rem[1]/g];if(!Number.isInteger(d2)||rf[1]===1)throw 0;
+  return {title:'Đọc sách',ctx:P(`Bạn Mai đọc một cuốn sách dày ${Pg} trang. Ngày thứ nhất Mai đọc ${Fh(1,a)} số trang của cuốn sách. Ngày thứ hai Mai đọc ${Fh(b,c)} số trang còn lại.`),qs:[
+   A('Ngày thứ nhất Mai đọc bao nhiêu trang?',d1,'trang',`${Pg} · ${Fh(1,a)} = ${d1} (trang).`,'nh','TH'),
+   M('Sau ngày thứ nhất, số trang còn lại bằng bao nhiêu phần cuốn sách?',Fh(a-1,a),[[Fh(1,a),'Đây là phần Mai đã đọc, không phải phần còn lại.'],[Fh(a+1,a),`Phần còn lại là 1 − ${Fh(1,a)}, không phải 1 + ${Fh(1,a)}.`],[Fh(a-1,a+1),'Không trừ tử với tử và mẫu với mẫu như vậy. Viết 1 thành phân số có cùng mẫu rồi mới trừ.']],`1 − ${Fh(1,a)} = ${Fh(a-1,a)}.`,'ct','TH'),
+   A('Ngày thứ hai Mai đọc bao nhiêu trang?',d2,'trang',`Số trang còn lại sau ngày thứ nhất: ${Pg} − ${d1} = ${r1}. Ngày thứ hai đọc ${r1} · ${Fh(b,c)} = ${d2} (trang).`,'nh','VD'),
+   A('Sau hai ngày, số trang chưa đọc bằng bao nhiêu phần cuốn sách? Nhập dạng phân số tối giản.',rf[0]/rf[1],'',`Sau ngày thứ hai còn lại ${Fh(a-1,a)} · (1 − ${Fh(b,c)}) = ${Fh(a-1,a)} · ${Fh(c-b,c)} = ${Fh(rf[0],rf[1])} cuốn sách.`,'tc','VD',Fh(rf[0],rf[1]))]};})
+);
+}
+/* ==== Toán thực tế bổ sung: kết thúc ==== */
+/* ============ Trạng thái ============ */
+const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
+const LIMIT={test:25*60,quick:5*60,hard:30*60};
+const SEEN_KEY='ct7_seen';
+function fmtTime(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+let tick=null;
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+function updateTimer(){
+  if(state.view!=='quiz'||!S)return;
+  const el=document.getElementById('timer'),used=Math.floor((Date.now()-state.t0)/1000);
+  if(S.mode!=='practice'){
+    const lim=LIMIT[S.mode],left=lim-used;
+    if(el){el.textContent='Còn '+fmtTime(left);el.classList.toggle('low',left<=Math.min(300,lim*0.2));}
+    if(left<=0){state.timedOut=true;finish(true);}
+  }else if(el)el.textContent='Đã dùng '+fmtTime(used);
+}
+function startTimer(){stopTimer();updateTimer();if(state.view==='quiz')tick=setInterval(updateTimer,1000);}
+let S=null;
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>{const s=n.toFixed(2).replace(/\.?0+$/,'');return s.replace('.',',');};
+function status(p){return p>=80?['good','Thành thạo']:p>=50?['warn','Cần củng cố']:['bad','Cần học lại'];}
+function inst(q){return q.gen?Object.assign({},q,q.gen()):q;}
+let seen={};try{seen=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){seen={};}
+function markSeen(list){list.forEach(q=>{seen[q.id]=(seen[q.id]||0)+1;});try{localStorage.setItem(SEEN_KEY,JSON.stringify(seen));}catch(e){}}
+function ordered(pool){if(SEEDED)return shuffle(pool);const w=q=>(seen[q.id]||0)*(q.gen?0.25:1);return shuffle(pool).sort((a,b)=>w(a)-w(b));}
+
+
+// ===== Dựng gói (nguyên văn) =====
+/* ============ Dựng phiên làm bài ============ */
+function pick(pool,used){
+  const x=ordered(pool.filter(x=>!used.has(x.id)))[0];used.add(x.id);return x;
+}
+function makeSession(mode,spec,title,by){
+  const list=[];
+  // không để hai câu giống hệt nhau trong cùng một phiên: câu tự sinh bị trùng thì sinh lại
+  // và cố tránh hai câu cùng một khuôn đề chỉ khác số (nếu bộ sinh có khuôn đề khác)
+  {const sig=q=>JSON.stringify([q.stem,q.fig||'',(q.opts||[]).map(o=>JSON.stringify(o)).sort(),(q.items||[]).map(i=>i.t)]);
+   const near=q=>q.type+'|'+String(q.stem).replace(/<[^>]+>/g,'').replace(/[0-9]+/g,'#');
+   const sg=new Set(),ng=new Set();
+   TYPES.forEach(t=>by[t]=by[t].map(q=>{
+     let x=inst(q);
+     if(q.gen){
+       for(let k=0;k<12&&(sg.has(sig(x))||ng.has(near(x)));k++){const y=inst(q);if(!sg.has(sig(y))||sg.has(sig(x)))x=y;}
+       for(let k=0;k<20&&sg.has(sig(x));k++)x=inst(q);
+     }
+     sg.add(sig(x));ng.add(near(x));return x;}));}
+  TYPES.forEach(t=>by[t].forEach(q=>list.push(q)));
+  const idx={};TYPES.forEach(t=>by[t].forEach((q,i)=>idx[q.id]=i));
+  state.ans={};state.pr={};state.result=null;state.perm={};
+  state.t0=Date.now();state.elapsed=0;state.timedOut=false;if(!SEEDED)markSeen(list);
+  {const keep=RNG;RNG=Math.random;by.mc.forEach(q=>{state.perm[q.id]=shuffle(q.opts.map((_,i)=>i));});RNG=keep;}
+  S={mode,spec,title,by,list,idx};
+}
+function buildTest(){
+  const used=new Set();
+  const mcSlots=[['ct',['NB','TH']],['ct',['TH','VD']],['nh',['NB','TH','VD']],['ch',['NB','TH','VD']],['tc',['NB','TH']],['tc',['TH','VD']]];
+  const mc=mcSlots.map(([t,l])=>pick(MC.filter(q=>q.topic===t&&l.includes(q.level)),used));
+  const tf=['ct',sel(['nh','ch']),'tc'].map(t=>pick(TF.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  const sa=TKEYS.map(t=>pick(SA.filter(q=>q.topic===t&&q.level!=='NB'),used));
+  makeSession('test',null,'Bài kiểm tra',{mc,tf,sa});
+}
+function buildQuick(){
+  const used=new Set(),t1=sel(['ct','nh']),t2=sel(['ch','tc']);
+  const mc=[
+    pick(MC.filter(q=>q.topic==='ct'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='nh'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='ch'&&q.level!=='VD'),used),
+    pick(MC.filter(q=>q.topic==='tc'&&q.level!=='VD'),used)
+  ];
+  const sa=[pick(SA.filter(q=>q.topic===t1&&q.level!=='VD'),used),pick(SA.filter(q=>q.topic===t2&&q.level!=='VD'),used)];
+  makeSession('quick',null,'Kiểm tra nhanh',{mc,tf:[],sa});
+}
+function buildHard(){
+  const vd=q=>q.level==='VD';
+  const mc=ordered(MC.filter(vd)).slice(0,6);
+  const tf=ordered(HARD.tf).slice(0,1).concat(ordered(TF.filter(vd)).slice(0,2));
+  const sa=ordered(HARD.sa).slice(0,4);
+  makeSession('hard',null,'Thử thách',{mc,tf,sa});
+}
+function buildPisa(){
+  const units=shuffle(PISA).slice(0,3).map(f=>f());
+  const by={mc:[],tf:[],sa:[]};
+  units.forEach((u,ui)=>u.qs.forEach((q,k)=>{q.id='p'+ui+'_'+k;q.no=k;q.lb=`Tình huống ${ui+1}, câu ${k+1}`;by[q.type].push(q);}));
+  makeSession('practice',{kind:'pisa'},'Gói Toán thực tế',by);
+  S.units=units;
+}
+function buildPractice(spec){
+  let f,title;
+  if(spec.kind==='level'){f=q=>q.level===spec.val;title='Gói '+LEVELS[spec.val];}
+  else if(spec.kind==='topic'){f=q=>q.topic===spec.val;title='Gói '+TOPICS[spec.val].short;}
+  else{f=q=>spec.topics.includes(q.topic);title='Gói ôn điểm yếu';}
+  const nSA=spec.kind==='topic'?4:3;
+  // ưu tiên các dạng câu khác nhau trong một gói; thiếu thì mới lấy thêm câu cùng dạng
+  const take=(arr,n)=>{const o=ordered(arr.filter(f)),out=[],g=new Set();o.forEach(q=>{if(out.length<n&&!(q.gen&&g.has(q.gen))){out.push(q);if(q.gen)g.add(q.gen);}});o.forEach(q=>{if(out.length<n&&!out.includes(q))out.push(q);});return out;};
+  makeSession('practice',spec,title,{mc:take(MC,6),tf:take(TF,2),sa:take(SA,nSA)});
+}
+
+
+// ===== Nhãn câu (nguyên văn) =====
+const PART_NAME={mc:'Phần I',tf:'Phần II',sa:'Phần III'},PART_QUICK={mc:'Phần I',sa:'Phần II'};
+const partName=t=>S.mode==='quick'?PART_QUICK[t]:PART_NAME[t];
+const TYPE_NAME={mc:'Nhiều lựa chọn',tf:'Đúng sai',sa:'Trả lời ngắn'};
+function lbl(t,i,j){
+  const q0=S.by[t][i];if(q0&&q0.lb)return j==null?q0.lb:`${q0.lb}, ý ${'abcd'[j]}`;
+  const base=S.mode!=='practice'?`${partName(t)}, câu ${i+1}`:`${TYPE_NAME[t]}, câu ${i+1}`;
+  return j==null?base:`${base}, ý ${'abcd'[j]}`;
+}
+
+// ===== Chấm điểm (nguyên văn) =====
+/* ============ Chấm điểm ============ */
+function parseNum(s){
+  s=String(s).trim().replace(/[−–—]/g,'-');
+  if(/^[1-9]\d{0,2}([.\s]\d{3})+$/.test(s))s=s.replace(/[.\s]/g,'');
+  s=s.replace(/,/g,'.').replace(/[^0-9.\-\/]/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){const [a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+  return parseFloat(s);
+}
+function evalQ(q,a){
+  if(q.type==='mc')return [a===q.ans];
+  if(q.type==='tf'){a=a||[];return q.items.map((it,j)=>a[j]===it.v);}
+  const v=parseNum(a==null?'':a);
+  return [!isNaN(v)&&q.ans.some(x=>Math.abs(x-v)<1e-6)];
+}
+function grade(){
+  const test=S.mode!=='practice',quick=S.mode==='quick';
+  const items=[],sc={mc:0,tf:0,sa:0},errs=[],qres=[];
+  const ansOf=q=>test?state.ans[q.id]:(state.pr[q.id]&&state.pr[q.id].firstAns);
+  const oksOf=q=>{
+    if(test)return evalQ(q,ansOf(q));
+    const P=state.pr[q.id];return P&&P.first?P.first:Array(q.type==='tf'?q.items.length:1).fill(false);
+  };
+  S.by.mc.forEach((q,i)=>{
+    const a=ansOf(q),ok=oksOf(q)[0];
+    if(ok)sc.mc+=quick?1.25:0.5;else if(a!=null&&q.opts[a]&&q.opts[a].err)errs.push({where:lbl('mc',i),topic:q.topic,text:q.opts[a].err});
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('mc',i)});
+    qres.push({kind:'mc',q,i,a,ok,pts:ok?(quick?1.25:0.5):0,max:quick?1.25:0.5});
+  });
+  S.by.tf.forEach((q,i)=>{
+    const a=ansOf(q)||[],oks=oksOf(q);let k=0;
+    q.items.forEach((it,j)=>{
+      const ok=oks[j];if(ok)k++;
+      items.push({topic:it.topic,level:it.level,ok,label:lbl('tf',i,q.items.length>1?j:null)});
+      if(!ok&&typeof a[j]==='boolean')errs.push({where:lbl('tf',i,q.items.length>1?j:null),topic:it.topic,text:it.exp});
+    });
+    const pts=quick?(k?1.25:0):TF_SCORE[k];sc.tf+=pts;
+    qres.push({kind:'tf',q,i,a,oks,k,pts,max:quick?1.25:1});
+  });
+  S.by.sa.forEach((q,i)=>{
+    const raw=ansOf(q)||'',ok=oksOf(q)[0];
+    if(ok)sc.sa+=quick?2.5:1;
+    items.push({topic:q.topic,level:q.level,ok,label:lbl('sa',i)});
+    qres.push({kind:'sa',q,i,raw,ok,pts:ok?(quick?2.5:1):0,max:quick?2.5:1});
+  });
+  const topics={};TKEYS.forEach(k=>topics[k]={c:0,n:0});
+  const levels={NB:{c:0,n:0},TH:{c:0,n:0},VD:{c:0,n:0}};
+  items.forEach(it=>{topics[it.topic].n++;levels[it.level].n++;if(it.ok){topics[it.topic].c++;levels[it.level].c++;}});
+  const total=Math.round((sc.mc+sc.tf+sc.sa)*100)/100;
+  return {items,sc,total,topics,levels,errs,qres};
+}
+function pct(o){return o.n?Math.round(100*o.c/o.n):0;}
+function updateWeak(r){
+  TKEYS.forEach(k=>{if(r.topics[k].n)state.topicPct[k]=pct(r.topics[k]);});
+  state.weak=TKEYS.filter(k=>state.topicPct[k]!==undefined&&state.topicPct[k]<80).sort((a,b)=>state.topicPct[a]-state.topicPct[b]);
+}
+
+
+// ===== Giao tiếp với máy chủ =====
+  const XAY = { test: buildTest, quick: buildQuick, hard: buildHard, pisa: buildPisa };
+  return {
+    TOPICS, TKEYS, LEVELS, LIMIT,
+    /** Dựng một phiên. cheDo: test | quick | hard | pisa | practice; spec cho practice; maDe: cùng mã → cùng đề. */
+    taoPhien(cheDo, spec, maDe) {
+      if (cheDo !== "practice" && !XAY[cheDo]) throw new Error("Chế độ không hợp lệ: " + cheDo);
+      const chay = () => (cheDo === "practice" ? buildPractice(spec) : XAY[cheDo]());
+      if (maDe) {
+        RNG = mulberry32(hashStr(cheDo + "|" + maDe)); SEEDED = true;
+        try { chay(); } finally { RNG = Math.random; SEEDED = false; }
+      } else chay();
+      return JSON.parse(JSON.stringify({ mode: S.mode, spec: S.spec, title: S.title, by: S.by, idx: S.idx, units: S.units || null, perm: state.perm }));
+    },
+    /** Chấm. traLoi: { id: câu trả lời } (bài kiểm tra) hoặc { id: {first, firstAns} } (luyện tập). */
+    cham(phien, traLoi) {
+      S = { mode: phien.mode, spec: phien.spec, title: phien.title, by: phien.by, idx: phien.idx, units: phien.units, list: [] };
+      TYPES.forEach(t => S.by[t].forEach(q => S.list.push(q)));
+      if (phien.mode === "practice") { state.pr = traLoi || {}; state.ans = {}; }
+      else { state.ans = traLoi || {}; state.pr = {}; }
+      const r = grade();
+      return {
+        total: r.total, sc: r.sc, topics: r.topics, levels: r.levels, errs: r.errs,
+        qres: r.qres.map(x => ({ kind: x.kind, id: x.q.id, i: x.i, ok: x.ok, oks: x.oks, k: x.k, pts: x.pts, max: x.max }))
+      };
+    },
+    /** Kiểm tra một câu (dùng cho chế độ luyện tập). */
+    kiemTra(q, a) { return evalQ(q, a); },
+  };
+}

@@ -3,3 +3,4 @@
 *.xlsx
 nhap*.sql
 supabase/.temp/
+dist/
