@@ -1,0 +1,17 @@
+{
+  "name": "Luyện toán THCS",
+  "short_name": "Luyện toán",
+  "description": "Luyện toán lớp 6–9 theo từng bài học: nhiều lựa chọn, đúng sai, trả lời ngắn.",
+  "lang": "vi",
+  "start_url": "./cac-bai/?nguon=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF7EC",
+  "theme_color": "#2F5BEA",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

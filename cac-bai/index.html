@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Ứng dụng trên điện thoại (PWA) -->
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#2F5BEA">
+<link rel="icon" type="image/png" href="../icons/favicon-48.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Luyện toán">
 <title>Luyện toán THCS – Các bài</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +167,12 @@ a.lesson.new:hover{border-color:var(--c)}
     <span><b id="rank-1"></b><small id="rank-2"></small></span>
     <span aria-hidden="true" style="flex:none;font-size:1.3rem;font-weight:700">›</span>
   </a>
+
+  <section class="box" id="cai-app" aria-labelledby="h-app" hidden>
+    <h2 id="h-app">Cài Luyện toán lên điện thoại</h2>
+    <p class="sum" id="app-txt" style="margin:0">Mở nhanh bằng một chạm từ màn hình chính, toàn màn hình như một ứng dụng.</p>
+    <div class="row" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="app-go" hidden>Cài ứng dụng</button><button class="btn ghost" id="app-no">Để sau</button></div>
+  </section>
 
   <nav class="jump" id="jump" aria-label="Chọn lớp">
     <a href="#lop-6">Lớp 6</a>
@@ -613,5 +627,23 @@ const h=load();
 if(h){save(h);applyGrade(grade(h.c));showCached('');document.querySelector('#me-body .err').remove();fetchProg(h.u,false);}else loginView(hsExpired?'Đã hơn 2 ngày em chưa vào ôn luyện nên máy đã quên mã. Hãy nhập lại mã học sinh nhé.':'');
 })();
 </script>
+<script>
+// Gợi ý cài ứng dụng (PWA). Ẩn khi đã mở từ ứng dụng hoặc em đã bấm "Để sau".
+(function(){
+  const box=document.getElementById('cai-app'),go=document.getElementById('app-go'),txt=document.getElementById('app-txt');
+  const KEY='luyentoan-app-de-sau';
+  const isApp=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  let later=false;try{later=!!localStorage.getItem(KEY);}catch(e){}
+  if(isApp||later)return;
+  let ev=null;
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;go.hidden=false;box.hidden=false;});
+  go.onclick=function(){if(!ev)return;ev.prompt();ev.userChoice.then(function(c){if(c&&c.outcome==='accepted')box.hidden=true;ev=null;go.hidden=true;});};
+  window.addEventListener('appinstalled',function(){box.hidden=true;});
+  document.getElementById('app-no').onclick=function(){box.hidden=true;try{localStorage.setItem(KEY,'1');}catch(e){}};
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios){txt.innerHTML='Trên iPhone, iPad: mở trang này bằng <b>Safari</b>, bấm nút <b>Chia sẻ</b> (hình vuông có mũi tên lên) rồi chọn <b>Thêm vào MH chính</b>.';box.hidden=false;}
+})();
+</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('../sw.js').catch(function(){});});</script>
 </body>
 </html>
