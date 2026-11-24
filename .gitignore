@@ -1,0 +1,5 @@
+
+# Dữ liệu học sinh xuất từ Google Sheet – không đưa lên GitHub
+*.xlsx
+nhap*.sql
+supabase/.temp/
