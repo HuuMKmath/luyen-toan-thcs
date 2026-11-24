@@ -790,7 +790,7 @@ function perExp(e,q){
 function perToFrData(maxPre,maxPer){
   for(;;){const q=qPer(maxPre,maxPer,{neg:true,big:true}),e=EQ(q);if(!e.per||(e.neg&&!e.ip&&RNG()<.5))continue;
     return {q,e,good:q,exp:perExp(e,q),
-      wr:[fW(q,eTrunc(e),`${short(e)} là số thập phân vô hạn tuần hoàn, lớn hơn ${short(mkE(e.neg,e.ip,e.pre+e.per,''))} về giá trị tuyệt đối; chu kì ${e.per} ứng với phân số có mẫu ${'9'.repeat(e.per.length)}.`),
+      wr:[fW(q,eTrunc(e),`${short(e)} là số thập phân vô hạn tuần hoàn, khác ${short(mkE(e.neg,e.ip,e.pre+e.per,''))}; chu kì ${e.per} ứng với phân số có mẫu ${'9'.repeat(e.per.length)}.`),
         fW(q,e.pre?eNoPre(e):null,`Chữ số ${e.pre} không nằm trong chu kì, chỉ ${e.per} mới lặp lại.`),
         fW(q,e.neg&&e.ip?eSignIp(e):null,'Dấu trừ đứng trước cả số, không chỉ trước phần nguyên.'),
         fW(q,e.ip?eFrac(e):null,'Bạn quên phần nguyên.'),
