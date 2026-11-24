@@ -502,11 +502,16 @@ function bxhGiaoVien() {
       xpCua[m] = { a: soDuong(r[3], 100000000), w: wxp };
     });
   }
-  const khoi = {};
+  // Một mã có thể nằm ở nhiều dòng (ví dụ lớp chính khóa và lớp học thêm): mỗi khối chỉ hiện em đó MỘT lần,
+  // l = lớp ở dòng đầu tiên, ls = mọi lớp của em (trang web dùng ls để lọc theo từng lớp).
+  const khoi = {}, daCo = {};
   dsHocSinh().forEach(function (h) {
     if (!h.u || !h.c || laLopGV(h.c)) return;
-    const k = khoiLop(h.c) || h.c, x = xpCua[h.u] || { a: 0, w: 0 };
-    (khoi[k] = khoi[k] || []).push({ n: h.n, l: h.c, a: x.a, w: x.w });
+    const k = khoiLop(h.c) || h.c, key = k + '|' + h.u;
+    if (daCo[key]) { if (daCo[key].ls.indexOf(h.c) < 0) daCo[key].ls.push(h.c); return; }
+    const x = xpCua[h.u] || { a: 0, w: 0 };
+    daCo[key] = { n: h.n, l: h.c, ls: [h.c], a: x.a, w: x.w };
+    (khoi[k] = khoi[k] || []).push(daCo[key]);
   });
   return { ok: true, gv: 1, tuan: tuan, khoi: khoi };
 }
@@ -521,8 +526,14 @@ function bangXepHang(hs, ma) {
   if (!ds) {
     // Lớp lấy theo trang tính "Học sinh" hiện tại (học sinh chuyển lớp thì đi theo lớp mới).
     // Lấy cả khối một lần (bảng lớp lọc lại từ đây), bỏ lớp GV.
-    const lopCua = {}, tenCua = {};
-    dsHocSinh().forEach(function (h) { if (h.u) { lopCua[h.u] = h.c; tenCua[h.u] = h.n; } });
+    // Một mã có thể nằm ở nhiều lớp (chính khóa và học thêm): em đó chỉ được tính MỘT lần,
+    // lớp hiển thị là lớp ở dòng đầu tiên (giống lúc tra mã), ls = mọi lớp để xếp vào bảng của từng lớp.
+    const lopCua = {}, tenCua = {}, lopsCua = {};
+    dsHocSinh().forEach(function (h) {
+      if (!h.u) return;
+      if (!lopsCua[h.u]) { lopsCua[h.u] = []; lopCua[h.u] = h.c; tenCua[h.u] = h.n; }
+      if (lopsCua[h.u].indexOf(h.c) < 0) lopsCua[h.u].push(h.c);
+    });
     const cungKhoi = function (lop) { return !laLopGV(lop) && (khoi ? khoiLop(lop) === khoi : lop === hs.c); };
     const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB_THUONG);
     const tuan = tuanNay();
@@ -531,16 +542,16 @@ function bangXepHang(hs, ma) {
       const cot = Math.max(sh.getLastColumn(), COT_THUONG.length);
       sh.getRange(2, 1, sh.getLastRow() - 1, cot).getValues().forEach(function (r) {
         const m = soMa(r[0]);
-        if (!m || !lopCua[m] || !cungKhoi(lopCua[m])) return;
+        if (!m || !lopsCua[m] || !lopsCua[m].some(cungKhoi)) return;
         const xp = soDuong(r[3], 100000000);
         const wxp = String(r[10] instanceof Date ? Utilities.formatDate(r[10], 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd') : r[10]) === tuan ? soDuong(r[9], 100000000) : 0;
-        ds.push({ u: m, t: tenTat(tenCua[m]), l: lopCua[m], a: xp, w: wxp });
+        ds.push({ u: m, t: tenTat(tenCua[m]), l: lopCua[m], ls: lopsCua[m], a: xp, w: wxp });
       });
     }
     try { cache.put(k, JSON.stringify(ds), 120); } catch (err) {}
   }
-  if (!ds.some(function (h) { return h.u === u; })) ds.push({ u: u, t: tenTat(hs.n), l: hs.c, a: 0, w: 0 });
-  const lop = ds.filter(function (h) { return h.l === hs.c; });
+  if (!ds.some(function (h) { return h.u === u; })) ds.push({ u: u, t: tenTat(hs.n), l: hs.c, ls: [hs.c], a: 0, w: 0 });
+  const lop = ds.filter(function (h) { return (h.ls || [h.l]).indexOf(hs.c) >= 0; });
   const out = { ok: true, c: hs.c, tuan: tuanNay(), so: lop.length, tuanNay: xepHang(lop, 'w', u, false), tatCa: xepHang(lop, 'a', u, false) };
   if (BXH_KHOI && khoi) out.khoi = { k: khoi, so: ds.length, tuanNay: xepHang(ds, 'w', u, true), tatCa: xepHang(ds, 'a', u, true) };
   return out;
