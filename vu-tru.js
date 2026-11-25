@@ -75,6 +75,125 @@
       bg: crater + base('#f0aa82', '#a0502a', '#3a1a0a'),
       tin: ['Arrokoth trông như hai khối dẹt dính vào nhau, giống một người tuyết.', 'Đây là thiên thể xa nhất từng được tàu vũ trụ bay đến gần (tàu New Horizons, ngày 1/1/2019).', 'Arrokoth dài khoảng 36 km.'],
       toan: 'Đi bộ với vận tốc 4 km/h thì mất 36 : 4 = 9 giờ mới đi hết chiều dài của Arrokoth.' },
+    /* ---- Lớp 6: Hệ Mặt Trời. "Góc toán học" chỉ dùng kiến thức đã học đến bài đó ---- */
+    sun: { ten: 'Mặt Trời', loai: 'NGÔI SAO', co: 96,
+      bg: 'radial-gradient(circle at 50% 50%, #fffbe6 0 20%, transparent 60%), ' + base('#fff6c8', '#ffb627', '#e0560c'),
+      tin: ['Mặt Trời là ngôi sao gần Trái Đất nhất.', 'Ánh sáng Mặt Trời đi đến Trái Đất mất khoảng 8 phút.', 'Mặt Trời lớn đến mức có thể chứa khoảng 1,3 triệu Trái Đất.'],
+      toan: 'Tập hợp các hành tinh quay quanh Mặt Trời có 8 phần tử: Sao Thủy, Sao Kim, Trái Đất, Sao Hỏa, Sao Mộc, Sao Thổ, Sao Thiên Vương, Sao Hải Vương.' },
+    mercury: { ten: 'Sao Thủy', loai: 'HÀNH TINH', co: 60,
+      bg: crater + base('#e6e4e4', '#8f8c8c', '#2e2c2c'),
+      tin: ['Sao Thủy là hành tinh nhỏ nhất và gần Mặt Trời nhất.', 'Một năm trên Sao Thủy chỉ dài 88 ngày Trái Đất.', 'Ban ngày nóng khoảng 430 °C, ban đêm lạnh tới khoảng 180 độ dưới 0 °C.'],
+      toan: 'Trong số 88, chữ số 8 bên trái có giá trị 80, chữ số 8 bên phải có giá trị 8.' },
+    venus: { ten: 'Sao Kim', loai: 'HÀNH TINH', co: 72,
+      bg: 'repeating-linear-gradient(20deg, rgba(255,255,255,.14) 0 6px, transparent 6px 16px), ' + base('#fff3d0', '#e3bb76', '#7a4c16'),
+      tin: ['Sao Kim là hành tinh nóng nhất, khoảng 465 °C, vì lớp khí dày giữ nhiệt.', 'Sao Kim tự quay ngược chiều với hầu hết các hành tinh khác.', 'Một ngày trên Sao Kim dài 243 ngày Trái Đất, còn một năm chỉ dài 225 ngày.'],
+      toan: 'Vì 243 > 225 nên trên Sao Kim, một ngày dài hơn một năm!' },
+    earth: { ten: 'Trái Đất', loai: 'HÀNH TINH', co: 76,
+      bg: 'radial-gradient(ellipse 40% 8% at 50% 24%, rgba(255,255,255,.85) 0 50%, transparent 56%), radial-gradient(ellipse 34% 7% at 58% 80%, rgba(255,255,255,.75) 0 50%, transparent 56%), radial-gradient(ellipse 26% 18% at 34% 44%, #3f8f4a 0 62%, transparent 66%), radial-gradient(ellipse 18% 24% at 66% 60%, #7aa046 0 62%, transparent 66%), ' + base('#9ad6ff', '#2a6fd0', '#0a2a66'),
+      tin: ['Trái Đất là hành tinh duy nhất đã biết có sự sống.', 'Khoảng 71% bề mặt Trái Đất được nước bao phủ.', 'Năm thường có 365 ngày, cứ 4 năm lại có một năm nhuận 366 ngày.'],
+      toan: 'Bốn năm liên tiếp có 365 + 365 + 365 + 366 = 1 461 ngày.' },
+    moon: { ten: 'Mặt Trăng', loai: 'VỆ TINH CỦA TRÁI ĐẤT', co: 62,
+      bg: crater + base('#f4f4f4', '#a8a8ad', '#38383c'),
+      tin: ['Mặt Trăng cách Trái Đất trung bình khoảng 384 400 km.', 'Mặt Trăng luôn quay một mặt về phía Trái Đất.', 'Đã có 12 người đặt chân lên Mặt Trăng, từ năm 1969 đến năm 1972.'],
+      toan: 'Mặt Trăng quay quanh Trái Đất mất khoảng 27 ngày. Chia 365 cho 27 được 13, dư 14: một năm Mặt Trăng quay được hơn 13 vòng.' },
+    mars: { ten: 'Sao Hỏa', loai: 'HÀNH TINH', co: 66,
+      bg: 'radial-gradient(ellipse 30% 10% at 50% 7%, #fff 0 60%, transparent 66%), radial-gradient(ellipse 22% 12% at 60% 52%, rgba(90,20,5,.45) 0 60%, transparent 66%), radial-gradient(ellipse 16% 10% at 34% 66%, rgba(90,20,5,.35) 0 60%, transparent 66%), ' + base('#ffb48a', '#c1440e', '#4a1404'),
+      tin: ['Màu đỏ của Sao Hỏa là do bụi đất chứa sắt bị gỉ.', 'Núi Olympus Mons trên Sao Hỏa cao khoảng 22 km, cao gấp hơn 2 lần đỉnh Everest.', 'Sao Hỏa có hai vệ tinh nhỏ: Phobos và Deimos.'],
+      toan: 'Sao Hỏa cách Mặt Trời khoảng 228 000 000 km = 228 · 10⁶ km.' },
+    phobos: { ten: 'Phobos', loai: 'VỆ TINH CỦA SAO HỎA', co: 50,
+      bg: crater + base('#cbb8a6', '#7a6656', '#2a211a'),
+      tin: ['Phobos là vệ tinh lớn hơn trong hai vệ tinh của Sao Hỏa, dài khoảng 27 km.', 'Phobos quay quanh Sao Hỏa mất chưa đến 8 giờ.', 'Phobos có hình dạng méo, giống một củ khoai tây.'],
+      toan: 'Phobos dài khoảng 27 km, Deimos dài khoảng 15 km. Chiều dài trung bình của hai vệ tinh là (27 + 15) : 2 = 21 km.' },
+    jupiter: { ten: 'Sao Mộc', loai: 'HÀNH TINH', co: 94,
+      bg: 'radial-gradient(ellipse 15% 9% at 64% 62%, #c4512e 0 70%, transparent 76%), linear-gradient(180deg, #e8d3b0 0 12%, #c49a6c 12% 22%, #efe0c4 22% 34%, #a8714a 34% 44%, #ead6b5 44% 56%, #b5835a 56% 66%, #e6cfa8 66% 80%, #b98a62 80% 100%)',
+      tin: ['Sao Mộc là hành tinh lớn nhất Hệ Mặt Trời.', 'Vết Đỏ Lớn là một cơn bão khổng lồ, rộng hơn cả Trái Đất.', 'Một ngày trên Sao Mộc chỉ dài khoảng 10 giờ.'],
+      toan: 'Trong 30 giờ, Sao Mộc quay đúng 3 vòng vì 30 chia hết cho 10.' },
+    saturn: { ten: 'Sao Thổ', loai: 'HÀNH TINH', co: 80, vanh: true,
+      bg: 'linear-gradient(180deg, #f3e3b8 0 14%, #d9be82 14% 26%, #f1dfae 26% 40%, #caa86a 40% 52%, #efdca8 52% 68%, #c9a566 68% 82%, #e8d29c 82% 100%)',
+      tin: ['Vành đai Sao Thổ được tạo bởi vô số mảnh băng và đá.', 'Sao Thổ nhẹ đến mức khối lượng riêng còn nhỏ hơn nước.', 'Đây là hành tinh có nhiều vệ tinh nhất Hệ Mặt Trời.'],
+      toan: 'Sao Thổ cách Mặt Trời khoảng 1 430 triệu km. Số 1 430 chia hết cho cả 2 và 5 vì có chữ số tận cùng là 0.' },
+    uranus: { ten: 'Sao Thiên Vương', loai: 'HÀNH TINH', co: 72,
+      bg: base('#eaffff', '#9fe3ea', '#2a7280'),
+      tin: ['Trục quay của Sao Thiên Vương nghiêng gần như nằm ngang, nên hành tinh như đang "lăn" quanh Mặt Trời.', 'Màu xanh nhạt là do khí metan trong khí quyển.', 'Một năm trên Sao Thiên Vương dài khoảng 84 năm Trái Đất.'],
+      toan: 'Phân tích 84 ra thừa số nguyên tố: 84 = 2² · 3 · 7.' },
+    neptune: { ten: 'Sao Hải Vương', loai: 'HÀNH TINH', co: 70,
+      bg: 'radial-gradient(ellipse 14% 9% at 40% 56%, #14205e 0 70%, transparent 76%), radial-gradient(ellipse 30% 4% at 55% 30%, rgba(255,255,255,.4) 0 50%, transparent 56%), ' + base('#a8ccff', '#3a5fe0', '#0c1a5c'),
+      tin: ['Sao Hải Vương là hành tinh xa Mặt Trời nhất.', 'Gió trên Sao Hải Vương mạnh nhất Hệ Mặt Trời, tới khoảng 2 000 km/h.', 'Năm 1846, người ta tìm ra Sao Hải Vương nhờ tính toán trên giấy trước khi nhìn thấy nó.'],
+      toan: 'Một năm trên Sao Thiên Vương khoảng 84 năm, trên Sao Hải Vương khoảng 165 năm. ƯCLN(84, 165) = 3.' },
+    titania: { ten: 'Titania', loai: 'VỆ TINH CỦA SAO THIÊN VƯƠNG', co: 60,
+      bg: 'repeating-linear-gradient(60deg, transparent 0 11px, rgba(0,0,0,.15) 11px 13px), ' + crater + base('#e6e2de', '#a09890', '#3a3430'),
+      tin: ['Titania là vệ tinh lớn nhất của Sao Thiên Vương, đường kính khoảng 1 578 km.', 'Nhà thiên văn William Herschel phát hiện Titania năm 1787.', 'Bề mặt Titania có những hẻm vực rất dài.'],
+      toan: 'Nếu một vệ tinh quay một vòng hết 6 ngày, vệ tinh khác hết 9 ngày, cùng xuất phát từ một chỗ thì sau BCNN(6, 9) = 18 ngày chúng lại cùng về chỗ cũ.' },
+    mimas: { ten: 'Mimas', loai: 'VỆ TINH CỦA SAO THỔ', co: 56,
+      bg: 'radial-gradient(circle at 64% 42%, rgba(0,0,0,.35) 0 14%, rgba(255,255,255,.25) 15% 17%, transparent 18%), ' + crater + base('#f2f2f2', '#b0b0b4', '#3c3c42'),
+      tin: ['Mimas là một vệ tinh nhỏ của Sao Thổ, đường kính khoảng 400 km.', 'Trên Mimas có hố va chạm Herschel rộng khoảng 140 km, bằng gần một phần ba đường kính vệ tinh.', 'Bề mặt Mimas rất lạnh, khoảng −200 °C.'],
+      toan: 'Nhiệt độ khoảng 200 độ dưới 0 °C được viết bằng số nguyên âm: −200 °C.' },
+    iapetus: { ten: 'Iapetus', loai: 'VỆ TINH CỦA SAO THỔ', co: 64,
+      bg: 'linear-gradient(115deg, #2a211a 0 46%, transparent 52%), ' + base('#fbfaf6', '#c8c4ba', '#4a4640'),
+      tin: ['Iapetus có hai nửa khác hẳn nhau: một nửa tối như than, một nửa sáng như tuyết.', 'Quanh xích đạo của Iapetus có một dải núi rất dài và cao.', 'Nhà thiên văn Giovanni Cassini phát hiện Iapetus năm 1671.'],
+      toan: 'Từ năm 1671 đến năm ' + NAM + ' là ' + NAM + ' − 1671 = ' + (NAM - 1671) + ' năm.' },
+    deimos: { ten: 'Deimos', loai: 'VỆ TINH CỦA SAO HỎA', co: 44,
+      bg: crater + base('#d6c6b4', '#8a7664', '#2e241c'),
+      tin: ['Deimos là vệ tinh nhỏ hơn của Sao Hỏa, dài khoảng 15 km.', 'Deimos quay quanh Sao Hỏa mất khoảng 30 giờ.', 'Bề mặt Deimos phủ một lớp bụi đá mịn nên trông khá nhẵn.'],
+      toan: '30 − (24 + 6) = 0: Deimos quay một vòng mất khoảng 30 giờ, tức là một ngày 24 giờ và thêm 6 giờ.' },
+    comet67p: { ten: 'Sao chổi 67P', loai: 'SAO CHỔI', co: 48, duoi: true,
+      bg: crater + base('#bfbfc4', '#5c5c64', '#1a1a20'),
+      tin: ['Sao chổi 67P có hình dạng giống một con vịt cao su, dài khoảng 4 km.', 'Ngày 12/11/2014, tàu đổ bộ Philae đáp xuống 67P: lần đầu tiên con người đưa tàu đáp xuống một sao chổi.', 'Tàu Rosetta đã bay khoảng 10 năm mới tới được sao chổi này.'],
+      toan: '10 năm có khoảng 10 · 365 = 3 650 ngày.' },
+    oberon: { ten: 'Oberon', loai: 'VỆ TINH CỦA SAO THIÊN VƯƠNG', co: 58,
+      bg: crater + base('#d8cfc6', '#8e8278', '#2e2824'),
+      tin: ['Oberon là vệ tinh lớn ở xa Sao Thiên Vương nhất.', 'Bề mặt Oberon chi chít hố va chạm.', 'William Herschel phát hiện Oberon năm 1787, cùng năm với Titania.'],
+      toan: '1787 là số nguyên tố nên nó chỉ có hai ước tự nhiên là 1 và 1787.' },
+    rhea: { ten: 'Rhea', loai: 'VỆ TINH CỦA SAO THỔ', co: 62,
+      bg: crater + base('#f0efed', '#a8a6a2', '#3a3936'),
+      tin: ['Rhea là vệ tinh lớn thứ hai của Sao Thổ, đường kính khoảng 1 527 km.', 'Bề mặt Rhea là băng và đá, phủ nhiều hố va chạm.', 'Giovanni Cassini phát hiện Rhea năm 1672.'],
+      toan: 'Từ năm 1672 đến năm ' + NAM + ' là ' + (NAM - 1672) + ' năm.' },
+    dione: { ten: 'Dione', loai: 'VỆ TINH CỦA SAO THỔ', co: 58,
+      bg: 'repeating-linear-gradient(150deg, transparent 0 12px, rgba(255,255,255,.35) 12px 13px), ' + crater + base('#f1f0ee', '#a9a7a4', '#3b3a38'),
+      tin: ['Dione là vệ tinh của Sao Thổ, đường kính khoảng 1 120 km.', 'Trên Dione có những vách băng sáng dài hàng trăm km.', 'Giovanni Cassini phát hiện Dione năm 1684.'],
+      toan: 'Rhea được phát hiện năm 1672, Dione năm 1684: cách nhau 1684 − 1672 = 12 năm.' },
+    ariel: { ten: 'Ariel', loai: 'VỆ TINH CỦA SAO THIÊN VƯƠNG', co: 56,
+      bg: 'repeating-linear-gradient(80deg, transparent 0 10px, rgba(0,0,0,.14) 10px 12px), ' + base('#f4f4f6', '#b8b8c0', '#40404a'),
+      tin: ['Ariel có bề mặt sáng nhất trong các vệ tinh lớn của Sao Thiên Vương.', 'Trên Ariel có nhiều thung lũng dài cắt ngang bề mặt.', 'William Lassell phát hiện Ariel năm 1851.'],
+      toan: 'Từ năm 1851 đến năm ' + NAM + ' là ' + (NAM - 1851) + ' năm.' },
+    umbriel: { ten: 'Umbriel', loai: 'VỆ TINH CỦA SAO THIÊN VƯƠNG', co: 56,
+      bg: 'radial-gradient(circle at 50% 22%, rgba(255,255,255,.55) 0 7%, transparent 9%), ' + crater + base('#8a8a92', '#4c4c54', '#16161c'),
+      tin: ['Umbriel là vệ tinh tối màu nhất trong các vệ tinh lớn của Sao Thiên Vương.', 'Trên Umbriel có hố Wunda với một vòng sáng, trông như một chiếc nhẫn.', 'William Lassell phát hiện Umbriel năm 1851, cùng năm với Ariel.'],
+      toan: 'Năm 1851 có tổng các chữ số là 1 + 8 + 5 + 1 = 15.' },
+    pallas: { ten: 'Pallas', loai: 'TIỂU HÀNH TINH', co: 54,
+      bg: crater + base('#d4d0ca', '#86807a', '#2c2824'),
+      tin: ['Pallas là thiên thể thứ hai được tìm thấy trong vành đai tiểu hành tinh, năm 1802.', 'Quỹ đạo của Pallas nghiêng nhiều so với quỹ đạo của các hành tinh.', 'Nhà thiên văn Heinrich Olbers phát hiện Pallas.'],
+      toan: 'Ceres được tìm thấy năm 1801, Pallas năm 1802: chỉ cách nhau 1 năm.' },
+    hubble: { ten: 'Kính viễn vọng Hubble', loai: 'TRẠM LUYỆN TẬP · KÍNH VIỄN VỌNG', tau: '#cfd6e6',
+      tin: ['Hubble được phóng lên quỹ đạo ngày 24/4/1990.', 'Kính bay quanh Trái Đất ở độ cao khoảng 500 km.', 'Gương chính của Hubble rộng khoảng 2,4 m.'],
+      toan: 'Số 1990 chia hết cho 2, cho 5 và cho 10 vì có chữ số tận cùng là 0.' },
+    iss: { ten: 'Trạm Vũ trụ Quốc tế', loai: 'TRẠM ÔN CHƯƠNG', tau: '#dfe5f2',
+      tin: ['Trạm bay quanh Trái Đất ở độ cao khoảng 400 km.', 'Mỗi vòng quanh Trái Đất mất khoảng 90 phút.', 'Có phi hành gia sống liên tục trên trạm từ năm 2000.'],
+      toan: 'Một ngày có 24 · 60 = 1 440 phút; 1 440 : 90 = 16, nên trạm bay khoảng 16 vòng mỗi ngày.' },
+    tiangong: { ten: 'Trạm Thiên Cung', loai: 'TRẠM LUYỆN TẬP', tau: '#e6e9f2',
+      tin: ['Trạm Thiên Cung của Trung Quốc được hoàn thành năm 2022.', 'Trạm bay quanh Trái Đất ở độ cao khoảng 400 km.', 'Thường có 3 phi hành gia làm việc trên trạm.'],
+      toan: 'Phân tích 2022 ra thừa số nguyên tố: 2022 = 2 · 3 · 337.' },
+    apollo11: { ten: 'Tàu Apollo 11', loai: 'TRẠM ÔN CHƯƠNG', tau: '#e9e2d0',
+      tin: ['Ngày 20/7/1969, Neil Armstrong và Buzz Aldrin là hai người đầu tiên đặt chân lên Mặt Trăng.', 'Phi hành gia thứ ba, Michael Collins, ở lại bay quanh Mặt Trăng trên tàu chỉ huy.', 'Các phi hành gia mang về Trái Đất đất đá của Mặt Trăng.'],
+      toan: 'Phân tích 1969 ra thừa số nguyên tố: 1969 = 11 · 179.' },
+    parker: { ten: 'Tàu Parker Solar Probe', loai: 'TRẠM LUYỆN TẬP · TÀU THĂM DÒ', tau: '#f0e4c8',
+      tin: ['Tàu được phóng năm 2018 để bay sát Mặt Trời.', 'Đây là vật do con người làm ra bay nhanh nhất từ trước đến nay.', 'Tấm chắn nhiệt phía trước nóng khoảng 1 400 °C, nhưng các thiết bị phía sau vẫn mát.'],
+      toan: 'Mặt trước tấm chắn khoảng 1 400 °C, phía sau khoảng 30 °C: chênh nhau 1 400 − 30 = 1 370 °C.' },
+    perseverance: { ten: 'Xe tự hành Perseverance', loai: 'TRẠM LUYỆN TẬP · XE TỰ HÀNH', tau: '#e8e8ec',
+      tin: ['Perseverance đáp xuống Sao Hỏa ngày 18/2/2021.', 'Xe mang theo trực thăng Ingenuity, chiếc trực thăng đầu tiên bay trên một hành tinh khác.', 'Xe thu thập mẫu đất đá để tìm dấu vết sự sống cổ xưa.'],
+      toan: 'Ingenuity đã bay 72 lần. Số 72 là bội của 8 và của 9 vì 72 = 8 · 9.' },
+    webb: { ten: 'Kính viễn vọng James Webb', loai: 'TRẠM ÔN CHƯƠNG · KÍNH VIỄN VỌNG', tau: '#f2c14e',
+      tin: ['Kính được phóng lên vũ trụ ngày 25/12/2021.', 'Gương chính rộng 6,5 m, ghép từ 18 tấm hình lục giác.', 'Kính hoạt động cách Trái Đất khoảng 1,5 triệu km.'],
+      toan: 'Mặt nóng của kính khoảng 85 °C, mặt lạnh khoảng −233 °C: chênh nhau 85 − (−233) = 318 °C.' },
+    rosetta: { ten: 'Tàu Rosetta', loai: 'TRẠM ÔN TẬP · TÀU THĂM DÒ', tau: '#d9b45a',
+      tin: ['Rosetta được phóng năm 2004 và đến sao chổi 67P năm 2014.', 'Rosetta thả tàu đổ bộ Philae xuống sao chổi.', 'Năm 2016, Rosetta kết thúc nhiệm vụ bằng cách đáp xuống chính sao chổi 67P.'],
+      toan: 'Rosetta làm việc 2016 − 2004 = 12 năm.' },
+    chandrayaan3: { ten: 'Tàu Chandrayaan-3', loai: 'TRẠM ÔN TẬP · TÀU ĐỔ BỘ', tau: '#e8c06a',
+      tin: ['Chandrayaan-3 là tàu của Ấn Độ.', 'Ngày 23/8/2023, tàu đáp xuống gần cực nam của Mặt Trăng, lần đầu tiên có tàu đáp xuống vùng này.', 'Tàu mang theo một xe tự hành nhỏ để khám phá bề mặt.'],
+      toan: 'Từ năm 2023 đến năm ' + NAM + ' là ' + (NAM - 2023) + ' năm.' },
+    galileo: { ten: 'Tàu Galileo', loai: 'TRẠM ÔN TẬP · TÀU THĂM DÒ', tau: '#c9a24a',
+      tin: ['Tàu Galileo được phóng năm 1989 và đến Sao Mộc năm 1995.', 'Đây là tàu đầu tiên bay quanh Sao Mộc.', 'Năm 2003, Galileo kết thúc nhiệm vụ bằng cách lao vào Sao Mộc.'],
+      toan: 'Tàu bay 1995 − 1989 = 6 năm mới tới Sao Mộc.' },
     /* Tàu và trạm: dùng cho Bài tập cuối chương */
     juno: { ten: 'Tàu thăm dò Juno', loai: 'TRẠM ÔN CHƯƠNG · TÀU THĂM DÒ', tau: '#f2c14e',
       tin: ['Juno được phóng tháng 8/2011 và đến Sao Mộc ngày 4/7/2016.', 'Juno chạy bằng ba tấm pin mặt trời lớn, mỗi tấm dài khoảng 9 m.', 'Trên tàu có ba hình nhân nhỏ bằng nhôm, một trong số đó là nhà thiên văn Galileo.'],
@@ -95,6 +214,28 @@
 
   /* ---- Cấu hình từng lớp ---- */
   const VT_KHOI = {
+    '6': {
+      vung: 'Hệ Mặt Trời', giant: 'radial-gradient(circle at 30% 70%,#8fd0ff,#2a6fd0 55%,#0a2a66)',
+      quyDao: [
+        { k: 'ds', ten: 'Quỹ đạo Số học', phu: 'Số và Đại số · Thống kê và Xác suất', mau: '#ffb36b',
+          chuong: [['I', 'Tập hợp các số tự nhiên'], ['II', 'Tính chia hết trong tập hợp các số tự nhiên'], ['III', 'Số nguyên'], ['VI', 'Phân số'], ['VII', 'Số thập phân'], ['IX', 'Dữ liệu và xác suất thực nghiệm']] },
+        { k: 'hh', ten: 'Quỹ đạo Hình học', phu: 'Hình học và Đo lường', mau: '#7fd8ff',
+          chuong: [['IV', 'Một số hình phẳng trong thực tiễn'], ['V', 'Tính đối xứng của hình phẳng trong tự nhiên'], ['VIII', 'Những hình hình học cơ bản']] }
+      ],
+      gan: {
+        '6 - Tập hợp': 'sun', '6 - Cách ghi số tự nhiên': 'mercury', '6 - Thứ tự trong tập hợp các số tự nhiên': 'venus',
+        '6 - Phép cộng và phép trừ số tự nhiên': 'earth', '6 - Phép nhân và phép chia số tự nhiên': 'moon', '6 - Luỹ thừa với số mũ tự nhiên': 'mars',
+        '6 - Thứ tự thực hiện các phép tính': 'phobos', '6 - Bài tập cuối chương I': 'iss',
+        '6 - Quan hệ chia hết và tính chất': 'jupiter', '6 - Dấu hiệu chia hết': 'saturn', '6 - Số nguyên tố': 'uranus',
+        '6 - Luyện tập chung (sau Bài 10)': 'hubble', '6 - Ước chung. Ước chung lớn nhất': 'neptune', '6 - Bội chung, bội chung nhỏ nhất': 'titania',
+        '6 - Luyện tập chung (sau Bài 12)': 'tiangong', '6 - Bài tập cuối chương II': 'apollo11',
+        '6 - Tập hợp các số nguyên': 'mimas', '6 - Phép cộng và phép trừ số nguyên': 'iapetus', '6 - Quy tắc dấu ngoặc': 'deimos',
+        '6 - Luyện tập chung (Chương III)': 'parker', '6 - Phép nhân số nguyên': 'comet67p', '6 - Phép chia hết, ước và bội': 'oberon',
+        '6 - Luyện tập chung (sau Bài 17)': 'perseverance', '6 - Bài tập cuối chương III': 'webb'
+      },
+      kho: ['rhea', 'dione', 'ariel', 'umbriel', 'pallas'],
+      khoTau: ['rosetta', 'chandrayaan3', 'galileo']
+    },
     '7': {
       vung: 'Vành đai tiểu hành tinh và các mặt trăng khổng lồ',
       quyDao: [
@@ -262,7 +403,7 @@
       const so = (tag.match(/Chương\s+([IVXL]+)/) || [])[1] || '';
       [].forEach.call(chap.querySelectorAll('a.lesson[data-tab]'), (a) => {
         const tab = a.getAttribute('data-tab'), ten = (a.querySelector('h4') || {}).textContent || tab;
-        const cuoi = /cuối chương/i.test(ten);
+        const cuoi = /cuối chương|luyện tập chung/i.test(ten);
         let id = cfg.gan[tab] || lay(cuoi ? khoTau : kho) || lay(kho) || lay(khoTau);
         bai.push({ a, tab, ten, ds: (a.querySelector('.ds') || {}).textContent || '', href: a.getAttribute('href'), so, id, cuoi });
       });
@@ -294,7 +435,7 @@
     let h = '<span class="vt-sky" aria-hidden="true"></span><span class="vt-sky2" aria-hidden="true"></span><span class="vt-sky3" aria-hidden="true"></span>' +
       '<span class="vt-neb" aria-hidden="true" style="left:-12%;top:300px;width:62%;height:800px;background:radial-gradient(closest-side,rgba(255,140,110,.32),rgba(200,90,170,.18) 55%,transparent)"></span>' +
       '<span class="vt-neb" aria-hidden="true" style="right:-14%;top:180px;width:64%;height:900px;background:radial-gradient(closest-side,rgba(80,200,255,.32),rgba(120,100,240,.18) 55%,transparent)"></span>' +
-      '<span class="vt-giant" aria-hidden="true"></span>' +
+      '<span class="vt-giant" aria-hidden="true"' + (cfg.giant ? ' style="background:' + cfg.giant + '"' : '') + '></span>' +
       '<div class="vt-head"><small>BẢN ĐỒ VŨ TRỤ</small><b>' + esc(cfg.vung) + '</b><span>Mỗi bài học là một thiên thể có thật. Bấm vào để xem thông tin và bay đến bài.</span></div>' +
       '<div class="vt-legend">' + (logged ? '<span><i style="background:#39d98a"></i>Đã chinh phục (từ 5 điểm)</span><span><i style="background:#ffd678;box-shadow:0 0 8px 2px rgba(255,214,120,.7)"></i>Em đang ở đây</span><span><i style="background:#ffb36b"></i>Cần ôn thêm</span>' : '<span>Nhập mã học sinh ở trên để thấy tiến độ của em trên bản đồ.</span>') + '</div>' +
       '<div class="vt-tabs" role="tablist" aria-label="Chọn phân môn">' + cfg.quyDao.map((q) => '<button role="tab" type="button" data-q="' + q.k + '" aria-selected="' + (q.k === this.tab) + '" style="--m:' + q.mau + '">' + esc(q.ten) + '</button>').join('') + '</div>' +
@@ -303,7 +444,7 @@
       const xs = narrow ? [13, 36] : [16, 46];
       let y = 18, n = 0; const pts = []; let inner = '';
       const present = q.chuong.filter((c) => this.bai.some((x) => x.so === c[0]));
-      const lastIdx = present.length ? q.chuong.indexOf(present[present.length - 1]) : -1;
+      const lastIdx = present.length ? q.chuong.indexOf(present[present.length - 1]) : 0;
       q.chuong.forEach((c, ci) => {
         const ls = this.bai.filter((x) => x.so === c[0]);
         if (!ls.length && ci > lastIdx) return;
