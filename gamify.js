@@ -182,7 +182,6 @@
       } else {
         var sc = r.total || 0;
         gained = 20 + Math.round(sc * 10);
-        if (mode === "quick") gained = Math.round(gained / 2);            // kiểm tra nhanh 5 phút: một nửa
         if (mode === "hard") { gained = Math.round(gained * 1.5); earn(o, "hard", out); }
         if (sc >= 8) earn(o, "test8", out);
         if (sc >= 9.5) earn(o, "test10", out);
