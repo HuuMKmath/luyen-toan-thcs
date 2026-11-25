@@ -308,6 +308,8 @@
 .vt-pl.done .vt-lbl{border-color:rgba(57,217,138,.45)}
 .vt-pl.try .vt-lbl span{color:#ffc58a}
 .vt-pl.open .vt-lbl span,.vt-pl.new .vt-lbl span{color:#c9d2ff}
+.vt-pl.lock .vt-orb{filter:grayscale(.85) brightness(.75)}.vt-pl.lock .vt-lbl span{color:#c9d2ff}
+.vt-panel .vt-go.lock{background:rgba(255,255,255,.14);color:#e6eaff!important;cursor:default;margin:0 0 10px;padding:8px 12px;text-align:center;font-weight:600;line-height:1.4}
 .vt-pl.sel .vt-lbl{border-color:#ffd678;box-shadow:0 0 0 1px #ffd678}
 .vt-foot{margin:8px 0 0;text-align:center;font-size:.8rem;color:#a9b3e6}
 .vt-panel{position:fixed;z-index:60;right:20px;bottom:20px;width:380px;max-width:calc(100vw - 24px);max-height:calc(100vh - 40px);overflow-y:auto;padding:20px;border-radius:24px;background:rgba(30,44,118,.97);border:1px solid rgba(170,190,255,.45);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(120,140,255,.18);color:#e8ecff;font-family:'Be Vietnam Pro',system-ui,sans-serif;animation:vt-in .3s ease-out;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
@@ -367,6 +369,7 @@
     if (st === 'done') h += '<span class="vt-badge" style="background:#39d98a">' + SVG_OK + '</span>';
     if (st === 'try') h += '<span class="vt-badge" style="background:#ffb36b">' + SVG_TRY + '</span>';
     if (st === 'now') h += SVG_ROCKET;
+    if (st === 'lock') h += '<span class="vt-badge" style="background:#8a94c8" aria-hidden="true">🔒</span>';
     return h + '</span>';
   }
 
@@ -421,10 +424,12 @@
         const d = parseFloat(String(k.d).replace(',', '.')) || 0, vn = String(k.d).replace('.', ',');
         st[x.tab] = d >= 5 ? { s: 'done', note: 'Điểm cao nhất ' + vn + (k.y ? ' · cần ôn: ' + k.y : '') } : { s: 'try', note: 'Điểm cao nhất ' + vn + ' · ôn thêm để đạt từ 5 điểm' };
       } else st[x.tab] = { s: 'new', note: 'Chưa làm bài kiểm tra 25 phút' };
+      const kb = window.KB ? KB.xet(o, x.tab) : { mo: true };   // khóa bài theo thứ tự (khoa-bai.js)
+      if (!kb.mo) st[x.tab] = { s: 'lock', note: 'Chưa mở · ' + KB.loiNhan(kb), kb };
     });
     if (o) this.cfg.quyDao.forEach((q) => {
       const ds = q.chuong.map((c) => c[0]);
-      const first = this.bai.filter((x) => ds.indexOf(x.so) >= 0).find((x) => st[x.tab].s !== 'done');
+      const first = this.bai.filter((x) => ds.indexOf(x.so) >= 0).find((x) => st[x.tab].s !== 'done' && st[x.tab].s !== 'lock');
       if (first) { const v = st[first.tab]; v.now = true; v.note = 'Em đang ở đây · ' + v.note; }
     });
     return st;
@@ -512,7 +517,8 @@
       (b.tin.length ? '<h4>Em có biết?</h4><ul>' + b.tin.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' : '') +
       (b.toan ? '<div class="vt-math"><b>Góc toán học:</b> ' + esc(b.toan) + '</div>' : '') +
       '<div class="vt-bai"><b>' + esc(x.ten) + '</b>' + (x.ds ? '<p>' + esc(x.ds) + '</p>' : '') + '<span style="color:' + (v.now ? '#ffd678' : v.s === 'try' ? '#ffc58a' : v.s === 'done' ? '#9ff0c4' : '#c9d2ff') + '">' + esc(v.note) + '</span></div>' +
-      '<a class="vt-go" href="' + esc(x.href) + '">' + go + '</a>';
+      (v.s === 'lock' ? '<p class="vt-go lock" role="note">🔒 Chưa mở. Hoàn thành bài trước hoặc chờ thầy cô mở bài.</p>' + (v.kb && v.kb.url ? '<a class="vt-go" href="' + esc(v.kb.url) + '">Bay về bài trước</a>' : '')
+        : '<a class="vt-go" href="' + esc(x.href) + '">' + go + '</a>');
     this.pn.querySelector('.vt-x').onclick = () => this.close();
     if (focus) this.pn.querySelector('.vt-x').focus();
   };

@@ -90,6 +90,9 @@ a.lesson{display:flex;align-items:center;gap:14px;background:var(--card);border:
 a.lesson:hover{border-color:var(--c)}
 a.lesson.new{border:2px dashed var(--new-bg)}
 a.lesson.new:hover{border-color:var(--c)}
+a.lesson.lock{opacity:.72;border:2px dashed var(--line)}
+a.lesson.lock .ic{filter:grayscale(1)}
+.chip.lock{color:var(--ink);background:var(--line)}
 .ic{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--c)}
 .ic svg{width:30px;height:30px;color:var(--onc);stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
@@ -430,7 +433,8 @@ a.lesson.new:hover{border-color:var(--c)}
 </main>
 
 <script src="../gamify.js"></script>
-<script src="../vu-tru.js?v=3"></script>
+<script src="../khoa-bai.js"></script>
+<script src="../vu-tru.js?v=4"></script>
 <script>
 (function(){
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec';
@@ -456,7 +460,7 @@ function hero(h){
   document.getElementById('hero-name').textContent=h?lastName(h.n)+'!':'cùng luyện toán nào!';
   const c=document.getElementById('hero-cls');c.hidden=!(h&&h.c);c.textContent=h&&h.c?'Lớp '+h.c:'';
 }
-function clearCards(){cards.forEach(function(a){a.classList.remove('done','new');a.querySelector('.st').innerHTML='';});if(window.VT)VT.tienDo(null);}
+function clearCards(){cards.forEach(function(a){a.classList.remove('done','new','lock');a.onclick=null;a.querySelector('.st').innerHTML='';});if(window.VT)VT.tienDo(null);}
 
 const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z" fill="%F"></path></svg>';
 function vn(d){return String(d==null?'':d).replace('.',',');}
@@ -546,6 +550,17 @@ function showProg(o){
       a.title='Đã làm '+k.l+' lần'+(k.t?', gần nhất '+k.t:'');
       if(own){done++;sum+=parseFloat(String(k.d).replace(',','.'))||0;}
     }else if(own){a.classList.add('new');st.innerHTML='<span class="chip new">Mới · chưa làm</span>';}
+    // Khóa bài theo thứ tự (khoa-bai.js): chưa đạt điều kiện ở bài trước thì chưa vào được
+    if(window.KB&&own){
+      const kb=KB.xet(o,tab);
+      if(!kb.mo){
+        a.classList.remove('done','new');a.classList.add('lock');
+        st.innerHTML='<span class="chip lock">🔒 Chưa mở</span><span class="ds">'+esc(KB.loiNhan(kb))+' Hoặc chờ thầy cô mở bài.</span>';
+        a.onclick=function(e){e.preventDefault();if(kb.url)location.href=kb.url;};
+        a.title='Bấm để về bài trước';
+      }else if(kb.gvMo&&!k){st.innerHTML='<span class="chip new">Thầy cô đã mở bài này</span>';}
+      if(/^\s*gv\s*$/i.test(String(o.c||''))&&KB.coKhoa(tab))st.innerHTML+='<span class="chip lock">Bài có khóa · tên trong trang Mở bài: '+esc(tab)+'</span>';
+    }
   });
   if(window.VT)VT.tienDo(o);
   shell({n:o.n,c:o.c},'<p class="sum">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài lớp '+esc(g||'mình')+(done?' · điểm trung bình <b>'+(Math.round(sum/done*10)/10).toString().replace('.',',')+'</b>':'')+'</p>');

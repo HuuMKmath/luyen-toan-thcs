@@ -122,3 +122,15 @@ Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `bo
 ## Bản đồ vũ trụ (trang Các bài)
 
 `vu-tru.js` vẽ các bài của một lớp thành bản đồ vũ trụ: mỗi bài là một thiên thể có thật, hai quỹ đạo Đại số và Hình học chạy song song; bấm vào thiên thể hiện bảng "Em có biết?", "Góc toán học" và nút vào bài. Trạng thái lấy từ cùng dữ liệu "Tiến độ của em" (từ 5 điểm bài 25 phút là đã chinh phục; tên lửa ở bài đầu tiên chưa đạt của mỗi quỹ đạo). Máy yếu hoặc bật giảm chuyển động thì tự tắt hiệu ứng. Hiện bật cho **lớp 6** (Hệ Mặt Trời) và **lớp 7** (vành đai tiểu hành tinh và các mặt trăng khổng lồ); bài Luyện tập chung và Bài tập cuối chương là tàu, trạm vũ trụ; lớp chưa có cấu hình trong `VT_KHOI` vẫn hiện danh sách thẻ như cũ. Thẻ `<a class="lesson">` vẫn giữ trong trang (ẩn đi) làm nguồn dữ liệu, nên thêm bài vẫn làm như trước: bài mới tự nhận thiên thể còn trống trong `kho` (bài cuối chương nhận tàu thăm dò trong `khoTau`); muốn chọn riêng thì thêm một dòng vào `gan`. Mỗi lần sửa `vu-tru.js`, tăng số phiên bản trong thẻ `<script src="../vu-tru.js?v=...">` của `cac-bai/index.html` để học sinh thấy bản mới ngay, không phải chờ bộ nhớ đệm.
+
+## Khóa bài theo thứ tự
+
+Áp dụng cho các bài soạn từ 25/11/2026; bài cũ và bài đầu mỗi chương luôn mở. Học sinh vào được một bài khi ở **bài trước** đã:
+
+1. làm xong 3 gói Nhận biết, Thông hiểu, Vận dụng (làm hết các câu của gói), và
+2. đạt từ 5 điểm ở bài Kiểm tra 25 phút hoặc Thử thách 30 phút (điểm cao nhất).
+
+Chưa đạt thì chờ giáo viên mở: menu **Mở bài** trong Google Sheet tạo trang tính "Mở bài"; mỗi dòng chọn Lớp (hoặc "Tất cả", hoặc số khối), Bài, tích ô Mở. Mã giáo viên luôn vào được.
+
+- Thứ tự bài khai báo trong `khoa-bai.js` (biến `KHOA`): mỗi bài mới bị khóa thêm một dòng `"<tên trang tính bài mới>": ["<tên trang tính bài trước>", "<thư mục bài trước>/"]`. Bài đầu chương không thêm.
+- Gói đã xong được ghi ở trang tính "Gói đã xong" (script tự tạo); chỉ tính các gói làm từ khi có tính năng này.

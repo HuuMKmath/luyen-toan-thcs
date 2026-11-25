@@ -145,6 +145,18 @@
     return r;
   }
 
+  /* Khóa bài theo thứ tự (khoa-bai.js): làm hết các câu của gói Nhận biết / Thông hiểu / Vận dụng thì ghi lên Sheet. */
+  function goiXong() {
+    try {
+      /* global S, state, SHEET_TAB */
+      if (!window.KB || !GM.sheet || !GM.user || !GM.user()) return;
+      var sp = S && S.spec;
+      if (!sp || sp.kind !== "level" || !S.list || !S.list.length) return;
+      var het = S.list.every(function (q) { var P = state.pr[q.id]; return P && P.done; });
+      if (het) KB.goiXong(GM.sheet, GM.user(), SHEET_TAB, sp.val);
+    } catch (e) {}
+  }
+
   var GM = {
     user: null, combo: 0,
 
@@ -179,6 +191,7 @@
       if (mode === "practice") {
         var n = r.items.length, c = r.items.filter(function (i) { return i.ok; }).length;
         if (n) { gained = 10; if (c === n && n >= 8) earn(o, "perfect", out); }
+        goiXong();
       } else {
         var sc = r.total || 0;
         gained = 20 + Math.round(sc * 10);

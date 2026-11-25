@@ -7,12 +7,16 @@
 //  - Bảng xếp hạng lớp và khối: học sinh chỉ thấy lớp, khối của mình (XP tuần này và tổng XP, tên viết tắt).
 //    Tắt cả hai bằng BXH_BAT = false; chỉ tắt bảng khối bằng BXH_KHOI = false.
 //  - Menu "Bảng điểm" tạo hai trang tính "Xem điểm" (một lớp, một bài) và "Sổ điểm" (một lớp, mọi bài).
+//  - Khóa bài theo thứ tự: trang tính "Gói đã xong" (script tự tạo) ghi ngày học sinh làm xong gói NB, TH, VD của từng bài;
+//    trang tính "Mở bài" (menu Mở bài) để giáo viên tích ô mở một bài cho cả lớp khi học sinh chưa đạt điều kiện.
 // Thêm bài mới trên website KHÔNG cần sửa script này.
 
 const TAB_HS = 'Học sinh';
 const TAB_XEM = 'Xem điểm'; // một lớp, một bài
 const TAB_SO = 'Sổ điểm';   // một lớp, tất cả các bài
 const TAB_THUONG = 'Thưởng'; // XP, chuỗi ngày, huy hiệu
+const TAB_GOI = 'Gói đã xong'; // ngày làm xong gói NB, TH, VD của từng bài (để mở khóa bài sau)
+const TAB_MO = 'Mở bài';       // giáo viên tích ô để mở một bài cho cả lớp
 const COT_DAU = ['Thời điểm nộp', 'Mã HS', 'Họ tên', 'Lớp', 'Ngày', 'Loại bài', 'Mã đề', 'Điểm', 'Trắc nghiệm', 'Đúng sai', 'Trả lời ngắn',
   'Thời gian (phút)', 'Giới hạn (phút)'];
 const COT_CUOI = ['Ghi chú', 'Mã kết quả'];
@@ -25,6 +29,9 @@ function onOpen() {
     .addToUi();
   SpreadsheetApp.getUi().createMenu('Bảng điểm')
     .addItem('Tạo / cập nhật bảng điểm', 'capNhatBangDiem')
+    .addToUi();
+  SpreadsheetApp.getUi().createMenu('Mở bài')
+    .addItem('Tạo / cập nhật trang Mở bài', 'taoTrangMoBai')
     .addToUi();
   // Mở Sheet thì làm mới hai bảng điểm (nếu đã tạo)
   try {
@@ -133,10 +140,10 @@ function tienDo(hs, ma) {
     if (k) bai[sh.getName()] = {
       d: k.diem, l: k.lan, p: k.phut,
       t: k.moi ? Utilities.formatDate(k.moi, 'Asia/Ho_Chi_Minh', 'dd/MM HH:mm') : '',
-      y: k.yeu
+      y: k.yeu, k: k.kt
     };
   });
-  return { ok: true, n: hs.n, c: hs.c, bai: bai };
+  return { ok: true, n: hs.n, c: hs.c, bai: bai, goi: goiDaXong(u), mo: baiDaMo(u, hs.c) };
 }
 
 /* ---------- Khối lớp ---------- */
@@ -156,12 +163,13 @@ function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
     if (body.gm) return thuongDongBo(body);
+    if (body.xg) return ghiGoiXong(body);
     const code = String(body.code || '');
     const cut = code.indexOf('-');
     const tab = tenTab(body.bai);
     const keys = Array.isArray(body.tk) ? body.tk.slice(0, 12).map(String) : [];
     const names = Array.isArray(body.tn) ? body.tn.slice(0, 12).map(function (s) { return String(s).slice(0, 60); }) : [];
-    if (cut < 1 || !tab || tab === TAB_HS || tab === TAB_XEM || tab === TAB_SO || tab === TAB_THUONG || keys.length !== names.length) return ok('bad');
+    if (cut < 1 || !tab || tab === TAB_HS || tab === TAB_XEM || tab === TAB_SO || tab === TAB_THUONG || tab === TAB_GOI || tab === TAB_MO || keys.length !== names.length) return ok('bad');
     const text = Utilities.newBlob(Utilities.base64Decode(code.slice(cut + 1))).getDataAsString('UTF-8');
     const o = JSON.parse(text);
 
@@ -259,8 +267,9 @@ function ketQuaBai(sh, loai) {
     const diem = Number(r[7]);
     if (!u || r[7] === '' || isNaN(diem)) return;
     if (loai && loai !== LOAI[0] && r[5] !== loai) return;
-    const k = out[u] || (out[u] = { diem: -1, lan: 0, moi: null, phut: '', yeu: '' });
+    const k = out[u] || (out[u] = { diem: -1, lan: 0, moi: null, phut: '', yeu: '', kt: -1 });
     k.lan++;
+    if (r[5] === LOAI[1] && diem > k.kt) k.kt = diem; // điểm cao nhất của bài Kiểm tra 25 phút / Thử thách (không tính Kiểm tra nhanh cũ)
     if (r[0] instanceof Date && (!k.moi || r[0] > k.moi)) k.moi = r[0];
     if (diem > k.diem) {
       k.diem = diem;
@@ -555,4 +564,103 @@ function bangXepHang(hs, ma) {
   const out = { ok: true, c: hs.c, tuan: tuanNay(), so: lop.length, tuanNay: xepHang(lop, 'w', u, false), tatCa: xepHang(lop, 'a', u, false) };
   if (BXH_KHOI && khoi) out.khoi = { k: khoi, so: ds.length, tuanNay: xepHang(ds, 'w', u, true), tatCa: xepHang(ds, 'a', u, true) };
   return out;
+}
+
+
+/* ---------- Khóa bài theo thứ tự ---------- */
+// Điều kiện qua một bài (website tự xét, xem khoa-bai.js): làm xong 3 gói Nhận biết, Thông hiểu, Vận dụng
+// VÀ điểm cao nhất của Kiểm tra 25 phút hoặc Thử thách 30 phút từ 5 điểm. Chưa đạt thì chờ giáo viên mở ở trang tính "Mở bài".
+
+const COT_GOI = ['Mã HS', 'Họ tên', 'Lớp', 'Bài', 'NB', 'TH', 'VD', 'Cập nhật'];
+const GOI_MUC = ['NB', 'TH', 'VD'];
+const COT_MO = ['Lớp', 'Bài', 'Mở', 'Ghi chú'];
+
+// Trang web gửi { xg:1, u:<mã HS>, bai:<tên trang tính của bài>, goi:'NB'|'TH'|'VD' } khi học sinh làm hết các câu của gói theo mức độ.
+function ghiGoiXong(body) {
+  try {
+    if (soLanSai().n >= SAI_TOI_DA) return json({ ok: false, err: 1 });
+    const hs = timHocSinh(body.u);
+    if (!hs) { ghiLanSai(); return json({ ok: false }); }
+    const ma = soMa(body.u), bai = tenTab(body.bai), goi = String(body.goi || '');
+    const cot = GOI_MUC.indexOf(goi);
+    if (!bai || cot < 0) return json({ ok: false });
+    const kb = khoiBai(bai), kl = khoiLop(hs.c);
+    if (kb && kl && kb !== kl && !laLopGV(hs.c)) return json({ ok: false });
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(TAB_GOI);
+    if (!sh) {
+      sh = ss.insertSheet(TAB_GOI, ss.getNumSheets());
+      sh.getRange(1, 1, 1, COT_GOI.length).setValues([COT_GOI]).setFontWeight('bold');
+      sh.getRange(2, 1, 998, 1).setNumberFormat('@');
+      sh.setFrozenRows(1);
+    }
+    const last = sh.getLastRow();
+    let row = 0;
+    if (last > 1) {
+      const v = sh.getRange(2, 1, last - 1, 4).getValues();
+      for (let i = 0; i < v.length; i++) if (soMa(v[i][0]) === ma && String(v[i][3]) === bai) { row = i + 2; break; }
+    }
+    const now = new Date();
+    if (!row) {
+      const hang = [ma, hs.n, hs.c, bai, '', '', '', now];
+      hang[4 + cot] = now;
+      sh.appendRow(hang);
+      sh.getRange(sh.getLastRow(), 1).setNumberFormat('@').setValue(ma);
+    } else if (sh.getRange(row, 5 + cot).getValue() === '') {
+      sh.getRange(row, 5 + cot).setValue(now);
+      sh.getRange(row, 8).setValue(now);
+    }
+    return json({ ok: true });
+  } catch (err) {
+    return json({ ok: false, err: 1 });
+  }
+}
+
+// Các gói đã làm xong của một học sinh: { "<tên bài>": "NB TH VD" }
+function goiDaXong(u) {
+  const out = {};
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB_GOI);
+  if (!sh || sh.getLastRow() < 2) return out;
+  sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().forEach(function (r) {
+    if (soMa(r[0]) !== u) return;
+    out[String(r[3])] = GOI_MUC.filter(function (g, i) { return r[4 + i] !== ''; }).join(' ');
+  });
+  return out;
+}
+
+function chuanTen(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+// Các bài giáo viên đã tích "Mở" cho lớp của học sinh (một em có thể ở nhiều lớp: chính khóa, học thêm).
+// Cột Lớp: tên lớp (7A), số khối (7) hoặc "Tất cả".
+function baiDaMo(u, lop) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB_MO);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const lops = [chuanTen(lop)];
+  dsHocSinh().forEach(function (h) { if (h.u === u && lops.indexOf(chuanTen(h.c)) < 0) lops.push(chuanTen(h.c)); });
+  const khois = lops.map(khoiLop);
+  const out = [];
+  sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues().forEach(function (r) {
+    if (r[2] !== true || !String(r[1]).trim()) return;
+    const l = chuanTen(r[0]);
+    if (l === 'tất cả' || lops.indexOf(l) >= 0 || (/^\d+$/.test(l) && khois.indexOf(l) >= 0)) out.push(String(r[1]).replace(/\s+/g, ' ').trim());
+  });
+  return out;
+}
+
+// Menu Mở bài: tạo trang tính "Mở bài" với ô chọn Lớp, Bài và ô tích Mở.
+function taoTrangMoBai() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(TAB_MO);
+  const moi = !sh;
+  if (!sh) sh = ss.insertSheet(TAB_MO, ss.getNumSheets());
+  sh.getRange(1, 1, 1, COT_MO.length).setValues([COT_MO]).setFontWeight('bold');
+  sh.setFrozenRows(1);
+  const lop = ['Tất cả'].concat(dsLop(dsHocSinh()).filter(function (l) { return !laLopGV(l); }));
+  const bai = dsBai().map(function (b) { return b.getName(); }).filter(function (t) { return !/ - Thử thách$/.test(t); });
+  sh.getRange(2, 1, 300, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(lop, true).setAllowInvalid(true).build());
+  if (bai.length) sh.getRange(2, 2, 300, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(bai, true).setAllowInvalid(true)
+    .setHelpText('Chọn bài, hoặc gõ đúng tên bài như trên website (ví dụ "7 - Tên bài").').build());
+  sh.getRange(2, 3, 300, 1).insertCheckboxes();
+  sh.setColumnWidth(2, 360);
+  SpreadsheetApp.getUi().alert((moi ? 'Đã tạo' : 'Đã cập nhật') + ' trang tính "' + TAB_MO + '". Mỗi dòng: chọn Lớp (hoặc "Tất cả", hoặc số khối), chọn Bài, tích ô Mở. Học sinh lớp đó vào được bài dù chưa đạt điều kiện. Bỏ tích để khóa lại.');
 }
