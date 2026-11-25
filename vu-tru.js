@@ -117,7 +117,7 @@
 
   /* ---- Giao diện ---- */
   const CSS = `
-.vt{position:relative;width:min(1200px,calc(100vw - 16px));left:50%;transform:translateX(-50%);margin-top:18px;border-radius:28px;overflow:hidden;background:#03050f;color:#e8ecff;font-family:'Be Vietnam Pro',system-ui,sans-serif;padding:24px clamp(12px,2.5vw,28px) 34px;box-sizing:border-box;isolation:isolate}
+.vt{position:relative;width:min(1200px,calc(100vw - 16px));left:50%;transform:translateX(-50%);margin-top:18px;border-radius:28px;overflow:hidden;background:linear-gradient(180deg,#2a3f9e 0%,#24358a 35%,#2b2f86 70%,#3a2f8a 100%);color:#e8ecff;font-family:'Be Vietnam Pro',system-ui,sans-serif;padding:24px clamp(12px,2.5vw,28px) 34px;box-sizing:border-box;isolation:isolate}
 .vt *{box-sizing:border-box}
 .vt-sky,.vt-sky2,.vt-sky3{position:absolute;inset:0;pointer-events:none;z-index:-1}
 .vt-sky{background-image:radial-gradient(1px 1px at 23px 41px,#fff,transparent),radial-gradient(1px 1px at 141px 97px,#dfe6ff,transparent),radial-gradient(1px 1px at 233px 163px,#fff,transparent),radial-gradient(1px 1px at 77px 211px,#b9c6ff,transparent),radial-gradient(1px 1px at 301px 23px,#fff,transparent);background-size:340px 240px;opacity:.8}
@@ -135,7 +135,7 @@
 .vt-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:.82rem;color:#c9d2ff}
 .vt-legend span{display:flex;align-items:center;gap:6px}
 .vt-legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
-.vt-tabs{display:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:5px;margin-top:16px;border-radius:16px;background:rgba(12,17,52,.8);border:1px solid #34408a}
+.vt-tabs{display:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:5px;margin-top:16px;border-radius:16px;background:rgba(16,24,72,.7);border:1px solid #5566b8}
 .vt-tabs button{font:700 .92rem 'Be Vietnam Pro',sans-serif;min-height:44px;border:0;border-radius:12px;background:transparent;color:#c9d2ff;cursor:pointer}
 .vt-tabs button[aria-selected="true"]{background:var(--m);color:#071022}
 .vt-lanes{display:flex;gap:28px;align-items:flex-start;margin-top:22px}
@@ -156,10 +156,10 @@
 .vt-pl:hover .vt-body,.vt-pl:focus-visible .vt-body{transform:scale(1.08)}
 .vt-ring{position:absolute;left:50%;top:50%;border-radius:50%;border-top-color:transparent!important;transform:translate(-50%,-50%) rotate(-16deg)}
 .vt-tail{position:absolute;right:60%;top:50%;width:150%;height:40%;transform:translateY(-50%);border-radius:50%;background:linear-gradient(270deg,rgba(200,225,255,.75),rgba(150,190,255,0));filter:blur(2px)}
-.vt-badge{position:absolute;right:-4px;top:-6px;width:26px;height:26px;border-radius:50%;border:3px solid #03050f;display:flex;align-items:center;justify-content:center}
+.vt-badge{position:absolute;right:-4px;top:-6px;width:26px;height:26px;border-radius:50%;border:3px solid #24358a;display:flex;align-items:center;justify-content:center}
 .vt-badge svg{width:13px;height:13px}
 .vt-rocket{position:absolute;left:-28px;top:-24px;width:38px;height:38px;transform:rotate(35deg)}
-.vt-lbl{display:flex;flex-direction:column;gap:2px;min-width:0;padding:9px 13px;border-radius:14px;background:rgba(8,12,38,.74);border:1px solid rgba(150,170,255,.22);backdrop-filter:blur(4px)}
+.vt-lbl{display:flex;flex-direction:column;gap:2px;min-width:0;padding:9px 13px;border-radius:14px;background:rgba(16,24,72,.78);border:1px solid rgba(170,190,255,.35);backdrop-filter:blur(4px)}
 .vt-lbl small{font-size:.7rem;font-weight:700;letter-spacing:.06em;color:#9fb4ff}
 .vt-lbl b{font-size:.95rem;line-height:1.3;color:#fff}
 .vt-lbl span{font-size:.8rem;line-height:1.35;color:#9ff0c4}
@@ -169,7 +169,7 @@
 .vt-pl.open .vt-lbl span,.vt-pl.new .vt-lbl span{color:#c9d2ff}
 .vt-pl.sel .vt-lbl{border-color:#ffd678;box-shadow:0 0 0 1px #ffd678}
 .vt-foot{margin:8px 0 0;text-align:center;font-size:.8rem;color:#a9b3e6}
-.vt-panel{position:fixed;z-index:60;right:20px;bottom:20px;width:380px;max-width:calc(100vw - 24px);max-height:calc(100vh - 40px);overflow-y:auto;padding:20px;border-radius:24px;background:rgba(9,13,42,.96);border:1px solid rgba(160,180,255,.35);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(120,140,255,.18);color:#e8ecff;font-family:'Be Vietnam Pro',system-ui,sans-serif;animation:vt-in .3s ease-out;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
+.vt-panel{position:fixed;z-index:60;right:20px;bottom:20px;width:380px;max-width:calc(100vw - 24px);max-height:calc(100vh - 40px);overflow-y:auto;padding:20px;border-radius:24px;background:rgba(30,44,118,.97);border:1px solid rgba(170,190,255,.45);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(120,140,255,.18);color:#e8ecff;font-family:'Be Vietnam Pro',system-ui,sans-serif;animation:vt-in .3s ease-out;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
 .vt-panel *{box-sizing:border-box}
 .vt-ph{display:flex;align-items:center;gap:14px}
 .vt-ph .vt-orb{width:84px;height:84px}
@@ -177,7 +177,7 @@
 .vt-ph small{font-size:.72rem;font-weight:700;letter-spacing:.07em;color:#9fb4ff}
 .vt-ph h3{margin:0;font:800 1.45rem/1.15 'Baloo 2','Be Vietnam Pro',sans-serif;color:#fff}
 .vt-ph span{font-size:.8rem;color:#c9d2ff}
-.vt-x{flex:none;align-self:flex-start;width:44px;height:44px;border-radius:50%;border:1px solid #3a4580;background:transparent;color:#dfe5ff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vt-x{flex:none;align-self:flex-start;width:44px;height:44px;border-radius:50%;border:1px solid #6a7bd0;background:transparent;color:#dfe5ff;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .vt-x svg{width:18px;height:18px}
 .vt-panel h4{margin:0;font-size:.82rem;color:#ffd678}
 .vt-panel ul{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:6px;font-size:.9rem;line-height:1.5}
@@ -189,7 +189,7 @@
 .vt-bai span{font-size:.84rem;color:#9ff0c4}
 .vt-go{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:14px;background:#ffd678;color:#1a1430!important;font-weight:800;font-size:.95rem;text-decoration:none}
 .vt-go:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.vt-dim{position:fixed;inset:0;z-index:59;background:rgba(2,4,14,.55);display:none}
+.vt-dim{position:fixed;inset:0;z-index:59;background:rgba(10,16,50,.45);display:none}
 @media (max-width:820px){
   .vt-tabs{display:grid}
   .vt-lane{display:none}.vt-lane.on{display:block}
@@ -292,8 +292,8 @@
     const cfg = this.cfg, st = this.state(), narrow = window.innerWidth <= 820;
     const logged = !!this.prog;
     let h = '<span class="vt-sky" aria-hidden="true"></span><span class="vt-sky2" aria-hidden="true"></span><span class="vt-sky3" aria-hidden="true"></span>' +
-      '<span class="vt-neb" aria-hidden="true" style="left:-12%;top:300px;width:62%;height:800px;background:radial-gradient(closest-side,rgba(255,110,80,.2),rgba(170,60,140,.1) 55%,transparent)"></span>' +
-      '<span class="vt-neb" aria-hidden="true" style="right:-14%;top:180px;width:64%;height:900px;background:radial-gradient(closest-side,rgba(40,170,255,.18),rgba(80,60,200,.1) 55%,transparent)"></span>' +
+      '<span class="vt-neb" aria-hidden="true" style="left:-12%;top:300px;width:62%;height:800px;background:radial-gradient(closest-side,rgba(255,140,110,.32),rgba(200,90,170,.18) 55%,transparent)"></span>' +
+      '<span class="vt-neb" aria-hidden="true" style="right:-14%;top:180px;width:64%;height:900px;background:radial-gradient(closest-side,rgba(80,200,255,.32),rgba(120,100,240,.18) 55%,transparent)"></span>' +
       '<span class="vt-giant" aria-hidden="true"></span>' +
       '<div class="vt-head"><small>BẢN ĐỒ VŨ TRỤ</small><b>' + esc(cfg.vung) + '</b><span>Mỗi bài học là một thiên thể có thật. Bấm vào để xem thông tin và bay đến bài.</span></div>' +
       '<div class="vt-legend">' + (logged ? '<span><i style="background:#39d98a"></i>Đã chinh phục (từ 5 điểm)</span><span><i style="background:#ffd678;box-shadow:0 0 8px 2px rgba(255,214,120,.7)"></i>Em đang ở đây</span><span><i style="background:#ffb36b"></i>Cần ôn thêm</span>' : '<span>Nhập mã học sinh ở trên để thấy tiến độ của em trên bản đồ.</span>') + '</div>' +
