@@ -136,6 +136,7 @@ a.lesson.new:hover{border-color:var(--c)}
 .bxh-l{color:var(--muted);font-size:.82rem}
 .bxh-gap{text-align:center;color:var(--muted);padding:2px 0!important;border-top:none!important}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.vt-on>.chap{display:none}
 @media (max-width:420px){.list{grid-template-columns:minmax(0,1fr)}.tile b{font-size:1.15rem}}
 </style>
 </head>
@@ -429,6 +430,7 @@ a.lesson.new:hover{border-color:var(--c)}
 </main>
 
 <script src="../gamify.js"></script>
+<script src="../vu-tru.js"></script>
 <script>
 (function(){
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec';
@@ -454,7 +456,7 @@ function hero(h){
   document.getElementById('hero-name').textContent=h?lastName(h.n)+'!':'cùng luyện toán nào!';
   const c=document.getElementById('hero-cls');c.hidden=!(h&&h.c);c.textContent=h&&h.c?'Lớp '+h.c:'';
 }
-function clearCards(){cards.forEach(function(a){a.classList.remove('done','new');a.querySelector('.st').innerHTML='';});}
+function clearCards(){cards.forEach(function(a){a.classList.remove('done','new');a.querySelector('.st').innerHTML='';});if(window.VT)VT.tienDo(null);}
 
 const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z" fill="%F"></path></svg>';
 function vn(d){return String(d==null?'':d).replace('.',',');}
@@ -545,6 +547,7 @@ function showProg(o){
       if(own){done++;sum+=parseFloat(String(k.d).replace(',','.'))||0;}
     }else if(own){a.classList.add('new');st.innerHTML='<span class="chip new">Mới · chưa làm</span>';}
   });
+  if(window.VT)VT.tienDo(o);
   shell({n:o.n,c:o.c},'<p class="sum">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài lớp '+esc(g||'mình')+(done?' · điểm trung bình <b>'+(Math.round(sum/done*10)/10).toString().replace('.',',')+'</b>':'')+'</p>');
 }
 
@@ -624,6 +627,7 @@ function gvDraw(){
   document.getElementById('gv-lop').onchange=function(){gvLop=this.value;gvDraw();document.getElementById('gv-lop').focus();};
 }
 
+if(window.VT)VT.init();
 const h=load();
 if(h){save(h);applyGrade(grade(h.c));showCached('');document.querySelector('#me-body .err').remove();fetchProg(h.u,false);}else loginView(hsExpired?'Đã hơn 2 ngày em chưa vào ôn luyện nên máy đã quên mã. Hãy nhập lại mã học sinh nhé.':'');
 })();
