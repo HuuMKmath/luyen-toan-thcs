@@ -45,6 +45,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 7 | Bài 15. Các trường hợp bằng nhau của tam giác vuông | `tam-giac-vuong-bang-nhau/` | `TV7-` |
 | 7 | Bài 16. Tam giác cân. Đường trung trực của đoạn thẳng | `tam-giac-can-duong-trung-truc/` | `CN7-` |
 | 7 | Luyện tập chung (sau Bài 16) | `luyen-tap-chung-sau-bai-16/` | `LC7-` |
+| 7 | Bài tập cuối chương IV | `bai-tap-cuoi-chuong-4-toan-7/` | `C47-` |
 | 7 | Bài 17. Thu thập và phân loại dữ liệu | `thu-thap-phan-loai-du-lieu/` | `DL7-` |
 | 7 | Bài 18. Biểu đồ hình quạt tròn | `bieu-do-hinh-quat-tron/` | `QT7-` |
 
@@ -92,6 +93,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Các trường hợp bằng nhau của tam giác vuông: `https://huumkmath.github.io/luyen-toan-thcs/tam-giac-vuong-bang-nhau/`
 - Tam giác cân. Đường trung trực của đoạn thẳng: `https://huumkmath.github.io/luyen-toan-thcs/tam-giac-can-duong-trung-truc/`
 - Luyện tập chung (sau Bài 16): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-sau-bai-16/`
+- Bài tập cuối chương IV (Toán 7): `https://huumkmath.github.io/luyen-toan-thcs/bai-tap-cuoi-chuong-4-toan-7/`
 - Thu thập và phân loại dữ liệu: `https://huumkmath.github.io/luyen-toan-thcs/thu-thap-phan-loai-du-lieu/`
 - Biểu đồ hình quạt tròn: `https://huumkmath.github.io/luyen-toan-thcs/bieu-do-hinh-quat-tron/`
 
