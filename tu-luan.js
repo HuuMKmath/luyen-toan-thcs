@@ -32,9 +32,10 @@
     s += '<div class="stem">' + q.de + "</div>";
     s += '<div class="row tl-btns">';
     s += '<button class="btn ghost sm" data-tl="hint:' + q.id + '" aria-expanded="' + (!!ui.hint[q.id]) + '">' + (ui.hint[q.id] ? "Ẩn gợi ý" : "Gợi ý") + "</button>";
-    if (q.nguoc) s += '<button class="btn ghost sm tl-ngbtn" data-tl="ng:' + q.id + '" aria-expanded="' + (!!ui.ng[q.id]) + '">' + (ui.ng[q.id] ? "Đóng phân tích" : "🧭 Phân tích từng bước") + "</button>";
-    if (q.nguoc) s += '<button class="btn ghost sm" data-tl="ngmap:' + q.id + '" aria-expanded="' + (!!ui.map[q.id]) + '">' + (ui.map[q.id] ? "Ẩn sơ đồ" : "🗺️ Sơ đồ suy luận ngược") + "</button>";
-    s += k ? '<button class="btn ghost sm" data-tl="hide:' + q.id + '">Ẩn lời giải</button>' : '<button class="btn sm" data-tl="sol:' + q.id + '">Xem lời giải</button>';
+    if (q.nguoc) s += '<button class="btn sm tl-ngbtn" data-tl="ng:' + q.id + '" aria-expanded="' + (!!ui.ng[q.id]) + '">' + (ui.ng[q.id] ? "Đóng phân tích" : "🧭 Giải theo 4 bước") + "</button>";
+    // Bài có phân tích 4 bước: sơ đồ và lời giải nằm trong bước 3, không cần nút riêng.
+    if (k) s += '<button class="btn ghost sm" data-tl="hide:' + q.id + '">Ẩn lời giải</button>';
+    else if (!q.nguoc) s += '<button class="btn sm" data-tl="sol:' + q.id + '">Xem lời giải</button>';
     s += "</div>";
     if (ui.map[q.id]) s += mapHTML(q);
     if (ui.ng[q.id]) s += ngHTML(q);
@@ -195,7 +196,7 @@
       s += '<p style="margin:0">Đọc sơ đồ từ dưới lên: đi từ giả thiết đến kết luận. Em hãy tự viết lời giải vào vở, mỗi bước ghi rõ căn cứ (vì sao). Viết xong mới đối chiếu.</p>';
       if (q.fig) { try { s += q.fig(false); } catch (e) {} }
       L.forEach(function (x) { s += (L.length > 1 ? '<div class="ng-cap" style="margin:0">' + x.ten + "</div>" : "") + ngMap(x, null, true); });
-      s += '<div class="row"><button class="btn sm" data-tl="ngsol:' + q.id + '">Đối chiếu: xem lời giải từng bước</button>' + (q.nhin ? '<button class="btn ghost sm" data-tl="ngp:' + q.id + ':4">Sang bước 4: Nhìn lại</button>' : "") + "</div>";
+      s += '<div class="row"><button class="btn sm" data-tl="ngsol:' + q.id + '">Đối chiếu: xem lời giải từng bước</button><button class="btn ghost sm ng-say" data-tl="ngmsay:' + q.id + '">🔊 Đọc sơ đồ</button>' + (q.nhin ? '<button class="btn ghost sm" data-tl="ngp:' + q.id + ':4">Sang bước 4: Nhìn lại</button>' : "") + "</div>";
     } else if (st.p === 4 && q.nhin) {
       s += '<p class="ng-ph">Bước 4. Kiểm tra và nghiên cứu lời giải (nhìn lại)</p>';
       s += '<p class="small" style="margin:0">Giải xong chưa phải là hết. Thử lại kết quả, xem đã dùng hết giả thiết chưa, tìm cách khác, đặt bài toán mới.</p>';
