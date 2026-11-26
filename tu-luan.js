@@ -163,7 +163,7 @@
 
   /* ---------- Giọng đọc: giọng tiếng Việt có sẵn của trình duyệt (miễn phí, không tải thêm) ---------- */
   var KEY_DOC = "tl-doc";
-  function docAuto() { try { return localStorage.getItem(KEY_DOC) === "1"; } catch (e) { return false; } }
+  function docAuto() { try { return localStorage.getItem(KEY_DOC) !== "0"; } catch (e) { return true; } }   // mặc định bật, học sinh tắt được
   var CHU = { A: "a", B: "bê", C: "xê", D: "đê", E: "e", F: "ép", G: "giê", H: "hát", I: "i", K: "ca", L: "lờ", M: "mờ", N: "nờ", O: "o", P: "pê", Q: "quy", R: "rờ", S: "ét", T: "tê", U: "u", V: "vê", X: "ích", Y: "i dài" };
   function doc(t) {
     t = String(t).replace(/<br\s*\/?>/gi, ". ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ");
