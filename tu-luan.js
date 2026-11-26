@@ -33,7 +33,7 @@
   function itemHTML(q, marks) {
     var k = ui.step[q.id] || 0, n = q.steps.length, m = marks[q.id], fig = "";
     var s = '<article class="card tl-q" id="tl-' + q.id + '">';
-    s += '<div class="tl-head"><b>Bài ' + num(q) + "</b>" + (dangs() ? ' <span class="chip tl-lv tl-lv-' + q.lv + '">' + LV2[q.lv] + "</span>" : "") + (m ? ' <span class="chip tl-' + m.m + '">' + MARK[m.m] + "</span>" : "") + "</div>";
+    s += '<div class="tl-head"><b>Bài ' + num(q) + "</b>" + (dangOf(q) ? ' <span class="chip tl-lv tl-lv-' + q.lv + '">' + LV2[q.lv] + "</span>" : "") + (m ? ' <span class="chip tl-' + m.m + '">' + MARK[m.m] + "</span>" : "") + "</div>";
     s += '<div class="stem">' + q.de + "</div>";
     s += '<div class="row tl-btns">';
     s += '<button class="btn ghost sm" data-tl="hint:' + q.id + '" aria-expanded="' + (!!ui.hint[q.id]) + '">' + (ui.hint[q.id] ? "Ẩn gợi ý" : "Gợi ý") + "</button>";
@@ -78,7 +78,10 @@
         var muc = []; L.forEach(function (q) { if (muc.indexOf(LV2[q.lv]) < 0) muc.push(LV2[q.lv]); });
         s += '<button class="pk' + (ui.open === o ? " on" : "") + '" data-tl="open:' + o + '" aria-expanded="' + (ui.open === o) + '"><b>Dạng ' + (i + 1) + ". " + x.ten + " · " + L.length + " bài</b><span>Từ " + muc[0].toLowerCase() + " đến " + muc[muc.length - 1].toLowerCase() + "." + (dn ? " Đã làm " + dn + "/" + L.length + "." : "") + "</span></button>";
       });
+      var H = byLv("HSG");   // bài HSG: mục riêng, giải theo 4 bước (thầy dặn 27/11/2026)
+      if (H.length) { var dh = H.filter(function (q) { return marks[q.id]; }).length; s += '<button class="pk pk-hsg' + (ui.open === "HSG" ? " on" : "") + '" data-tl="open:HSG" aria-expanded="' + (ui.open === "HSG") + '"><b>' + LV.HSG + " · " + H.length + " bài</b><span>" + LV_DESC.HSG + (dh ? " Đã làm " + dh + "/" + H.length + "." : "") + "</span></button>"; }
       s += "</div>";
+      if (ui.open === "HSG" && H.length) { s += '<div class="tl-list"><h3 style="margin:4px 0 0">' + LV.HSG + "</h3>"; H.forEach(function (q) { s += itemHTML(q, marks); }); return s + "</div></section>"; }
       var k = ui.open && ui.open[0] === "D" ? +ui.open.slice(1) : -1;
       if (D[k]) {
         s += '<div class="tl-list"><h3 style="margin:4px 0 0">Dạng ' + (k + 1) + ". " + D[k].ten + "</h3>";
