@@ -690,7 +690,7 @@ function genVdPow2(){return tryGen(()=>{
   const f=p[0]<0?`x − ${SH(negQ(p))}`:`x + ${SH(p)}`,T=(a,b)=>`x = ${SH(a)} hoặc x = ${SH(b)}`,h=qm(V,[1,2]);
   return mk(`Tìm x, biết ${E(`(${f})${SUP(2)} = ${SH(V)}`)}.`,T(x1,x2),[
     C(`Chỉ có x = ${SH(x1)}`,`Hai số đối nhau có bình phương bằng nhau, nên ${f} = ${SH(r)} hoặc ${f} = ${SH(negQ(r))}.`),
-    C(T(qa(r,p),qa(negQ(r),p)),`Từ ${f} = ${SH(r)} suy ra x = ${SH(x1)}. Bạn đã chuyển vế sai dấu.`),
+    C(T(qa(r,p),qa(negQ(r),p)),`Từ ${f} = ${SH(r)} suy ra x = ${SH(x1)}. Bạn đã đổi sai dấu khi tìm x.`),
     C(T(qs(h,p),qs(negQ(h),p)),`${SH(V)} = ${PW(r,2)}, không phải ${SH(h)} · 2. Bình phương không phải là nhân với 2.`),
     C(T(qs(V,p),qs(negQ(V),p)),`Phải viết ${SH(V)} = ${PW(r,2)} rồi mới suy ra ${f} = ${SH(r)} hoặc ${f} = ${SH(negQ(r))}.`)],
     `${SH(V)} = ${PW(r,2)} = ${PW(negQ(r),2)} nên ${f} = ${SH(r)} hoặc ${f} = ${SH(negQ(r))}. Vậy x = ${SH(x1)} hoặc x = ${SH(x2)}.`);

@@ -778,7 +778,7 @@ function genMtCmp(){return tryGen(()=>{
   const rel=half?(n*100>(b*10)*(b*10)?'>':n*100<(b*10)*(b*10)?'<':'='):(n>b*b?'>':n<b*b?'<':'=');
   const sym=['>','<','='],NO='Không so sánh được vì √n là số vô tỉ';
   const why=x=>rel==='='?`${bs}² = ${dt(b*b)} = ${n} nên ${SQ(n)} = ${bs}, không lớn hơn hay nhỏ hơn.`:x==='='?`${SQ(n)} không bằng ${bs}: ${bs}² = ${dt(b*b)} khác ${n}.`:`Ta có ${bs}² = ${dt(b*b)} ${n>b*b?'<':'>'} ${n}, nên ${SQ(n)} ${n>b*b?'>':'<'} ${bs}.`;
-  const cs=sym.filter(x=>x!==rel).map(x=>C(`${SQ(n)} ${x} ${bs}`,why(x))).concat([C(NO.replace('√n',SQ(n)),'Hai số thực luôn so sánh được; ta so sánh bình phương của chúng.')]);
+  const cs=sym.filter(x=>x!==rel).map(x=>C(`${SQ(n)} ${x} ${bs}`,why(x))).concat([C(NO.replace('√n',SQ(n)),'Hai số này luôn so sánh được; ta so sánh bình phương của chúng.')]);
   const r=mk(`So sánh ${SQ(n)} và ${bs}. Chọn kết quả đúng:`,`${SQ(n)} ${rel} ${bs}`,cs,`Vì ${bs}² = ${dt(b*b)} ${rel==='='?'=':(n>b*b?'<':'>')} ${n} nên ${SQ(n)} ${rel} ${bs}.`,{n,b:bs,rel});return r;
 });}
 
@@ -1210,8 +1210,8 @@ function genTsBetw(){return tryGen(()=>{
 });}
 function genTsDiag(){return tryGen(()=>{
   const a=ri(1,7),b=ri(1,7),Nn=a*a+b*b;if(isSq(Nn)||(a===1&&b===1))return null;
-  const cs=[C(String(a+b),'Cạnh huyền không bằng tổng hai cạnh góc vuông; cạnh huyền² = a² + b².'),C(String(Nn),'Đây là bình phương cạnh huyền, chưa lấy căn bậc hai.'),C(SQ(a+b),'Cạnh huyền² = a² + b², không phải a + b.')];
-  return mk(`Một tam giác vuông có hai cạnh góc vuông bằng ${a} và ${b}. Để biểu diễn điểm cách gốc O một khoảng bằng độ dài cạnh huyền, ta vẽ đường tròn tâm O (gốc của trục số) có bán kính bằng:`,SQ(Nn),cs,`Cạnh huyền² = ${a}² + ${b}² = ${Nn} nên cạnh huyền = ${SQ(Nn)}; bán kính đường tròn bằng ${SQ(Nn)}.`,{a,b});
+  const cs=[C(String(a+b),'Cạnh hình vuông là căn bậc hai số học của diện tích, không phải tổng hai cạnh.'),C(String(Nn),'Đây là diện tích hình vuông, chưa lấy căn bậc hai.'),C(SQ(a+b),`Diện tích là ${a}² + ${b}² = ${Nn}, không phải ${a} + ${b}.`)];
+  return mk(`Một hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b}. Để biểu diễn điểm cách gốc O một khoảng bằng độ dài cạnh hình vuông đó, ta vẽ đường tròn tâm O (gốc của trục số) có bán kính bằng:`,SQ(Nn),cs,`Diện tích hình vuông là ${a}² + ${b}² = ${Nn} nên cạnh bằng ${SQ(Nn)}; bán kính đường tròn bằng ${SQ(Nn)}.`,{a,b});
 });}
 function genTsGrid(){return tryGen(()=>{
   const a=ri(10,90)/10,k=ri(2,8),v=a+k/100;
@@ -1365,8 +1365,8 @@ function tsItem(lv){
   if(t===2){const ok=RNG()<.5;return IT(`Hai điểm biểu diễn các số x và −x ${ok?'cách đều':'không cách đều'} gốc O`,ok,'ts','TH','Hai số đối nhau có cùng giá trị tuyệt đối nên cách đều gốc O.');}
   if(t===3){const ok=RNG()<.5;return IT(`Số vô tỉ ${ok?'cũng được':'không được'} biểu diễn bởi một điểm trên trục số`,ok,'ts','TH','Mỗi số thực, kể cả số vô tỉ, đều được biểu diễn bởi một điểm trên trục số.');}
   if(t===4){const ok=RNG()<.5;return IT(`Mỗi điểm trên trục số đều biểu diễn một số ${ok?'thực':'hữu tỉ'}`,ok,'ts','TH','Mỗi điểm trên trục số biểu diễn một số thực (có thể là số vô tỉ).');}
-  if(t===5){const a=ri(1,6),b=ri(1,6);const n=a*a+b*b;if(isSq(n))return tsItem(lv);return IT(`Tam giác vuông có hai cạnh góc vuông ${a} và ${b} có cạnh huyền ${SQ(n)}`,true,'ts','VD',`Cạnh huyền² = ${a}² + ${b}² = ${n} nên cạnh huyền = ${SQ(n)}.`);}
-  const a=ri(1,6),b=ri(1,6),n=a*a+b*b;if(isSq(n)||a+b===n)return tsItem(lv);return IT(`Tam giác vuông có hai cạnh góc vuông ${a} và ${b} có cạnh huyền ${SQ(a+b)}`,false,'ts','VD',`Cạnh huyền² = ${a}² + ${b}² = ${n}, nên cạnh huyền = ${SQ(n)}, không phải ${SQ(a+b)}.`);
+  if(t===5){const a=ri(1,6),b=ri(1,6);const n=a*a+b*b;if(isSq(n))return tsItem(lv);return IT(`Hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b} thì có cạnh ${SQ(n)}`,true,'ts','VD',`Diện tích là ${a}² + ${b}² = ${n} nên cạnh = ${SQ(n)}.`);}
+  const a=ri(1,6),b=ri(1,6),n=a*a+b*b;if(isSq(n)||a+b===n)return tsItem(lv);return IT(`Hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b} thì có cạnh ${SQ(a+b)}`,false,'ts','VD',`Diện tích là ${a}² + ${b}² = ${n}, nên cạnh = ${SQ(n)}, không phải ${SQ(a+b)}.`);
 }
 function ssItem(lv){
   const t=ri(0,lv==='VD'?6:4);
@@ -1493,7 +1493,7 @@ function saSsMax(){
 }
 function saTsDiag(){
   for(;;){const a=ri(1,9),b=ri(1,9),Nn=a*a+b*b;if(isSq(Nn))continue;
-    return {stem:`Tam giác vuông có hai cạnh góc vuông bằng ${a} và ${b}; độ dài cạnh huyền là √m. Để biểu diễn số −√m trên trục số, trước hết cần tìm m. Tìm m.`,ans:[Nn],exp:`Cạnh huyền² = ${a}² + ${b}² = ${Nn}, nên m = ${Nn}.`,meta:{a,b}};}
+    return {stem:`Một hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b}; cạnh của nó dài √m. Để biểu diễn số −√m trên trục số, trước hết cần tìm m. Tìm m.`,ans:[Nn],exp:`Diện tích hình vuông là ${a}² + ${b}² = ${Nn}, cạnh là √${Nn}, nên m = ${Nn}.`,meta:{a,b}};}
 }
 function saTsGrid(){
   const a=ri(10,90)/10,k=ri(2,8),v=Math.round((a+k/100)*100)/100;
@@ -1532,7 +1532,7 @@ const PISA=[
   const colder=a>c?'sáng':'đêm';
   const r1=x=>Math.round(x*10)/10;
   return {title:'Nhiệt độ ở trạm nghiên cứu',ctx:`<p class="stem">Tại một trạm nghiên cứu, nhiệt độ lúc sáng là −${dt(a)} °C, lúc đêm là −${dt(c)} °C và lúc trưa là ${dt(b)} °C. Nhiệt độ được biểu diễn trên một trục số, gốc O ứng với 0 °C.</p>`,qs:[
-   mcq('Thời điểm nào lạnh hơn (nhiệt độ thấp hơn) giữa lúc sáng và lúc đêm?',colder==='sáng'?'Lúc sáng':'Lúc đêm',[[colder==='sáng'?'Lúc đêm':'Lúc sáng','Với hai số âm, số có giá trị tuyệt đối lớn hơn thì nhỏ hơn.'],['Hai thời điểm như nhau','Hai nhiệt độ −'+dt(a)+' và −'+dt(c)+' khác nhau.'],['Không so sánh được','Hai số thực bất kì luôn so sánh được.']],`|−${dt(a)}| = ${dt(a)} ${a>c?'>':'<'} ${dt(c)} = |−${dt(c)}|, nên −${dt(a)} ${a>c?'<':'>'} −${dt(c)}: lúc ${colder} lạnh hơn.`,'ss','TH'),
+   mcq('Thời điểm nào lạnh hơn (nhiệt độ thấp hơn) giữa lúc sáng và lúc đêm?',colder==='sáng'?'Lúc sáng':'Lúc đêm',[[colder==='sáng'?'Lúc đêm':'Lúc sáng','Với hai số âm, số nào có số đối lớn hơn thì số đó nhỏ hơn.'],['Hai thời điểm như nhau','Hai nhiệt độ −'+dt(a)+' và −'+dt(c)+' khác nhau.'],['Không so sánh được','Hai số thực bất kì luôn so sánh được.']],`|−${dt(a)}| = ${dt(a)} ${a>c?'>':'<'} ${dt(c)} = |−${dt(c)}|, nên −${dt(a)} ${a>c?'<':'>'} −${dt(c)}: lúc ${colder} lạnh hơn.`,'ss','TH'),
    saq('Khoảng cách từ điểm biểu diễn nhiệt độ lúc sáng đến gốc O là bao nhiêu độ?',a,'độ',`Khoảng cách này là |−${dt(a)}| = ${dt(a)}.`,'gt','TH',dt(a)),
    saq('Nhiệt độ lúc trưa cao hơn nhiệt độ lúc sáng bao nhiêu độ C?',r1(a+b),'độ C',`${dt(b)} − (−${dt(a)}) = ${dt(b)} + ${dt(a)} = ${dt(r1(a+b))} độ C.`,'ss','TH',dt(r1(a+b))),
    saq('Nhiệt độ lúc sáng và lúc đêm chênh nhau bao nhiêu độ C?',r1(Math.abs(a-c)),'độ C',`Khoảng cách giữa hai điểm −${dt(a)} và −${dt(c)} trên trục số là |${dt(a)} − ${dt(c)}| = ${dt(r1(Math.abs(a-c)))}.`,'gt','VD',dt(r1(Math.abs(a-c))))]};}},

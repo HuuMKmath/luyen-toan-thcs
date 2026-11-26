@@ -486,7 +486,7 @@ const PF=[
  S1('Hiệu của hai số hữu tỉ luôn nhỏ hơn số bị trừ.','ct','Nếu số trừ là số âm thì hiệu lớn hơn số bị trừ, ví dụ 1 − (−2) = 3.'),
  S1('Phép trừ các số hữu tỉ có tính chất giao hoán.','ct','Chẳng hạn 3 − 2 = 1 nhưng 2 − 3 = −1.'),
  S1('Muốn cộng hai phân số khác mẫu, ta cộng tử với tử và cộng mẫu với mẫu.','ct','Phải quy đồng mẫu số trước; ví dụ 1/2 + 1/3 = 5/6 chứ không phải 2/5.'),
- S1('Tổng của một số hữu tỉ dương và một số hữu tỉ âm luôn là số âm.','ct','Dấu của tổng phụ thuộc số nào có giá trị tuyệt đối lớn hơn, ví dụ 5 + (−2) = 3.'),
+ S1('Tổng của một số hữu tỉ dương và một số hữu tỉ âm luôn là số âm.','ct','Tổng có thể là số dương, ví dụ 5 + (−2) = 3.'),
  S1('Tích của hai số hữu tỉ âm là số âm.','nh','Hai số âm có tích dương.'),
  S1('Tích của hai số hữu tỉ luôn lớn hơn mỗi thừa số.','nh','Chẳng hạn 1/2 · 1/2 = 1/4 nhỏ hơn 1/2; hoặc có thừa số âm.'),
  S1('Muốn nhân hai phân số, ta nhân tử với tử và cộng mẫu với mẫu.','nh','Phải nhân cả hai mẫu số với nhau.'),
