@@ -231,6 +231,8 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
 
 <script src="../gamify.js"></script>
 <script src="../khoa-bai.js"></script>
+<script src="../tu-luan.js"></script>
+<script src="tu-luan-de.js"></script>
 <script>
 "use strict";
 if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
@@ -1047,6 +1049,8 @@ function homeHTML(){
       <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
     </div>
   </section>
+
+  ${window.TuLuan?TuLuan.html():''}
 
   <section class="card stack" style="margin-top:16px">
     <div>

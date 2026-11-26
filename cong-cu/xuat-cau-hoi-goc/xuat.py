@@ -23,6 +23,9 @@ JS = '''()=>{const gens=new Map();const roots=[];
 return {topics:Object.fromEntries(TKEYS.map(k=>[k,TOPICS[k].name||TOPICS[k].short])),levels:LEVELS,
  roots:roots.map(r=>({t:r.t,ids:r.ids,gen:r.gen,topic:r.topic,level:r.level,stem:r.x.stem,fig:r.x.fig||'',opts:(r.x.opts||[]).map(o=>typeof o==='string'?{t:o}:o),ans:r.x.ans,items:(r.x.items||[]).map(i=>({t:i.t,v:i.v,exp:i.exp||''})),exp:r.x.exp||'',unit:r.x.unit||''}))};}'''
 
+TL_JS = '''()=>{const d=window.TL_DATA;if(!d||!d.items)return [];
+return d.items.map(q=>{let f='';try{f=q.fig?q.fig():'';}catch(e){}return {id:q.id,lv:q.lv,de:q.de,goi:q.goi||'',steps:q.steps,dap:q.dap||'',loi:q.loi||'',fig:f};});}'''
+
 async def main(lesson, title, sub, out):
     tmp = tempfile.mkdtemp(prefix='cau-hoi-goc-')
     async with async_playwright() as p:
@@ -44,12 +47,27 @@ async def main(lesson, title, sub, out):
                 m = re.search(r'aria-label="([^"]*)"', q['fig'])
                 q['figalt'] = m.group(1) if m else ''
             q['fig'] = ''
+        # Bài tập tự luận (nếu bài có tệp tu-luan-de.js): đề, gợi ý, lời giải từng bước, hình vẽ của lời giải
+        r['tl'] = await pg.evaluate(TL_JS)
+        for i, q in enumerate(r['tl']):
+            if q['fig']:
+                await pg.evaluate("(h)=>{document.getElementById('figbox').innerHTML=h;}", q['fig'])
+                el = await pg.query_selector('#figbox')
+                q['figpng'] = os.path.join(tmp, f'tl{i}.png')
+                await el.screenshot(path=q['figpng'])
+                bb = await el.bounding_box()
+                q['figw'], q['figh'] = bb['width'], bb['height']
+                m = re.search(r'aria-label="([^"]*)"', q['fig'])
+                q['figalt'] = m.group(1) if m else ''
+            q['fig'] = ''
         await b.close()
     data = os.path.join(tmp, 'roots.json')
     json.dump(r, open(data, 'w', encoding='utf-8'), ensure_ascii=False)
     subprocess.run(['node', os.path.join(HERE, 'mkdoc.js'), data, out, title, 'Câu hỏi gốc của website Luyện toán THCS · ' + sub], check=True)
     subprocess.run(['zip', '-d', out, '*/'], capture_output=True)  # bỏ mục thư mục trong tệp zip
     n = {t: sum(1 for q in r['roots'] if q['t'] == t) for t in ('mc', 'tf', 'sa')}
+    if r['tl']:
+        print(f"{len(r['tl'])} bài tự luận")
     print(f"{len(r['roots'])} câu gốc: {n['mc']} nhiều lựa chọn, {n['tf']} đúng sai, {n['sa']} trả lời ngắn; {sum(1 for q in r['roots'] if q.get('figpng'))} hình")
 
 if __name__ == '__main__':
