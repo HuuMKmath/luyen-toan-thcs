@@ -14,7 +14,7 @@
     HSG: "Bài nâng cao, tổng hợp kiến thức các bài đã học."
   };
   var MARK = { d: "Đúng", p: "Đúng một phần", s: "Chưa đúng" };
-  var ui = { open: null, hint: {}, step: {}, ng: {} };   // trạng thái trên màn hình (không lưu)
+  var ui = { open: null, hint: {}, step: {}, ng: {}, map: {} };   // trạng thái trên màn hình (không lưu)
 
   function data() { return window.TL_DATA || null; }
   function user() { try { return (window.GM && GM.user && GM.user()) || "local"; } catch (e) { return "local"; } }
@@ -32,9 +32,11 @@
     s += '<div class="stem">' + q.de + "</div>";
     s += '<div class="row tl-btns">';
     s += '<button class="btn ghost sm" data-tl="hint:' + q.id + '" aria-expanded="' + (!!ui.hint[q.id]) + '">' + (ui.hint[q.id] ? "Ẩn gợi ý" : "Gợi ý") + "</button>";
-    if (q.nguoc) s += '<button class="btn ghost sm tl-ngbtn" data-tl="ng:' + q.id + '" aria-expanded="' + (!!ui.ng[q.id]) + '">' + (ui.ng[q.id] ? "Đóng phân tích" : "🧭 Phân tích đi lên") + "</button>";
+    if (q.nguoc) s += '<button class="btn ghost sm tl-ngbtn" data-tl="ng:' + q.id + '" aria-expanded="' + (!!ui.ng[q.id]) + '">' + (ui.ng[q.id] ? "Đóng phân tích" : "🧭 Phân tích từng bước") + "</button>";
+    if (q.nguoc) s += '<button class="btn ghost sm" data-tl="ngmap:' + q.id + '" aria-expanded="' + (!!ui.map[q.id]) + '">' + (ui.map[q.id] ? "Ẩn sơ đồ" : "🗺️ Sơ đồ suy luận ngược") + "</button>";
     s += k ? '<button class="btn ghost sm" data-tl="hide:' + q.id + '">Ẩn lời giải</button>' : '<button class="btn sm" data-tl="sol:' + q.id + '">Xem lời giải</button>';
     s += "</div>";
+    if (ui.map[q.id]) s += mapHTML(q);
     if (ui.ng[q.id]) s += ngHTML(q);
     if (ui.hint[q.id]) s += '<div class="tl-hint"><b>Gợi ý.</b> ' + q.goi + "</div>";
     if (k) {
@@ -149,6 +151,16 @@
     return s + "</div>";
   }
 
+  function mapHTML(q) {   // hiện luôn toàn bộ sơ đồ suy luận ngược
+    var s = '<div class="tl-ng" id="map-' + q.id + '"><div class="ng-top"><b>Sơ đồ suy luận ngược</b><button class="btn ghost sm ng-say" data-tl="ngmsay:' + q.id + '">🔊 Đọc sơ đồ</button></div>';
+    s += '<p class="small" style="margin:0">Đọc từ trên xuống: muốn có điều trên thì cần có điều dưới. Viết lời giải thì đi ngược lại, từ dưới lên.</p>';
+    q.nguoc.forEach(function (A) {
+      if (q.nguoc.length > 1) s += '<div class="ng-cap" style="margin-top:4px">' + A.ten + "</div>";
+      s += ngMap(A, null, true) + '<p class="small" style="margin:0"><b>Kết luận:</b> ' + A.ket + "</p>";
+    });
+    return s + "</div>";
+  }
+
   /* ---------- Giọng đọc: giọng tiếng Việt có sẵn của trình duyệt (miễn phí, không tải thêm) ---------- */
   var KEY_DOC = "tl-doc";
   function docAuto() { try { return localStorage.getItem(KEY_DOC) === "1"; } catch (e) { return false; } }
@@ -186,12 +198,17 @@
     var st = ngState(q.id), A = q.nguoc[st.a], B = A.buoc[Math.min(st.k, A.buoc.length - 1)];
     if (what === "q") return B.hoi;
     if (what === "e") { for (var j in st.t) if (B.chon[j][1]) return "Đúng hướng. " + B.chon[j][2]; return B.hoi; }
+    return mapText(A);
+  }
+  function mapText(A) {
     var s = "Cần: " + A.dich + ". ";
     A.buoc.forEach(function (b) { s += "Muốn vậy, cần có: " + b.dat + ". "; });
-    return s + "Đến đây đã gặp điều đề cho.";
+    return s + "Đến đây đã gặp điều đề cho. " + A.ket;
   }
   function ngAct(act, q, a, b) {
     var id = q.id, st = ngState(id);
+    if (act === "ngmap") { if (ui.map[id]) { delete ui.map[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.map[id] = 1; rerender("ngmap:" + id); return; }
+    if (act === "ngmsay") { noi(q.nguoc.map(function (A) { return (q.nguoc.length > 1 ? A.ten + ". " : "") + mapText(A); }).join(" "), b); return; }
     if (act === "ng") { if (st) { delete ui.ng[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.ng[id] = ngNew(0); rerender("ng:" + id); if (ui.ng[id] && docAuto()) noi(ngText(q, "q"), b); return; }
     if (!st) return;
     var A = q.nguoc[st.a];
