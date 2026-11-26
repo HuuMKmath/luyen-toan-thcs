@@ -2,7 +2,7 @@
 // (bản dựng cho Cloudflare chỉ đổi địa chỉ SHEET_URL sang hàm này), máy chủ trả lời cùng dạng nhưng đọc, ghi Supabase.
 //
 //   GET  ?ma=…                → {ok, n, c}                     tra mã học sinh
-//   GET  ?ma=…&tiendo=1       → {ok, n, c, bai, goi, mo}       tiến độ (trang Các bài, khóa bài)
+//   GET  ?ma=…&tiendo=1       → {ok, n, c, xung?, bai, goi, mo} tiến độ (trang Các bài, khóa bài); xung = "thầy"/"cô" của mã GV
 //   GET  ?ma=…&bxh=1          → bảng xếp hạng lớp, khối (mã GV: mọi khối)
 //   GET  ?ma=…&sodiem=1[&lop=…] → sổ điểm (chỉ mã GV): danh sách lớp, bài; có lop thì kèm điểm cả lớp
 //   POST {gm:1, u, g, pid, dx} → {ok, g}                        đồng bộ XP, chuỗi ngày, huy hiệu
@@ -46,6 +46,11 @@ export async function hocSinhVaLop(db, ma) {
   const thuong = lops.filter(l => l.loai !== "gv");
   const gv = lops.some(l => l.loai === "gv");
   return { ...hs, lops, gv, c: thuong.length ? thuong[0].ten : "GV", khoi: thuong.length ? thuong[0].khoi : null };
+}
+
+// Mã giáo viên: gửi kèm danh xưng ("thầy"/"cô", cột danh_xung) để trang chào đúng; học sinh không có trường này
+function danhXung(hs) {
+  return hs.gv && (hs.danh_xung === "thầy" || hs.danh_xung === "cô") ? { xung: hs.danh_xung } : {};
 }
 
 function gMacDinh() {
@@ -134,7 +139,7 @@ async function tienDo(db, hs) {
     if (!tab[m.bai_id]) return;
     if (p === "tất cả" || lops.includes(p) || (/^\d+$/.test(p) && khois.includes(p))) moOut.push(tab[m.bai_id]);
   });
-  return { ok: true, n: hs.ho_ten, c: hs.c, bai: out, goi: goiOut, mo: moOut };
+  return { ok: true, n: hs.ho_ten, c: hs.c, ...danhXung(hs), bai: out, goi: goiOut, mo: moOut };
 }
 
 function xepHang(ds, truong, ma, kemLop) {
@@ -230,5 +235,5 @@ export async function xuLyCu(yc, { db, bay_gio = () => Date.now() }) {
   if (yc.tiendo) return tienDo(db, hs);
   if (yc.bxh) return bangXepHang(db, hs, t);
   if (yc.sodiem) return soDiem(db, hs, yc);
-  return { ok: true, n: hs.ho_ten, c: hs.c };
+  return { ok: true, n: hs.ho_ten, c: hs.c, ...danhXung(hs) };
 }
