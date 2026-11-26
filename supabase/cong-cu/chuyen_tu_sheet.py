@@ -24,6 +24,7 @@ import sys
 import openpyxl
 
 TAB_HS, TAB_XEM, TAB_SO, TAB_THUONG = "Học sinh", "Xem điểm", "Sổ điểm", "Thưởng"
+TAB_GOI, TAB_MO = "Gói đã xong", "Mở bài"
 SO_COT_DAU = 13          # Thời điểm nộp … Giới hạn (phút)
 SO_COT_CUOI = 2          # Ghi chú, Mã kết quả
 VN = dt.timezone(dt.timedelta(hours=7))
@@ -140,8 +141,8 @@ def main():
         if not ten or not ma or not lop:
             continue
         if la_lop_gv(lop):
-            bo_gv += 1          # mã GV cũ: nền mới giáo viên đăng nhập bằng email
-            continue
+            bo_gv += 1          # mã GV: giữ trong lớp "GV" (loại gv) để vào được mọi khối, xem xếp hạng mọi lớp
+            lop = "GV"
         if lop not in lops:
             lops.append(lop)
         if ma not in hs:
@@ -158,12 +159,12 @@ def main():
             out.append("insert into public.lop_hoc_sinh (lop_id, hoc_sinh_id, thu_tu) select l.id, s.id, "
                        f"{i} from public.lop l, public.hoc_sinh s where l.giao_vien_id = {gv} and l.nam_hoc = {sql(a.nam_hoc)} "
                        f"and l.ten = {sql(lop)} and s.ma_hs = {sql(ma)} on conflict do nothing;")
-    bao.append(f"{len(hs)} học sinh, {len(lops)} lớp ({sum(1 for h in hs.values() if len(h['lops']) > 1)} em ở nhiều lớp); bỏ {bo_gv} dòng mã GV")
+    bao.append(f"{len(hs)} học sinh, {len(lops)} lớp ({sum(1 for h in hs.values() if len(h['lops']) > 1)} em ở nhiều lớp); {bo_gv} mã GV")
 
     # ---------- Kết quả từng bài ----------
     tong_luot, bo_khong_ma, bo_tab = 0, 0, []
     for ten_tab in wb.sheetnames:
-        if ten_tab in (TAB_HS, TAB_XEM, TAB_SO, TAB_THUONG):
+        if ten_tab in (TAB_HS, TAB_XEM, TAB_SO, TAB_THUONG, TAB_GOI, TAB_MO):
             continue
         goc, thu_thach = ten_tab, "thử thách" in ten_tab.lower()
         if ten_tab.endswith(" - Thử thách"):
@@ -236,6 +237,39 @@ def main():
             "du_lieu = excluded.du_lieu, cap_nhat = excluded.cap_nhat;")
         so_thuong += 1
     bao.append(f"{so_thuong} học sinh có điểm thưởng")
+
+    # ---------- Gói đã xong (khóa bài) ----------
+    def bai_cua_tab(t):
+        t = re.sub(r"\s+", " ", str(t or "")).strip()
+        return tab_bai.get(t)
+    head, rows = doc_tab(wb, TAB_GOI)
+    so_goi = 0
+    for r in rows or []:
+        r = r + [None] * (8 - len(r))
+        ma, bai = ma_so(r[0]), bai_cua_tab(r[3])
+        if ma not in hs or not bai:
+            continue
+        for i, goi in enumerate(("NB", "TH", "VD")):
+            if r[4 + i] in (None, ""):
+                continue
+            out.append("insert into public.goi_xong (hoc_sinh_id, bai_id, goi, luc) "
+                       f"select s.id, {sql(bai)}, {sql(goi)}, coalesce({sql(thoi_diem(r[4 + i]))}::timestamptz, now()) "
+                       f"from public.hoc_sinh s where s.ma_hs = {sql(ma)} on conflict do nothing;")
+            so_goi += 1
+    bao.append(f"{so_goi} gói đã xong")
+
+    # ---------- Mở bài ----------
+    head, rows = doc_tab(wb, TAB_MO)
+    so_mo = 0
+    for r in rows or []:
+        r = r + [None] * (4 - len(r))
+        pham_vi, bai = str(r[0] or "").strip(), bai_cua_tab(r[1])
+        if r[2] is not True or not pham_vi or not bai:
+            continue
+        out.append(f"insert into public.mo_bai (pham_vi, bai_id, ghi_chu) select {sql(pham_vi)}, {sql(bai)}, {sql(str(r[3] or ''))} "
+                   f"where not exists (select 1 from public.mo_bai where pham_vi = {sql(pham_vi)} and bai_id = {sql(bai)});")
+        so_mo += 1
+    bao.append(f"{so_mo} dòng mở bài")
 
     out.append("commit;")
     for b in bao:

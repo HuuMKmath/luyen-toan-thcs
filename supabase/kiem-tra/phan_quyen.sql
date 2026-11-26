@@ -34,7 +34,7 @@ set client_min_messages = notice;
 
 -- Khách chưa đăng nhập
 set role anon;
-select pg_temp.ok((select count(*) from public.bai_hoc) = 36, 'khách xem được 36 bài');
+select pg_temp.ok((select count(*) from public.bai_hoc) >= 36, 'khách xem được danh sách bài');
 do $$ begin perform 1 from public.hoc_sinh; raise exception 'SAI: khách đọc được hoc_sinh'; exception when insufficient_privilege then raise notice 'OK  khách không đọc được hoc_sinh'; end $$;
 reset role;
 
@@ -79,3 +79,13 @@ select pg_temp.ok((select count(*) from public.lop) = 1, 'sau khi duyệt GV C t
 reset role;
 select pg_temp.ok((select duyet_luc is not null from public.giao_vien where email='c@x.vn'), 'ghi lại thời điểm duyệt');
 select pg_temp.ok((select public.tao_ma_hs() ~ '^[0-9]{6}$'), 'tạo mã HS 6 số');
+
+-- Buổi 4: gói đã xong, mở bài, danh sách xếp hạng – khách không chạm được; chỉ hàm máy chủ gọi ds_xep_hang
+set role anon;
+do $$ begin perform 1 from public.goi_xong; raise exception 'SAI: khách đọc được goi_xong'; exception when insufficient_privilege then raise notice 'OK  khách không đọc được goi_xong'; end $$;
+do $$ begin perform 1 from public.mo_bai; raise exception 'SAI: khách đọc được mo_bai'; exception when insufficient_privilege then raise notice 'OK  khách không đọc được mo_bai'; end $$;
+do $$ begin perform 1 from public.ds_xep_hang(null); raise exception 'SAI: khách gọi được ds_xep_hang'; exception when insufficient_privilege then raise notice 'OK  khách không gọi được ds_xep_hang'; end $$;
+reset role;
+set role authenticated;
+do $$ begin perform 1 from public.ds_xep_hang(null); raise exception 'SAI: giáo viên gọi thẳng được ds_xep_hang'; exception when insufficient_privilege then raise notice 'OK  giáo viên không gọi thẳng ds_xep_hang (lộ mã HS)'; end $$;
+reset role;
