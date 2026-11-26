@@ -47,6 +47,22 @@ const sol=q=>q.exp?[P([T('Lời giải: ',{italics:true,bold:true})].concat(runs
       sol(q).forEach(p=>body.push(p));}
     else{body.push(P([T('Đáp án: ',{bold:true}),T(fmtAns(q)+(q.unit?' '+q.unit:''),{bold:true})]));sol(q).forEach(p=>body.push(p));}
   });});
+// Phần IV. Bài tập tự luận (nếu có): theo bốn mức, mỗi bài có đề, gợi ý, lời giải từng bước, đáp số, lỗi hay gặp
+const TLV={NB:'Nhận biết',TH:'Thông hiểu',VD:'Vận dụng',HSG:'Dành cho học sinh giỏi'};
+const brs=h=>String(h||'').split(/<br\s*\/?>/i);
+if(R.tl&&R.tl.length){
+  body.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[T('Phần IV. Bài tập tự luận')]}));
+  body.push(P([T('Học sinh làm ra giấy, xem lời giải từng bước trên website rồi tự đánh dấu. Phần này không tính điểm và không tính vào điều kiện qua bài.',{italics:true})]));
+  Object.keys(TLV).forEach(lv=>{const qs=R.tl.filter(q=>q.lv===lv);if(!qs.length)return;
+    body.push(P([T(TLV[lv]+` (${qs.length} bài)`,{bold:true,size:27})],{spacing:{before:240,after:80,line:300},keepNext:true}));
+    qs.forEach((q,i)=>{brs(q.de).forEach((h,k)=>body.push(P((k?[]:[T(`Bài ${i+1}. `,{bold:true})]).concat(runs(h)),{keepNext:true})));
+      body.push(P([T('Gợi ý: ',{italics:true,bold:true})].concat(runs(q.goi,{italics:true}))));
+      body.push(P([T('Lời giải:',{bold:true})],{keepNext:true}));
+      if(q.figpng){const w=Math.min(q.figw*0.8,300),h=w*q.figh/q.figw;body.push(new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:40,after:100},children:[new ImageRun({type:'png',data:fs.readFileSync(q.figpng),transformation:{width:Math.round(w),height:Math.round(h)},altText:{title:'Hình vẽ',description:q.figalt||'Hình vẽ của bài',name:'hinh'}})]}));}
+      q.steps.forEach((st,k)=>brs(st).forEach((h,j)=>body.push(P((j?[]:[T(`Bước ${k+1}. `,{bold:true})]).concat(runs(h)),{indent:{left:360}}))));
+      body.push(P([T('Đáp số / kết luận: ',{bold:true})].concat(runs(q.dap))));
+      if(q.loi)body.push(P([T('Lỗi hay gặp: ',{italics:true,bold:true})].concat(runs(q.loi,{italics:true}))));});});
+}
 const doc=new Document({creator:'Luyện toán THCS',title,
   styles:{default:{document:{run:{font:FONT,size:26}},
     title:{run:{font:FONT,size:34,bold:true},paragraph:{spacing:{before:0,after:120},keepNext:true}},

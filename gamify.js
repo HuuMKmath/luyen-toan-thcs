@@ -6,6 +6,7 @@
   var GOAL = 5;                       // số câu đúng mỗi ngày
   var LV = ["Học trò mới", "Thám tử số", "Thợ giải toán", "Cao thủ", "Chiến binh", "Chuyên gia", "Bậc thầy", "Huyền thoại"];
   var BASE = { NB: 10, TH: 15, VD: 25 };
+  var ESSAY_XP = 3;                   // XP cho mỗi bài tự luận tự đánh dấu lần đầu
   /* Giới hạn để học sinh không dùng máy quá nhiều:
      - mỗi gói (bài học + loại gói) làm tối đa 3 lần, lần 2 được 80% XP, lần 3 được 50% XP; sau lần 3 gói nghỉ 5 tiếng
        (có mã đề của thầy cô thì không bị khóa nhưng vẫn tính lượt, quá 3 lần không cộng XP);
@@ -208,6 +209,23 @@
       return res;
     },
 
+    /* Bài tập tự luận: học sinh tự đánh dấu một bài lần đầu (tu-luan.js). Mỗi bài cộng XP một lần,
+       không phụ thuộc đúng hay sai; quá giới hạn trong ngày thì không cộng. Không tính vào điều kiện qua bài. */
+    onEssay: function (id, level) {
+      var o = load(), before = o.xp, out = [], gained = 0;
+      o.tl = o.tl || {};
+      if (o.tl[id]) return null;
+      touch(o);
+      o.tl[id] = ymd();
+      gained = dayOver(o) ? 0 : ESSAY_XP;
+      o.xp += gained;
+      afterXp(o, out);
+      save(o);
+      var r = result(o, before, gained, out, { ok: true, essay: true });
+      r.note = gained ? "" : "Không cộng XP vì hôm nay em đã học đủ " + LIM.dayMin + " phút hoặc " + LIM.dayPacks + " gói.";
+      return r;
+    },
+
     /* Gọi khi bắt đầu một gói. Trả về true nếu được làm ngay; false nếu đang hiện thông báo
        (khi học sinh chọn "Vẫn làm tiếp", hàm cont được gọi lại và lần này được qua). */
     gate: function (mode, spec, code, cont) {
@@ -289,6 +307,7 @@
       if (g.levelUp) msgs.push("Lên cấp " + g.level + ": " + title(g.level) + "!");
       g.badges.forEach(function (n) { msgs.push("Huy hiệu mới: " + n); });
       if (g.bonus) msgs.push("Đủ mục tiêu hôm nay! +" + g.bonus + " XP");
+      if (g.essay) msgs.push(g.xp ? "+" + g.xp + " XP bài tự luận" : g.note);
       if (g.ok && g.combo >= 3) msgs.push("Chuỗi đúng ×" + g.combo);
       toast(msgs);
       if (g.ok && !reduce) burst(el, g.levelUp || g.badges.length ? 26 : 12);
