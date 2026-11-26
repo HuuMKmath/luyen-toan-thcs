@@ -14,7 +14,7 @@
     HSG: "Bài nâng cao, tổng hợp kiến thức các bài đã học."
   };
   var MARK = { d: "Đúng", p: "Đúng một phần", s: "Chưa đúng" };
-  var ui = { open: null, hint: {}, step: {}, ng: {}, map: {} };   // trạng thái trên màn hình (không lưu)
+  var ui = { open: null, hint: {}, step: {}, ng: {}, map: {}, pt: {}, tlg: {}, tld: {} };   // trạng thái trên màn hình (không lưu)
 
   function data() { return window.TL_DATA || null; }
   function user() { try { return (window.GM && GM.user && GM.user()) || "local"; } catch (e) { return "local"; } }
@@ -38,12 +38,14 @@
     s += '<div class="row tl-btns">';
     s += '<button class="btn ghost sm" data-tl="hint:' + q.id + '" aria-expanded="' + (!!ui.hint[q.id]) + '">' + (ui.hint[q.id] ? "Ẩn gợi ý" : "Gợi ý") + "</button>";
     if (q.nguoc) s += '<button class="btn sm tl-ngbtn" data-tl="ng:' + q.id + '" aria-expanded="' + (!!ui.ng[q.id]) + '">' + (ui.ng[q.id] ? "Đóng phân tích" : "🧭 Giải theo 4 bước") + "</button>";
+    if (q.pt && !q.nguoc) s += '<button class="btn ghost sm" data-tl="pt:' + q.id + '" aria-expanded="' + (!!ui.pt[q.id]) + '">' + (ui.pt[q.id] ? "Đóng phân tích" : "🗺️ Phân tích ngược") + "</button>";
     // Bài có phân tích 4 bước: sơ đồ và lời giải nằm trong bước 3, không cần nút riêng.
     if (k) s += '<button class="btn ghost sm" data-tl="hide:' + q.id + '">Ẩn lời giải</button>';
     else if (!q.nguoc) s += '<button class="btn sm" data-tl="sol:' + q.id + '">Xem lời giải</button>';
     s += "</div>";
     if (ui.map[q.id]) s += mapHTML(q);
     if (ui.ng[q.id]) s += ngHTML(q);
+    if (ui.pt[q.id] && q.pt) s += ptHTML(q);
     if (ui.hint[q.id]) s += '<div class="tl-hint"><b>Gợi ý.</b> ' + q.goi + "</div>";
     if (k) {
       if (q.fig) { try { fig = q.fig(); } catch (e) { fig = ""; } }
@@ -87,6 +89,17 @@
         s += '<div class="tl-list"><h3 style="margin:4px 0 0">Dạng ' + (k + 1) + ". " + D[k].ten + "</h3>";
         s += '<div class="tl-pp"><b>Phương pháp giải</b><ul>' + D[k].pp.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul></div>";
         byIds(D[k].ids).forEach(function (q) { s += itemHTML(q, marks); });
+        if (D[k].tl && D[k].tl.length) {
+          s += '<div class="tl-tu"><h4 style="margin:0">Bài tập tự luyện</h4><p class="small muted" style="margin:0">Làm tương tự các bài trên. Làm xong mới bấm xem đáp số.</p><ol>';
+          D[k].tl.forEach(function (x, j) {
+            var key = k + "-" + j;
+            s += "<li><div>" + x[0] + '</div><div class="row"><button class="btn ghost sm" data-tl="tlg:' + key + '" aria-expanded="' + (!!ui.tlg[key]) + '">' + (ui.tlg[key] ? "Ẩn gợi ý" : "Gợi ý") + '</button><button class="btn ghost sm" data-tl="tld:' + key + '" aria-expanded="' + (!!ui.tld[key]) + '">' + (ui.tld[key] ? "Ẩn đáp số" : "Đáp số") + "</button></div>";
+            if (ui.tlg[key]) s += '<div class="tl-hint"><b>Gợi ý.</b> ' + x[1] + "</div>";
+            if (ui.tld[key]) s += '<div class="ng-ans"><b>Đáp số.</b> ' + x[2] + "</div>";
+            s += "</li>";
+          });
+          s += "</ol></div>";
+        }
         s += "</div>";
       }
       return s + "</section>";
@@ -163,6 +176,39 @@
     s += '<div class="ng-arrow">⇑</div><div class="ng-node ng-gt"><span class="ng-tag">✓</span><span>Giả thiết: ' + (A.gt || "điều đề đã cho") + "</span></div>";
     return s + "</div>";
   }
+  /* Phân tích ngược cho bài Thông hiểu, Vận dụng (thầy duyệt 27/11/2026): q.pt = [{ ten, dich, sd: [[ô, [bước lời giải]]], gt }].
+     Hiện từng ô: bấm "Muốn vậy, cần có gì?" thì hiện ô tiếp theo; mỗi ô ghi bước tương ứng của lời giải. */
+  function ptHTML(q) {
+    var st = ui.pt[q.id], L = q.pt, A = L[st.a], fin = st.n >= A.sd.length;
+    var s = '<div class="tl-ng" id="pt-' + q.id + '"><div class="ng-top"><b>Phân tích ngược</b><button class="btn ghost sm ng-say" data-tl="ptsay:' + q.id + '">🔊 Đọc</button></div>';
+    s += '<p class="small" style="margin:0">Bắt đầu từ điều cần chứng minh (cần tính). Mỗi lần tự hỏi: <i>muốn vậy, cần có gì?</i> Nghĩ trước rồi mới bấm.</p>';
+    if (L.length > 1) { s += '<div class="row ng-tabs">'; L.forEach(function (x, i) { s += '<button class="btn ' + (i === st.a ? "" : "ghost ") + 'sm" data-tl="pta:' + q.id + ":" + i + '" aria-pressed="' + (i === st.a) + '">' + x.ten + "</button>"; }); s += "</div>"; }
+    s += '<div class="ng-map"><div class="ng-node ng-goal"><span class="ng-tag">Cần</span><span>' + A.dich + "</span></div>";
+    for (var i = 0; i < st.n; i++) s += '<div class="ng-arrow">⇑ muốn vậy, cần có</div><div class="ng-node"><span class="ng-tag">' + (i + 1) + "</span><span>" + A.sd[i][0] + '<span class="ng-ref">Lời giải: bước ' + A.sd[i][1].join(", ") + "</span></span></div>";
+    if (fin) s += '<div class="ng-arrow">⇑</div><div class="ng-node ng-gt"><span class="ng-tag">✓</span><span>Giả thiết: ' + A.gt + "</span></div>";
+    s += "</div>";
+    if (!fin) s += '<div class="row"><button class="btn sm" data-tl="ptn:' + q.id + '">Muốn vậy, cần có gì?</button></div>';
+    else {
+      var sau = st.a + 1 < L.length;
+      s += '<p class="small" style="margin:0"><b>Đã gặp giả thiết.</b> Khi trình bày, em đọc sơ đồ từ dưới lên.</p><div class="row">' + (sau ? '<button class="btn sm" data-tl="pta:' + q.id + ":" + (st.a + 1) + '">Phân tích ' + L[st.a + 1].ten + "</button>" : "") + '<button class="btn ' + (sau ? "ghost " : "") + 'sm" data-tl="ptsol:' + q.id + '">Xem lời giải</button></div>';
+    }
+    return s + "</div>";
+  }
+  function ptText(q) {
+    var st = ui.pt[q.id], A = q.pt[st.a], t = (q.pt.length > 1 ? A.ten + ". " : "") + "Cần: " + A.dich + ". ";
+    for (var i = 0; i < st.n; i++) t += "Muốn vậy, cần có: " + A.sd[i][0] + ". ";
+    return st.n >= A.sd.length ? t + "Đến đây đã gặp giả thiết: " + A.gt + "." : t;
+  }
+  function ptAct(act, q, a, b) {
+    var id = q.id, st = ui.pt[id];
+    if (act === "pt") { if (st) { delete ui.pt[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.pt[id] = { a: 0, n: 0 }; rerender("pt:" + id); if (ui.pt[id] && docAuto()) noi(ptText(q), b); return; }
+    if (!st) return;
+    if (act === "pta") { ui.pt[id] = { a: +a[2], n: 0 }; rerender(null); if (docAuto()) noi(ptText(q), b); }
+    else if (act === "ptn") { st.n++; var A = q.pt[st.a]; rerender(st.n < A.sd.length ? "ptn:" + id : null); if (docAuto()) noi("Muốn vậy, cần có: " + A.sd[st.n - 1][0] + (st.n >= A.sd.length ? ". Đến đây đã gặp giả thiết." : ""), document.getElementById("pt-" + id)); }
+    else if (act === "ptsay") noi(ptText(q), b);
+    else if (act === "ptsol") { ui.step[id] = 1; rerender("next:" + id); var o = document.querySelector("#tl-" + id + " .tl-sol"); if (o) o.scrollIntoView({ block: "start", behavior: "smooth" }); }
+  }
+
   function hoiDap(q, list, rv, code) {   // danh sách câu hỏi: em tự trả lời trước, bấm mới hiện câu trả lời
     var s = '<ol class="ng-hd">';
     list.forEach(function (x, i) {
@@ -388,7 +434,9 @@
     if (!b) return;
     var a = b.getAttribute("data-tl").split(":"), act = a[0], id = a[1];
     if (act === "open") { ui.open = ui.open === id ? null : id; rerender("open:" + id); if (ui.open) { var t = document.querySelector(".tl-list"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); } return; }
+    if (act === "tlg" || act === "tld") { var o = ui[act]; o[id] = !o[id]; rerender(act + ":" + id); return; }
     var q = data().items.filter(function (x) { return x.id === id; })[0]; if (!q) return;
+    if (act.indexOf("pt") === 0) { ptAct(act, q, a, b); return; }
     if (act === "hint") { ui.hint[id] = !ui.hint[id]; rerender("hint:" + id); }
     else if (act === "sol") { ui.step[id] = 1; rerender("next:" + id); }
     else if (act === "next") { ui.step[id] = Math.min(q.steps.length, (ui.step[id] || 0) + 1); rerender(ui.step[id] < q.steps.length ? "next:" + id : "mark:" + id + ":d"); }
@@ -437,6 +485,7 @@
     ".ng-hd{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}.ng-hd li>.btn{margin-top:4px}" +
     ".tl-pp{background:var(--paper);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px}.tl-pp ul{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}" +
     ".tl-lv{font-size:.8em;font-weight:600}.tl-lv-NB{background:var(--good-bg);color:var(--good)}.tl-lv-TH{background:var(--paper);color:var(--accent)}.tl-lv-VD{background:var(--warn-bg);color:var(--warn)}.tl-lv-HSG{background:var(--bad-bg);color:var(--bad)}" +
+    ".tl-tu{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}.tl-tu ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:12px}.tl-tu li>.row{margin-top:6px}" +
     ".ng-ref{display:block;font-size:.82em;color:var(--muted);margin-top:2px}" +
     ".ng-ans{background:var(--good-bg);border-radius:8px;padding:6px 10px;margin-top:4px}" +
     ".ng-chain{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:12px}.ng-chain>li{border-left:3px solid var(--line);padding-left:10px;display:flex;flex-direction:column;gap:6px}.ng-chain>li.ng-cur{border-left-color:var(--accent)}" +
