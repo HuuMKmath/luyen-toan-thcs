@@ -296,13 +296,14 @@ function figPB(o){
   let s=SEG([130,12],[130,o.N?214:166])+SEG(A,B);
   if(o.seg!==false)s+=SEG(A,M)+SEG(B,M);
   if(o.N)s+=SEG(A,Nn)+SEG(B,Nn);
-  s+=ticks(A,O,2)+ticks(O,B,2)+rmark(O,B,M);
-  if(o.N){s+=ticks(A,M,1)+ticks(B,M,1)+ticks(A,Nn,3)+ticks(B,Nn,3);}
+  if(!o.noO)s+=ticks(A,O,2)+ticks(O,B,2)+rmark(O,B,M);
+  if(o.oMN)s+=ticks(O,M,o.oMN)+ticks(O,Nn,o.oMN);
+  if(o.N){if(o.legs!==false)s+=ticks(A,M,1)+ticks(B,M,1)+ticks(A,Nn,3)+ticks(B,Nn,3);}
   else if(o.tick!==false&&o.seg!==false)s+=ticks(A,M,1)+ticks(B,M,1);
   if(o.tA)s+=angT(A,B,M,o.tA,44);
   if(o.tMA)s+=sideT(A,M,[130,110],o.tMA);
   s+=DOT(A)+DOT(B)+(o.seg===false&&!o.N?'':DOT(M));
-  s+=TX(26,116,lb[0])+TX(234,116,lb[1])+TX(142,130,lb[2]);
+  s+=TX(26,116,lb[0])+TX(234,116,lb[1])+(o.noO?'':TX(142,130,lb[2]));
   if(!(o.seg===false&&!o.N))s+=TX(146,M[1]+4,lb[3]);
   if(o.N){s+=DOT(Nn)+TX(146,Nn[1]+6,o.N);}
   s+=`<text class="vi" x="118" y="${o.N?212:162}" text-anchor="middle">${o.d||'d'}</text>`;
@@ -367,7 +368,7 @@ function figExt(withE,a){
 /* ΔABC cân tại A, D ∈ AB, E ∈ AC, AD = AE, nối BE và CD */
 function figADE(a){
   a=a||70;const h=1/Math.tan(rad(a/2)),{A,B,C}=fitP({A:[0,-h],B:[-1,0],C:[1,0]},260,166,24),D=along(A,B,.42),E=along(A,C,.42);
-  let s=`<polygon class="tri" points="${A} ${B} ${C}"/>`+SEG(D,E)+SEG(B,E)+SEG(C,D)+ticks(A,D,1)+ticks(A,E,1)+ticks(D,B,2)+ticks(E,C,2);
+  let s=`<polygon class="tri" points="${A} ${B} ${C}"/>`+SEG(D,E)+SEG(B,E)+SEG(C,D)+ticks(A,D,1)+ticks(A,E,1);
   s+=TX(A[0],A[1]-8,'A')+TX(B[0]-12,B[1]+12,'B')+TX(C[0]+12,C[1]+12,'C')+TX(D[0]-13,D[1]+2,'D')+TX(E[0]+13,E[1]+2,'E');
   return svg(260,166,'Tam giác ABC cân tại A, D trên AB, E trên AC với AD bằng AE, nối BE và CD',s);
 }
@@ -503,7 +504,7 @@ const MC=[
    {t:'Vì AB = AC nên H là trung điểm của BC',err:'Từ AB = AC chưa suy ngay được HB = HC; cần chứng minh hai tam giác AHB và AHC bằng nhau.'},
    {t:'ΔAHB = ΔAHC (c.c.c) nên HB = HC',err:'Chưa biết HB = HC nên chưa dùng được c.c.c; điều cần chứng minh không được dùng làm giả thiết.'}],
   exp:'Hai tam giác vuông AHB và AHC có cạnh huyền AB = AC và cạnh góc vuông AH chung nên ΔAHB = ΔAHC (cạnh huyền – cạnh góc vuông). Suy ra HB = HC, H là trung điểm BC. AH ⊥ BC tại trung điểm H nên AH là đường trung trực của BC.'},
- {id:'s_ttkite',type:'mc',topic:'tt',level:'VD',mix:[13],fig:fb(figPB({N:'N',alt:'Đoạn thẳng AB, điểm M phía trên và N phía dưới với MA bằng MB, NA bằng NB'})),stem:'Cho đoạn thẳng AB. Hai điểm M, N nằm khác phía đối với AB sao cho MA = MB và NA = NB (như hình). Đường thẳng MN là:',ans:0,opts:[
+ {id:'s_ttkite',type:'mc',topic:'tt',level:'VD',mix:[13],fig:fb(figPB({N:'N',noO:true,alt:'Đoạn thẳng AB, điểm M phía trên và N phía dưới với MA bằng MB, NA bằng NB'})),stem:'Cho đoạn thẳng AB. Hai điểm M, N nằm khác phía đối với AB sao cho MA = MB và NA = NB (như hình). Đường thẳng MN là:',ans:0,opts:[
    {t:'đường trung trực của đoạn thẳng AB'},
    {t:'một đường thẳng đi qua trung điểm AB nhưng không vuông góc với AB',err:'M và N đều cách đều A, B nên cả hai nằm trên đường trung trực của AB; vậy MN chính là đường trung trực, nên vuông góc với AB.'},
    {t:'một đường thẳng song song với AB',err:'MN cắt AB (vì M, N nằm khác phía đối với AB), nên không song song với AB.'},

@@ -75,7 +75,7 @@
       id: "nb2", lv: "NB",
       de: "Cho ΔABC = ΔDEF, biết AB = 4 cm, BC = 6 cm và DF = 5 cm.<br>a) Tính độ dài các cạnh DE, EF, AC.<br>b) Tính chu vi tam giác ABC và chu vi tam giác DEF.<br>c) Viết các cặp góc tương ứng bằng nhau.",
       goi: "Viết các cặp đỉnh tương ứng theo thứ tự: A ↔ D, B ↔ E, C ↔ F.",
-      fig: function () { var A = [1.4, 3.2], B = [0, 0], C = [4.8, 0], D = [8.4, 3.2], E = [7, 0], F = [11.8, 0]; return draw({ P: { A: A, B: B, C: C, D: D, E: E, F: F }, fill: ["ABC", "DEF"], tk: [["AB", 1], ["DE", 1], ["BC", 2], ["EF", 2], ["AC", 3], ["DF", 3]], pos: { A: "n", B: "sw", C: "se", D: "n", E: "sw", F: "se" }, w: 320, alt: "Hai tam giác bằng nhau ABC và DEF" }); },
+      fig: function () { var A = [1.4, 3.2], B = [0, 0], C = [4.8, 0], D = [8.4, 3.2], E = [7, 0], F = [11.8, 0]; return draw({ P: { A: A, B: B, C: C, D: D, E: E, F: F }, fill: ["ABC", "DEF"], side: [["A", "B", "4 cm"], ["B", "C", "6 cm"], ["D", "F", "5 cm"]], pos: { A: "n", B: "sw", C: "se", D: "n", E: "sw", F: "se" }, w: 320, alt: "Hai tam giác bằng nhau ABC và DEF" }); },
       steps: [
         "a) ΔABC = ΔDEF nên A ↔ D, B ↔ E, C ↔ F. Suy ra DE = AB = 4 cm, EF = BC = 6 cm, AC = DF = 5 cm.",
         "b) Chu vi tam giác ABC: AB + BC + AC = 4 + 6 + 5 = 15 (cm). Chu vi tam giác DEF: DE + EF + DF = 4 + 6 + 5 = 15 (cm).",
@@ -88,7 +88,7 @@
       id: "nb3", lv: "NB",
       de: "Cho tam giác ABC cân tại A có AB = 7 cm và ∠B = 70°.<br>a) Tính độ dài cạnh AC.<br>b) Tính số đo ∠C và ∠A.",
       goi: "Tam giác cân tại A có hai cạnh bên AB = AC và hai góc ở đáy ∠B = ∠C.",
-      fig: function () { var p = iso(40); return draw({ P: { A: p[0], B: p[1], C: p[2] }, fill: ["ABC"], tk: [["AB", 1], ["AC", 1]], arc: [["B", "A", "C", 1], ["C", "A", "B", 1]], pos: { A: "n", B: "sw", C: "se" }, w: 220, alt: "Tam giác ABC cân tại A" }); },
+      fig: function () { var p = iso(40); return draw({ P: { A: p[0], B: p[1], C: p[2] }, fill: ["ABC"], tk: [["AB", 1], ["AC", 1]], ang: [["B", "A", "C", "70°", 40]], side: [["A", "B", "7 cm"]], pos: { A: "n", B: "sw", C: "se" }, w: 220, alt: "Tam giác ABC cân tại A, AB bằng 7 cm, góc B bằng 70 độ" }); },
       steps: [
         "a) ΔABC cân tại A nên hai cạnh bên bằng nhau: AC = AB = 7 cm.",
         "b) Hai góc ở đáy bằng nhau: ∠C = ∠B = 70°.",
@@ -227,7 +227,7 @@
       id: "hsg1", lv: "HSG",
       de: "Cho tam giác ABC. Tia phân giác của góc B cắt cạnh AC tại D, tia phân giác của góc C cắt cạnh AB tại E; BD và CE cắt nhau tại I. Biết BE + CD = BC. Tính số đo góc BAC.",
       goi: "Lấy điểm F trên cạnh BC sao cho BF = BE; khi đó CF = CD. Chứng minh bốn góc ∠BIE, ∠BIF, ∠CIF, ∠CID bằng nhau.",
-      fig: function () { var p = tri(66, 54), A = p[0], B = p[1], C = p[2], D = cut(B, bisDir(B, A, C), A, C), E = cut(C, bisDir(C, A, B), A, B), I = cut(B, D, C, E), be = Math.hypot(E[0] - B[0], E[1] - B[1]), F = [be, 0]; return draw({ P: { A: A, B: B, C: C, D: D, E: E, I: I, F: F }, fill: ["ABC"], seg: ["BD", "CE"], thin: ["IF"], tk: [["BE", 1], ["BF", 1], ["CD", 2], ["CF", 2]], pos: { A: "n", B: "sw", C: "se", D: "ne", E: "nw", I: "n", F: "s" }, alt: "Tam giác ABC, hai tia phân giác BD và CE cắt nhau tại I, F trên BC với BF bằng BE" }); },
+      fig: function () { var p = tri(66, 54), A = p[0], B = p[1], C = p[2], D = cut(B, bisDir(B, A, C), A, C), E = cut(C, bisDir(C, A, B), A, B), I = cut(B, D, C, E), be = Math.hypot(E[0] - B[0], E[1] - B[1]), F = [be, 0]; return draw({ P: { A: A, B: B, C: C, D: D, E: E, I: I, F: F }, fill: ["ABC"], seg: ["BD", "CE"], thin: ["IF"], tk: [["BE", 1], ["BF", 1]], pos: { A: "n", B: "sw", C: "se", D: "ne", E: "nw", I: "n", F: "s" }, alt: "Tam giác ABC, hai tia phân giác BD và CE cắt nhau tại I, F trên BC với BF bằng BE" }); },
       steps: [
         "Kẻ thêm: trên cạnh BC lấy điểm F sao cho BF = BE (làm được vì BE < BE + CD = BC). Khi đó CF = BC − BF = BC − BE = CD.",
         "Xét ΔBEI và ΔBFI có: BE = BF; ∠EBI = ∠FBI (BI là tia phân giác của góc B); BI là cạnh chung. Do đó ΔBEI = ΔBFI (c.g.c), suy ra ∠BIE = ∠BIF.",

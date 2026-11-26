@@ -70,7 +70,7 @@
       id: "nb2", lv: "NB",
       de: "Cho ΔABC = ΔMNP, biết ∠A = 75°, ∠N = 60° và AB = 5 cm.<br>a) Tính số đo các góc ∠M, ∠B, ∠C và ∠P.<br>b) Tính độ dài cạnh MN.",
       goi: "Viết các cặp đỉnh tương ứng theo thứ tự: A ↔ M, B ↔ N, C ↔ P.",
-      fig: function () { var A = [1.6, 3], B = [0, 0], C = [4.6, 0], M = [8.6, 3], N = [7, 0], P = [11.6, 0]; return draw({ P: { A: A, B: B, C: C, M: M, N: N, P: P }, fill: ["ABC", "MNP"], tk: [["AB", 1], ["MN", 1]], arc: [["A", "B", "C", 1], ["M", "N", "P", 1], ["B", "A", "C", 2], ["N", "M", "P", 2]], pos: { A: "n", B: "sw", C: "se", M: "n", N: "sw", P: "se" }, w: 320, alt: "Hai tam giác bằng nhau ABC và MNP" }); },
+      fig: function () { var A = [1.6, 3], B = [0, 0], C = [4.6, 0], M = [8.6, 3], N = [7, 0], P = [11.6, 0]; return draw({ P: { A: A, B: B, C: C, M: M, N: N, P: P }, fill: ["ABC", "MNP"], ang: [["A", "B", "C", "75°", 34], ["N", "M", "P", "60°", 38]], side: [["A", "B", "5 cm"]], pos: { A: "n", B: "sw", C: "se", M: "n", N: "sw", P: "se" }, w: 320, alt: "Hai tam giác bằng nhau ABC và MNP" }); },
       steps: [
         "a) ΔABC = ΔMNP nên A ↔ M, B ↔ N, C ↔ P. Do đó ∠M = ∠A = 75° và ∠B = ∠N = 60°.",
         "Trong tam giác ABC: ∠C = 180° − (75° + 60°) = 45°, nên ∠P = ∠C = 45°.",
@@ -101,7 +101,7 @@
       id: "th1", lv: "TH",
       de: "Cho đoạn thẳng AB. Đường trung trực d của AB cắt AB tại O. Lấy điểm M thuộc d (M khác O).<br>a) Chứng minh ΔMOA = ΔMOB.<br>b) Chứng minh MO là tia phân giác của góc AMB.<br>c) Biết AB = 8 cm, MA = 5 cm. Tính chu vi tam giác MAB.",
       goi: "d vuông góc với AB tại trung điểm O. Hai tam giác vuông MOA và MOB có chung cạnh MO.",
-      fig: function () { return fb(figPB({ lab: ["A", "B", "O", "M"], alt: "Đường trung trực d của đoạn thẳng AB cắt AB tại O, M thuộc d" })); },
+      fig: function () { return fb(figPB({ lab: ["A", "B", "O", "M"], tick: false, alt: "Đường trung trực d của đoạn thẳng AB cắt AB tại O, M thuộc d" })); },
       steps: [
         "a) d là đường trung trực của AB nên d ⊥ AB tại O và OA = OB.",
         "Xét hai tam giác vuông MOA và MOB (vuông tại O) có: OA = OB; MO là cạnh chung. Do đó ΔMOA = ΔMOB (hai cạnh góc vuông).",
@@ -147,7 +147,7 @@
       id: "vd1", lv: "VD",
       de: "Cho góc xOy khác góc bẹt. Trên tia Ox lấy hai điểm A, C; trên tia Oy lấy hai điểm B, D sao cho OA = OB, OC = OD (OA < OC). Gọi I là giao điểm của AD và BC. Chứng minh:<br>a) AD = BC;<br>b) ΔIAC = ΔIBD;<br>c) OI là tia phân giác của góc xOy.",
       goi: "Câu b: dùng AC = BD và các góc kề bù với hai góc bằng nhau. Câu c: so sánh ΔOAI và ΔOBI.",
-      fig: function () { var O = [0, 0], A = [5, 0], C = [10, 0], B = pol(O, 5, 55), D = pol(O, 10, 55), I = cut(A, D, B, C); return draw({ P: { O: O, A: A, C: C, B: B, D: D, I: I, x: [12.5, 0], y: pol(O, 12.5, 55) }, seg: ["Ox", "Oy", "AD", "BC", "OI"], tk: [["OA", 1], ["OB", 1], ["AC", 2], ["BD", 2]], pos: { O: "w", A: "s", C: "s", B: "nw", D: "nw", I: "e", x: "s", y: "w" }, alt: "Góc xOy, A và C trên Ox, B và D trên Oy, AD cắt BC tại I" }); },
+      fig: function () { var O = [0, 0], A = [5, 0], C = [10, 0], B = pol(O, 5, 55), D = pol(O, 10, 55), I = cut(A, D, B, C); return draw({ P: { O: O, A: A, C: C, B: B, D: D, I: I, x: [12.5, 0], y: pol(O, 12.5, 55) }, seg: ["Ox", "Oy", "AD", "BC", "OI"], tk: [["OA", 1], ["OB", 1]], pos: { O: "w", A: "s", C: "s", B: "nw", D: "nw", I: "e", x: "s", y: "w" }, alt: "Góc xOy, A và C trên Ox, B và D trên Oy, AD cắt BC tại I" }); },
       steps: [
         "a) Xét ΔOAD và ΔOBC có: OA = OB; ∠O là góc chung; OD = OC. Do đó ΔOAD = ΔOBC (c.g.c), suy ra AD = BC.",
         "b) Từ câu a: ∠OAD = ∠OBC và ∠ODA = ∠OCB (các góc tương ứng). Suy ra ∠IAC = ∠IBD (kề bù với hai góc bằng nhau ∠OAD, ∠OBC).",
