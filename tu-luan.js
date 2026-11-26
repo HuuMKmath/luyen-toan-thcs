@@ -151,7 +151,7 @@
   function ngHTML(q) {
     var st = ngState(q.id), L = q.nguoc, A = L[st.a], fin = st.k >= A.buoc.length;
     var s = '<div class="tl-ng" id="ng-' + q.id + '">';
-    s += '<div class="ng-top"><b>Giải toán theo 4 bước của G. Pólya</b><button class="btn ghost sm" data-tl="ngauto:' + q.id + '" aria-pressed="' + docAuto() + '">🔊 Tự đọc: ' + (docAuto() ? "Bật" : "Tắt") + "</button></div>";
+    s += '<div class="ng-top"><b>Giải bài toán theo 4 bước</b><button class="btn ghost sm" data-tl="ngauto:' + q.id + '" aria-pressed="' + docAuto() + '">🔊 Tự đọc: ' + (docAuto() ? "Bật" : "Tắt") + "</button></div>";
     s += '<div class="ng-polya" role="group" aria-label="Bốn bước">';
     POLYA.forEach(function (t, i) {
       if (i === 0 && !q.hieu) return;
@@ -189,7 +189,7 @@
       if (fin) {
         var sau = st.a + 1 < L.length;
         s += '<div class="ng-end"><p style="margin:0"><b>Đã đi ngược đến điều đề cho.</b> ' + A.ket + "</p>";
-        s += '<div class="row"><button class="btn sm" data-tl="' + (sau ? "nga:" + q.id + ":" + (st.a + 1) + '">Phân tích tiếp ' + L[st.a + 1].ten : "ngp:" + q.id + ':3">Sang bước 3: Trình bày lời giải') + '</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':m" aria-label="Đọc sơ đồ">🔊 Đọc sơ đồ</button><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại</button></div></div>';
+        s += '<div class="row"><button class="btn sm" data-tl="' + (sau ? "nga:" + q.id + ":" + (st.a + 1) + '">Phân tích tiếp ' + L[st.a + 1].ten : "ngp:" + q.id + ':3">Sang bước 3: Trình bày lời giải') + '</button><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại</button></div></div>';
       }
     } else if (st.p === 3) {
       s += '<p class="ng-ph">Bước 3. Thực hiện chương trình giải (trình bày xuôi)</p>';
