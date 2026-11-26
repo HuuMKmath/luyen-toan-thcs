@@ -100,12 +100,18 @@
   }
 
 
-  /* ---------- Phân tích đi lên (suy luận ngược) cho bài khó ----------
-     Dữ liệu: q.nguoc = [{ ten, dich, buoc: [{ hoi, chon: [[lựa chọn, đúng?, giải thích], ...], dat }], ket }]
-     Mỗi bước hỏi "Muốn có điều này thì cần gì?"; học sinh tự nghĩ rồi chọn hướng, hướng sai có giải thích.
-     Sơ đồ bên trên cho biết em đang ở đâu. Đi đến giả thiết thì mời xem lời giải trình bày xuôi. */
+  /* ---------- Phân tích theo 4 bước giải toán của G. Pólya ----------
+     Bước 1. Tìm hiểu đề bài: q.hieu = { gt, kl, hoi: [[câu hỏi, trả lời], ...] }
+     Bước 2. Xây dựng chương trình giải (phân tích đi lên, suy luận ngược):
+       q.nguoc = [{ ten, dich, ket, buoc: [{ ve?, hoi, nho?, chon: [[lựa chọn, đúng?, giải thích], ...], dat }] }]
+       Mỗi bước là một câu hỏi mở "muốn có điều này thì cần gì?": học sinh tự nghĩ trước, rồi mới xem các hướng;
+       bí thì bấm "Gợi nhớ kiến thức" (nho). Sơ đồ bên trên cho biết em đang ở đâu.
+     Bước 3. Thực hiện chương trình giải: trình bày xuôi (q.steps).
+     Bước 4. Kiểm tra và nghiên cứu lời giải: q.nhin = [[câu hỏi, trả lời], ...] (thử lại, cách khác, bài đảo, mở rộng). */
+  var POLYA = ["Tìm hiểu đề bài", "Xây dựng chương trình giải", "Thực hiện chương trình giải", "Kiểm tra và nghiên cứu lời giải"];
   function ngState(id) { return ui.ng[id]; }
-  function ngNew(a) { return { a: a || 0, k: 0, t: {}, ok: false }; }
+  function ngNew(a, p) { return { p: p || 1, a: a || 0, k: 0, t: {}, ok: false, sh: false, nh: false, r1: {}, r4: {} }; }
+  function soBuoc(q) { return q.hieu ? 1 : 2; }
 
   function ngMap(A, st, fin) {
     var s = '<div class="ng-map" aria-label="Sơ đồ phân tích đi lên"><div class="ng-cap">Sơ đồ phân tích</div>';
@@ -119,35 +125,82 @@
     else if (!st.ok) s += '<div class="ng-arrow">⇑ muốn vậy, cần có</div><div class="ng-node ng-here"><span class="ng-tag">?</span>Em đang ở đây</div>';
     return s + "</div>";
   }
+  function hoiDap(q, list, rv, code) {   // danh sách câu hỏi: em tự trả lời trước, bấm mới hiện câu trả lời
+    var s = '<ol class="ng-hd">';
+    list.forEach(function (x, i) {
+      s += "<li><div class=\"ng-q\"><span>" + x[0] + '</span><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ":" + code + i + '" aria-label="Đọc câu hỏi">🔊</button></div>';
+      s += rv[i] ? '<div class="ng-ans">' + x[1] + "</div>" : '<button class="btn ghost sm" data-tl="ngxem:' + q.id + ":" + code + i + '">Em nghĩ xong, xem trả lời</button>';
+      s += "</li>";
+    });
+    return s + "</ol>";
+  }
 
   function ngHTML(q) {
     var st = ngState(q.id), L = q.nguoc, A = L[st.a], fin = st.k >= A.buoc.length;
     var s = '<div class="tl-ng" id="ng-' + q.id + '">';
-    s += '<div class="ng-top"><b>Phân tích đi lên</b><button class="btn ghost sm" data-tl="ngauto:' + q.id + '" aria-pressed="' + docAuto() + '">🔊 Tự đọc: ' + (docAuto() ? "Bật" : "Tắt") + "</button></div>";
-    s += '<p class="small" style="margin:0">Đi ngược từ điều phải tìm. Mỗi bước tự hỏi: <i>muốn có điều này thì cần có điều gì?</i> Cứ thế cho đến khi gặp điều đề đã cho. Em hãy nghĩ trước rồi mới chọn.</p>';
-    if (L.length > 1) {
-      s += '<div class="row ng-tabs">';
-      L.forEach(function (x, i) { s += '<button class="btn ' + (i === st.a ? "" : "ghost ") + 'sm" data-tl="nga:' + q.id + ":" + i + '" aria-pressed="' + (i === st.a) + '">' + x.ten + "</button>"; });
-      s += "</div>";
-    }
-    s += ngFig(q, A, st, fin);
-    s += ngMap(A, st, fin);
-    if (!fin) {
-      var B = A.buoc[st.k];
-      s += '<div class="ng-step"><div class="ng-q"><span>Bước ' + (st.k + 1) + "/" + A.buoc.length + ". " + B.hoi + '</span><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':q" aria-label="Đọc câu hỏi">🔊</button></div>';
-      s += '<div class="ng-opts">';
-      B.chon.forEach(function (c, j) {
-        var tried = st.t[j], cls = tried ? (c[1] ? " ng-right" : " ng-wrong") : "";
-        s += '<button class="ng-opt' + cls + '" data-tl="ngc:' + q.id + ":" + j + '"' + (st.ok || tried ? " disabled" : "") + ">" + (tried ? (c[1] ? "✓ " : "✗ ") : "") + c[0] + "</button>";
-        if (tried) s += '<div class="ng-why ' + (c[1] ? "ok" : "no") + '">' + (c[1] ? "<b>Đúng hướng.</b> " : "<b>Chưa dẫn tới đích.</b> ") + c[2] + "</div>";
-      });
-      s += "</div>";
-      if (st.ok) s += '<div class="row"><button class="btn sm" data-tl="ngn:' + q.id + '">' + (st.k + 1 < A.buoc.length ? "Bước tiếp" : "Xem sơ đồ đầy đủ") + '</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':e" aria-label="Đọc giải thích">🔊</button></div>';
-      else if (Object.keys(st.t).length) s += '<p class="small muted" style="margin:0">Đọc giải thích rồi chọn lại hướng khác.</p>';
-      s += "</div>";
-    } else {
-      s += '<div class="ng-end"><p style="margin:0"><b>Đã đi ngược đến điều đề cho.</b> ' + A.ket + '</p><p class="small" style="margin:6px 0 0">Bây giờ em viết lời giải theo chiều xuôi: đọc sơ đồ từ dưới lên, từ giả thiết đến kết luận.</p>';
-      s += '<div class="row"><button class="btn sm" data-tl="ngsol:' + q.id + '">Xem lời giải trình bày xuôi</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':m" aria-label="Đọc sơ đồ">🔊 Đọc sơ đồ</button><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại</button></div></div>';
+    s += '<div class="ng-top"><b>Giải toán theo 4 bước của G. Pólya</b><button class="btn ghost sm" data-tl="ngauto:' + q.id + '" aria-pressed="' + docAuto() + '">🔊 Tự đọc: ' + (docAuto() ? "Bật" : "Tắt") + "</button></div>";
+    s += '<div class="ng-polya" role="group" aria-label="Bốn bước">';
+    POLYA.forEach(function (t, i) {
+      if (i === 0 && !q.hieu) return;
+      if (i === 3 && !q.nhin) return;
+      s += '<button class="ng-pb' + (st.p === i + 1 ? " on" : "") + '" data-tl="ngp:' + q.id + ":" + (i + 1) + '" aria-pressed="' + (st.p === i + 1) + '"><b>' + (i + 1) + "</b> " + t + "</button>";
+    });
+    s += "</div>";
+    if (st.p === 1 && q.hieu) {
+      var H = q.hieu;
+      s += '<p class="ng-ph">Bước 1. Tìm hiểu đề bài</p><p class="small" style="margin:0">Đọc kĩ đề, nhìn hình. Đề cho gì? Đề hỏi gì? Tự trả lời rồi mới bấm xem.</p>';
+      if (q.fig) { try { s += q.fig(true); } catch (e) {} }
+      s += '<div class="ng-gtkl"><div><b>Giả thiết (đề cho):</b> ' + H.gt + "</div><div><b>Kết luận (đề hỏi):</b> " + H.kl + "</div></div>";
+      if (H.hoi) s += hoiDap(q, H.hoi, st.r1, "h");
+      s += '<div class="row"><button class="btn sm" data-tl="ngp:' + q.id + ':2">Sang bước 2: Phân tích đi lên</button></div>';
+    } else if (st.p === 2) {
+      s += '<p class="ng-ph">Bước 2. Xây dựng chương trình giải (phân tích đi lên)</p>';
+      s += '<p class="small" style="margin:0">Đi ngược từ điều phải tìm. Mỗi bước tự hỏi: <i>muốn có điều này thì cần có điều gì?</i> Cứ thế cho đến khi gặp điều đề đã cho.</p>';
+      if (L.length > 1) {
+        s += '<div class="row ng-tabs">';
+        L.forEach(function (x, i) { s += '<button class="btn ' + (i === st.a ? "" : "ghost ") + 'sm" data-tl="nga:' + q.id + ":" + i + '" aria-pressed="' + (i === st.a) + '">' + x.ten + "</button>"; });
+        s += "</div>";
+      }
+      s += ngFig(q, A, st, fin);
+      s += ngMap(A, st, fin);
+      if (!fin) {
+        var B = A.buoc[st.k];
+        s += '<div class="ng-step"><div class="ng-q"><span>Câu hỏi ' + (st.k + 1) + "/" + A.buoc.length + ". " + B.hoi + '</span><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':q" aria-label="Đọc câu hỏi">🔊</button></div>';
+        if (B.nho) s += st.nh ? '<div class="ng-nho"><b>Gợi nhớ kiến thức:</b> ' + B.nho + "</div>" : "";
+        if (!st.sh) {
+          s += '<p class="small muted" style="margin:0">Em hãy tự trả lời câu hỏi trước (nói ra hoặc viết nháp), rồi mới xem các hướng.</p>';
+          s += '<div class="row"><button class="btn sm" data-tl="ngsh:' + q.id + '">Em nghĩ xong, xem các hướng</button>' + (B.nho && !st.nh ? '<button class="btn ghost sm" data-tl="ngnho:' + q.id + '">💡 Gợi nhớ kiến thức</button>' : "") + "</div>";
+        } else {
+          s += '<div class="ng-opts">';
+          B.chon.forEach(function (c, j) {
+            var tried = st.t[j], cls = tried ? (c[1] ? " ng-right" : " ng-wrong") : "";
+            s += '<button class="ng-opt' + cls + '" data-tl="ngc:' + q.id + ":" + j + '"' + (st.ok || tried ? " disabled" : "") + ">" + (tried ? (c[1] ? "✓ " : "✗ ") : "") + c[0] + "</button>";
+            if (tried) s += '<div class="ng-why ' + (c[1] ? "ok" : "no") + '">' + (c[1] ? "<b>Đúng hướng.</b> " : "<b>Chưa dẫn tới đích.</b> ") + c[2] + "</div>";
+          });
+          s += "</div>";
+          if (st.ok) s += '<div class="row"><button class="btn sm" data-tl="ngn:' + q.id + '">' + (st.k + 1 < A.buoc.length ? "Câu hỏi tiếp" : "Xem sơ đồ đầy đủ") + '</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':e" aria-label="Đọc giải thích">🔊</button></div>';
+          else {
+            if (Object.keys(st.t).length) s += '<p class="small muted" style="margin:0">Đọc giải thích rồi chọn lại hướng khác.</p>';
+            if (B.nho && !st.nh) s += '<div class="row"><button class="btn ghost sm" data-tl="ngnho:' + q.id + '">💡 Gợi nhớ kiến thức</button></div>';
+          }
+        }
+        s += "</div>";
+      } else {
+        var sau = st.a + 1 < L.length;
+        s += '<div class="ng-end"><p style="margin:0"><b>Đã đi ngược đến điều đề cho.</b> ' + A.ket + "</p>";
+        s += '<div class="row"><button class="btn sm" data-tl="' + (sau ? "nga:" + q.id + ":" + (st.a + 1) + '">Phân tích tiếp ' + L[st.a + 1].ten : "ngp:" + q.id + ':3">Sang bước 3: Trình bày lời giải') + '</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':m" aria-label="Đọc sơ đồ">🔊 Đọc sơ đồ</button><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại</button></div></div>';
+      }
+    } else if (st.p === 3) {
+      s += '<p class="ng-ph">Bước 3. Thực hiện chương trình giải (trình bày xuôi)</p>';
+      s += '<p style="margin:0">Đọc sơ đồ từ dưới lên: đi từ giả thiết đến kết luận. Em hãy tự viết lời giải vào vở, mỗi bước ghi rõ căn cứ (vì sao). Viết xong mới đối chiếu.</p>';
+      if (q.fig) { try { s += q.fig(false); } catch (e) {} }
+      L.forEach(function (x) { s += (L.length > 1 ? '<div class="ng-cap" style="margin:0">' + x.ten + "</div>" : "") + ngMap(x, null, true); });
+      s += '<div class="row"><button class="btn sm" data-tl="ngsol:' + q.id + '">Đối chiếu: xem lời giải từng bước</button>' + (q.nhin ? '<button class="btn ghost sm" data-tl="ngp:' + q.id + ':4">Sang bước 4: Nhìn lại</button>' : "") + "</div>";
+    } else if (st.p === 4 && q.nhin) {
+      s += '<p class="ng-ph">Bước 4. Kiểm tra và nghiên cứu lời giải (nhìn lại)</p>';
+      s += '<p class="small" style="margin:0">Giải xong chưa phải là hết. Thử lại kết quả, xem đã dùng hết giả thiết chưa, tìm cách khác, đặt bài toán mới.</p>';
+      s += hoiDap(q, q.nhin, st.r4, "n");
+      s += '<div class="row"><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại từ bước 1</button></div>';
     }
     return s + "</div>";
   }
@@ -232,6 +285,13 @@
     var st = ngState(q.id), A = q.nguoc[st.a], B = A.buoc[Math.min(st.k, A.buoc.length - 1)];
     if (what === "q") return B.hoi;
     if (what === "e") { for (var j in st.t) if (B.chon[j][1]) return "Đúng hướng. " + B.chon[j][2]; return B.hoi; }
+    if (/^[hn]\d+$/.test(what)) { var x = (what[0] === "h" ? q.hieu.hoi : q.nhin)[+what.slice(1)]; return x ? x[0] : ""; }
+    if (what === "p") {
+      if (st.p === 1) return "Bước 1. Tìm hiểu đề bài. Giả thiết: " + q.hieu.gt + ". Kết luận: " + q.hieu.kl + ".";
+      if (st.p === 2) return "Bước 2. Phân tích đi lên. " + (st.k < A.buoc.length ? B.hoi : mapText(A));
+      if (st.p === 3) return "Bước 3. Trình bày lời giải. Đọc sơ đồ từ dưới lên, em hãy tự viết lời giải vào vở, mỗi bước ghi rõ vì sao.";
+      return "Bước 4. Nhìn lại. Thử lại kết quả, xem đã dùng hết giả thiết chưa, tìm cách khác, đặt bài toán mới.";
+    }
     return mapText(A);
   }
   function mapText(A) {
@@ -240,25 +300,39 @@
     return s + "Đến đây đã gặp điều đề cho. " + A.ket;
   }
   function ngAct(act, q, a, b) {
-    var id = q.id, st = ngState(id);
+    var id = q.id, st = ngState(id), box = function () { return document.getElementById("ng-" + id); };
+    var len = function () { return document.querySelector("#ng-" + id + " .ng-ph"); };
     if (act === "ngmap") { if (ui.map[id]) { delete ui.map[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.map[id] = 1; rerender("ngmap:" + id); return; }
     if (act === "ngmsay") { noi(q.nguoc.map(function (A) { return (q.nguoc.length > 1 ? A.ten + ". " : "") + mapText(A); }).join(" "), b); return; }
-    if (act === "ng") { if (st) { delete ui.ng[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.ng[id] = ngNew(0); rerender("ng:" + id); if (ui.ng[id] && docAuto()) noi(ngText(q, "q"), b); return; }
+    if (act === "ng") { if (st) { delete ui.ng[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.ng[id] = ngNew(0, soBuoc(q)); rerender("ng:" + id); if (ui.ng[id] && docAuto()) noi(ngText(q, "p"), b); return; }
     if (!st) return;
     var A = q.nguoc[st.a];
-    if (act === "nga") { ui.ng[id] = ngNew(+a[2]); rerender("nga:" + id + ":" + a[2]); if (docAuto()) noi(ngText(q, "q"), b); }
+    if (act === "ngp") {
+      var p = +a[2]; if (p === 1 && !q.hieu || p === 4 && !q.nhin) return;
+      st.p = p; rerender("ngp:" + id + ":" + p);
+      var h = len(); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); h.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      if (docAuto()) noi(ngText(q, "p"), box());
+    }
+    else if (act === "nga") { ui.ng[id] = ngNew(+a[2], 2); rerender("nga:" + id + ":" + a[2]); if (docAuto()) noi(ngText(q, "q"), b); }
+    else if (act === "ngsh") { st.sh = true; rerender(null); var o = document.querySelector('#ng-' + id + ' .ng-opt'); if (o) o.focus({ preventScroll: true }); }
+    else if (act === "ngnho") { st.nh = true; rerender(null); var B0 = A.buoc[st.k]; if (docAuto() && B0 && B0.nho) noi("Gợi nhớ kiến thức. " + B0.nho, box()); }
+    else if (act === "ngxem") {
+      var c0 = a[2][0], i0 = +a[2].slice(1), L0 = c0 === "h" ? q.hieu.hoi : q.nhin; if (!L0 || !L0[i0]) return;
+      (c0 === "h" ? st.r1 : st.r4)[i0] = true; rerender(null);
+      if (docAuto()) noi(L0[i0][1], box());
+    }
     else if (act === "ngc") {
       var j = +a[2], c = A.buoc[st.k].chon[j]; if (!c) return;
       st.t[j] = true; if (c[1]) st.ok = true;
       rerender(c[1] ? "ngn:" + id : null);
-      if (docAuto()) noi((c[1] ? "Đúng hướng. " : "Chưa dẫn tới đích. ") + c[2], document.getElementById("ng-" + id));
+      if (docAuto()) noi((c[1] ? "Đúng hướng. " : "Chưa dẫn tới đích. ") + c[2], box());
       if (!c[1]) { var w = document.querySelector('#ng-' + id + ' .ng-opt:not([disabled])'); if (w) w.focus({ preventScroll: true }); }
     }
-    else if (act === "ngn") { st.k++; st.t = {}; st.ok = false; rerender(st.k < A.buoc.length ? null : "ngsol:" + id); var f = document.querySelector('#ng-' + id + ' .ng-q span'); if (f) { f.setAttribute("tabindex", "-1"); f.focus({ preventScroll: true }); } if (docAuto()) noi(st.k < A.buoc.length ? ngText(q, "q") : A.ket, document.getElementById("ng-" + id)); }
-    else if (act === "ngr") { ui.ng[id] = ngNew(st.a); rerender(null); }
-    else if (act === "ngsol") { ui.step[id] = q.steps.length; rerender("mark:" + id + ":d"); var o = document.querySelector("#tl-" + id + " .tl-sol"); if (o) o.scrollIntoView({ block: "start", behavior: "smooth" }); }
-    else if (act === "ngsay") noi(a[2] === "m" ? ngText(q, "m") : a[2] === "e" ? ngText(q, "e") : ngText(q, "q"), b);
-    else if (act === "ngauto") { try { localStorage.setItem(KEY_DOC, docAuto() ? "0" : "1"); } catch (e) {} rerender("ngauto:" + id); if (docAuto()) noi(ngText(q, st.k < A.buoc.length ? "q" : "m"), b); else try { speechSynthesis.cancel(); } catch (e) {} }
+    else if (act === "ngn") { st.k++; st.t = {}; st.ok = false; st.sh = false; st.nh = false; rerender(null); var f = document.querySelector('#ng-' + id + ' .ng-q span'); if (f) { f.setAttribute("tabindex", "-1"); f.focus({ preventScroll: true }); } if (docAuto()) noi(st.k < A.buoc.length ? ngText(q, "q") : A.ket, box()); }
+    else if (act === "ngr") { ui.ng[id] = ngNew(0, soBuoc(q)); rerender(null); if (docAuto()) noi(ngText(q, "p"), box()); }
+    else if (act === "ngsol") { ui.step[id] = 1; rerender("next:" + id); var o2 = document.querySelector("#tl-" + id + " .tl-sol"); if (o2) o2.scrollIntoView({ block: "start", behavior: "smooth" }); }
+    else if (act === "ngsay") { var w2 = a[2]; noi(w2 === "m" ? ngText(q, "m") : w2 === "e" ? ngText(q, "e") : /^[hn]\d+$/.test(w2) ? ngText(q, w2) : ngText(q, "q"), b); }
+    else if (act === "ngauto") { try { localStorage.setItem(KEY_DOC, docAuto() ? "0" : "1"); } catch (e) {} rerender("ngauto:" + id); if (docAuto()) noi(ngText(q, st.p === 2 && st.k < A.buoc.length ? "q" : "p"), b); else try { speechSynthesis.cancel(); } catch (e) {} }
   }
 
   document.addEventListener("click", function (e) {
@@ -309,6 +383,12 @@
     ".ng-why{border-radius:8px;padding:6px 10px;font-size:.95em;margin:-2px 0 2px 12px}.ng-why.ok{color:var(--good)}.ng-why.no{color:var(--bad)}" +
     ".ng-end{background:var(--good-bg);border-radius:10px;padding:10px 12px}" +
     ".ng-say{flex:none}" +
+    ".ng-polya{display:flex;flex-wrap:wrap;gap:6px}.ng-pb{font:inherit;font-size:.88em;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}.ng-pb b{color:var(--accent)}.ng-pb.on{background:var(--accent);border-color:var(--accent);color:#fff}.ng-pb.on b{color:#fff}" +
+    ".ng-ph{margin:0;font-weight:700;color:var(--accent)}" +
+    ".ng-gtkl{background:var(--paper);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px}" +
+    ".ng-hd{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}.ng-hd li>.btn{margin-top:4px}" +
+    ".ng-ans{background:var(--good-bg);border-radius:8px;padding:6px 10px;margin-top:4px}" +
+    ".ng-nho{background:var(--warn-bg);border-radius:8px;padding:6px 10px}" +
     "@media (max-width:560px){#tl-box{padding:14px 12px}.tl-q{padding:12px 10px}.tl-sol{padding:10px 8px}.tl-sol ol{padding-left:18px}.tl-sol .figbox{margin:4px 0}}";
   try { var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st); } catch (e) {}
 
