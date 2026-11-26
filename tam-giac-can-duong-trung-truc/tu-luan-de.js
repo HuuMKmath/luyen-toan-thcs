@@ -87,7 +87,7 @@
       id: "nb3", lv: "NB",
       de: "Cho đoạn thẳng AB = 6 cm. Đường thẳng d là đường trung trực của đoạn thẳng AB, cắt AB tại O. Lấy điểm M thuộc d (M khác O) sao cho MA = 5 cm.<br>a) Tính độ dài OA, OB và MB.<br>b) Tam giác MAB là tam giác gì? Vì sao?",
       goi: "Đường trung trực đi qua trung điểm của đoạn thẳng. Điểm nằm trên đường trung trực thì cách đều hai mút của đoạn thẳng.",
-      fig: function () { return fb(figPB({ lab: ["A", "B", "O", "M"], alt: "Đường trung trực d của đoạn thẳng AB cắt AB tại O, M thuộc d" })); },
+      fig: function () { return fb(figPB({ lab: ["A", "B", "O", "M"], tick: false, alt: "Đường trung trực d của đoạn thẳng AB cắt AB tại O, M thuộc d" })); },
       steps: [
         "a) Đường trung trực d đi qua trung điểm của AB, nên O là trung điểm của AB. Do đó OA = OB = 6 : 2 = 3 (cm).",
         "M nằm trên đường trung trực của AB nên M cách đều A và B: MB = MA = 5 cm.",
