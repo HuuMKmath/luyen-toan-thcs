@@ -465,7 +465,7 @@ a.lesson.lock .ic{filter:grayscale(1)}
     <div id="bxh-body"></div>
   </section>
 
-  <div class="note"><b>Dành cho giáo viên:</b> điểm kiểm tra của học sinh tự gửi về Google Sheet chung <b>LUYỆN TOÁN THCS</b>; thầy cô xem ở trang tính <b>Xem điểm</b> và <b>Sổ điểm</b>. Khi học sinh không gửi được (mất mạng), các em đưa mã kết quả cho thầy cô; mỗi bài có tiền tố mã riêng, hiện ở trang kết quả của bài; thầy cô mở mục Giáo viên của đúng bài rồi dán mã vào.</div>
+  <div class="note"><b>Dành cho giáo viên:</b> điểm kiểm tra được chấm và lưu trên máy chủ ngay khi học sinh nộp bài. Thầy cô nhập mã giáo viên ở ô phía trên rồi bấm <b>Sổ điểm các lớp</b> (hoặc mở thẳng trang <a href="../so-diem/">Sổ điểm</a>) để xem điểm từng lớp, từng bài và tải Excel. Học sinh bị mất mạng lúc nộp thì bài làm vẫn còn trên máy, các em bấm Nộp bài lần nữa khi có mạng.</div>
   <div class="foot"></div>
 </main>
 
@@ -598,7 +598,7 @@ function showProg(o){
         a.onclick=function(e){e.preventDefault();if(kb.url)location.href=kb.url;};
         a.title='Bấm để về bài trước';
       }else if(kb.gvMo&&!k){st.innerHTML='<span class="chip new">Thầy cô đã mở bài này</span>';}
-      if(/^\s*gv\s*$/i.test(String(o.c||''))&&KB.coKhoa(tab))st.innerHTML+='<span class="chip lock">Bài có khóa · tên trong trang Mở bài: '+esc(tab)+'</span>';
+      if(/^\s*gv\s*$/i.test(String(o.c||''))&&KB.coKhoa(tab))st.innerHTML+='<span class="chip lock">Bài có khóa · mở cho lớp ở Supabase, bảng mo_bai (tên bài: '+esc(tab)+')</span>';
     }
   });
   if(window.VT)VT.tienDo(o);

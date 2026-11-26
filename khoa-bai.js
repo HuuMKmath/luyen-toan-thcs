@@ -4,7 +4,7 @@
    Điều kiện để mở một bài: ở BÀI TRƯỚC, học sinh đã
      (1) làm xong 3 gói Nhận biết, Thông hiểu, Vận dụng (làm hết các câu của gói), và
      (2) đạt từ 5 điểm ở bài Kiểm tra 25 phút HOẶC bài Thử thách 30 phút (lấy điểm cao nhất).
-   Chưa đạt thì chờ giáo viên mở: giáo viên tích ô "Mở" cho lớp và bài đó ở trang tính "Mở bài" của Google Sheet.
+   Chưa đạt thì chờ giáo viên mở: giáo viên thêm dòng cho lớp và bài đó ở bảng mo_bai trên Supabase (Table Editor).
    Mã giáo viên (lớp GV) luôn vào được. Mất mạng, không kiểm tra được thì cho vào (học sinh không bị kẹt).
 
    THÊM BÀI MỚI: thêm một dòng vào KHOA bên dưới,

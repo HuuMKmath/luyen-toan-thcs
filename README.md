@@ -99,9 +99,9 @@ Trang chung liệt kê các bài: `cac-bai/`.
 
 ## Cách dùng cho giáo viên
 
-- Học sinh nhập mã học sinh, làm bài kiểm tra (nhập mã đề nếu có); kết quả tự gửi về Google Sheet chung "LUYỆN TOÁN THCS".
-- Giáo viên xem điểm ở hai trang tính **Xem điểm** và **Sổ điểm** của Sheet chung.
-- Dự phòng khi học sinh không gửi được (mất mạng): các em đưa mã kết quả, giáo viên mở mục **Giáo viên** của đúng bài (thêm `#giao-vien` vào cuối địa chỉ) rồi dán mã. Mỗi bài có tiền tố mã riêng nên không dán lẫn giữa các bài.
+- Học sinh nhập mã học sinh, làm bài kiểm tra (nhập mã đề nếu có); máy chủ Supabase chấm và lưu kết quả ngay khi nộp (từ 26/11/2026; Google Sheet chung "LUYỆN TOÁN THCS" chỉ còn là bản lưu dữ liệu cũ).
+- Giáo viên xem điểm ở trang **Sổ điểm** (`so-diem/`, nhập mã giáo viên; hoặc nút "Sổ điểm các lớp" ở trang Các bài): từng lớp, từng bài, tải Excel.
+- Tổng hợp nhanh bằng mã kết quả: học sinh đưa mã kết quả (hiện ở trang kết quả), giáo viên mở mục **Giáo viên** của đúng bài (thêm `#giao-vien` vào cuối địa chỉ) rồi dán mã. Mỗi bài có tiền tố mã riêng nên không dán lẫn giữa các bài.
 - Trang chung `cac-bai/` có mục **Tiến độ của em**: học sinh nhập mã (cùng ô nhớ mã với các trang bài) để xem điểm cao nhất, số lần làm, lần gần nhất và phần còn yếu ở từng bài; mỗi thẻ bài hiện tiến độ ngay bên dưới. Dữ liệu lấy từ Sheet chung qua `doGet` (`?ma=...&tiendo=1`), chỉ trả về dữ liệu của chính mã đó, dùng chung cơ chế chống dò mã. Cần dán lại `Code.gs` và triển khai Phiên bản mới thì mục này mới có dữ liệu.
 - Học sinh chỉ làm được bài đúng khối của mình: khối của học sinh lấy từ số đầu tiên trong tên lớp ở trang tính Học sinh (ví dụ 7A, 6T1), khối của bài lấy từ số đầu `SHEET_TAB`. Tên lớp không có số thì không bị chặn.
 - Trong một gói luyện tập hay một đề kiểm tra không có hai câu giống hệt nhau; câu tự sinh bị trùng sẽ được sinh lại.
@@ -150,7 +150,7 @@ Mỗi bài có thể có thêm phần **Bài tập tự luận** bốn mức: Nh
 1. làm xong 3 gói Nhận biết, Thông hiểu, Vận dụng (làm hết các câu của gói), và
 2. đạt từ 5 điểm ở bài Kiểm tra 25 phút hoặc Thử thách 30 phút (điểm cao nhất).
 
-Chưa đạt thì chờ giáo viên mở: menu **Mở bài** trong Google Sheet tạo trang tính "Mở bài"; mỗi dòng chọn Lớp (hoặc "Tất cả", hoặc số khối), Bài, tích ô Mở. Mã giáo viên luôn vào được.
+Chưa đạt thì chờ giáo viên mở: trên Supabase vào Table Editor → bảng `mo_bai`, thêm dòng: pham_vi là tên lớp (hoặc "Tất cả", hoặc số khối), bai_id là mã bài, mo = true. Mã giáo viên luôn vào được.
 
 - Thứ tự bài khai báo trong `khoa-bai.js` (biến `KHOA`): mỗi bài mới bị khóa thêm một dòng `"<tên trang tính bài mới>": ["<tên trang tính bài trước>", "<thư mục bài trước>/"]`. Bài đầu chương không thêm.
 - Gói đã xong được ghi ở trang tính "Gói đã xong" (script tự tạo); chỉ tính các gói làm từ khi có tính năng này.

@@ -211,7 +211,7 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
 
   <main id="app"></main>
 
-  <footer>Bài luyện chấm tự động ngay trên trình duyệt. Kết quả không được lưu trên máy chủ; học sinh gửi mã kết quả của bài kiểm tra cho giáo viên để tổng hợp.</footer>
+  <footer>Bài kiểm tra được chấm và lưu trên máy chủ ngay khi học sinh nộp bài; giáo viên xem điểm ở trang Sổ điểm.</footer>
 </div>
 
 <script src="../gamify.js"></script>
@@ -1561,7 +1561,7 @@ function resultHTML(){
 
   <section class="card codebox" style="margin-top:16px"><h2>Gửi kết quả cho giáo viên</h2>
     <p class="small" id="sent" role="status" style="margin:0"></p>
-    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả được gửi tự động. Nếu giáo viên chưa nhận được, hãy sao chép mã dưới đây và gửi qua Zalo.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
+    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả đã được lưu cho giáo viên ngay khi em nộp bài. Mã dưới đây chỉ cần khi thầy cô yêu cầu.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
     <textarea id="code" readonly rows="3" aria-label="Mã kết quả">${code}</textarea>
     <div class="row"><button class="btn sm" id="copy">Sao chép mã</button><span class="small muted" id="copied" role="status"></span></div>
   </section>`:''}
@@ -1577,8 +1577,8 @@ function resultHTML(){
 /* ============ Màn hình: giáo viên ============ */
 function teacherHTML(){
   return `<section class="hero"><h1>Bảng <em>tổng hợp</em> lớp</h1>
-    <p class="lead">Điểm kiểm tra của học sinh tự gửi về Google Sheet chung <b>LUYỆN TOÁN THCS</b>. Thầy cô mở trang tính <b>Xem điểm</b> (một lớp, một bài) hoặc <b>Sổ điểm</b> (một lớp, mọi bài) để theo dõi, không cần dán mã.</p>
-    <p class="lead"><b>Dự phòng khi học sinh không gửi được (mất mạng):</b> dán mã kết quả bài kiểm tra Tập hợp các số hữu tỉ của học sinh (bắt đầu bằng ${CODE_PREFIX}), mỗi mã một dòng. Bảng cho thấy điểm từng em và nội dung kiến thức cả lớp còn yếu. Mỗi học sinh nhận một đề khác nhau nhưng cùng cấu trúc, nên điểm vẫn so sánh được.</p></section>
+    <p class="lead">Điểm kiểm tra của học sinh được chấm và lưu trên máy chủ ngay khi các em nộp bài. Thầy cô mở trang <a href="../so-diem/">Sổ điểm</a> (nhập mã giáo viên) để xem điểm từng lớp, từng bài và tải Excel, không cần dán mã.</p>
+    <p class="lead"><b>Tổng hợp nhanh bằng mã kết quả:</b> dán mã kết quả (hiện ở trang kết quả của học sinh) bài kiểm tra Tập hợp các số hữu tỉ của học sinh (bắt đầu bằng ${CODE_PREFIX}), mỗi mã một dòng. Bảng cho thấy điểm từng em và nội dung kiến thức cả lớp còn yếu. Mỗi học sinh nhận một đề khác nhau nhưng cùng cấu trúc, nên điểm vẫn so sánh được.</p></section>
     <section class="card stack" style="margin-top:18px">
       <div><label class="fl" for="codes">Mã kết quả</label><textarea id="codes" placeholder="${CODE_PREFIX}eyJ2IjoxLC..."></textarea></div>
       <div class="row"><button class="btn" id="analyze">Tổng hợp</button><button class="btn ghost" id="clearc">Xóa</button></div>
