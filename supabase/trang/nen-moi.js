@@ -184,11 +184,5 @@
   // XP, huy hiệu, gói đã xong (khóa bài), tiến độ: trang vẫn gọi SHEET_URL như cũ; bản dựng đã đổi SHEET_URL
   // sang hàm máy chủ Supabase, hàm trả lời cùng dạng với Google Sheet (functions/bai-lam/tuong-thich.js).
 
-  // Nhãn nhỏ cho biết đang dùng bản thử của nền mới
-  var nhan = document.createElement("div");
-  nhan.textContent = "Bản thử nền mới";
-  nhan.style.cssText = "position:fixed;right:10px;bottom:10px;z-index:9998;padding:4px 10px;border-radius:999px;background:#FFF2CC;color:#5c4400;font:600 12px system-ui,sans-serif;opacity:.9";
-  document.body.appendChild(nhan);
-
   if (state.view === "home") render();
 })();
