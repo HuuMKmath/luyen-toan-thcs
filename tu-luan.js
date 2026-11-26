@@ -136,6 +136,18 @@
     return s + "</ol>";
   }
 
+  function ngQA(q, B, i, n) {   // một câu hỏi đã trả lời: câu hỏi, trả lời đúng, và vì sao không đi hướng khác
+    var ok = B.chon.filter(function (c) { return c[1]; })[0], sai = B.chon.filter(function (c) { return !c[1]; });
+    var s = '<div class="ng-q"><span>Câu hỏi ' + (i + 1) + "/" + n + ". " + B.hoi + "</span></div>";
+    s += '<div class="ng-ans"><b>Trả lời:</b> ' + ok[0] + ". " + ok[2].replace(/^Đúng\.\s*/, "") + "</div>";
+    if (sai.length) {
+      s += '<details class="ng-khac"><summary>Vì sao không đi hướng khác?</summary><ul>';
+      sai.forEach(function (c) { s += "<li><b>" + c[0] + ":</b> " + c[2] + "</li>"; });
+      s += "</ul></details>";
+    }
+    return s;
+  }
+
   function ngHTML(q) {
     var st = ngState(q.id), L = q.nguoc, A = L[st.a], fin = st.k >= A.buoc.length;
     var s = '<div class="tl-ng" id="ng-' + q.id + '">';
@@ -164,29 +176,17 @@
       }
       s += ngFig(q, A, st, fin);
       s += ngMap(A, st, fin);
+      s += '<ol class="ng-chain">';
+      for (var i = 0; i < st.k; i++) s += "<li>" + ngQA(q, A.buoc[i], i, A.buoc.length) + "</li>";
       if (!fin) {
         var B = A.buoc[st.k];
-        s += '<div class="ng-step"><div class="ng-q"><span>Câu hỏi ' + (st.k + 1) + "/" + A.buoc.length + ". " + B.hoi + '</span><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':q" aria-label="Đọc câu hỏi">🔊</button></div>';
-        if (B.nho) s += st.nh ? '<div class="ng-nho"><b>Gợi nhớ kiến thức:</b> ' + B.nho + "</div>" : "";
-        if (!st.sh) {
-          s += '<p class="small muted" style="margin:0">Em hãy tự trả lời câu hỏi trước (nói ra hoặc viết nháp), rồi mới xem các hướng.</p>';
-          s += '<div class="row"><button class="btn sm" data-tl="ngsh:' + q.id + '">Em nghĩ xong, xem các hướng</button>' + (B.nho && !st.nh ? '<button class="btn ghost sm" data-tl="ngnho:' + q.id + '">💡 Gợi nhớ kiến thức</button>' : "") + "</div>";
-        } else {
-          s += '<div class="ng-opts">';
-          B.chon.forEach(function (c, j) {
-            var tried = st.t[j], cls = tried ? (c[1] ? " ng-right" : " ng-wrong") : "";
-            s += '<button class="ng-opt' + cls + '" data-tl="ngc:' + q.id + ":" + j + '"' + (st.ok || tried ? " disabled" : "") + ">" + (tried ? (c[1] ? "✓ " : "✗ ") : "") + c[0] + "</button>";
-            if (tried) s += '<div class="ng-why ' + (c[1] ? "ok" : "no") + '">' + (c[1] ? "<b>Đúng hướng.</b> " : "<b>Chưa dẫn tới đích.</b> ") + c[2] + "</div>";
-          });
-          s += "</div>";
-          if (st.ok) s += '<div class="row"><button class="btn sm" data-tl="ngn:' + q.id + '">' + (st.k + 1 < A.buoc.length ? "Câu hỏi tiếp" : "Xem sơ đồ đầy đủ") + '</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':e" aria-label="Đọc giải thích">🔊</button></div>';
-          else {
-            if (Object.keys(st.t).length) s += '<p class="small muted" style="margin:0">Đọc giải thích rồi chọn lại hướng khác.</p>';
-            if (B.nho && !st.nh) s += '<div class="row"><button class="btn ghost sm" data-tl="ngnho:' + q.id + '">💡 Gợi nhớ kiến thức</button></div>';
-          }
-        }
-        s += "</div>";
-      } else {
+        s += '<li class="ng-step ng-cur"><div class="ng-q"><span>Câu hỏi ' + (st.k + 1) + "/" + A.buoc.length + ". " + B.hoi + '</span><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':q" aria-label="Đọc câu hỏi">🔊</button></div>';
+        if (B.nho && st.nh) s += '<div class="ng-nho"><b>Gợi nhớ kiến thức:</b> ' + B.nho + "</div>";
+        s += '<p class="small muted" style="margin:0">Em hãy tự trả lời trước (nói ra hoặc viết nháp), rồi mới bấm xem.</p>';
+        s += '<div class="row"><button class="btn sm" data-tl="ngsh:' + q.id + '">Em nghĩ xong, xem trả lời</button>' + (B.nho && !st.nh ? '<button class="btn ghost sm" data-tl="ngnho:' + q.id + '">💡 Gợi nhớ kiến thức</button>' : "") + "</div></li>";
+      }
+      s += "</ol>";
+      if (fin) {
         var sau = st.a + 1 < L.length;
         s += '<div class="ng-end"><p style="margin:0"><b>Đã đi ngược đến điều đề cho.</b> ' + A.ket + "</p>";
         s += '<div class="row"><button class="btn sm" data-tl="' + (sau ? "nga:" + q.id + ":" + (st.a + 1) + '">Phân tích tiếp ' + L[st.a + 1].ten : "ngp:" + q.id + ':3">Sang bước 3: Trình bày lời giải') + '</button><button class="btn ghost sm ng-say" data-tl="ngsay:' + q.id + ':m" aria-label="Đọc sơ đồ">🔊 Đọc sơ đồ</button><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại</button></div></div>';
@@ -210,7 +210,7 @@
   function ngFig(q, A, st, fin) {
     if (!q.fig) return "";
     var v = -1; A.buoc.forEach(function (b, i) { if (b.ve && v < 0) v = i; });
-    var goc = fin ? false : v >= 0 ? (st.k < v || (st.k === v && !st.ok)) : st.a === 0;
+    var goc = fin ? false : v >= 0 ? st.k <= v : st.a === 0;
     try { return q.fig(goc); } catch (e) { return ""; }
   }
   function mapHTML(q) {   // hiện luôn toàn bộ sơ đồ suy luận ngược
@@ -285,7 +285,7 @@
   function ngText(q, what) {
     var st = ngState(q.id), A = q.nguoc[st.a], B = A.buoc[Math.min(st.k, A.buoc.length - 1)];
     if (what === "q") return B.hoi;
-    if (what === "e") { for (var j in st.t) if (B.chon[j][1]) return "Đúng hướng. " + B.chon[j][2]; return B.hoi; }
+    if (what === "e") return B.hoi;
     if (/^[hn]\d+$/.test(what)) { var x = (what[0] === "h" ? q.hieu.hoi : q.nhin)[+what.slice(1)]; return x ? x[0] : ""; }
     if (what === "p") {
       if (st.p === 1) return "Bước 1. Tìm hiểu đề bài. Giả thiết: " + q.hieu.gt + ". Kết luận: " + q.hieu.kl + ".";
@@ -315,7 +315,13 @@
       if (docAuto()) noi(ngText(q, "p"), box());
     }
     else if (act === "nga") { ui.ng[id] = ngNew(+a[2], 2); rerender("nga:" + id + ":" + a[2]); if (docAuto()) noi(ngText(q, "q"), b); }
-    else if (act === "ngsh") { st.sh = true; rerender(null); var o = document.querySelector('#ng-' + id + ' .ng-opt'); if (o) o.focus({ preventScroll: true }); }
+    else if (act === "ngsh") {
+      var Bk = A.buoc[st.k], okc = Bk.chon.filter(function (c) { return c[1]; })[0];
+      st.k++; st.nh = false; rerender(null);
+      var cur = document.querySelector('#ng-' + id + ' .ng-cur') || document.querySelector('#ng-' + id + ' .ng-end');
+      if (cur) { cur.setAttribute("tabindex", "-1"); cur.focus({ preventScroll: true }); cur.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      if (docAuto()) noi("Trả lời: " + okc[0] + ". " + (st.k < A.buoc.length ? "Câu hỏi tiếp. " + A.buoc[st.k].hoi : A.ket), box());
+    }
     else if (act === "ngnho") { st.nh = true; rerender(null); var B0 = A.buoc[st.k]; if (docAuto() && B0 && B0.nho) noi("Gợi nhớ kiến thức. " + B0.nho, box()); }
     else if (act === "ngxem") {
       var c0 = a[2][0], i0 = +a[2].slice(1), L0 = c0 === "h" ? q.hieu.hoi : q.nhin; if (!L0 || !L0[i0]) return;
@@ -389,6 +395,8 @@
     ".ng-gtkl{background:var(--paper);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px}" +
     ".ng-hd{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}.ng-hd li>.btn{margin-top:4px}" +
     ".ng-ans{background:var(--good-bg);border-radius:8px;padding:6px 10px;margin-top:4px}" +
+    ".ng-chain{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:12px}.ng-chain>li{border-left:3px solid var(--line);padding-left:10px;display:flex;flex-direction:column;gap:6px}.ng-chain>li.ng-cur{border-left-color:var(--accent)}" +
+    ".ng-khac summary{cursor:pointer;color:var(--muted);font-size:.92em}.ng-khac ul{margin:4px 0 0;padding-left:20px;font-size:.92em}" +
     ".ng-nho{background:var(--warn-bg);border-radius:8px;padding:6px 10px}" +
     "@media (max-width:560px){#tl-box{padding:14px 12px}.tl-q{padding:12px 10px}.tl-sol{padding:10px 8px}.tl-sol ol{padding-left:18px}.tl-sol .figbox{margin:4px 0}}";
   try { var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st); } catch (e) {}
