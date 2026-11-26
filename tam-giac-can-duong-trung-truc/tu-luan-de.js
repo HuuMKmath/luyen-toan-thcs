@@ -641,6 +641,33 @@
     bai: "cn7",
     ten: "Bài 16. Tam giác cân. Đường trung trực của đoạn thẳng",
     items: ITEMS,
+    /* Chia theo dạng (thầy chốt 27/11/2026): mỗi dạng có phương pháp giải; bài xếp từ dễ đến khó. */
+    dang: [
+      { ten: "Tính góc trong tam giác cân",
+        pp: ["Xác định đỉnh, hai cạnh bên, cạnh đáy của tam giác cân.",
+             "Dùng tính chất: hai góc ở đáy bằng nhau. Góc ở đáy = (180° − góc ở đỉnh) : 2; góc ở đỉnh = 180° − 2 · góc ở đáy.",
+             "Kết hợp tổng ba góc của tam giác, hai góc kề bù, các tam giác cân khác có trên hình.",
+             "Bài khó: kẻ thêm (tam giác đều, tia phân giác, …) để tạo ra tam giác cân hoặc hai tam giác bằng nhau chứa góc cần tính."],
+        ids: ["nb1", "nb2", "vd2", "hsg1", "hsg3"] },
+      { ten: "Chứng minh tam giác cân, tam giác đều",
+        pp: ["Cách 1: chứng minh tam giác có hai cạnh bằng nhau (thường qua hai tam giác bằng nhau).",
+             "Cách 2: chứng minh tam giác có hai góc bằng nhau.",
+             "Tam giác đều: chứng minh ba cạnh bằng nhau.",
+             "Khi kết luận phải nói rõ tam giác cân tại đỉnh nào: đỉnh là đỉnh chung của hai cạnh bằng nhau."],
+        ids: ["th1", "th3", "vd1", "hsg2"] },
+      { ten: "Đường trung trực của đoạn thẳng",
+        pp: ["Điểm nằm trên đường trung trực của một đoạn thẳng thì cách đều hai đầu mút của đoạn thẳng đó.",
+             "Điểm cách đều hai đầu mút của một đoạn thẳng thì nằm trên đường trung trực của đoạn thẳng đó.",
+             "Chứng minh một đường thẳng là đường trung trực của AB: chỉ ra nó vuông góc với AB tại trung điểm của AB, hoặc chỉ ra hai điểm của nó cùng cách đều A và B.",
+             "Từ MA = MB suy ra tam giác MAB cân tại M, dùng để tính góc, độ dài, chu vi."],
+        ids: ["nb3", "th2", "vd3"] },
+      { ten: "Chứng minh hai đoạn thẳng bằng nhau, hai đường thẳng vuông góc",
+        pp: ["Tìm hai tam giác bằng nhau chứa hai đoạn thẳng (hai góc) cần chứng minh; nếu trên hình chưa có thì kẻ thêm.",
+             "Dùng tam giác cân: hai cạnh bên bằng nhau, hai góc ở đáy bằng nhau.",
+             "Hai đoạn không nằm trong hai tam giác bằng nhau: so sánh cả hai với một đoạn trung gian.",
+             "Chứng minh vuông góc: chỉ ra một góc bằng 90° (hai góc kề bù bằng nhau, hoặc tính qua tổng ba góc của tam giác)."],
+        ids: ["vd4", "vd5", "hsg4", "hsg5"] }
+    ],
     _helpers: { foot: foot, cut: cut, add: add, pol: pol, iso: iso }
   };
 })();

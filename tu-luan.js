@@ -23,12 +23,17 @@
   function save(o) { try { localStorage.setItem(key(), JSON.stringify(o)); } catch (e) {} }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function byLv(lv) { var d = data(); return d ? d.items.filter(function (q) { return q.lv === lv; }) : []; }
-  function num(q) { return byLv(q.lv).indexOf(q) + 1; }
+  function num(q) { var D = dangOf(q); return D ? D.ids.indexOf(q.id) + 1 : byLv(q.lv).indexOf(q) + 1; }
+  /* Chia theo dạng (thầy chốt 27/11/2026): TL_DATA.dang = [{ ten, pp: [phương pháp], ids: [...] }]. Bài chưa có dạng thì chia theo mức như cũ. */
+  var LV2 = { NB: "Nhận biết", TH: "Thông hiểu", VD: "Vận dụng", HSG: "Vận dụng cao" };
+  function dangs() { var d = data(); return d && d.dang && d.dang.length ? d.dang : null; }
+  function dangOf(q) { var D = dangs(); if (!D) return null; for (var i = 0; i < D.length; i++) if (D[i].ids.indexOf(q.id) >= 0) return D[i]; return null; }
+  function byIds(ids) { var d = data(); return ids.map(function (id) { return d.items.filter(function (q) { return q.id === id; })[0]; }).filter(Boolean); }
 
   function itemHTML(q, marks) {
     var k = ui.step[q.id] || 0, n = q.steps.length, m = marks[q.id], fig = "";
     var s = '<article class="card tl-q" id="tl-' + q.id + '">';
-    s += '<div class="tl-head"><b>Bài ' + num(q) + "</b>" + (m ? ' <span class="chip tl-' + m.m + '">' + MARK[m.m] + "</span>" : "") + "</div>";
+    s += '<div class="tl-head"><b>Bài ' + num(q) + "</b>" + (dangs() ? ' <span class="chip tl-lv tl-lv-' + q.lv + '">' + LV2[q.lv] + "</span>" : "") + (m ? ' <span class="chip tl-' + m.m + '">' + MARK[m.m] + "</span>" : "") + "</div>";
     s += '<div class="stem">' + q.de + "</div>";
     s += '<div class="row tl-btns">';
     s += '<button class="btn ghost sm" data-tl="hint:' + q.id + '" aria-expanded="' + (!!ui.hint[q.id]) + '">' + (ui.hint[q.id] ? "Ẩn gợi ý" : "Gợi ý") + "</button>";
@@ -65,6 +70,24 @@
     var s = '<section class="card stack" id="tl-box" style="margin-top:16px">';
     s += '<div><h2>Bài tập tự luận</h2><p class="muted" style="margin:6px 0 0">Làm bài ra giấy, trình bày đầy đủ. Bí thì bấm Gợi ý. Làm xong bấm Xem lời giải, so từng bước với bài của em rồi tự đánh dấu. Phần này để luyện cách trình bày, không tính điểm và không tính vào điều kiện qua bài.</p></div>';
     s += '<p class="small" style="margin:0">Em đã tự đánh dấu <b>' + done + "/" + total + "</b> bài.</p>";
+    var D = dangs();
+    if (D) {
+      s += '<div class="pack">';
+      D.forEach(function (x, i) {
+        var L = byIds(x.ids), dn = L.filter(function (q) { return marks[q.id]; }).length, o = "D" + i;
+        var muc = []; L.forEach(function (q) { if (muc.indexOf(LV2[q.lv]) < 0) muc.push(LV2[q.lv]); });
+        s += '<button class="pk' + (ui.open === o ? " on" : "") + '" data-tl="open:' + o + '" aria-expanded="' + (ui.open === o) + '"><b>Dạng ' + (i + 1) + ". " + x.ten + " · " + L.length + " bài</b><span>Từ " + muc[0].toLowerCase() + " đến " + muc[muc.length - 1].toLowerCase() + "." + (dn ? " Đã làm " + dn + "/" + L.length + "." : "") + "</span></button>";
+      });
+      s += "</div>";
+      var k = ui.open && ui.open[0] === "D" ? +ui.open.slice(1) : -1;
+      if (D[k]) {
+        s += '<div class="tl-list"><h3 style="margin:4px 0 0">Dạng ' + (k + 1) + ". " + D[k].ten + "</h3>";
+        s += '<div class="tl-pp"><b>Phương pháp giải</b><ul>' + D[k].pp.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul></div>";
+        byIds(D[k].ids).forEach(function (q) { s += itemHTML(q, marks); });
+        s += "</div>";
+      }
+      return s + "</section>";
+    }
     s += '<div class="pack">';
     Object.keys(LV).forEach(function (lv) {
       var L = byLv(lv); if (!L.length) return;
@@ -409,6 +432,8 @@
     ".ng-ph{margin:0;font-weight:700;color:var(--accent)}" +
     ".ng-gtkl{background:var(--paper);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px}" +
     ".ng-hd{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}.ng-hd li>.btn{margin-top:4px}" +
+    ".tl-pp{background:var(--paper);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px}.tl-pp ul{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}" +
+    ".tl-lv{font-size:.8em;font-weight:600}.tl-lv-NB{background:var(--good-bg);color:var(--good)}.tl-lv-TH{background:var(--paper);color:var(--accent)}.tl-lv-VD{background:var(--warn-bg);color:var(--warn)}.tl-lv-HSG{background:var(--bad-bg);color:var(--bad)}" +
     ".ng-ref{display:block;font-size:.82em;color:var(--muted);margin-top:2px}" +
     ".ng-ans{background:var(--good-bg);border-radius:8px;padding:6px 10px;margin-top:4px}" +
     ".ng-chain{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:12px}.ng-chain>li{border-left:3px solid var(--line);padding-left:10px;display:flex;flex-direction:column;gap:6px}.ng-chain>li.ng-cur{border-left-color:var(--accent)}" +
