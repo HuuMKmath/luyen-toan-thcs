@@ -130,6 +130,7 @@
       L.forEach(function (x, i) { s += '<button class="btn ' + (i === st.a ? "" : "ghost ") + 'sm" data-tl="nga:' + q.id + ":" + i + '" aria-pressed="' + (i === st.a) + '">' + x.ten + "</button>"; });
       s += "</div>";
     }
+    s += ngFig(q, A, st, fin);
     s += ngMap(A, st, fin);
     if (!fin) {
       var B = A.buoc[st.k];
@@ -151,9 +152,17 @@
     return s + "</div>";
   }
 
+  /* Hình vẽ trong phần phân tích: chưa đến bước kẻ thêm thì chỉ vẽ hình của đề (không lộ hình phụ). */
+  function ngFig(q, A, st, fin) {
+    if (!q.fig) return "";
+    var v = -1; A.buoc.forEach(function (b, i) { if (b.ve && v < 0) v = i; });
+    var goc = fin ? false : v >= 0 ? (st.k < v || (st.k === v && !st.ok)) : st.a === 0;
+    try { return q.fig(goc); } catch (e) { return ""; }
+  }
   function mapHTML(q) {   // hiện luôn toàn bộ sơ đồ suy luận ngược
     var s = '<div class="tl-ng" id="map-' + q.id + '"><div class="ng-top"><b>Sơ đồ suy luận ngược</b><button class="btn ghost sm ng-say" data-tl="ngmsay:' + q.id + '">🔊 Đọc sơ đồ</button></div>';
     s += '<p class="small" style="margin:0">Đọc từ trên xuống: muốn có điều trên thì cần có điều dưới. Viết lời giải thì đi ngược lại, từ dưới lên.</p>';
+    if (q.fig) { try { s += q.fig(false); } catch (e) {} }
     q.nguoc.forEach(function (A) {
       if (q.nguoc.length > 1) s += '<div class="ng-cap" style="margin-top:4px">' + A.ten + "</div>";
       s += ngMap(A, null, true) + '<p class="small" style="margin:0"><b>Kết luận:</b> ' + A.ket + "</p>";

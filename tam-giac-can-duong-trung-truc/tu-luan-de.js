@@ -22,6 +22,14 @@
      o: {P:{tên:[x,y]}, seg:["AB",...], thin:["AH"], tk:[["AB",1],...], rt:[["H","A","C"]], arc:[["B","A","C",1]],
          ang:[["A","B","C","40°"]], side:[["A","B","5 cm"]], c:"tên điểm làm tâm để đặt nhãn", alt, w} */
   function draw(o) {
+    if (o.goc && o.phu) {   // hình ban đầu: bỏ các điểm kẻ thêm và mọi đường, kí hiệu đi qua chúng
+      var bo = function (t) { return o.phu.some(function (k) { return String(t).indexOf(k) >= 0; }); }, P = {};
+      Object.keys(o.P).forEach(function (k) { if (o.phu.indexOf(k) < 0) P[k] = o.P[k]; });
+      o = Object.assign({}, o, { P: P,
+        seg: (o.seg || []).filter(function (e) { return !bo(e); }), thin: (o.thin || []).filter(function (e) { return !bo(e); }),
+        tk: (o.tk || []).filter(function (e) { return !bo(e[0]); }), rt: (o.rt || []).filter(function (e) { return !bo(e.join("")); }),
+        arc: (o.arc || []).filter(function (e) { return !bo(e.slice(0, 3).join("")); }), ang: (o.ang || []).filter(function (e) { return !bo(e.slice(0, 3).join("")); }) });
+    }
     var W = o.w || 280, pad = 26, ks = Object.keys(o.P), xs = ks.map(function (k) { return o.P[k][0]; }), ys = ks.map(function (k) { return o.P[k][1]; });
     var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
     var sc = Math.min((W - 2 * pad) / ((x1 - x0) || 1), 190 / ((y1 - y0) || 1)), H = Math.round((y1 - y0) * sc + 2 * pad);
@@ -245,7 +253,7 @@
             ["Tìm một tam giác bằng tam giác ABD mà góc tương ứng với ∠ABD đã biết hoặc tính được", true, "∠ABD nằm trong tam giác ABD. Nếu tam giác ABD bằng một tam giác khác thì ∠ABD bằng góc tương ứng của tam giác đó."],
             ["Chứng minh tam giác ABD cân", false, "Không có cặp cạnh hay cặp góc nào bằng nhau để suy ra tam giác ABD cân (đề cho AD = BC, không phải AD = AB hay AD = BD)."]],
           dat: "Một tam giác bằng ΔABD có góc đã biết" },
-        { hoi: "Tam giác ABD có cạnh AB, ∠BAD = 20° và AD (= BC). Lấy AB làm cạnh chung, ta cần ở đỉnh B một góc 20° và một đoạn bằng BC. Nên vẽ thêm gì?",
+        { ve: 1, hoi: "Tam giác ABD có cạnh AB, ∠BAD = 20° và AD (= BC). Lấy AB làm cạnh chung, ta cần ở đỉnh B một góc 20° và một đoạn bằng BC. Nên vẽ thêm gì?",
           chon: [
             ["Vẽ đường cao AH của tam giác ABC", false, "AH chia góc A thành hai góc 10°, nhưng không tạo ra đoạn nào xuất phát từ B và bằng BC."],
             ["Lấy trung điểm của cạnh AC", false, "Trung điểm của AC không liên quan đến độ dài BC, không tạo được đoạn bằng AD ở đỉnh B."],
@@ -263,10 +271,10 @@
             ["Tam giác ABE cân tại B", false, "Nếu BA = BE thì BA = BC (vì BE = BC), khi đó tam giác ABC cân tại B và ∠A = ∠C. Nhưng ∠A = 20° còn ∠C = 80°."],
             ["∠BAE = ∠ABE", false, "Nếu vậy thì tam giác ABE cân tại E, tức là EA = EB; không có cơ sở nào cho điều này."]],
           dat: "∠BAE = 10° (ΔABE = ΔACE, c.c.c)" }] }],
-      fig: function () {
+      fig: function (goc) {
         var p = iso(20, 10), A = p[0], B = p[1], C = p[2], a = Math.hypot(C[0] - B[0], C[1] - B[1]);
         var D = add(A, C, a / 10), E = [(B[0] + C[0]) / 2, B[1] + a * Math.sqrt(3) / 2];
-        return draw({ P: { A: A, B: B, C: C, D: D, E: E }, fill: ["ABC"], seg: ["BD"], thin: ["BE", "CE", "AE"], tk: [["AD", 1], ["BC", 1]], ang: [["A", "B", "C", "20°", 48]], pos: { A: "n", B: "sw", C: "se", D: "e", E: "w" }, alt: "Tam giác ABC cân tại A, góc A 20 độ, D trên AC với AD bằng BC, tam giác đều BCE dựng thêm" });
+        return draw({ goc: goc, phu: ["E"],  P: { A: A, B: B, C: C, D: D, E: E }, fill: ["ABC"], seg: ["BD"], thin: ["BE", "CE", "AE"], tk: [["AD", 1], ["BC", 1]], ang: [["A", "B", "C", "20°", 48]], pos: { A: "n", B: "sw", C: "se", D: "e", E: "w" }, alt: "Tam giác ABC cân tại A, góc A 20 độ, D trên AC với AD bằng BC, tam giác đều BCE dựng thêm" });
       },
       steps: [
         "Tam giác ABC cân tại A nên ∠ABC = ∠ACB = (180° − 20°) : 2 = 80°.",
@@ -317,10 +325,10 @@
             ["∠EDC = ∠ADB vì hai góc đối đỉnh", false, "Hai góc này không đối đỉnh (DE và DA không phải hai tia đối nhau)."],
             ["∠EDC = ∠BAD", false, "Không có cơ sở để hai góc này bằng nhau."]],
           dat: "∠AED = ∠B = 2 · ∠C (giả thiết), tổng ba góc của ΔDEC" }] }],
-      fig: function () {
+      fig: function (goc) {
         var B = [0, 0], C = [10, 0], A = cut(B, pol(B, 1, 76), C, pol(C, 1, 142)), ab = Math.hypot(A[0], A[1]), ac = Math.hypot(C[0] - A[0], C[1] - A[1]);
         var D = add(B, C, ab / (ab + ac)), E = add(A, C, ab / ac);
-        return draw({ P: { A: A, B: B, C: C, D: D, E: E }, fill: ["ABC"], seg: ["AD", "DE"], tk: [["AB", 1], ["AE", 1], ["BD", 2], ["DE", 2], ["EC", 2]], arc: [["A", "B", "D", 1], ["A", "D", "C", 1]], pos: { A: "n", B: "sw", C: "se", D: "s", E: "ne" }, alt: "Tam giác ABC có góc B bằng hai lần góc C, AD là tia phân giác, E trên AC với AE bằng AB" });
+        return draw({ goc: goc,  P: { A: A, B: B, C: C, D: D, E: E }, fill: ["ABC"], seg: ["AD", "DE"], tk: [["AB", 1], ["AE", 1], ["BD", 2], ["DE", 2], ["EC", 2]], arc: [["A", "B", "D", 1], ["A", "D", "C", 1]], pos: { A: "n", B: "sw", C: "se", D: "s", E: "ne" }, alt: "Tam giác ABC có góc B bằng hai lần góc C, AD là tia phân giác, E trên AC với AE bằng AB" });
       },
       steps: [
         "a) Xét ΔABD và ΔAED có: AB = AE (giả thiết); ∠BAD = ∠EAD (AD là tia phân giác của góc A); AD là cạnh chung.<br>Do đó ΔABD = ΔAED (c.g.c), suy ra BD = ED và ∠AED = ∠ABD = 2 · ∠C.",
@@ -346,7 +354,7 @@
             ["Tìm hai tam giác bằng nhau, một tam giác chứa BA, một tam giác chứa BM", true, "Hai đoạn bằng nhau thường là hai cạnh tương ứng của hai tam giác bằng nhau. Cả BA và BM đều đi ra từ B, nên tìm hai tam giác chung một cạnh ở B."],
             ["Chứng minh M nằm trên đường trung trực của AB", false, "Điểm trên đường trung trực của AB thì cách đều A và B (MA = MB), không phải BM = BA."]],
           dat: "Hai tam giác bằng nhau chứa BA và BM" },
-        { hoi: "Hình vẽ chưa có hai tam giác như vậy. Nên vẽ thêm gì?",
+        { ve: 1, hoi: "Hình vẽ chưa có hai tam giác như vậy. Nên vẽ thêm gì?",
           chon: [
             ["Nối A với M", false, "Chỉ được tam giác ABM, vẫn chưa biết góc nào ở A hay M, không tạo thêm tam giác có góc đã biết."],
             ["Gọi K là giao điểm của tia CM với đường trung trực AH của BC", true, "K thuộc đường trung trực của BC nên KB = KC, ∠KBC = ∠KCB = 30°. Khi đó có ΔBKA và ΔBKM chung cạnh BK."],
@@ -381,10 +389,10 @@
             ["ΔAKB = ΔAKC (c.c.c), nên ∠AKC = ∠AKB = 120°", true, "AB = AC, KB = KC, AK chung. Góc ∠AKB = 120° đã tính ở câu a."],
             ["∠AKC = ∠BKC vì cùng chứa đỉnh K", false, "Chung đỉnh không đủ để hai góc bằng nhau; phải chứng minh qua hai tam giác bằng nhau."]],
           dat: "∠AKC = ∠AKB = 120° (ΔAKB = ΔAKC)" }] }],
-      fig: function () {
+      fig: function (goc) {
         var p = iso(80, 10), A = p[0], B = p[1], C = p[2], H = add(B, C, 0.5);
         var M = cut(B, pol(B, 1, 10 + 0), C, pol(C, 1, 150)), K = cut(C, M, A, H);
-        return draw({ w: 300, P: { A: A, B: B, C: C, M: M, K: K, H: H }, fill: ["ABC"], seg: ["BM", "CK", "AM"], thin: ["AH", "BK"], tk: [["BH", 2], ["HC", 2]], rt: [["H", "A", "C"]], ang: [["B", "M", "C", "10°", 80], ["C", "B", "M", "30°", 50]], pos: { A: "n", B: "sw", C: "se", M: "ne", K: "nw", H: "s" }, alt: "Tam giác ABC cân tại A, điểm M bên trong, K là giao của tia CM với đường trung trực AH của BC" });
+        return draw({ goc: goc, phu: ["K", "H"],  w: 300, P: { A: A, B: B, C: C, M: M, K: K, H: H }, fill: ["ABC"], seg: ["BM", "CM", "CK", "AM"], thin: ["AH", "BK"], tk: [["BH", 2], ["HC", 2]], rt: [["H", "A", "C"]], ang: [["B", "M", "C", "10°", 80], ["C", "B", "M", "30°", 50]], pos: { A: "n", B: "sw", C: "se", M: "ne", K: "nw", H: "s" }, alt: "Tam giác ABC cân tại A, điểm M bên trong, K là giao của tia CM với đường trung trực AH của BC" });
       },
       steps: [
         "∠ABC = ∠ACB = (180° − 80°) : 2 = 50°. Gọi H là trung điểm của BC. Tam giác ABC cân tại A nên AH là đường trung trực của BC và AH là tia phân giác của góc BAC, ∠BAH = 40°.",
@@ -425,7 +433,7 @@
       { ten: "Câu b", dich: "BE ⊥ CD",
         ket: "∠BIK = 180° − 90° = 90°, nên BE ⊥ CD.",
         buoc: [
-        { hoi: "Muốn chứng minh BE ⊥ CD, ta cần chứng minh điều gì?",
+        { ve: 1, hoi: "Muốn chứng minh BE ⊥ CD, ta cần chứng minh điều gì?",
           chon: [
             ["Gọi I là giao điểm của BE và CD, chứng minh một góc tại I bằng 90°", true, "Hai đường thẳng vuông góc khi chúng cắt nhau tạo thành một góc vuông."],
             ["BE ⊥ AC", false, "Điều này nói chung không đúng, và cũng không liên quan đến CD."]],
@@ -440,11 +448,11 @@
             ["Tam giác ADK vuông tại A: ∠ADK + ∠AKD = 90°, với ∠ADK = ∠IBK (câu a) và ∠AKD = ∠BKI (đối đỉnh)", true, "Từ ΔABE = ΔADC có ∠ABE = ∠ADC. Hai góc ở K đối đỉnh. Vậy ∠IBK + ∠BKI = ∠ADK + ∠AKD = 90°."],
             ["Tam giác ABC, vì có ba góc nhọn", false, "Ba góc nhọn không cho tổng hai góc bằng 90°."]],
           dat: "ΔADK vuông tại A; ∠ABE = ∠ADC (câu a); hai góc đối đỉnh ở K" }] }],
-      fig: function () {
+      fig: function (goc) {
         var A = [3.2, 7.5], B = [0, 0], C = [10, 0];
         var rot = function (o, p, s) { return [o[0] - s * (p[1] - o[1]), o[1] + s * (p[0] - o[0])]; };
         var D = rot(A, B, -1), E = rot(A, C, 1), I = cut(B, E, C, D), K = cut(A, B, C, D);
-        return draw({ w: 340, P: { A: A, B: B, C: C, D: D, E: E, I: I, K: K }, fill: ["ABC"], seg: ["AD", "BD", "AE", "CE", "BE", "CD"], tk: [["AB", 1], ["AD", 1], ["AC", 2], ["AE", 2]], rt: [["A", "B", "D"], ["A", "C", "E"], ["I", "B", "C"]], pos: { A: "n", B: "sw", C: "se", D: "w", E: "e", I: "s", K: "w" }, alt: "Tam giác ABC, ra ngoài vẽ tam giác vuông cân ABD và ACE tại A, BE cắt CD tại I" });
+        return draw({ goc: goc, phu: ["I", "K"],  w: 340, P: { A: A, B: B, C: C, D: D, E: E, I: I, K: K }, fill: ["ABC"], seg: ["AD", "BD", "AE", "CE", "BE", "CD"], tk: [["AB", 1], ["AD", 1], ["AC", 2], ["AE", 2]], rt: [["A", "B", "D"], ["A", "C", "E"], ["I", "B", "C"]], pos: { A: "n", B: "sw", C: "se", D: "w", E: "e", I: "s", K: "w" }, alt: "Tam giác ABC, ra ngoài vẽ tam giác vuông cân ABD và ACE tại A, BE cắt CD tại I" });
       },
       steps: [
         "a) Tam giác ABD vuông cân tại A nên AD = AB, ∠BAD = 90°. Tam giác ACE vuông cân tại A nên AE = AC, ∠CAE = 90°.<br>∠BAE = ∠BAC + ∠CAE = ∠BAC + 90° và ∠DAC = ∠DAB + ∠BAC = 90° + ∠BAC, nên ∠BAE = ∠DAC.",
@@ -471,7 +479,7 @@
             ["Chứng minh tam giác IDE đều", false, "Không có cơ sở; nói chung tam giác IDE không đều."],
             ["Tìm một đoạn trung gian bằng cả ID và IE", true, "Khi hai đoạn không nằm trong hai tam giác bằng nhau, ta so sánh cả hai với một đoạn thứ ba."]],
           dat: "Một đoạn trung gian bằng cả ID và IE" },
-        { hoi: "Đoạn trung gian nên vẽ thế nào?",
+        { ve: 1, hoi: "Đoạn trung gian nên vẽ thế nào?",
           chon: [
             ["Kẻ IH ⊥ BC", false, "ΔBIH có góc vuông ở H, còn ΔBIE nói chung không có góc vuông, nên không ghép được hai tam giác bằng nhau."],
             ["Kẻ tia phân giác IF của góc BIC (F thuộc BC)", true, "IF tạo ra ΔBIF ghép với ΔBIE (chung BI) và ΔCIF ghép với ΔCID (chung CI)."],
@@ -487,12 +495,12 @@
             ["Vì I là giao điểm của hai tia phân giác", false, "Chưa đủ: cần dùng ∠A = 60° để tính được ∠BIC."],
             ["∠IBC + ∠ICB = (∠B + ∠C) : 2 = 60° nên ∠BIC = 120°; ∠BIE kề bù với ∠BIC; IF chia đôi ∠BIC", true, "∠BIE = 180° − 120° = 60° và ∠BIF = 120° : 2 = 60°. Tương tự ∠CID = ∠CIF = 60°. Đã dùng giả thiết ∠A = 60°."]],
           dat: "∠BIC = 120° (vì ∠A = 60°)" }] }],
-      fig: function () {
+      fig: function (goc) {
         var B = [0, 0], C = [10, 0], A = cut(B, pol(B, 1, 70), C, pol(C, 1, 130)), ab = Math.hypot(A[0], A[1]), ac = Math.hypot(C[0] - A[0], C[1] - A[1]), bc = 10;
         var D = add(A, C, ab / (ab + bc)), E = add(A, B, ac / (ac + bc)), I = cut(B, D, C, E), F = cut(I, add(B, C, 0.5), B, C);
         var bis = function (v, p, q) { var a = Math.atan2(p[1] - v[1], p[0] - v[0]), b = Math.atan2(q[1] - v[1], q[0] - v[0]), x = Math.cos(a) + Math.cos(b), y = Math.sin(a) + Math.sin(b); return [v[0] + x, v[1] + y]; };
         F = cut(I, bis(I, B, C), B, C);
-        return draw({ P: { A: A, B: B, C: C, D: D, E: E, I: I, F: F }, fill: ["ABC"], seg: ["BD", "CE"], thin: ["IF"], arc: [["B", "A", "D", 1], ["B", "D", "C", 1], ["C", "B", "E", 2], ["C", "E", "A", 2]], ang: [["A", "B", "C", "60°", 30]], pos: { A: "n", B: "sw", C: "se", D: "ne", E: "nw", I: "n", F: "s" }, alt: "Tam giác ABC có góc A 60 độ, hai tia phân giác BD và CE cắt nhau tại I, IF là tia phân giác góc BIC" });
+        return draw({ goc: goc, phu: ["F"],  P: { A: A, B: B, C: C, D: D, E: E, I: I, F: F }, fill: ["ABC"], seg: ["BD", "CE"], thin: ["IF"], arc: [["B", "A", "D", 1], ["B", "D", "C", 1], ["C", "B", "E", 2], ["C", "E", "A", 2]], ang: [["A", "B", "C", "60°", 30]], pos: { A: "n", B: "sw", C: "se", D: "ne", E: "nw", I: "n", F: "s" }, alt: "Tam giác ABC có góc A 60 độ, hai tia phân giác BD và CE cắt nhau tại I, IF là tia phân giác góc BIC" });
       },
       steps: [
         "Trong tam giác ABC: ∠B + ∠C = 180° − 60° = 120°. BD, CE là các tia phân giác nên ∠IBC + ∠ICB = (∠B + ∠C) : 2 = 60°.",
