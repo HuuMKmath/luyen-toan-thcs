@@ -430,10 +430,12 @@
     if (o) this.cfg.quyDao.forEach((q) => {
       const ds = q.chuong.map((c) => c[0]);
       const first = this.bai.filter((x) => ds.indexOf(x.so) >= 0).find((x) => st[x.tab].s !== 'done' && st[x.tab].s !== 'lock');
-      if (first) { const v = st[first.tab]; v.now = true; v.note = 'Em đang ở đây · ' + v.note; }
+      if (first) { const v = st[first.tab]; v.now = true; v.note = oDay(o) + ' · ' + v.note; }
     });
     return st;
   };
+  // Mã giáo viên (lớp GV) không xưng "em"
+  function oDay(o) { return o && /^\s*gv\s*$/i.test(String(o.c || '')) ? 'Đang ở đây' : 'Em đang ở đây'; }
   Map.prototype.draw = function () {
     const cfg = this.cfg, st = this.state(), narrow = window.innerWidth <= 820;
     const logged = !!this.prog;
@@ -442,7 +444,7 @@
       '<span class="vt-neb" aria-hidden="true" style="right:-14%;top:180px;width:64%;height:900px;background:radial-gradient(closest-side,rgba(80,200,255,.32),rgba(120,100,240,.18) 55%,transparent)"></span>' +
       '<span class="vt-giant" aria-hidden="true"' + (cfg.giant ? ' style="background:' + cfg.giant + '"' : '') + '></span>' +
       '<div class="vt-head"><small>BẢN ĐỒ VŨ TRỤ</small><b>' + esc(cfg.vung) + '</b><span>Mỗi bài học là một thiên thể có thật. Bấm vào để xem thông tin và bay đến bài.</span></div>' +
-      '<div class="vt-legend">' + (logged ? '<span><i style="background:#39d98a"></i>Đã chinh phục (từ 5 điểm)</span><span><i style="background:#ffd678;box-shadow:0 0 8px 2px rgba(255,214,120,.7)"></i>Em đang ở đây</span><span><i style="background:#ffb36b"></i>Cần ôn thêm</span>' : '<span>Nhập mã học sinh ở trên để thấy tiến độ của em trên bản đồ.</span>') + '</div>' +
+      '<div class="vt-legend">' + (logged ? '<span><i style="background:#39d98a"></i>Đã chinh phục (từ 5 điểm)</span><span><i style="background:#ffd678;box-shadow:0 0 8px 2px rgba(255,214,120,.7)"></i>' + oDay(this.prog) + '</span><span><i style="background:#ffb36b"></i>Cần ôn thêm</span>' : '<span>Nhập mã học sinh ở trên để thấy tiến độ của em trên bản đồ.</span>') + '</div>' +
       '<div class="vt-tabs" role="tablist" aria-label="Chọn phân môn">' + cfg.quyDao.map((q) => '<button role="tab" type="button" data-q="' + q.k + '" aria-selected="' + (q.k === this.tab) + '" style="--m:' + q.mau + '">' + esc(q.ten) + '</button>').join('') + '</div>' +
       '<div class="vt-lanes">';
     cfg.quyDao.forEach((q) => {

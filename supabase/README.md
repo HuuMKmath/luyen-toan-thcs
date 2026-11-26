@@ -9,6 +9,7 @@ Thư mục này chứa cơ sở dữ liệu và hàm máy chủ của nền mớ
 | `cong-cu/tao_bai_hoc.py` | Sinh lại `du-lieu/bai_hoc.sql`. |
 | `cong-cu/chuyen_tu_sheet.py` | Chuyển học sinh, kết quả, điểm thưởng từ Google Sheet sang (sinh tệp SQL để dán vào Supabase). |
 | `migrations/20261126000001_khoa_bai_xep_hang.sql` | Buổi 4: bảng `goi_xong` (gói đã xong), `mo_bai` (giáo viên mở bài), hàm `ds_xep_hang`. Chạy **một lần** trong SQL Editor. |
+| `migrations/20261127000001_danh_xung_gv.sql` | Cột `danh_xung` (thầy/cô) cho mã giáo viên, để trang Các bài chào "Chào thầy/cô". Chạy **một lần** trong SQL Editor; ghi danh xưng ở Table Editor → `hoc_sinh` → dòng của mã GV. |
 | `kiem-tra/phan_quyen.sql` | 26 kiểm tra phân quyền, chạy trên Postgres thử. |
 | `functions/bai-lam/` | Hàm máy chủ cho học sinh: đăng nhập bằng mã, nhận đề (không kèm đáp án), kiểm tra từng câu khi luyện tập, nộp bài để máy chủ chấm. |
 | `functions/bai-lam/tuong-thich.js` | Phần trả lời **giống Google Sheet cũ**: tra mã, tiến độ (trang Các bài, khóa bài), xếp hạng, XP, gói đã xong. Bản dựng Cloudflare đổi `SHEET_URL` của mọi trang sang hàm này. |

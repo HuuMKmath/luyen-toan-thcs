@@ -471,7 +471,7 @@ a.lesson.lock .ic{filter:grayscale(1)}
 
 <script src="../gamify.js"></script>
 <script src="../khoa-bai.js"></script>
-<script src="../vu-tru.js?v=4"></script>
+<script src="../vu-tru.js?v=5"></script>
 <script>
 (function(){
 const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoMngap96pDhJ_g5SZ-k1E3JPfIQg0bu0hwwE-jM2Y7zq4vjw/exec';
@@ -495,7 +495,11 @@ function applyGrade(g){
   ['6','7','8','9'].forEach(function(n){const sec=document.getElementById('lop-'+n);if(sec)sec.hidden=!!g&&n!==g;});
   document.getElementById('jump').hidden=!!g;
 }
+function laGV(h){return !!h&&/^\s*gv\s*$/i.test(String(h.c||''));}
+// Mã giáo viên chào "thầy"/"cô" theo cột danh_xung (bảng hoc_sinh trên Supabase); chưa ghi thì chào "thầy cô"
+function danhXung(h){const d=String(h&&h.xung||'').trim().toLowerCase();return d==='thầy'||d==='cô'?d:'thầy cô';}
 function hero(h){
+  document.getElementById('hero-hi').textContent=laGV(h)?'Chào '+danhXung(h)+',':'Chào em,';
   document.getElementById('hero-name').textContent=h?lastName(h.n)+'!':'cùng luyện toán nào!';
   const c=document.getElementById('hero-cls');c.hidden=!(h&&h.c);c.textContent=h&&h.c?'Lớp '+h.c:'';
 }
@@ -559,7 +563,7 @@ function loginView(msg){
 function fetchProg(u,fresh){
   if(fresh)body.innerHTML='<p class="sum" style="margin:0">Đang tải tiến độ…</p>';
   fetch(SHEET_URL+'?ma='+u+'&tiendo=1').then(function(r){return r.json();}).then(function(o){
-    if(o&&o.ok){save({u:u,n:o.n,c:o.c});showProg(o);bxhLoad(u);if(GMok)GM.sync();}
+    if(o&&o.ok){save({u:u,n:o.n,c:o.c,xung:o.xung||''});showProg(o);bxhLoad(u);if(GMok)GM.sync();}
     else if(o&&o.err){fresh?loginView('Hệ thống đang bận, hãy thử lại sau ít phút.'):showCached('Chưa tải được tiến độ lúc này.');}
     else{if(!fresh)save(null);loginView(fresh?'Mã không đúng. Hãy kiểm tra lại hoặc hỏi thầy cô.':'Mã học sinh lưu trên máy này không còn trong danh sách của giáo viên. Nếu em vẫn học, hãy hỏi thầy cô mã mới.');}
   }).catch(function(){fresh?loginView('Không kết nối được. Kiểm tra mạng rồi thử lại.'):showCached('Chưa tải được tiến độ lúc này (mất mạng?).');});
@@ -567,7 +571,7 @@ function fetchProg(u,fresh){
 function shell(h,extra){
   hero(h);document.getElementById('h-me').hidden=true;
   body.innerHTML='<div id="me-stats"></div>'+extra+
-   '<div class="row">'+(h&&/^\s*gv\s*$/i.test(String(h.c||''))?'<a class="btn" href="../so-diem/" style="display:inline-flex;align-items:center;text-decoration:none">Sổ điểm các lớp</a>':'')+'<button class="btn ghost" id="rf">Làm mới</button><button class="btn ghost" id="out">Đổi học sinh</button></div>';
+   '<div class="row">'+(laGV(h)?'<a class="btn" href="../so-diem/" style="display:inline-flex;align-items:center;text-decoration:none">Sổ điểm các lớp</a>':'')+'<button class="btn ghost" id="rf">Làm mới</button><button class="btn ghost" id="out">'+(laGV(h)?'Đổi mã':'Đổi học sinh')+'</button></div>';
   drawStats();
   document.getElementById('rf').onclick=function(){const x=load();if(x)fetchProg(x.u,false);};
   document.getElementById('out').onclick=function(){save(null);loginView('');};
@@ -602,7 +606,7 @@ function showProg(o){
     }
   });
   if(window.VT)VT.tienDo(o);
-  shell({n:o.n,c:o.c},'<p class="sum">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài lớp '+esc(g||'mình')+(done?' · điểm trung bình <b>'+(Math.round(sum/done*10)/10).toString().replace('.',',')+'</b>':'')+'</p>');
+  shell({n:o.n,c:o.c,xung:o.xung||''},'<p class="sum">Đã làm kiểm tra <b>'+done+'/'+mine+'</b> bài lớp '+esc(g||'mình')+(done?' · điểm trung bình <b>'+(Math.round(sum/done*10)/10).toString().replace('.',',')+'</b>':'')+'</p>');
 }
 
 // ---- Bảng xếp hạng lớp (XP từ trang tính "Thưởng"; chỉ thấy lớp mình, tên viết tắt) ----

@@ -169,6 +169,18 @@ ok(!r.ok, "không ghi gói của bài khác khối");
 MO.push({ pham_vi: "7A", bai_id: "tam-giac-bang-nhau" }, { pham_vi: "6", bai_id: "tap-hop" });
 r = await cu({ ma: "111111", tiendo: "1" });
 ok(r.goi["7 - Tam giác bằng nhau"] === "NB TH" && r.mo.join() === "7 - Tam giác bằng nhau", "tiến độ: gói đã xong và bài giáo viên đã mở cho lớp");
+// Danh xưng mã GV: chưa ghi thì không gửi; ghi "cô" thì gửi xung "cô"; học sinh không bao giờ có
+r = await cu({ ma: "999999", tiendo: "1" });
+ok(r.ok && r.xung === undefined, "Mã GV chưa có danh xưng: không gửi xung");
+HS.find(h => h.id === "hs-gv").danh_xung = "cô";
+r = await cu({ ma: "999999", tiendo: "1" });
+ok(r.xung === "cô", "Mã GV có danh xưng cô: tiến độ gửi xung cô");
+r = await cu({ ma: "999999" });
+ok(r.xung === "cô", "Mã GV có danh xưng cô: tra mã gửi xung cô");
+HS.find(h => h.id === "hs-an").danh_xung = "thầy";
+r = await cu({ ma: "111111", tiendo: "1" });
+ok(r.ok && r.xung === undefined, "Học sinh không nhận xung dù ô danh_xung có ghi");
+delete HS.find(h => h.id === "hs-an").danh_xung; delete HS.find(h => h.id === "hs-gv").danh_xung;
 r = await cu({ ma: "444444", tiendo: "1" });
 ok(r.mo.join() === "6 - Tập hợp" && Object.keys(r.bai).length === 0, "mở bài theo khối; em chưa làm bài nào");
 
