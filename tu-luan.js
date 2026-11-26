@@ -126,6 +126,17 @@
     else if (!st.ok) s += '<div class="ng-arrow">⇑ muốn vậy, cần có</div><div class="ng-node ng-here"><span class="ng-tag">?</span>Em đang ở đây</div>';
     return s + "</div>";
   }
+  function sdHTML(A, ref) {   // sơ đồ phân tích đi lên gọn: mỗi ô là điều cần có; đọc từ dưới lên là lời giải
+    if (!A.sd) return ngMap(A, null, true);
+    var s = '<div class="ng-map" aria-label="Sơ đồ phân tích đi lên"><div class="ng-cap">Sơ đồ phân tích (đọc từ trên xuống: muốn có ô trên thì cần ô dưới)</div>';
+    s += '<div class="ng-node ng-goal"><span class="ng-tag">Cần</span><span>' + A.dich + "</span></div>";
+    A.sd.forEach(function (x, i) {
+      s += '<div class="ng-arrow">⇑ muốn vậy, cần có</div>';
+      s += '<div class="ng-node"><span class="ng-tag">' + (i + 1) + "</span><span>" + x[0] + (ref ? '<span class="ng-ref">Lời giải: bước ' + x[1].join(", ") + "</span>" : "") + "</span></div>";
+    });
+    s += '<div class="ng-arrow">⇑</div><div class="ng-node ng-gt"><span class="ng-tag">✓</span><span>Giả thiết: ' + (A.gt || "điều đề đã cho") + "</span></div>";
+    return s + "</div>";
+  }
   function hoiDap(q, list, rv, code) {   // danh sách câu hỏi: em tự trả lời trước, bấm mới hiện câu trả lời
     var s = '<ol class="ng-hd">';
     list.forEach(function (x, i) {
@@ -175,7 +186,6 @@
         s += "</div>";
       }
       s += ngFig(q, A, st, fin);
-      s += ngMap(A, st, fin);
       s += '<ol class="ng-chain">';
       for (var i = 0; i < st.k; i++) s += "<li>" + ngQA(q, A.buoc[i], i, A.buoc.length) + "</li>";
       if (!fin) {
@@ -193,9 +203,9 @@
       }
     } else if (st.p === 3) {
       s += '<p class="ng-ph">Bước 3. Thực hiện chương trình giải (trình bày xuôi)</p>';
-      s += '<p style="margin:0">Đọc sơ đồ từ dưới lên: đi từ giả thiết đến kết luận. Em hãy tự viết lời giải vào vở, mỗi bước ghi rõ căn cứ (vì sao). Viết xong mới đối chiếu.</p>';
+      s += '<p style="margin:0">Sơ đồ dưới đây tóm tắt phần phân tích ở bước 2. Khi trình bày, em đọc sơ đồ <b>từ dưới lên</b>: đi từ giả thiết, qua từng ô, đến kết luận. Mỗi ô ghi rõ ứng với bước nào của lời giải. Em hãy tự viết vào vở, mỗi bước ghi rõ căn cứ, rồi mới đối chiếu.</p>';
       if (q.fig) { try { s += q.fig(false); } catch (e) {} }
-      L.forEach(function (x) { s += (L.length > 1 ? '<div class="ng-cap" style="margin:0">' + x.ten + "</div>" : "") + ngMap(x, null, true); });
+      L.forEach(function (x) { s += (L.length > 1 ? '<div class="ng-cap" style="margin:0">' + x.ten + "</div>" : "") + sdHTML(x, true); });
       s += '<div class="row"><button class="btn sm" data-tl="ngsol:' + q.id + '">Đối chiếu: xem lời giải từng bước</button><button class="btn ghost sm ng-say" data-tl="ngmsay:' + q.id + '">🔊 Đọc sơ đồ</button>' + (q.nhin ? '<button class="btn ghost sm" data-tl="ngp:' + q.id + ':4">Sang bước 4: Nhìn lại</button>' : "") + "</div>";
     } else if (st.p === 4 && q.nhin) {
       s += '<p class="ng-ph">Bước 4. Kiểm tra và nghiên cứu lời giải (nhìn lại)</p>';
@@ -219,7 +229,7 @@
     if (q.fig) { try { s += q.fig(false); } catch (e) {} }
     q.nguoc.forEach(function (A) {
       if (q.nguoc.length > 1) s += '<div class="ng-cap" style="margin-top:4px">' + A.ten + "</div>";
-      s += ngMap(A, null, true) + '<p class="small" style="margin:0"><b>Kết luận:</b> ' + A.ket + "</p>";
+      s += sdHTML(A, false) + '<p class="small" style="margin:0"><b>Kết luận:</b> ' + A.ket + "</p>";
     });
     return s + "</div>";
   }
@@ -296,6 +306,11 @@
     return mapText(A);
   }
   function mapText(A) {
+    if (A.sd) {
+      var t = "Sơ đồ phân tích. Cần: " + A.dich + ". ";
+      A.sd.forEach(function (x) { t += "Muốn vậy, cần có: " + x[0] + ". "; });
+      return t + "Đến đây đã gặp giả thiết: " + (A.gt || "") + ". Khi trình bày lời giải, đi ngược lại từ dưới lên.";
+    }
     var s = "Cần: " + A.dich + ". ";
     A.buoc.forEach(function (b) { s += "Muốn vậy, cần có: " + b.dat + ". "; });
     return s + "Đến đây đã gặp điều đề cho. " + A.ket;
@@ -394,6 +409,7 @@
     ".ng-ph{margin:0;font-weight:700;color:var(--accent)}" +
     ".ng-gtkl{background:var(--paper);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px}" +
     ".ng-hd{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}.ng-hd li>.btn{margin-top:4px}" +
+    ".ng-ref{display:block;font-size:.82em;color:var(--muted);margin-top:2px}" +
     ".ng-ans{background:var(--good-bg);border-radius:8px;padding:6px 10px;margin-top:4px}" +
     ".ng-chain{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:12px}.ng-chain>li{border-left:3px solid var(--line);padding-left:10px;display:flex;flex-direction:column;gap:6px}.ng-chain>li.ng-cur{border-left-color:var(--accent)}" +
     ".ng-khac summary{cursor:pointer;color:var(--muted);font-size:.92em}.ng-khac ul{margin:4px 0 0;padding-left:20px;font-size:.92em}" +

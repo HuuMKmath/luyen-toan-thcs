@@ -250,6 +250,11 @@
           ["Giả thiết AD = BC có gì khó dùng?", "Hai đoạn AD và BC nằm xa nhau, không cùng thuộc tam giác nào. Phải tìm cách đưa chúng lại gần nhau."]] },
       nguoc: [
       { ten: "Tính ∠ABD", dich: "Tính ∠ABD",
+        sd: [
+          ["ΔBAD = ΔABE (c.g.c), nên ∠ABD = ∠BAE; và tính được ∠BAE", [4, 5]],
+          ["∠BAD = ∠ABE (= 20°), AD = BE (= BC); ΔABE = ΔACE (c.c.c) nên ∠BAE = 10°", [2, 3]],
+          ["Vẽ tam giác đều BCE; ∠ABC = 80°", [1, 2]]],
+        gt: "ΔABC cân tại A, ∠A = 20°, AD = BC",
         ket: "∠ABD = ∠BAE = 10°.",
         buoc: [
         { hoi: "Nhìn hình: ∠ABD nằm trong tam giác nào? Tam giác đó đã biết những gì?",
@@ -322,6 +327,12 @@
           ["Ba câu a, b, c có liên quan với nhau không?", "Có. Câu a và câu b là bậc thang để làm câu c. Khi phân tích câu c, em sẽ thấy chúng xuất hiện."]] },
       nguoc: [
       { ten: "Câu c (cả bài)", dich: "AC = AB + BD",
+        sd: [
+          ["EC = BD, vì AC = AE + EC và AE = AB", [4]],
+          ["ED = EC (tam giác DEC cân tại E) và BD = ED", [1, 3]],
+          ["∠EDC = ∠C, tính từ ∠DEC = 180° − ∠AED", [2, 3]],
+          ["ΔABD = ΔAED (c.g.c): BD = ED, ∠AED = ∠B = 2 · ∠C", [1]]],
+        gt: "AE = AB, AD là tia phân giác của góc A, ∠B = 2 · ∠C",
         ket: "Có ∠EDC = ∠C nên ED = EC; lại có BD = ED nên EC = BD, do đó AC = AB + BD. Đi ngược như vậy cũng cho ta luôn câu a và câu b.",
         buoc: [
         { hoi: "Kết luận AC = AB + BD: AC là đoạn dài, AB và BD là hai đoạn ngắn. Nhìn hình, trên đoạn dài AC đề đã cho sẵn điểm nào? Điểm đó giúp gì?",
@@ -388,6 +399,13 @@
           ["Kết luận câu a nói gì về tam giác ABM?", "BM = BA nghĩa là tam giác ABM cân tại B. Nhưng chưa biết ∠BAM, ∠BMA nên chưa chứng minh trực tiếp được."]] },
       nguoc: [
       { ten: "Câu a", dich: "BM = BA",
+        sd: [
+          ["ΔBKA = ΔBKM (g.c.g)", [5]],
+          ["∠ABK = ∠MBK (= 20°), BK chung, ∠BKA = ∠BKM (= 120°)", [2, 4]],
+          ["∠BAK = 40° (ΔAKB = ΔAKC, c.c.c) và ∠BKC = 120°", [3, 4]],
+          ["KB = KC, vì tam giác KBC có ∠KBC = ∠KCB = 30°", [2]],
+          ["Vẽ tia phân giác BK của góc ABM (∠ABM = 40°), K nằm trên tia CM", [1, 2]]],
+        gt: "ΔABC cân tại A, ∠A = 80°, ∠MBC = 10°, ∠MCB = 30°",
         ket: "ΔBKA = ΔBKM (g.c.g) nên BM = BA.",
         buoc: [
         { hoi: "Nhìn hình: BA và BM cùng là cạnh của tam giác nào? Tam giác đó đã biết những gì?",
@@ -428,6 +446,11 @@
             ["K là trung điểm của CM", false, "Không có cơ sở; KB = KC nói về khoảng cách từ K đến B và C, không nói gì về đoạn CM."]],
           dat: "AK là trung trực của BC: ∠BAK = 40°, ∠BKA = 120° = ∠BKM" }] },
       { ten: "Câu b", dich: "Tính ∠AMC",
+        sd: [
+          ["∠AMC = 180° − ∠AMK (M nằm giữa C và K)", [6]],
+          ["Tam giác AKM cân tại K (KA = KM, câu a) và ∠AKM = 120°", [5, 6]],
+          ["∠AKC = ∠AKB = 120° (ΔAKB = ΔAKC)", [3, 4]]],
+        gt: "Giả thiết và kết quả câu a",
         ket: "∠AMK = (180° − 120°) : 2 = 30°, nên ∠AMC = 180° − 30° = 150°.",
         buoc: [
         { hoi: "∠AMC chưa tính trực tiếp được. ∠AMC kề bù với góc nào dễ tính hơn?",
@@ -478,6 +501,10 @@
           ["Tô màu hai đoạn BE và CD. Mỗi đoạn nối với A thành tam giác nào?", "BE nằm trong ΔABE, CD nằm trong ΔADC."]] },
       nguoc: [
       { ten: "Câu a", dich: "BE = CD",
+        sd: [
+          ["ΔABE = ΔADC (c.g.c)", [2]],
+          ["AB = AD, AE = AC, ∠BAE = ∠DAC (= ∠BAC + 90°)", [1]]],
+        gt: "ΔABD, ΔACE vuông cân tại A",
         ket: "ΔABE = ΔADC (c.g.c) nên BE = CD.",
         buoc: [
         { hoi: "Ở bước 1 em đã thấy BE nằm trong ΔABE, CD nằm trong ΔADC. Muốn BE = CD thì cần hai tam giác nào bằng nhau, ghép đỉnh thế nào?",
@@ -499,6 +526,11 @@
             ["Cả hai đều bằng ∠BAC + 90°", true, "∠BAE = ∠BAC + ∠CAE và ∠DAC = ∠DAB + ∠BAC, với ∠CAE = ∠DAB = 90° (giả thiết)."]],
           dat: "∠BAE = ∠DAC = ∠BAC + 90° (giả thiết hai tam giác vuông cân)" }] },
       { ten: "Câu b", dich: "BE ⊥ CD",
+        sd: [
+          ["∠BIK = 90°: trong tam giác IBK cần ∠IBK + ∠BKI = 90°", [5]],
+          ["∠IBK = ∠ADK (câu a), ∠BKI = ∠AKD (đối đỉnh)", [4]],
+          ["Tam giác ADK vuông tại A: ∠ADK + ∠AKD = 90°", [3]]],
+        gt: "∠BAD = 90° và kết quả câu a",
         ket: "∠BIK = 180° − ∠IBK − ∠IKB = 180° − ∠ADK − ∠AKD = ∠DAK = 90°, nên BE ⊥ CD.",
         buoc: [
         { ve: 1, hoi: "Muốn chứng minh BE ⊥ CD, ta cần chứng minh điều gì?",
@@ -549,6 +581,12 @@
           ["Giả thiết ∠A = 60° có vẻ đặc biệt. Em đoán nó sẽ dùng để làm gì?", "Để tính được góc tại I, nơi hai tia phân giác cắt nhau."]] },
       nguoc: [
       { ten: "Chứng minh ID = IE", dich: "ID = IE",
+        sd: [
+          ["IE = IF và ID = IF", [4, 5]],
+          ["ΔBIE = ΔBIF, ΔCID = ΔCIF (g.c.g): cần ∠BIE = ∠BIF, ∠CID = ∠CIF", [4, 5]],
+          ["Kẻ tia phân giác IF của góc BIC: ∠BIF = ∠CIF = 60°", [3]],
+          ["∠BIC = 120°, nên ∠BIE = ∠CID = 60°", [1, 2]]],
+        gt: "∠A = 60°, BD và CE là các tia phân giác",
         ket: "ΔBIE = ΔBIF và ΔCID = ΔCIF (g.c.g) nên IE = IF = ID.",
         buoc: [
         { hoi: "Nhìn hình: ID và IE là cạnh của những tam giác nào? Có cặp tam giác bằng nhau nào chứa chúng không?",
