@@ -25,6 +25,7 @@ export const NAP = {
   "phep-chia-het-uoc-boi": () => import("./phep-chia-het-uoc-boi.js"),
   "luyen-tap-chung-sau-bai-17": () => import("./luyen-tap-chung-sau-bai-17.js"),
   "bai-tap-cuoi-chuong-3": () => import("./bai-tap-cuoi-chuong-3.js"),
+  "hinh-co-truc-doi-xung": () => import("./hinh-co-truc-doi-xung.js"),
   "tap-hop-so-huu-ti": () => import("./tap-hop-so-huu-ti.js"),
   "cong-tru-nhan-chia-so-huu-ti": () => import("./cong-tru-nhan-chia-so-huu-ti.js"),
   "luy-thua-so-huu-ti": () => import("./luy-thua-so-huu-ti.js"),
