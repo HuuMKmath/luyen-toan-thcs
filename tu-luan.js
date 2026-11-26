@@ -199,7 +199,7 @@
       if (fin) {
         var sau = st.a + 1 < L.length;
         s += '<div class="ng-end"><p style="margin:0"><b>Đã đi ngược đến điều đề cho.</b> ' + A.ket + "</p>";
-        s += '<div class="row"><button class="btn sm" data-tl="' + (sau ? "nga:" + q.id + ":" + (st.a + 1) + '">Phân tích tiếp ' + L[st.a + 1].ten : "ngp:" + q.id + ':3">Sang bước 3: Trình bày lời giải') + '</button><button class="btn ghost sm" data-tl="ngr:' + q.id + '">Làm lại</button></div></div>';
+        s += '<div class="row"><button class="btn sm" data-tl="' + (sau ? "nga:" + q.id + ":" + (st.a + 1) + '">Phân tích tiếp ' + L[st.a + 1].ten : "ngp:" + q.id + ':3">Sang bước 3: Trình bày lời giải') + '</button></div></div>';
       }
     } else if (st.p === 3) {
       s += '<p class="ng-ph">Bước 3. Thực hiện chương trình giải (trình bày xuôi)</p>';
