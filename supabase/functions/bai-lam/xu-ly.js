@@ -8,6 +8,7 @@
 //   nop       {phien, luot, tra_loi?}               → {ok, ket_qua, mo}
 import { NAP } from "./bai/danh-sach.js";
 import { anDapAn, doiTraLoi, moDapAn, loiPhuongAn } from "./phien.js";
+import { hocSinhVaLop } from "./tuong-thich.js";
 
 export const SAI_TOI_DA = 40, SAI_PHUT = 10;          // chống dò mã, giống Sheet cũ
 const NGAY = 24 * 3600 * 1000;
@@ -66,11 +67,11 @@ export async function xuLy(yc, { db, bi_mat, bay_gio = () => Date.now() }) {
   if (viec === "dang_nhap") {
     const ma = String(yc.ma || "").replace(/\D/g, "");
     if ((await db.demSai(SAI_PHUT)) >= SAI_TOI_DA) return loi("tam_khoa", "Hệ thống tạm ngừng tra mã vài phút vì có quá nhiều lần nhập sai. Em thử lại sau nhé.");
-    const hs = ma.length === 6 ? await db.timHocSinh(ma) : null;
+    const hs = await hocSinhVaLop(db, ma);
     if (!hs) { await db.ghiSai(); return loi("sai_ma", "Mã học sinh không đúng. Em kiểm tra lại hoặc hỏi thầy cô."); }
-    const lop = await db.lopChinh(hs.id);
+    if (hs.chuaXepLop) return loi("chua_xep_lop", "Mã này chưa được xếp vào lớp nào. Em báo thầy cô nhé.");
     const phien = await kyPhien(bi_mat, { hs: hs.id, het: bay_gio() + PHIEN_HAN });
-    return { ok: true, phien, hs: { n: hs.ho_ten, c: lop ? lop.ten : "", khoi: lop ? lop.khoi : null, goi: hs.goi } };
+    return { ok: true, phien, hs: { n: hs.ho_ten, c: hs.c, khoi: hs.khoi, goi: hs.goi } };
   }
 
   const p = await docPhien(bi_mat, yc && yc.phien, bay_gio());
@@ -82,8 +83,11 @@ export async function xuLy(yc, { db, bi_mat, bay_gio = () => Date.now() }) {
     const b = await db.baiHoc(yc.bai);
     const taoBai = b && b.da_mo ? await bai(b.id) : null;
     if (!taoBai) return loi("khong_co_bai", "Bài này chưa mở.");
-    const lop = await db.lopChinh(p.hs);
-    if (lop && lop.khoi && lop.khoi !== b.khoi) return loi("sai_khoi", `Bài này dành cho lớp ${b.khoi}.`);
+    // Khối của học sinh = khối lớp chính; mã giáo viên (lớp GV) vào được mọi khối; chưa xếp lớp thì không vào được
+    const lops = await db.cacLop(p.hs);
+    const lopHs = lops.filter(l => l.loai !== "gv");
+    if (!lops.length) return loi("chua_xep_lop", "Mã này chưa được xếp vào lớp nào. Em báo thầy cô nhé.");
+    if (lopHs.length && lopHs[0].khoi && lopHs[0].khoi !== b.khoi) return loi("sai_khoi", `Bài này dành cho lớp ${b.khoi}.`);
     let maDe = null;
     if (yc.ma_de && che_do !== "practice" && che_do !== "pisa") {
       const md = await db.maDe(String(yc.ma_de).trim().toUpperCase());

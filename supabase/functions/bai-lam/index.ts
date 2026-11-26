@@ -6,6 +6,7 @@
 // Tùy chọn: CHO_PHEP_TRANG – các địa chỉ trang được gọi hàm, cách nhau dấu phẩy.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { xuLy } from "./xu-ly.js";
+import { xuLyCu } from "./tuong-thich.js";
 
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
@@ -13,6 +14,7 @@ const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
 const BI_MAT = Deno.env.get("PHIEN_BI_MAT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const CHO_PHEP = (Deno.env.get("CHO_PHEP_TRANG") || "").split(",").map(s => s.trim()).filter(Boolean);
 
+let dsBaiNho: { luc: number; ds: any[] } | null = null;
 const loiDb = (e: unknown) => { throw new Error("Lỗi cơ sở dữ liệu: " + JSON.stringify(e)); };
 
 const db = {
@@ -24,15 +26,57 @@ const db = {
   },
   async ghiSai() { await sb.from("tra_ma_sai").insert({}); },
   async timHocSinh(ma: string) {
-    const { data, error } = await sb.from("hoc_sinh").select("id, ho_ten, goi").eq("ma_hs", ma).eq("dang_hoc", true).maybeSingle();
+    const { data, error } = await sb.from("hoc_sinh").select("id, ho_ten, ma_hs, goi").eq("ma_hs", ma).eq("dang_hoc", true).maybeSingle();
     if (error) loiDb(error);
     return data;
   },
-  async lopChinh(hs: string) {
+  // Mọi lớp đang dùng của học sinh, lớp chính (thu_tu nhỏ nhất) đứng đầu
+  async cacLop(hs: string) {
     const { data, error } = await sb.from("lop_hoc_sinh").select("thu_tu, lop!inner(ten, khoi, loai, dang_dung)")
-      .eq("hoc_sinh_id", hs).neq("lop.loai", "gv").order("thu_tu").limit(1);
+      .eq("hoc_sinh_id", hs).eq("lop.dang_dung", true).order("thu_tu");
     if (error) loiDb(error);
-    return data && data[0] ? (data[0] as any).lop : null;
+    return (data || []).map((r: any) => r.lop);
+  },
+  async dsBai() {
+    if (dsBaiNho && Date.now() - dsBaiNho.luc < 300000) return dsBaiNho.ds;
+    const { data, error } = await sb.from("bai_hoc").select("id, khoi, tab_cu");
+    if (error) loiDb(error);
+    dsBaiNho = { luc: Date.now(), ds: data || [] };
+    return dsBaiNho.ds;
+  },
+  async luotDaNop(hs: string) {
+    const { data, error } = await sb.from("luot_lam").select("bai_id, loai, diem, diem_dang, bat_dau, nop_luc")
+      .eq("hoc_sinh_id", hs).not("nop_luc", "is", null).in("loai", ["kt25", "kt5", "thu_thach"]);
+    if (error) loiDb(error);
+    return data || [];
+  },
+  async goiXong(hs: string) {
+    const { data, error } = await sb.from("goi_xong").select("bai_id, goi").eq("hoc_sinh_id", hs);
+    if (error) loiDb(error);
+    return data || [];
+  },
+  async ghiGoiXong(hs: string, bai: string, goi: string) {
+    const { error } = await sb.from("goi_xong").upsert({ hoc_sinh_id: hs, bai_id: bai, goi }, { onConflict: "hoc_sinh_id,bai_id,goi", ignoreDuplicates: true });
+    if (error) loiDb(error);
+  },
+  async moBai() {
+    const { data, error } = await sb.from("mo_bai").select("pham_vi, bai_id").eq("mo", true);
+    if (error) loiDb(error);
+    return data || [];
+  },
+  async docThuong(hs: string) {
+    const { data, error } = await sb.from("thuong").select("*").eq("hoc_sinh_id", hs).maybeSingle();
+    if (error) loiDb(error);
+    return data;
+  },
+  async ghiThuong(hs: string, dong: Record<string, unknown>) {
+    const { error } = await sb.from("thuong").upsert({ hoc_sinh_id: hs, ...dong }, { onConflict: "hoc_sinh_id" });
+    if (error) loiDb(error);
+  },
+  async dsXepHang(khoi: number | null) {
+    const { data, error } = await sb.rpc("ds_xep_hang", { p_khoi: khoi });
+    if (error) loiDb(error);
+    return data || [];
   },
   async baiHoc(id: string) {
     const { data } = await sb.from("bai_hoc").select("id, khoi, da_mo").eq("id", String(id || "")).maybeSingle();
@@ -64,7 +108,7 @@ function cors(req: Request) {
   return {
     "Access-Control-Allow-Origin": ok ? (o || "*") : CHO_PHEP[0],
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin",
   };
 }
@@ -72,13 +116,20 @@ function cors(req: Request) {
 Deno.serve(async (req) => {
   const h = cors(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: h });
-  if (req.method !== "POST") return new Response("Chỉ nhận POST", { status: 405, headers: h });
+  if (req.method !== "POST" && req.method !== "GET") return new Response("Chỉ nhận GET, POST", { status: 405, headers: h });
   let kq;
   try {
-    kq = await xuLy(await req.json(), { db, bi_mat: BI_MAT });
+    if (req.method === "GET") {
+      // Các trang gọi như gọi Google Sheet cũ: ?ma=…[&tiendo=1|&bxh=1]
+      kq = await xuLyCu(Object.fromEntries(new URL(req.url).searchParams), { db });
+    } else {
+      const yc = JSON.parse(await req.text());          // trang cũ gửi dạng text/plain
+      kq = yc && (yc.gm || yc.xg) ? await xuLyCu(yc, { db }) : await xuLy(yc, { db, bi_mat: BI_MAT });
+    }
   } catch (e) {
     console.error(e);
-    kq = { ok: false, loi: "may_chu", thong_bao: "Máy chủ đang bận. Em thử lại sau ít phút nhé." };
+    kq = { ok: false, err: 1, loi: "may_chu", thong_bao: "Máy chủ đang bận. Em thử lại sau ít phút nhé." };
   }
+  if (typeof kq === "string") return new Response(kq, { headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
   return new Response(JSON.stringify(kq), { headers: { ...h, "Content-Type": "application/json; charset=utf-8" } });
 });

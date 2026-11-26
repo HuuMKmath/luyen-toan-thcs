@@ -47,7 +47,7 @@
   // ---------- Đăng nhập ----------
   var saveHSGoc = saveHS;
   saveHS = function (o) { if (!o) luuPhien(""); saveHSGoc(o); };
-  recheckHS = function () {};
+  // recheckHS (tra lại mã khi mở trang) giữ nguyên: SHEET_URL trong bản dựng đã trỏ sang máy chủ mới
   checkHS = function () {
     var inp = document.getElementById("hsma"), err = document.getElementById("hserr"), btn = document.getElementById("hsgo");
     var u = inp.value.replace(/\D/g, "");
@@ -181,9 +181,8 @@
   // Kết quả đã lưu trên máy chủ ngay khi nộp, không gửi sang Google Sheet nữa
   sendResult = function () { if (state.result) state.sentCode = makeCode(state.result); setSent("Đã lưu kết quả cho giáo viên."); };
 
-  // XP, huy hiệu: chưa đồng bộ lên máy chủ mới (làm ở buổi sau). Không gửi sang Google Sheet cũ,
-  // vì mã chỉ có ở nền mới sẽ bị Sheet cũ tính là lần nhập mã sai.
-  if (window.GM) GM.sync = function () {};
+  // XP, huy hiệu, gói đã xong (khóa bài), tiến độ: trang vẫn gọi SHEET_URL như cũ; bản dựng đã đổi SHEET_URL
+  // sang hàm máy chủ Supabase, hàm trả lời cùng dạng với Google Sheet (functions/bai-lam/tuong-thich.js).
 
   // Nhãn nhỏ cho biết đang dùng bản thử của nền mới
   var nhan = document.createElement("div");

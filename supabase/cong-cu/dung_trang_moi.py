@@ -6,7 +6,9 @@ Cloudflare chạy lệnh này mỗi khi kho có thay đổi:
     Output:         dist
 
 Bản dựng = website hiện tại + tệp supabase/trang/nen-moi.js gắn vào cuối mỗi trang bài,
-để trang gọi máy chủ Supabase thay cho Google Sheet. Các trang gốc trong kho không bị sửa.
+để trang gọi máy chủ Supabase thay cho Google Sheet; địa chỉ Google Sheet (SHEET_URL) ở mọi trang
+(trang Các bài: tiến độ, xếp hạng; trang bài: tra mã, XP, khóa bài) đổi sang hàm máy chủ Supabase.
+Các trang gốc trong kho không bị sửa.
 """
 import pathlib
 import re
@@ -14,6 +16,9 @@ import shutil
 
 GOC = pathlib.Path(__file__).resolve().parents[2]
 RA = GOC / "dist"
+# Hàm máy chủ Supabase thay cho Apps Script của Google Sheet cũ (trả lời cùng dạng, xem functions/bai-lam/tuong-thich.js)
+MAY_CHU = "https://rhfjgaoyrdqglurfzbrw.supabase.co/functions/v1/bai-lam"
+SHEET_CU = re.compile(r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec")
 BO_QUA = {".git", ".github", "dist", "supabase", "google-sheet", "node_modules"}
 
 
@@ -43,9 +48,20 @@ def main():
         s = s.replace(dau, '<script src="/nen-moi.js"></script>\n' + dau)
         tep.write_text(s, encoding="utf-8")
         gan += 1
+    # Mọi chỗ gọi Google Sheet cũ → hàm máy chủ Supabase
+    doi = 0
+    for tep in RA.rglob("*.html"):
+        s = tep.read_text(encoding="utf-8")
+        s2, n = SHEET_CU.subn(MAY_CHU, s)
+        if n:
+            tep.write_text(s2, encoding="utf-8")
+            doi += 1
+    assert doi >= gan, f"chỉ đổi được địa chỉ Sheet ở {doi} trang"
+    con = [str(t.relative_to(RA)) for t in RA.rglob("*") if t.is_file() and t.suffix in (".html", ".js") and "script.google.com/macros" in t.read_text(encoding="utf-8", errors="ignore")]
+    assert not con, "còn trang gọi Google Sheet: " + ", ".join(con)
     # Cloudflare: không lưu bộ nhớ đệm cho nen-moi.js quá lâu
     (RA / "_headers").write_text("/nen-moi.js\n  Cache-Control: no-cache\n", encoding="utf-8")
-    print(f"Đã dựng dist/: {gan} trang bài gắn nen-moi.js")
+    print(f"Đã dựng dist/: {gan} trang bài gắn nen-moi.js, {doi} trang chuyển từ Google Sheet sang Supabase")
 
 
 if __name__ == "__main__":
