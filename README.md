@@ -129,7 +129,7 @@ Tạo thư mục mới với một file `index.html` tự chứa (theo mẫu `bo
 
 ## Bài tập tự luận (làm thử ở Bài 16 Toán 7)
 
-Mỗi bài có thể có thêm phần **Bài tập tự luận** bốn mức: Nhận biết, Thông hiểu, Vận dụng, Dành cho HSG (khoảng 3 + 3 + 3 + 5 bài; bài HSG được tổng hợp kiến thức các bài đã học). Học sinh làm ra giấy, bấm *Gợi ý*, *Xem lời giải* (hiện từng bước), rồi tự đánh dấu *Đúng / Đúng một phần / Chưa đúng*. Phần này không tính điểm, không gửi về Sheet, không tính vào điều kiện qua bài.
+Mỗi bài có thể có thêm phần **Bài tập tự luận** bốn mức: Nhận biết, Thông hiểu, Vận dụng, Dành cho HSG (khoảng 3 + 3 + 5 + 5 bài; bài HSG phải thật sự khó: kẻ thêm hình, dựng tam giác phụ, tổng hợp kiến thức các bài đã học). Học sinh làm ra giấy, bấm *Gợi ý*, *Xem lời giải* (hiện từng bước), rồi tự đánh dấu *Đúng / Đúng một phần / Chưa đúng*. Phần này không tính điểm, không gửi về Sheet, không tính vào điều kiện qua bài.
 - `tu-luan.js` (dùng chung): vẽ phần tự luận, lưu tự đánh dấu trên máy theo mã học sinh và bài, cộng 3 XP mỗi bài khi tự đánh dấu lần đầu (`GM.onEssay` trong `gamify.js`, không cộng khi đã quá giới hạn trong ngày).
 - `<thư mục bài>/tu-luan-de.js`: đề, gợi ý, các bước lời giải, đáp số, lỗi hay gặp, hình vẽ (đặt `window.TL_DATA`).
 - Gắn vào một bài: thêm `<script src="../tu-luan.js"></script>` và `<script src="tu-luan-de.js"></script>` ngay sau dòng `khoa-bai.js`, rồi chèn `${window.TuLuan?TuLuan.html():''}` giữa phần Luyện tập và phần Kiểm tra trong `homeHTML()`.
