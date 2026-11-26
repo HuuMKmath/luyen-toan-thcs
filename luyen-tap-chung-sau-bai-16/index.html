@@ -296,13 +296,14 @@ function figPB(o){
   let s=SEG([130,12],[130,o.N?214:166])+SEG(A,B);
   if(o.seg!==false)s+=SEG(A,M)+SEG(B,M);
   if(o.N)s+=SEG(A,Nn)+SEG(B,Nn);
-  s+=ticks(A,O,2)+ticks(O,B,2)+rmark(O,B,M);
-  if(o.N){s+=ticks(A,M,1)+ticks(B,M,1)+ticks(A,Nn,3)+ticks(B,Nn,3);}
+  if(!o.noO)s+=ticks(A,O,2)+ticks(O,B,2)+rmark(O,B,M);
+  if(o.oMN)s+=ticks(O,M,o.oMN)+ticks(O,Nn,o.oMN);
+  if(o.N){if(o.legs!==false)s+=ticks(A,M,1)+ticks(B,M,1)+ticks(A,Nn,3)+ticks(B,Nn,3);}
   else if(o.tick!==false&&o.seg!==false)s+=ticks(A,M,1)+ticks(B,M,1);
   if(o.tA)s+=angT(A,B,M,o.tA,44);
   if(o.tMA)s+=sideT(A,M,[130,110],o.tMA);
   s+=DOT(A)+DOT(B)+(o.seg===false&&!o.N?'':DOT(M));
-  s+=TX(26,116,lb[0])+TX(234,116,lb[1])+TX(142,130,lb[2]);
+  s+=TX(26,116,lb[0])+TX(234,116,lb[1])+(o.noO?'':TX(142,130,lb[2]));
   if(!(o.seg===false&&!o.N))s+=TX(146,M[1]+4,lb[3]);
   if(o.N){s+=DOT(Nn)+TX(146,Nn[1]+6,o.N);}
   s+=`<text class="vi" x="118" y="${o.N?212:162}" text-anchor="middle">${o.d||'d'}</text>`;
@@ -367,7 +368,7 @@ function figExt(withE,a){
 /* ΔABC cân tại A, D ∈ AB, E ∈ AC, AD = AE, nối BE và CD */
 function figADE(a){
   a=a||70;const h=1/Math.tan(rad(a/2)),{A,B,C}=fitP({A:[0,-h],B:[-1,0],C:[1,0]},260,166,24),D=along(A,B,.42),E=along(A,C,.42);
-  let s=`<polygon class="tri" points="${A} ${B} ${C}"/>`+SEG(D,E)+SEG(B,E)+SEG(C,D)+ticks(A,D,1)+ticks(A,E,1)+ticks(D,B,2)+ticks(E,C,2);
+  let s=`<polygon class="tri" points="${A} ${B} ${C}"/>`+SEG(D,E)+SEG(B,E)+SEG(C,D)+ticks(A,D,1)+ticks(A,E,1);
   s+=TX(A[0],A[1]-8,'A')+TX(B[0]-12,B[1]+12,'B')+TX(C[0]+12,C[1]+12,'C')+TX(D[0]-13,D[1]+2,'D')+TX(E[0]+13,E[1]+2,'E');
   return svg(260,166,'Tam giác ABC cân tại A, D trên AB, E trên AC với AD bằng AE, nối BE và CD',s);
 }
@@ -436,7 +437,7 @@ function figVD1(al,be,mn){
 /* Góc xOy: A, M trên Ox; B, N trên Oy; OA = OB, OM = ON; AN cắt BM tại I */
 function figXOY(o){
   o=o||52;const O=[0,0],A=[10,0],M=[5.6,0],B=pol(O,10,o),N=pol(O,5.6,o),I=cut(A,N,B,M),x=[12.4,0],y=pol(O,12.4,o);
-  return G({P:{O,A,M,B,N,I,_x:x,_y:y},seg:[['O','_x'],['O','_y'],'AN','BM'],tk:[['OM',1],['ON',1],['MA',2],['NB',2]],c:'OAB',pos:{O:'sw',A:'s',M:'s',B:'nw',N:'nw',I:'e'},
+  return G({P:{O,A,M,B,N,I,_x:x,_y:y},seg:[['O','_x'],['O','_y'],'AN','BM'],tk:[['OM',1],['ON',1]],c:'OAB',pos:{O:'sw',A:'s',M:'s',B:'nw',N:'nw',I:'e'},
     txt:[['_x','x',0,18],['_y','y',-12,0]],alt:'Góc xOy: A và M trên tia Ox, B và N trên tia Oy, OA bằng OB, OM bằng ON, AN cắt BM tại I'});
 }
 /* Hai đoạn thẳng AB và CD cắt nhau tại trung điểm O của mỗi đoạn */
@@ -487,7 +488,7 @@ function figPond(){
 /* Con diều ABCD: AB = AD, CB = CD; hai thanh AC và BD cắt nhau tại O */
 function figKite(){
   const A=[0,8],B=[-4,4.6],D=[4,4.6],C=[0,-6],O=[0,4.6];
-  return G({P:{A,B,C,D,O},fill:['ABCD'],seg:['AC','BD'],tk:[['AB',1],['AD',1],['BC',2],['DC',2]],rt:[['O','D','A']],pos:{A:'n',B:'w',C:'s',D:'e',O:'se'},alt:'Con diều ABCD có AB bằng AD, CB bằng CD, hai thanh AC và BD cắt nhau tại O'});
+  return G({P:{A,B,C,D,O},fill:['ABCD'],seg:['AC','BD'],tk:[['AB',1],['AD',1],['BC',2],['DC',2]],pos:{A:'n',B:'w',C:'s',D:'e',O:'se'},alt:'Con diều ABCD có AB bằng AD, CB bằng CD, hai thanh AC và BD cắt nhau tại O'});
 }
 /* Cột cờ AH thẳng đứng, hai dây néo AB, AC, HB = HC */
 function figPole(){
@@ -580,7 +581,7 @@ const MC=[
    {t:'d vuông góc với AB',err:'Còn thiếu điều kiện đi qua trung điểm của AB.'},
    {t:'d đi qua A và vuông góc với AB',err:'Đường trung trực vuông góc với AB tại trung điểm, không phải tại A.'}],
   exp:'Đường trung trực của đoạn thẳng là đường thẳng vuông góc với đoạn thẳng đó tại trung điểm của nó.'},
- {id:'s_tt2',type:'mc',topic:'tt',level:'TH',mix:[15],fig:fb(figPB({N:'N',alt:'Đường thẳng d là đường trung trực của AB, cắt AB tại O; M và N nằm trên d'})),stem:'Cho d là đường trung trực của đoạn thẳng AB, d cắt AB tại O. M và N là hai điểm phân biệt nằm trên d sao cho OM = ON. Tam giác AMN là tam giác gì?',ans:0,opts:[
+ {id:'s_tt2',type:'mc',topic:'tt',level:'TH',mix:[15],fig:fb(figPB({N:'N',legs:false,oMN:1,my:24,alt:'Đường thẳng d là đường trung trực của AB, cắt AB tại O; M và N nằm trên d với OM bằng ON'})),stem:'Cho d là đường trung trực của đoạn thẳng AB, d cắt AB tại O. M và N là hai điểm phân biệt nằm trên d sao cho OM = ON. Tam giác AMN là tam giác gì?',ans:0,opts:[
    {t:'Tam giác cân tại A'},
    {t:'Tam giác cân tại M',err:'Không có cơ sở để MA = MN.'},
    {t:'Tam giác đều',err:'Chỉ biết AM = AN; MN chưa chắc bằng AM.'},
@@ -775,7 +776,7 @@ function tfCnG(){const l=sel(LS),[A,B,C]=l;let x;do{x=ri(30,80);}while(x===60||x
     IT(u[2],`${A}${B} = ${A}${C}.`,`${A}${B} = ${B}${C}.`,'cn','TH',`Tam giác cân tại ${A} nên ${A}${B} = ${A}${C}.`,`Tam giác cân tại ${A} nên ${A}${B} = ${A}${C}; ${B}${C} là cạnh đáy.`),
     IT(u[3],`${A} nằm trên đường trung trực của đoạn thẳng ${B}${C}.`,`${B} nằm trên đường trung trực của đoạn thẳng ${A}${C}.`,'tt','VD',`${A}${B} = ${A}${C} nên ${A} cách đều ${B}, ${C}.`,`Chỉ có ${A}${B} = ${A}${C}; ${B}${A} và ${B}${C} không bằng nhau nên ${B} không nằm trên đường trung trực của ${A}${C}.`)]}));}
 function tfTtG(){const p=ri(3,10);let q;do{q=ri(p+1,p+9);}while(q===2*p);
-  return tfLoop(u=>({stem:`Cho d là đường trung trực của đoạn thẳng AB, d cắt AB tại O; AB = ${2*p} cm. M và N là hai điểm phân biệt trên d sao cho OM = ON, MA = ${q} cm (như hình).`,fig:fb(figPB({N:'N',alt:'Đường thẳng d là đường trung trực của AB, cắt AB tại O; M và N nằm trên d'})),items:[
+  return tfLoop(u=>({stem:`Cho d là đường trung trực của đoạn thẳng AB, d cắt AB tại O; AB = ${2*p} cm. M và N là hai điểm phân biệt trên d sao cho OM = ON, MA = ${q} cm (như hình).`,fig:fb(figPB({N:'N',legs:false,oMN:1,my:24,alt:'Đường thẳng d là đường trung trực của AB, cắt AB tại O; M và N nằm trên d với OM bằng ON'})),items:[
     IT(u[0],`MB = ${q} cm.`,`MB = ${2*p} cm.`,'tt','TH','M nằm trên đường trung trực của AB nên MB = MA.',`M nằm trên đường trung trực của AB nên MB = MA = ${q} cm.`),
     IT(u[1],`Chu vi ΔMAB bằng ${2*q+2*p} cm.`,`Chu vi ΔMAB bằng ${q+2*p} cm.`,'tt','TH',`${q} + ${q} + ${2*p} = ${2*q+2*p} cm.`,`Thiếu cạnh MB: ${q} + ${q} + ${2*p} = ${2*q+2*p} cm.`),
     IT(u[2],'ΔAMN cân tại A.','ΔAMN cân tại M.','tv','VD','ΔAOM = ΔAON (hai cạnh góc vuông) nên AM = AN.','ΔAOM = ΔAON (hai cạnh góc vuông) nên AM = AN: tam giác cân tại A.'),

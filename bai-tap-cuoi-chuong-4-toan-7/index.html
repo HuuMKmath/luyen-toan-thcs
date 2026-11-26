@@ -296,13 +296,14 @@ function figPB(o){
   let s=SEG([130,12],[130,o.N?214:166])+SEG(A,B);
   if(o.seg!==false)s+=SEG(A,M)+SEG(B,M);
   if(o.N)s+=SEG(A,Nn)+SEG(B,Nn);
-  s+=ticks(A,O,2)+ticks(O,B,2)+rmark(O,B,M);
-  if(o.N){s+=ticks(A,M,1)+ticks(B,M,1)+ticks(A,Nn,3)+ticks(B,Nn,3);}
+  if(!o.noO)s+=ticks(A,O,2)+ticks(O,B,2)+rmark(O,B,M);
+  if(o.oMN)s+=ticks(O,M,o.oMN)+ticks(O,Nn,o.oMN);
+  if(o.N){if(o.legs!==false)s+=ticks(A,M,1)+ticks(B,M,1)+ticks(A,Nn,3)+ticks(B,Nn,3);}
   else if(o.tick!==false&&o.seg!==false)s+=ticks(A,M,1)+ticks(B,M,1);
   if(o.tA)s+=angT(A,B,M,o.tA,44);
   if(o.tMA)s+=sideT(A,M,[130,110],o.tMA);
   s+=DOT(A)+DOT(B)+(o.seg===false&&!o.N?'':DOT(M));
-  s+=TX(26,116,lb[0])+TX(234,116,lb[1])+TX(142,130,lb[2]);
+  s+=TX(26,116,lb[0])+TX(234,116,lb[1])+(o.noO?'':TX(142,130,lb[2]));
   if(!(o.seg===false&&!o.N))s+=TX(146,M[1]+4,lb[3]);
   if(o.N){s+=DOT(Nn)+TX(146,Nn[1]+6,o.N);}
   s+=`<text class="vi" x="118" y="${o.N?212:162}" text-anchor="middle">${o.d||'d'}</text>`;
@@ -367,7 +368,7 @@ function figExt(withE,a){
 /* ΔABC cân tại A, D ∈ AB, E ∈ AC, AD = AE, nối BE và CD */
 function figADE(a){
   a=a||70;const h=1/Math.tan(rad(a/2)),{A,B,C}=fitP({A:[0,-h],B:[-1,0],C:[1,0]},260,166,24),D=along(A,B,.42),E=along(A,C,.42);
-  let s=`<polygon class="tri" points="${A} ${B} ${C}"/>`+SEG(D,E)+SEG(B,E)+SEG(C,D)+ticks(A,D,1)+ticks(A,E,1)+ticks(D,B,2)+ticks(E,C,2);
+  let s=`<polygon class="tri" points="${A} ${B} ${C}"/>`+SEG(D,E)+SEG(B,E)+SEG(C,D)+ticks(A,D,1)+ticks(A,E,1);
   s+=TX(A[0],A[1]-8,'A')+TX(B[0]-12,B[1]+12,'B')+TX(C[0]+12,C[1]+12,'C')+TX(D[0]-13,D[1]+2,'D')+TX(E[0]+13,E[1]+2,'E');
   return svg(260,166,'Tam giác ABC cân tại A, D trên AB, E trên AC với AD bằng AE, nối BE và CD',s);
 }
@@ -436,7 +437,7 @@ function figVD1(al,be,mn){
 /* Góc xOy: A, M trên Ox; B, N trên Oy; OA = OB, OM = ON; AN cắt BM tại I */
 function figXOY(o){
   o=o||52;const O=[0,0],A=[10,0],M=[5.6,0],B=pol(O,10,o),N=pol(O,5.6,o),I=cut(A,N,B,M),x=[12.4,0],y=pol(O,12.4,o);
-  return G({P:{O,A,M,B,N,I,_x:x,_y:y},seg:[['O','_x'],['O','_y'],'AN','BM'],tk:[['OM',1],['ON',1],['MA',2],['NB',2]],c:'OAB',pos:{O:'sw',A:'s',M:'s',B:'nw',N:'nw',I:'e'},
+  return G({P:{O,A,M,B,N,I,_x:x,_y:y},seg:[['O','_x'],['O','_y'],'AN','BM'],tk:[['OM',1],['ON',1]],c:'OAB',pos:{O:'sw',A:'s',M:'s',B:'nw',N:'nw',I:'e'},
     txt:[['_x','x',0,18],['_y','y',-12,0]],alt:'Góc xOy: A và M trên tia Ox, B và N trên tia Oy, OA bằng OB, OM bằng ON, AN cắt BM tại I'});
 }
 /* Hai đoạn thẳng AB và CD cắt nhau tại trung điểm O của mỗi đoạn */
@@ -487,7 +488,7 @@ function figPond(){
 /* Con diều ABCD: AB = AD, CB = CD; hai thanh AC và BD cắt nhau tại O */
 function figKite(){
   const A=[0,8],B=[-4,4.6],D=[4,4.6],C=[0,-6],O=[0,4.6];
-  return G({P:{A,B,C,D,O},fill:['ABCD'],seg:['AC','BD'],tk:[['AB',1],['AD',1],['BC',2],['DC',2]],rt:[['O','D','A']],pos:{A:'n',B:'w',C:'s',D:'e',O:'se'},alt:'Con diều ABCD có AB bằng AD, CB bằng CD, hai thanh AC và BD cắt nhau tại O'});
+  return G({P:{A,B,C,D,O},fill:['ABCD'],seg:['AC','BD'],tk:[['AB',1],['AD',1],['BC',2],['DC',2]],pos:{A:'n',B:'w',C:'s',D:'e',O:'se'},alt:'Con diều ABCD có AB bằng AD, CB bằng CD, hai thanh AC và BD cắt nhau tại O'});
 }
 /* Cột cờ AH thẳng đứng, hai dây néo AB, AC, HB = HC */
 function figPole(){
@@ -570,17 +571,17 @@ function figRt60M(){
 /* Mái nhà: vì kèo ABC cân tại A, thanh AH ⊥ BC */
 function figRoof(){
   const A=[0,4.2],B=[-7,0],C=[7,0],H=[0,0],P=[-7.8,-0.6],Q=[7.8,-0.6];
-  return G({P:{A,B,C,H},seg:['AB','AC','BC','AH'],rt:[['H','C','A']],tk:[['BH',1],['HC',1]],pos:{A:'n',B:'sw',C:'se',H:'s'},alt:'Vì kèo mái nhà là tam giác ABC cân tại A, thanh chống AH vuông góc với BC'});
+  return G({P:{A,B,C,H},seg:['AB','AC','BC','AH'],tk:[['AB',1],['AC',1]],rt:[['H','C','A']],pos:{A:'n',B:'sw',C:'se',H:'s'},alt:'Vì kèo mái nhà là tam giác ABC cân tại A, thanh chống AH vuông góc với BC'});
 }
 /* Hai cột đèn AB và DE thẳng đứng, bóng BC và EF trên mặt đất */
 function figShadow(){
   const B=[0,0],A=[0,5],C=[4.2,0],E=[9,0],D=[9,5],F=[13.2,0];
-  return G({P:{A,B,C,D,E,F},seg:['AB','BC','DE','EF'],thin:['AC','DF'],rt:[['B','C','A'],['E','F','D']],arc:[['C','A','B',1],['F','D','E',1]],pos:{A:'n',B:'s',C:'s',D:'n',E:'s',F:'s'},alt:'Hai cột đèn AB và DE thẳng đứng, tia nắng AC và DF, bóng BC và EF trên mặt đất'});
+  return G({P:{A,B,C,D,E,F},seg:['AB','BC','DE','EF'],thin:['AC','DF'],tk:[['AB',1],['DE',1]],rt:[['B','C','A'],['E','F','D']],arc:[['A','B','C',1],['D','E','F',1]],pos:{A:'n',B:'s',C:'s',D:'n',E:'s',F:'s'},alt:'Hai cột đèn AB và DE thẳng đứng, tia nắng AC và DF, bóng BC và EF trên mặt đất'});
 }
 /* Thang chữ A: hai chân AB = AC, thanh giằng DE với AD = AE */
 function figLadder(){
   const A=[0,9],B=[-3.2,0],C=[3.2,0],D=add2(A,B,.55),E=add2(A,C,.55);
-  return G({P:{A,B,C,D,E},seg:['AB','AC','DE'],thin:['BC'],tk:[['AD',1],['AE',1],['DB',2],['EC',2]],pos:{A:'n',B:'sw',C:'se',D:'w',E:'e'},alt:'Thang chữ A có hai chân AB bằng AC, thanh giằng DE với AD bằng AE'});
+  return G({P:{A,B,C,D,E},seg:['AB','AC','DE'],thin:['BC'],tk:[['AD',1],['AE',1]],pos:{A:'n',B:'sw',C:'se',D:'w',E:'e'},alt:'Thang chữ A có hai chân AB bằng AC, thanh giằng DE với AD bằng AE'});
 }
 /* Gấp tờ giấy hình tam giác ABC để B trùng C: nếp gấp đi qua trung điểm M của BC, cắt AC tại D */
 function figFold(){

@@ -262,6 +262,7 @@ function figCross(v){
   let s=`<line class="seg" x1="40" y1="30" x2="200" y2="120"/><line class="seg" x1="40" y1="120" x2="200" y2="30"/>`;
   s+=`<line class="thin" x1="40" y1="30" x2="40" y2="120"/><line class="thin" x1="200" y1="30" x2="200" y2="120"/>`;
   if(v===2){s+=ticks(O,A,1)+ticks(O,B,1)+arcs(A,O,C,1)+arcs(B,O,D,1);}
+  else if(v===3){s+=ticks(O,A,1)+ticks(O,B,1);} // chỉ cho O là trung điểm của AB (và AC ∥ BD): không kí hiệu góc suy ra
   else{s+=ticks(O,A,1)+ticks(O,B,1)+ticks(O,C,2)+ticks(O,D,2);}
   const T=(x,y,t)=>`<text class="vl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
   s+=T(28,26,'A')+T(28,138,'C')+T(212,138,'B')+T(212,26,'D')+T(134,94,'O');
@@ -279,7 +280,7 @@ function figRiver(){
   const A=[60,72],B=[60,22],C=[120,72],D=[180,72],E=[180,122];
   let s=`<line class="thin" x1="16" y1="22" x2="224" y2="22"/><line class="seg" x1="16" y1="72" x2="224" y2="72"/>`;
   s+=`<line class="seg" x1="60" y1="72" x2="60" y2="22"/><line class="seg" x1="180" y1="72" x2="180" y2="122"/><line class="seg" x1="60" y1="22" x2="180" y2="122"/>`;
-  s+=ticks(A,C,1)+ticks(C,D,1)+arcs(C,A,B,1)+arcs(C,D,E,1);
+  s+=ticks(A,C,1)+ticks(C,D,1);
   s+=`<path class="mk" d="M60 64 L68 64 L68 72"/><path class="mk" d="M180 80 L172 80 L172 72"/>`;
   const T=(x,y,t)=>`<text class="vl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
   s+=T(47,90,'A')+T(46,38,'B')+T(131,64,'C')+T(193,66,'D')+T(194,130,'E');
@@ -840,7 +841,7 @@ function tfRhomb(){
 }
 const HARD={tf:[{id:'h_thoi',type:'tf',topic:'ccc',level:'VD',fig:fb(figRhomb()),gen:tfRhomb}],sa:[
  {id:'h_pg',topic:'cgc',level:'VD',unit:'cm',fig:fb(figIso({pt:'D',ticks:{AB:1,AC:1},arcA:true,alt:'Tam giác ABC có AB bằng AC, AD là tia phân giác của góc A'})),gen:()=>{const [bd,ad,ab]=sel(TRIP),P=2*(ab+bd),Q=ab+bd+ad;return{stem:`Cho ΔABC có AB = AC. Tia phân giác của góc A cắt BC tại D. Biết chu vi ΔABC bằng ${P} cm và chu vi ΔABD bằng ${Q} cm. Tính độ dài AD.`,ans:[ad],exp:`ΔABD và ΔACD có AB = AC, ∠BAD = ∠CAD, AD chung nên ΔABD = ΔACD (c.g.c), suy ra BD = CD. Chu vi ΔABC = 2 · (AB + BD) = ${P} cm nên AB + BD = ${P/2} cm. Chu vi ΔABD = AB + BD + AD = ${Q} cm nên AD = ${Q} − ${P/2} = ${ad} cm.`};}},
- {id:'h_ss',topic:'gcg',level:'VD',unit:'cm',fig:CGC2_FIG,gen:()=>{let o,a,c;do{o=ri(5,12);a=ri(5,12);c=ri(5,12);}while(2*Math.max(o,a,c)>=o+a+c);const p=o+a+c;return{stem:`Hai đoạn thẳng AB và CD cắt nhau tại O là trung điểm của AB, biết AC ∥ BD (như hình). Cho AC = ${a} cm, OC = ${c} cm và chu vi ΔOBD bằng ${p} cm. Tính độ dài AB.`,ans:[2*o],exp:`AC ∥ BD nên ∠OAC = ∠OBD (so le trong). Lại có OA = OB và ∠AOC = ∠BOD (đối đỉnh) nên ΔOAC = ΔOBD (g.c.g). Suy ra BD = AC = ${a} cm, OD = OC = ${c} cm. Do đó OB = ${p} − ${a} − ${c} = ${o} cm và AB = 2 · OB = ${2*o} cm.`};}},
+ {id:'h_ss',topic:'gcg',level:'VD',unit:'cm',fig:fb(figCross(3)),gen:()=>{let o,a,c;do{o=ri(5,12);a=ri(5,12);c=ri(5,12);}while(2*Math.max(o,a,c)>=o+a+c);const p=o+a+c;return{stem:`Hai đoạn thẳng AB và CD cắt nhau tại O là trung điểm của AB, biết AC ∥ BD (như hình). Cho AC = ${a} cm, OC = ${c} cm và chu vi ΔOBD bằng ${p} cm. Tính độ dài AB.`,ans:[2*o],exp:`AC ∥ BD nên ∠OAC = ∠OBD (so le trong). Lại có OA = OB và ∠AOC = ∠BOD (đối đỉnh) nên ΔOAC = ΔOBD (g.c.g). Suy ra BD = AC = ${a} cm, OD = OC = ${c} cm. Do đó OB = ${p} − ${a} − ${c} = ${o} cm và AB = 2 · OB = ${2*o} cm.`};}},
  {id:'h_dieu',topic:'ccc',level:'VD',unit:'độ',fig:fb(figKite()),gen:()=>{const x=2*ri(20,50),y=2*ri(15,45),r=180-x/2-y/2;return{stem:`Cho hình vẽ có AC = AD và BC = BD. Biết ∠CAD = ${x}° và ∠CBD = ${y}°. Tính số đo ∠ACB.`,ans:[r],exp:`ΔABC và ΔABD có AC = AD, BC = BD, AB chung nên ΔABC = ΔABD (c.c.c). Suy ra ∠CAB = ∠DAB = ${x/2}° và ∠CBA = ∠DBA = ${y/2}°. Trong ΔABC: ∠ACB = 180° − ${x/2}° − ${y/2}° = ${r}°.`};}},
  {id:'h_tt',topic:'cgc',level:'VD',unit:'độ',fig:fb(figMedian()),gen:()=>{let a,b;do{a=ri(50,100);b=ri(30,60);}while(a+b>150);const c=180-a-b;return{stem:`Cho ΔABC có ∠BAC = ${a}° và ∠ABC = ${b}°. Gọi M là trung điểm của BC. Trên tia đối của tia MA lấy điểm D sao cho MD = MA (như hình). Tính số đo ∠ABD.`,ans:[180-a],exp:`ΔMAC và ΔMDB có MA = MD, ∠AMC = ∠DMB (đối đỉnh), MC = MB nên ΔMAC = ΔMDB (c.g.c). Suy ra ∠MBD = ∠MCA = 180° − ${a}° − ${b}° = ${c}°. Vậy ∠ABD = ∠ABC + ∠CBD = ${b}° + ${c}° = ${180-a}°.`};}},
  {id:'h_x',topic:'tu',level:'VD',unit:'độ',gen:()=>{let x,p1,p2,q1,q2;do{x=ri(10,20);p1=ri(2,3);p2=p1+ri(1,2);q1=ri(5,15);q2=q1-(p2-p1)*x;}while(q2>=0);const r=ri(10,40),A=p1*x+q1,B=x+r,F=180-A-B;return{stem:`Cho ΔABC = ΔDEF. Biết ∠A = (${lin2(p1,q1)})°, ∠D = (${lin2(p2,q2)})° và ∠B = (x + ${r})°. Tính số đo ∠F.`,ans:[F],exp:`∠A = ∠D (hai góc tương ứng) nên ${lin2(p1,q1)} = ${lin2(p2,q2)}, suy ra x = ${x}. Khi đó ∠A = ${A}°, ∠B = ${B}°. Góc F ứng với góc C nên ∠F = ∠C = 180° − ${A}° − ${B}° = ${F}°.`};}}
