@@ -176,23 +176,48 @@
     t = t.replace(/(^|[^\p{L}])([A-Z]{1,4})(?![\p{L}])/gu, function (m, a, w) { return a + " " + w.split("").map(function (c) { return CHU[c] || c; }).join(" ") + " "; });
     return t.replace(/\s+/g, " ").trim();
   }
+  /* Chỉ đọc bằng giọng tiếng Việt. Máy không có giọng tiếng Việt thì không đọc (tránh giọng tiếng Anh đọc sai) và hướng dẫn cài. */
   function giong() {
-    try { var v = speechSynthesis.getVoices(); return v.filter(function (x) { return /^vi/i.test(x.lang); })[0] || null; } catch (e) { return null; }
+    try {
+      var v = speechSynthesis.getVoices().filter(function (x) { return /^vi([-_]|$)/i.test(x.lang) || /vietnam|tiếng việt/i.test(x.name); });
+      v.sort(function (a, b) { return (/natural|online|google/i.test(b.name) ? 1 : 0) - (/natural|online|google/i.test(a.name) ? 1 : 0); });
+      return v[0] || null;
+    } catch (e) { return null; }
   }
-  try { if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = function () {}; } } catch (e) {}
+  function choGiong(cb) {   // trình duyệt nạp danh sách giọng chậm: chờ tối đa 1,5 giây
+    try { if (speechSynthesis.getVoices().length) return cb(); } catch (e) { return cb(); }
+    var xong = false, f = function () { if (!xong) { xong = true; cb(); } };
+    try { speechSynthesis.addEventListener("voiceschanged", f); } catch (e) {}
+    setTimeout(f, 1500);
+  }
+  try { if (window.speechSynthesis) speechSynthesis.getVoices(); } catch (e) {}
+  function huongDanGiong() {
+    var ua = navigator.userAgent || "";
+    if (/iPhone|iPad|iPod/i.test(ua)) return "Máy em chưa có giọng đọc tiếng Việt. Cài như sau: Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Việt → tải giọng Linh. Tải xong mở lại trang.";
+    if (/Android/i.test(ua)) return "Máy em chưa có giọng đọc tiếng Việt. Cài như sau: Cài đặt → tìm \"Chuyển văn bản thành giọng nói\" → chọn Công cụ của Google → bấm biểu tượng bánh răng → Cài đặt dữ liệu giọng nói → Tiếng Việt → tải về. Tải xong mở lại trang.";
+    if (/Edg\//.test(ua)) return "Máy tính chưa có giọng đọc tiếng Việt. Cài như sau: Cài đặt Windows → Thời gian và ngôn ngữ → Ngôn ngữ và vùng → Thêm ngôn ngữ → Tiếng Việt → tích ô Giọng nói (Text-to-speech) → Cài đặt. Xong thì mở lại trình duyệt.";
+    return "Máy chưa có giọng đọc tiếng Việt. Trên máy tính, cách dễ nhất là mở trang bằng trình duyệt Microsoft Edge (có sẵn giọng tiếng Việt). Hoặc cài cho Windows: Cài đặt → Thời gian và ngôn ngữ → Ngôn ngữ và vùng → Thêm ngôn ngữ → Tiếng Việt → tích ô Giọng nói → Cài đặt, rồi mở lại trình duyệt.";
+  }
   function noi(text, el) {
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) { baoGiong(el, "Trình duyệt này chưa hỗ trợ đọc to."); return; }
-    try {
-      speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(doc(text)), v = giong();
-      u.lang = "vi-VN"; u.rate = 0.9;
-      if (v) u.voice = v; else baoGiong(el, "Máy em có thể chưa cài giọng tiếng Việt. Trên Android: Cài đặt → Chuyển văn bản thành giọng nói → tải tiếng Việt. Trên iPhone: Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Việt.");
-      speechSynthesis.speak(u);
-    } catch (e) { baoGiong(el, "Không đọc được trên máy này."); }
+    try { speechSynthesis.cancel(); } catch (e) {}
+    choGiong(function () {
+      var v = giong();
+      if (!v) { baoGiong(el, huongDanGiong()); return; }
+      try {
+        var u = new SpeechSynthesisUtterance(doc(text));
+        u.lang = v.lang || "vi-VN"; u.rate = 0.9;
+        try { u.voice = v; } catch (e) { u.__v = v; }
+        speechSynthesis.speak(u);
+      } catch (e) { baoGiong(el, "Không đọc được trên máy này."); }
+    });
   }
   function baoGiong(el, msg) {
-    var box = el && el.closest && el.closest(".tl-ng"); if (!box || box.querySelector(".ng-voice")) return;
-    var p = document.createElement("p"); p.className = "small muted ng-voice"; p.style.margin = "0"; p.textContent = msg; box.appendChild(p);
+    var box = el && el.isConnected && el.closest ? el.closest(".tl-ng") : null;
+    if (!box && el && el.closest) { var art = el.isConnected ? el.closest(".tl-q") : null; box = art && art.querySelector(".tl-ng"); }
+    if (!box) box = document.querySelector(".tl-ng");
+    if (!box || box.querySelector(".ng-voice")) return;
+    var p = document.createElement("p"); p.className = "small ng-voice"; p.style.cssText = "margin:0;background:var(--warn-bg);border-radius:8px;padding:8px 10px"; p.textContent = msg; box.appendChild(p);
   }
   function ngText(q, what) {
     var st = ngState(q.id), A = q.nguoc[st.a], B = A.buoc[Math.min(st.k, A.buoc.length - 1)];
