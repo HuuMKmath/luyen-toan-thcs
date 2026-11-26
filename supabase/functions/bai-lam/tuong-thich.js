@@ -4,6 +4,7 @@
 //   GET  ?ma=…                → {ok, n, c}                     tra mã học sinh
 //   GET  ?ma=…&tiendo=1       → {ok, n, c, bai, goi, mo}       tiến độ (trang Các bài, khóa bài)
 //   GET  ?ma=…&bxh=1          → bảng xếp hạng lớp, khối (mã GV: mọi khối)
+//   GET  ?ma=…&sodiem=1[&lop=…] → sổ điểm (chỉ mã GV): danh sách lớp, bài; có lop thì kèm điểm cả lớp
 //   POST {gm:1, u, g, pid, dx} → {ok, g}                        đồng bộ XP, chuỗi ngày, huy hiệu
 //   POST {xg:1, u, bai, goi}   → {ok}                           ghi gói NB/TH/VD đã làm hết câu
 // Mọi yêu cầu đều qua bước chống dò mã giống lúc đăng nhập.
@@ -169,6 +170,40 @@ async function bangXepHang(db, hs, bay_gio) {
   return out;
 }
 
+/* Sổ điểm cho giáo viên (chỉ mã ở lớp GV).
+   Không có lop: {ok, gv:1, lops:[{ten, khoi, so}], bai:[{id, k, t, c}]}
+   Có lop:       thêm lop, hs:[{n, d:{<mã bài>:{kt25|kt5|tt:[điểm cao nhất, số lần, lần gần nhất]}}}] (họ tên A→Z). */
+const LOAI_SO = { kt25: "kt25", kt5: "kt5", thu_thach: "tt" };
+async function soDiem(db, hs, yc) {
+  if (!hs.gv) return { ok: false, khong_phai_gv: 1 };
+  const [lops, bai] = await Promise.all([db.dsLopDay(), db.dsBaiDayDu()]);
+  const out = {
+    ok: true, gv: 1,
+    lops: lops.map(l => ({ ten: l.ten, khoi: l.khoi, so: l.so })),
+    bai: bai.map(b => ({ id: b.id, k: b.khoi, t: b.tieu_de, c: b.chuong })),
+  };
+  const ten = String(yc.lop || "").trim();
+  if (!ten) return out;
+  if (!lops.some(l => l.ten === ten)) return { ...out, ok: false, khong_co_lop: 1 };
+  const dsHS = await db.hsTrongLop(ten);                 // [{id, ho_ten}]
+  const theoId = {};
+  const hsOut = dsHS.map(h => (theoId[h.id] = { n: h.ho_ten, d: {} }));
+  for (const l of await db.luotCuaHS(dsHS.map(h => h.id))) {
+    const o = theoId[l.hoc_sinh_id], loai = LOAI_SO[l.loai];
+    if (!o || !loai || l.diem == null || !l.nop_luc) continue;
+    const b = o.d[l.bai_id] || (o.d[l.bai_id] = {});
+    const k = b[loai] || (b[loai] = [-1, 0, 0]);
+    const diem = Number(l.diem), nop = Date.parse(l.nop_luc);
+    if (diem > k[0]) k[0] = diem;
+    k[1]++;
+    if (nop > k[2]) k[2] = nop;
+  }
+  hsOut.forEach(h => Object.values(h.d).forEach(b => Object.values(b).forEach(k => { k[2] = vn(k[2]).gio; })));
+  const tenRieng = n => String(n).trim().split(/\s+/).pop();
+  hsOut.sort((a, b) => tenRieng(a.n).localeCompare(tenRieng(b.n), "vi") || a.n.localeCompare(b.n, "vi"));
+  return { ...out, lop: ten, hs: hsOut };
+}
+
 async function ghiGoiXong(db, hs, body) {
   const goi = String(body.goi || "");
   if (!GOI_MUC.includes(goi)) return { ok: false };
@@ -180,7 +215,7 @@ async function ghiGoiXong(db, hs, body) {
   return { ok: true };
 }
 
-/* yc: tham số GET ({ma, tiendo, bxh}) hoặc thân POST ({gm|xg, u, ...}). */
+/* yc: tham số GET ({ma, tiendo, bxh, sodiem, lop}) hoặc thân POST ({gm|xg, u, ...}). */
 export async function xuLyCu(yc, { db, bay_gio = () => Date.now() }) {
   yc = yc || {};
   const ma = soMa(yc.gm || yc.xg ? yc.u : yc.ma);
@@ -194,5 +229,6 @@ export async function xuLyCu(yc, { db, bay_gio = () => Date.now() }) {
   if (yc.xg) return ghiGoiXong(db, hs, yc);
   if (yc.tiendo) return tienDo(db, hs);
   if (yc.bxh) return bangXepHang(db, hs, t);
+  if (yc.sodiem) return soDiem(db, hs, yc);
   return { ok: true, n: hs.ho_ten, c: hs.c };
 }
