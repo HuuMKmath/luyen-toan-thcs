@@ -208,7 +208,7 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
 
   <main id="app"></main>
 
-  <footer>Bài luyện chấm tự động ngay trên trình duyệt. Kết quả không được lưu trên máy chủ; học sinh gửi mã kết quả của bài kiểm tra cho giáo viên để tổng hợp.</footer>
+  <footer>Bài kiểm tra được chấm và lưu trên máy chủ ngay khi học sinh nộp bài; giáo viên xem điểm ở trang Sổ điểm.</footer>
 </div>
 
 <script src="../gamify.js"></script>
@@ -1118,7 +1118,7 @@ function resultHTML(){
 
   <section class="card codebox" style="margin-top:16px"><h2>Gửi kết quả cho giáo viên</h2>
     <p class="small" id="sent" role="status" style="margin:0"></p>
-    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả được gửi tự động. Nếu giáo viên chưa nhận được, hãy sao chép mã dưới đây và gửi qua Zalo.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
+    <p class="muted small" style="margin:0">${SHEET_URL?'Kết quả đã được lưu cho giáo viên ngay khi em nộp bài. Mã dưới đây chỉ cần khi thầy cô yêu cầu.':'Sao chép mã dưới đây và gửi cho giáo viên (Zalo, lớp học trực tuyến).'} Mã chỉ chứa tên, điểm và kết quả theo nội dung.</p>
     <textarea id="code" readonly rows="3" aria-label="Mã kết quả">${code}</textarea>
     <div class="row"><button class="btn sm" id="copy">Sao chép mã</button><span class="small muted" id="copied" role="status"></span></div>
   </section>`:''}

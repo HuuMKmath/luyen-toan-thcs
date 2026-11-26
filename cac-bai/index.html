@@ -598,7 +598,7 @@ function showProg(o){
         a.onclick=function(e){e.preventDefault();if(kb.url)location.href=kb.url;};
         a.title='Bấm để về bài trước';
       }else if(kb.gvMo&&!k){st.innerHTML='<span class="chip new">Thầy cô đã mở bài này</span>';}
-      if(/^\s*gv\s*$/i.test(String(o.c||''))&&KB.coKhoa(tab))st.innerHTML+='<span class="chip lock">Bài có khóa · tên trong trang Mở bài: '+esc(tab)+'</span>';
+      if(/^\s*gv\s*$/i.test(String(o.c||''))&&KB.coKhoa(tab))st.innerHTML+='<span class="chip lock">Bài có khóa · mở cho lớp ở Supabase, bảng mo_bai (tên bài: '+esc(tab)+')</span>';
     }
   });
   if(window.VT)VT.tienDo(o);
