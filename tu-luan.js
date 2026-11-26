@@ -14,7 +14,7 @@
     HSG: "Bài nâng cao, tổng hợp kiến thức các bài đã học."
   };
   var MARK = { d: "Đúng", p: "Đúng một phần", s: "Chưa đúng" };
-  var ui = { open: null, hint: {}, step: {}, ng: {}, map: {}, pt: {}, tlg: {}, tld: {} };   // trạng thái trên màn hình (không lưu)
+  var ui = { open: null, hint: {}, step: {}, ng: {}, map: {}, pt: {}, tlg: {}, tld: {}, sp: {} };   // trạng thái trên màn hình (không lưu)
 
   function data() { return window.TL_DATA || null; }
   function user() { try { return (window.GM && GM.user && GM.user()) || "local"; } catch (e) { return "local"; } }
@@ -40,13 +40,20 @@
     if (q.nguoc) s += '<button class="btn sm tl-ngbtn" data-tl="ng:' + q.id + '" aria-expanded="' + (!!ui.ng[q.id]) + '">' + (ui.ng[q.id] ? "Đóng phân tích" : "🧭 Giải theo 4 bước") + "</button>";
     if (q.pt && !q.nguoc) s += '<button class="btn ghost sm" data-tl="pt:' + q.id + '" aria-expanded="' + (!!ui.pt[q.id]) + '">' + (ui.pt[q.id] ? "Đóng phân tích" : "🗺️ Phân tích ngược") + "</button>";
     // Bài có phân tích 4 bước: sơ đồ và lời giải nằm trong bước 3, không cần nút riêng.
-    if (k) s += '<button class="btn ghost sm" data-tl="hide:' + q.id + '">Ẩn lời giải</button>';
+    if (k || ui.sp[q.id]) s += '<button class="btn ghost sm" data-tl="hide:' + q.id + '">Ẩn lời giải</button>';
     else if (!q.nguoc) s += '<button class="btn sm" data-tl="sol:' + q.id + '">Xem lời giải</button>';
     s += "</div>";
     if (ui.map[q.id]) s += mapHTML(q);
     if (ui.ng[q.id]) s += ngHTML(q);
     if (ui.pt[q.id] && q.pt) s += ptHTML(q);
     if (ui.hint[q.id]) s += '<div class="tl-hint"><b>Gợi ý.</b> ' + q.goi + "</div>";
+    if (!k && ui.sp[q.id]) {   // phân tích xong câu nào chỉ xem lời giải câu đó (thầy dặn 27/11/2026)
+      var P = cau(q), on = ui.sp[q.id];
+      if (q.fig) { try { fig = q.fig(); } catch (e) { fig = ""; } }
+      s += '<div class="tl-sol"><div class="tl-cap">Lời giải ' + P.filter(function (r, i) { return on[i]; }).map(function (r) { return "câu " + r[2]; }).join(", ") + "</div>" + fig;
+      P.forEach(function (r, i) { if (!on[i]) return; s += '<ol start="' + (r[0] + 1) + '">'; for (var j = r[0]; j < r[1]; j++) s += "<li>" + q.steps[j] + "</li>"; s += "</ol>"; });
+      s += '<div class="row"><button class="btn ghost sm" data-tl="all:' + q.id + '">Xem hết lời giải cả bài</button></div></div>';
+    }
     if (k) {
       if (q.fig) { try { fig = q.fig(); } catch (e) { fig = ""; } }
       s += '<div class="tl-sol"><div class="tl-cap">Lời giải</div>' + fig + "<ol>";
@@ -190,9 +197,15 @@
     if (!fin) s += '<div class="row"><button class="btn sm" data-tl="ptn:' + q.id + '">Muốn vậy, cần có gì?</button></div>';
     else {
       var sau = st.a + 1 < L.length;
-      s += '<p class="small" style="margin:0"><b>Đã gặp giả thiết.</b> Khi trình bày, em đọc sơ đồ từ dưới lên.</p><div class="row">' + (sau ? '<button class="btn sm" data-tl="pta:' + q.id + ":" + (st.a + 1) + '">Phân tích ' + L[st.a + 1].ten + "</button>" : "") + '<button class="btn ' + (sau ? "ghost " : "") + 'sm" data-tl="ptsol:' + q.id + '">Xem lời giải</button></div>';
+      s += '<p class="small" style="margin:0"><b>Đã gặp giả thiết.</b> Khi trình bày, em đọc sơ đồ từ dưới lên.</p><div class="row">' + (sau ? '<button class="btn sm" data-tl="pta:' + q.id + ":" + (st.a + 1) + '">Phân tích ' + L[st.a + 1].ten + "</button>" : "") + '<button class="btn ' + (sau ? "ghost " : "") + 'sm" data-tl="ptsol:' + q.id + '">Xem lời giải' + (L.length > 1 ? " " + A.ten.toLowerCase() : "") + "</button></div>";
     }
     return s + "</div>";
+  }
+  /* Chia lời giải theo câu: bước bắt đầu bằng "a)", "b)", … mở đầu một câu. Trả về [[đầu, cuối), …, tên câu]. */
+  function cau(q) {
+    var P = [];
+    q.steps.forEach(function (t, i) { var m = /^([a-d])\)/.exec(t); if (m) { if (P.length) P[P.length - 1][1] = i; P.push([i, q.steps.length, m[1]]); } });
+    return P.length && P[0][0] === 0 ? P : [];
   }
   function ptText(q) {
     var st = ui.pt[q.id], A = q.pt[st.a], t = (q.pt.length > 1 ? A.ten + ". " : "") + "Cần: " + A.dich + ". ";
@@ -206,7 +219,14 @@
     if (act === "pta") { ui.pt[id] = { a: +a[2], n: 0 }; rerender(null); if (docAuto()) noi(ptText(q), b); }
     else if (act === "ptn") { st.n++; var A = q.pt[st.a]; rerender(st.n < A.sd.length ? "ptn:" + id : null); if (docAuto()) noi("Muốn vậy, cần có: " + A.sd[st.n - 1][0] + (st.n >= A.sd.length ? ". Đến đây đã gặp giả thiết." : ""), document.getElementById("pt-" + id)); }
     else if (act === "ptsay") noi(ptText(q), b);
-    else if (act === "ptsol") { ui.step[id] = 1; rerender("next:" + id); var o = document.querySelector("#tl-" + id + " .tl-sol"); if (o) o.scrollIntoView({ block: "start", behavior: "smooth" }); }
+    else if (act === "ptsol") {
+      var P = cau(q);
+      if (P.length > 1 && P.length === q.pt.length) {
+        ui.sp[id] = ui.sp[id] || {}; ui.sp[id][st.a] = true; ui.step[id] = 0;
+        var het = P.every(function (r, i) { return ui.sp[id][i]; });
+        if (het) { ui.step[id] = q.steps.length; delete ui.sp[id]; }   // làm lần lượt hết các câu thì hiện cả bài
+        rerender(het ? "mark:" + id + ":d" : null);
+      } else { ui.step[id] = 1; rerender("next:" + id); } var o = document.querySelector("#tl-" + id + " .tl-sol"); if (o) o.scrollIntoView({ block: "start", behavior: "smooth" }); }
   }
 
   function hoiDap(q, list, rv, code) {   // danh sách câu hỏi: em tự trả lời trước, bấm mới hiện câu trả lời
@@ -440,8 +460,8 @@
     if (act === "hint") { ui.hint[id] = !ui.hint[id]; rerender("hint:" + id); }
     else if (act === "sol") { ui.step[id] = 1; rerender("next:" + id); }
     else if (act === "next") { ui.step[id] = Math.min(q.steps.length, (ui.step[id] || 0) + 1); rerender(ui.step[id] < q.steps.length ? "next:" + id : "mark:" + id + ":d"); }
-    else if (act === "all") { ui.step[id] = q.steps.length; rerender("mark:" + id + ":d"); }
-    else if (act === "hide") { ui.step[id] = 0; rerender("sol:" + id); }
+    else if (act === "all") { ui.step[id] = q.steps.length; delete ui.sp[id]; rerender("mark:" + id + ":d"); }
+    else if (act === "hide") { ui.step[id] = 0; delete ui.sp[id]; rerender("sol:" + id); }
     else if (act === "mark") mark(id, a[2], b);
     else if (act.indexOf("ng") === 0) ngAct(act, q, a, b);
   });
