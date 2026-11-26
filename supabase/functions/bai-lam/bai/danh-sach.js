@@ -39,6 +39,7 @@ export const NAP = {
   "tam-giac-bang-nhau": () => import("./tam-giac-bang-nhau.js"),
   "tam-giac-vuong-bang-nhau": () => import("./tam-giac-vuong-bang-nhau.js"),
   "tam-giac-can-duong-trung-truc": () => import("./tam-giac-can-duong-trung-truc.js"),
+  "luyen-tap-chung-sau-bai-16": () => import("./luyen-tap-chung-sau-bai-16.js"),
   "thu-thap-phan-loai-du-lieu": () => import("./thu-thap-phan-loai-du-lieu.js"),
   "bieu-do-hinh-quat-tron": () => import("./bieu-do-hinh-quat-tron.js"),
 };
