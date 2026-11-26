@@ -15,6 +15,7 @@
   var KHOA = {
     // "7 - Tên bài mới": ["7 - Tên bài trước", "thu-muc-bai-truoc/"],
     "7 - Tam giác cân, đường trung trực": ["7 - Tam giác vuông bằng nhau", "tam-giac-vuong-bang-nhau/"],
+    "7 - Biểu đồ hình quạt tròn": ["7 - Thu thập và phân loại dữ liệu", "thu-thap-phan-loai-du-lieu/"],
   };
   var DIEM_QUA = 5;
   var GOI = [["NB", "Nhận biết"], ["TH", "Thông hiểu"], ["VD", "Vận dụng"]];
