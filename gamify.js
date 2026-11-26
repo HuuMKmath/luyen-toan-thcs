@@ -1,6 +1,10 @@
 /* Lớp trò chơi hóa dùng chung cho các trang luyện toán: XP, cấp độ, chuỗi ngày học, mục tiêu ngày, huy hiệu.
    Dữ liệu lưu trong localStorage của trình duyệt, theo mã học sinh, dùng chung cho mọi bài trên cùng địa chỉ web.
    Không ảnh hưởng đến việc chấm bài hay kết quả gửi cho giáo viên. */
+/* Đã chuyển sang nền mới (26/11/2026): mở trang cũ trên GitHub Pages thì tự sang địa chỉ mới, giữ đúng bài đang mở. */
+if (/\.github\.io$/.test(location.hostname)) {
+  location.replace("https://luyentoanthcs.pages.dev" + location.pathname.replace(/^\/luyen-toan-thcs/, "") + location.search + location.hash);
+}
 (function () {
   "use strict";
   var GOAL = 5;                       // số câu đúng mỗi ngày
