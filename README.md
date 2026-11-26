@@ -31,6 +31,7 @@ Các trang luyện toán chấm tự động trên trình duyệt (Toán Kết n
 | 6 | Bài 16. Phép nhân số nguyên | `phep-nhan-so-nguyen/` | `NH6-` |
 | 6 | Luyện tập chung (sau Bài 15) | `luyen-tap-chung-so-nguyen/` | `LT6-` |
 | 6 | Bài 21. Hình có trục đối xứng | `hinh-co-truc-doi-xung/` | `DX6-` |
+| 6 | Bài 22. Hình có tâm đối xứng | `hinh-co-tam-doi-xung/` | `TX6-` |
 | 7 | Bài 13, 14. Tam giác bằng nhau | thư mục gốc (`index.html`) | `TG7-` |
 | 7 | Bài 1. Tập hợp các số hữu tỉ | `tap-hop-so-huu-ti/` | `SH7-` |
 | 7 | Bài 2. Cộng, trừ, nhân, chia số hữu tỉ | `cong-tru-nhan-chia-so-huu-ti/` | `CT7-` |
@@ -76,6 +77,7 @@ Trang chung liệt kê các bài: `cac-bai/`.
 - Phép nhân số nguyên: `https://huumkmath.github.io/luyen-toan-thcs/phep-nhan-so-nguyen/`
 - Luyện tập chung (sau Bài 15): `https://huumkmath.github.io/luyen-toan-thcs/luyen-tap-chung-so-nguyen/`
 - Bài 21. Hình có trục đối xứng (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/hinh-co-truc-doi-xung/`
+- Bài 22. Hình có tâm đối xứng (Toán 6): `https://huumkmath.github.io/luyen-toan-thcs/hinh-co-tam-doi-xung/`
 - Tập hợp các số hữu tỉ: `https://huumkmath.github.io/luyen-toan-thcs/tap-hop-so-huu-ti/`
 - Cộng, trừ, nhân, chia số hữu tỉ: `https://huumkmath.github.io/luyen-toan-thcs/cong-tru-nhan-chia-so-huu-ti/`
 - Luỹ thừa với số mũ tự nhiên của một số hữu tỉ: `https://huumkmath.github.io/luyen-toan-thcs/luy-thua-so-huu-ti/`

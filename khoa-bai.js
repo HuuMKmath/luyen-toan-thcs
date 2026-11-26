@@ -15,6 +15,7 @@
   var KHOA = {
     // "7 - Tên bài mới": ["7 - Tên bài trước", "thu-muc-bai-truoc/"],
     "7 - Tam giác cân, đường trung trực": ["7 - Tam giác vuông bằng nhau", "tam-giac-vuong-bang-nhau/"],
+    "6 - Hình có tâm đối xứng": ["6 - Hình có trục đối xứng", "hinh-co-truc-doi-xung/"],
   };
   var DIEM_QUA = 5;
   var GOI = [["NB", "Nhận biết"], ["TH", "Thông hiểu"], ["VD", "Vận dụng"]];
