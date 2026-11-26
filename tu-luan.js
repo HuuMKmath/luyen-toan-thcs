@@ -76,7 +76,7 @@
       D.forEach(function (x, i) {
         var L = byIds(x.ids), dn = L.filter(function (q) { return marks[q.id]; }).length, o = "D" + i;
         var muc = []; L.forEach(function (q) { if (muc.indexOf(LV2[q.lv]) < 0) muc.push(LV2[q.lv]); });
-        s += '<button class="pk' + (ui.open === o ? " on" : "") + '" data-tl="open:' + o + '" aria-expanded="' + (ui.open === o) + '"><b>Dạng ' + (i + 1) + ". " + x.ten + " · " + L.length + " bài</b><span>Từ " + muc[0].toLowerCase() + " đến " + muc[muc.length - 1].toLowerCase() + "." + (dn ? " Đã làm " + dn + "/" + L.length + "." : "") + "</span></button>";
+        s += '<button class="pk' + (ui.open === o ? " on" : "") + '" data-tl="open:' + o + '" aria-expanded="' + (ui.open === o) + '"><b>Dạng ' + (i + 1) + ". " + x.ten + " · " + L.length + " bài</b><span>" + (muc.length > 1 ? "Từ " + muc[0].toLowerCase() + " đến " + muc[muc.length - 1].toLowerCase() : "Mức " + muc[0].toLowerCase()) + "." + (dn ? " Đã làm " + dn + "/" + L.length + "." : "") + "</span></button>";
       });
       var H = byLv("HSG");   // bài HSG: mục riêng, giải theo 4 bước (thầy dặn 27/11/2026)
       if (H.length) { var dh = H.filter(function (q) { return marks[q.id]; }).length; s += '<button class="pk pk-hsg' + (ui.open === "HSG" ? " on" : "") + '" data-tl="open:HSG" aria-expanded="' + (ui.open === "HSG") + '"><b>' + LV.HSG + " · " + H.length + " bài</b><span>" + LV_DESC.HSG + (dh ? " Đã làm " + dh + "/" + H.length + "." : "") + "</span></button>"; }
