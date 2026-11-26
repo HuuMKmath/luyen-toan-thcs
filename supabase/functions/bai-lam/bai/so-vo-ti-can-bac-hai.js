@@ -186,7 +186,7 @@ function genMtCmp(){return tryGen(()=>{
   const rel=half?(n*100>(b*10)*(b*10)?'>':n*100<(b*10)*(b*10)?'<':'='):(n>b*b?'>':n<b*b?'<':'=');
   const sym=['>','<','='],NO='Không so sánh được vì √n là số vô tỉ';
   const why=x=>rel==='='?`${bs}² = ${dt(b*b)} = ${n} nên ${SQ(n)} = ${bs}, không lớn hơn hay nhỏ hơn.`:x==='='?`${SQ(n)} không bằng ${bs}: ${bs}² = ${dt(b*b)} khác ${n}.`:`Ta có ${bs}² = ${dt(b*b)} ${n>b*b?'<':'>'} ${n}, nên ${SQ(n)} ${n>b*b?'>':'<'} ${bs}.`;
-  const cs=sym.filter(x=>x!==rel).map(x=>C(`${SQ(n)} ${x} ${bs}`,why(x))).concat([C(NO.replace('√n',SQ(n)),'Hai số thực luôn so sánh được; ta so sánh bình phương của chúng.')]);
+  const cs=sym.filter(x=>x!==rel).map(x=>C(`${SQ(n)} ${x} ${bs}`,why(x))).concat([C(NO.replace('√n',SQ(n)),'Hai số này luôn so sánh được; ta so sánh bình phương của chúng.')]);
   const r=mk(`So sánh ${SQ(n)} và ${bs}. Chọn kết quả đúng:`,`${SQ(n)} ${rel} ${bs}`,cs,`Vì ${bs}² = ${dt(b*b)} ${rel==='='?'=':(n>b*b?'<':'>')} ${n} nên ${SQ(n)} ${rel} ${bs}.`,{n,b:bs,rel});return r;
 });}
 

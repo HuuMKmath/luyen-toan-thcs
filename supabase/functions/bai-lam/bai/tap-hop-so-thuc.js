@@ -143,8 +143,8 @@ function genTsBetw(){return tryGen(()=>{
 });}
 function genTsDiag(){return tryGen(()=>{
   const a=ri(1,7),b=ri(1,7),Nn=a*a+b*b;if(isSq(Nn)||(a===1&&b===1))return null;
-  const cs=[C(String(a+b),'Cạnh huyền không bằng tổng hai cạnh góc vuông; cạnh huyền² = a² + b².'),C(String(Nn),'Đây là bình phương cạnh huyền, chưa lấy căn bậc hai.'),C(SQ(a+b),'Cạnh huyền² = a² + b², không phải a + b.')];
-  return mk(`Một tam giác vuông có hai cạnh góc vuông bằng ${a} và ${b}. Để biểu diễn điểm cách gốc O một khoảng bằng độ dài cạnh huyền, ta vẽ đường tròn tâm O (gốc của trục số) có bán kính bằng:`,SQ(Nn),cs,`Cạnh huyền² = ${a}² + ${b}² = ${Nn} nên cạnh huyền = ${SQ(Nn)}; bán kính đường tròn bằng ${SQ(Nn)}.`,{a,b});
+  const cs=[C(String(a+b),'Cạnh hình vuông là căn bậc hai số học của diện tích, không phải tổng hai cạnh.'),C(String(Nn),'Đây là diện tích hình vuông, chưa lấy căn bậc hai.'),C(SQ(a+b),`Diện tích là ${a}² + ${b}² = ${Nn}, không phải ${a} + ${b}.`)];
+  return mk(`Một hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b}. Để biểu diễn điểm cách gốc O một khoảng bằng độ dài cạnh hình vuông đó, ta vẽ đường tròn tâm O (gốc của trục số) có bán kính bằng:`,SQ(Nn),cs,`Diện tích hình vuông là ${a}² + ${b}² = ${Nn} nên cạnh bằng ${SQ(Nn)}; bán kính đường tròn bằng ${SQ(Nn)}.`,{a,b});
 });}
 function genTsGrid(){return tryGen(()=>{
   const a=ri(10,90)/10,k=ri(2,8),v=a+k/100;
@@ -298,8 +298,8 @@ function tsItem(lv){
   if(t===2){const ok=RNG()<.5;return IT(`Hai điểm biểu diễn các số x và −x ${ok?'cách đều':'không cách đều'} gốc O`,ok,'ts','TH','Hai số đối nhau có cùng giá trị tuyệt đối nên cách đều gốc O.');}
   if(t===3){const ok=RNG()<.5;return IT(`Số vô tỉ ${ok?'cũng được':'không được'} biểu diễn bởi một điểm trên trục số`,ok,'ts','TH','Mỗi số thực, kể cả số vô tỉ, đều được biểu diễn bởi một điểm trên trục số.');}
   if(t===4){const ok=RNG()<.5;return IT(`Mỗi điểm trên trục số đều biểu diễn một số ${ok?'thực':'hữu tỉ'}`,ok,'ts','TH','Mỗi điểm trên trục số biểu diễn một số thực (có thể là số vô tỉ).');}
-  if(t===5){const a=ri(1,6),b=ri(1,6);const n=a*a+b*b;if(isSq(n))return tsItem(lv);return IT(`Tam giác vuông có hai cạnh góc vuông ${a} và ${b} có cạnh huyền ${SQ(n)}`,true,'ts','VD',`Cạnh huyền² = ${a}² + ${b}² = ${n} nên cạnh huyền = ${SQ(n)}.`);}
-  const a=ri(1,6),b=ri(1,6),n=a*a+b*b;if(isSq(n)||a+b===n)return tsItem(lv);return IT(`Tam giác vuông có hai cạnh góc vuông ${a} và ${b} có cạnh huyền ${SQ(a+b)}`,false,'ts','VD',`Cạnh huyền² = ${a}² + ${b}² = ${n}, nên cạnh huyền = ${SQ(n)}, không phải ${SQ(a+b)}.`);
+  if(t===5){const a=ri(1,6),b=ri(1,6);const n=a*a+b*b;if(isSq(n))return tsItem(lv);return IT(`Hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b} thì có cạnh ${SQ(n)}`,true,'ts','VD',`Diện tích là ${a}² + ${b}² = ${n} nên cạnh = ${SQ(n)}.`);}
+  const a=ri(1,6),b=ri(1,6),n=a*a+b*b;if(isSq(n)||a+b===n)return tsItem(lv);return IT(`Hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b} thì có cạnh ${SQ(a+b)}`,false,'ts','VD',`Diện tích là ${a}² + ${b}² = ${n}, nên cạnh = ${SQ(n)}, không phải ${SQ(a+b)}.`);
 }
 function ssItem(lv){
   const t=ri(0,lv==='VD'?6:4);
@@ -426,7 +426,7 @@ function saSsMax(){
 }
 function saTsDiag(){
   for(;;){const a=ri(1,9),b=ri(1,9),Nn=a*a+b*b;if(isSq(Nn))continue;
-    return {stem:`Tam giác vuông có hai cạnh góc vuông bằng ${a} và ${b}; độ dài cạnh huyền là √m. Để biểu diễn số −√m trên trục số, trước hết cần tìm m. Tìm m.`,ans:[Nn],exp:`Cạnh huyền² = ${a}² + ${b}² = ${Nn}, nên m = ${Nn}.`,meta:{a,b}};}
+    return {stem:`Một hình vuông có diện tích bằng tổng diện tích hai hình vuông cạnh ${a} và cạnh ${b}; cạnh của nó dài √m. Để biểu diễn số −√m trên trục số, trước hết cần tìm m. Tìm m.`,ans:[Nn],exp:`Diện tích hình vuông là ${a}² + ${b}² = ${Nn}, cạnh là √${Nn}, nên m = ${Nn}.`,meta:{a,b}};}
 }
 function saTsGrid(){
   const a=ri(10,90)/10,k=ri(2,8),v=Math.round((a+k/100)*100)/100;

@@ -485,7 +485,7 @@ const LEVEL_DESC={NB:'Nhận ra số nguyên âm, đọc số trên trục số,
 const O=(t,err)=>err?{t,err}:{t};
 const MC=[
  {id:'m1',topic:'na',level:'NB',stem:'Tập hợp các số nguyên được kí hiệu là gì?',ans:0,opts:[
-   O('ℤ'),O('ℕ','ℕ là kí hiệu tập hợp các số tự nhiên.'),O('ℕ*','ℕ* là kí hiệu tập hợp các số tự nhiên khác 0.'),O('ℚ','Kí hiệu này không dùng cho tập hợp các số nguyên. Tập hợp các số nguyên kí hiệu là ℤ.')],
+   O('ℤ'),O('ℕ','ℕ là kí hiệu tập hợp các số tự nhiên.'),O('ℕ*','ℕ* là kí hiệu tập hợp các số tự nhiên khác 0.'),O('M','M chỉ là tên đặt cho một tập hợp bất kì. Tập hợp các số nguyên có kí hiệu riêng là ℤ.')],
   exp:'Tập hợp các số nguyên được kí hiệu là ℤ.'},
  {id:'m2',topic:'na',level:'NB',stem:'Khẳng định nào sau đây đúng về số 0?',ans:0,opts:[
    O('Số 0 không phải số nguyên âm, cũng không phải số nguyên dương'),

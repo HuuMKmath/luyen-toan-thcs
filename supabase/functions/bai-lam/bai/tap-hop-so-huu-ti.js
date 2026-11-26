@@ -243,7 +243,7 @@ function genSsCmp(level){return tryGen(()=>{
   const wrong=s=>{
     if(sym==='=')return 'Hai số rút gọn về cùng một số hữu tỉ nên bằng nhau.';
     if(s==='=')return 'Sau khi quy đồng mẫu số, hai tử số khác nhau nên hai số không bằng nhau.';
-    return both?'Với hai số âm, số có giá trị tuyệt đối lớn hơn thì nhỏ hơn.':mixed?'Số dương luôn lớn hơn số âm.':'Hãy quy đồng mẫu số dương rồi so sánh các tử số.';
+    return both?'Với hai số âm, số nào có số đối lớn hơn thì số đó nhỏ hơn.':mixed?'Số dương luôn lớn hơn số âm.':'Hãy quy đồng mẫu số dương rồi so sánh các tử số.';
   };
   const opts=[{t:txt(sym)}].concat(['<','>','='].filter(s=>s!==sym).map(s=>({t:txt(s),err:wrong(s)})),[{t:'Không so sánh được',err:'Hai số hữu tỉ bất kì đều so sánh được: quy đồng mẫu rồi so sánh tử, hoặc dựa vào dấu.'}]);
   const exp=how==='sign'?`Số dương lớn hơn 0 và 0 lớn hơn số âm nên ${txt(sym)}.`:`Quy đồng mẫu số: ${A} = ${fr(x1,L)} và ${B} = ${fr(x2,L)}. Vì ${N(x1)} ${sym} ${N(x2)} nên ${txt(sym)}.`;
@@ -253,9 +253,9 @@ function genSsMax(){return tryGen(()=>{
   const v=numSet(4),mx=RNG()<.5,idx=[0,1,2,3].sort((i,j)=>cmpQ(v[i].q,v[j].q)),good=mx?idx[3]:idx[0];
   const bigAbs=[0,1,2,3].reduce((b,i)=>Math.abs(val(v[i].q))>Math.abs(val(v[b].q))?i:b,0);
   const err=i=>{
-    if(i===bigAbs&&mx&&v[i].q[0]<0&&v.some(o=>o.q[0]>0))return 'Số này có giá trị tuyệt đối lớn nhất nhưng là số âm nên nhỏ hơn mọi số dương.';
-    if(i===bigAbs&&!mx&&v[i].q[0]>0&&v.some(o=>o.q[0]<0))return 'Số này có giá trị tuyệt đối lớn nhất nhưng là số dương nên lớn hơn mọi số âm.';
-    return mx?'Số này nhỏ hơn số lớn nhất trong bốn số.':'Số này lớn hơn số nhỏ nhất trong bốn số. Với số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ.';
+    if(i===bigAbs&&mx&&v[i].q[0]<0&&v.some(o=>o.q[0]>0))return 'Số này là số âm nên nhỏ hơn mọi số dương.';
+    if(i===bigAbs&&!mx&&v[i].q[0]>0&&v.some(o=>o.q[0]<0))return 'Số này là số dương nên lớn hơn mọi số âm.';
+    return mx?'Số này nhỏ hơn số lớn nhất trong bốn số.':'Số này lớn hơn số nhỏ nhất trong bốn số. Với số âm, số đối càng lớn thì số càng nhỏ.';
   };
   return {stem:mx?'Trong các số sau, số nào lớn nhất?':'Trong các số sau, số nào nhỏ nhất?',opts:[{t:v[good].h}].concat([0,1,2,3].filter(i=>i!==good).map(i=>({t:v[i].h,err:err(i)}))),ans:0,
     exp:`Sắp xếp từ bé đến lớn: ${idx.map(i=>v[i].h).join(' < ')}. Vậy số ${mx?'lớn':'nhỏ'} nhất là ${v[good].h}.`};
@@ -266,10 +266,10 @@ function genSsOrder(){return tryGen(()=>{
   const [a,b,c]=idx;
   return mk(`Sắp xếp ba số ${v.map(o=>o.h).join('; ')} theo thứ tự từ bé đến lớn:`,seq(idx),[
     C(seq([c,b,a]),'Đây là thứ tự từ lớn đến bé; đề yêu cầu từ bé đến lớn.'),
-    C(seq(byAbs),'Bạn xếp theo giá trị tuyệt đối. Số âm có giá trị tuyệt đối lớn hơn thì nhỏ hơn.'),
+    C(seq(byAbs),'Bạn đã xếp các số như khi bỏ dấu "−". Với số âm, số nào có số đối lớn hơn thì nhỏ hơn.'),
     C(seq([b,a,c]),'Có hai số bị xếp sai chỗ. Hãy so sánh từng cặp số.'),
     C(seq([a,c,b]),'Có hai số bị xếp sai chỗ. Hãy so sánh từng cặp số.')],
-    `Từ bé đến lớn: ${seq(idx)}. Số âm nhỏ hơn số dương; với hai số âm, số có giá trị tuyệt đối lớn hơn thì nhỏ hơn.`);
+    `Từ bé đến lớn: ${seq(idx)}. Số âm nhỏ hơn số dương; với hai số âm, số nào có số đối lớn hơn thì số đó nhỏ hơn.`);
 });}
 function genSsBetween(){return tryGen(()=>{
   const d=ri(2,7),a=ri(1,12)*sgn(),w=sel([2,4,6]),b=a+w,lo=[a,d],hi=[b,d];
@@ -484,7 +484,7 @@ const TOPICS={
   kn:{short:'Số hữu tỉ và ℚ',name:'Số hữu tỉ và tập hợp ℚ',rule:'Số hữu tỉ là số viết được dưới dạng phân số a/b với a, b là số nguyên và b ≠ 0. Tập hợp các số hữu tỉ kí hiệu là ℚ. Số nguyên, số thập phân hữu hạn và hỗn số đều là số hữu tỉ. Số đối của số hữu tỉ m là −m. Số 0 không là số hữu tỉ dương, cũng không là số hữu tỉ âm.',tip:'Phân số có mẫu bằng 0 không có nghĩa. Mẫu số âm vẫn được. Khi đổi hỗn số hay số thập phân ra phân số, nhớ giữ dấu "−".'},
   ts:{short:'Biểu diễn trên trục số',name:'Biểu diễn số hữu tỉ trên trục số',rule:'Để biểu diễn a/b (b > 0) trên trục số, chia đoạn thẳng đơn vị thành b đoạn bằng nhau, lấy một đoạn làm đơn vị mới (bằng 1/b đơn vị cũ). Điểm biểu diễn a/b cách O a đơn vị mới; số dương nằm sau gốc O, số âm nằm trước gốc O.',tip:'Mẫu số cho biết đoạn thẳng đơn vị chia thành bao nhiêu đoạn bằng nhau, tử số cho biết điểm cách O bao nhiêu đơn vị mới (không đếm vạch O). Mẫu số âm thì đổi dấu cả tử và mẫu trước khi biểu diễn.'},
   sd:{short:'Số đối',name:'Số đối của một số hữu tỉ',rule:'Số đối của a/b là −a/b, hai số đối nhau có tổng bằng 0: a/b + (−a/b) = 0. Số đối của 0 là 0. Hai điểm biểu diễn hai số hữu tỉ đối nhau nằm về hai phía khác nhau so với O và có cùng khoảng cách đến O.',tip:'Số đối chỉ đổi dấu, không đảo tử và mẫu (đó là số nghịch đảo). Số đối của −x là x.'},
-  ss:{short:'So sánh',name:'So sánh hai số hữu tỉ',rule:'Viết hai số dưới dạng phân số cùng mẫu dương rồi so sánh các tử số. Số hữu tỉ dương lớn hơn 0, số hữu tỉ âm nhỏ hơn 0, số dương lớn hơn số âm. Trên trục số, nếu a < b thì điểm a nằm trước điểm b.',tip:'Với hai số âm, giá trị tuyệt đối càng lớn thì số càng nhỏ. Quy đồng về mẫu dương trước khi so sánh các tử.'}
+  ss:{short:'So sánh',name:'So sánh hai số hữu tỉ',rule:'Viết hai số dưới dạng phân số cùng mẫu dương rồi so sánh các tử số. Số hữu tỉ dương lớn hơn 0, số hữu tỉ âm nhỏ hơn 0, số dương lớn hơn số âm. Trên trục số, nếu a < b thì điểm a nằm trước điểm b.',tip:'Với hai số âm, số nào có số đối lớn hơn thì số đó nhỏ hơn. Quy đồng về mẫu dương trước khi so sánh các tử.'}
 };
 const TKEYS=['kn','ts','sd','ss'];
 const TDESC={kn:'Khái niệm số hữu tỉ, kí hiệu ∈ ∉ ℚ, số thập phân và hỗn số',ts:'Đọc và biểu diễn số hữu tỉ trên trục số, chia đoạn thẳng đơn vị',sd:'Tìm số đối, hai điểm đối xứng qua gốc O',ss:'So sánh, sắp xếp các số hữu tỉ, số nằm giữa hai số, so sánh cùng tử, qua số 1 và bằng phần bù'};
