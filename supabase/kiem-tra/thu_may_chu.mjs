@@ -21,6 +21,14 @@ const MA_DE = { DE7A1: { ma: "DE7A1", bai_id: "tam-giac-bang-nhau", loai: "kt25"
 let sai = 0, n = 0;
 const LUOT = {};
 const db = {
+  dsLopDay: async () => {
+    const m = {};
+    HS.filter(h => h.dang_hoc).forEach(h => lopCua(h).filter(l => l.loai !== "gv").forEach(l => { (m[l.ten] = m[l.ten] || { ten: l.ten, khoi: l.khoi, so: 0 }).so++; }));
+    return Object.values(m);
+  },
+  dsBaiDayDu: async () => Object.values(BAI).map(b => ({ ...b, tieu_de: b.id, chuong: "" })),
+  hsTrongLop: async ten => HS.filter(h => h.dang_hoc && lopCua(h).some(l => l.ten === ten)).map(h => ({ id: h.id, ho_ten: h.ho_ten })),
+  luotCuaHS: async ids => Object.values(LUOT).filter(l => ids.includes(l.hoc_sinh_id) && l.nop_luc),
   demSai: async () => sai, ghiSai: async () => { sai++; },
   timHocSinh: async ma => HS.find(h => h.ma_hs === ma && h.dang_hoc) || null,
   cacLop: async id => lopCua(HS.find(h => h.id === id) || {}),
@@ -180,6 +188,20 @@ ok(r.khoi && r.khoi.so === 3 && r.khoi.tatCa.top[2].l === "7B", "xếp hạng kh
 ok(!JSON.stringify(r).includes("111111"), "xếp hạng không lộ mã học sinh khác");
 r = await cu({ ma: "999999", bxh: "1" });
 ok(r.ok && r.gv && r.khoi[7].length === 3 && r.khoi[6].length === 1 && r.khoi[7].some(h => h.n === "Lê Văn Cường" && h.ls.length === 2), "mã giáo viên: bảng đầy đủ mọi khối");
+
+// ----- Sổ điểm (chỉ mã GV) -----
+r = await cu({ ma: "111111", sodiem: "1" });
+ok(!r.ok && r.khong_phai_gv, "sổ điểm: mã học sinh bị từ chối");
+r = await cu({ ma: "999999", sodiem: "1" });
+ok(r.ok && r.lops.some(l => l.ten === "7A" && l.so === 2) && !r.lops.some(l => l.ten === "GV") && r.bai.length === 2 && !r.hs, "sổ điểm: danh sách lớp (không có lớp GV), bài");
+r = await cu({ ma: "999999", sodiem: "1", lop: "7A" });
+const an = r.hs && r.hs.find(h => h.n === "Nguyễn Văn An");
+const kAn = an && an.d["tam-giac-bang-nhau"];
+const nopAn = Object.values(LUOT).filter(l => l.hoc_sinh_id === "hs-an" && l.nop_luc && l.bai_id === "tam-giac-bang-nhau" && l.loai === "kt25");
+ok(r.ok && r.lop === "7A" && r.hs.length === 2 && kAn && kAn.kt25 && kAn.kt25[1] === nopAn.length && kAn.kt25[0] === Math.max(...nopAn.map(l => Number(l.diem))) && /^\d\d\/\d\d \d\d:\d\d$/.test(kAn.kt25[2]), "sổ điểm lớp 7A: điểm cao nhất, số lần, lần cuối");
+ok(r.hs[0].n === "Nguyễn Văn An" && !JSON.stringify(r).includes("111111"), "sổ điểm: xếp theo tên, không lộ mã học sinh");
+r = await cu({ ma: "999999", sodiem: "1", lop: "9Z" });
+ok(!r.ok && r.khong_co_lop, "sổ điểm: lớp không có thì báo");
 
 // ----- Chống dò mã -----
 sai = SAI_TOI_DA;

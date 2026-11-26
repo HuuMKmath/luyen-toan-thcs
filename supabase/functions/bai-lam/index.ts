@@ -78,6 +78,40 @@ const db = {
     if (error) loiDb(error);
     return data || [];
   },
+  // Sổ điểm giáo viên: các lớp học sinh đang dùng (không kể lớp GV), kèm sĩ số
+  async dsLopDay() {
+    const { data, error } = await sb.from("lop").select("ten, khoi, lop_hoc_sinh(count)").eq("dang_dung", true).neq("loai", "gv").order("ten");
+    if (error) loiDb(error);
+    return (data || []).map((l: any) => ({ ten: l.ten, khoi: l.khoi, so: (l.lop_hoc_sinh && l.lop_hoc_sinh[0] && l.lop_hoc_sinh[0].count) || 0 }));
+  },
+  async dsBaiDayDu() {
+    const { data, error } = await sb.from("bai_hoc").select("id, khoi, tieu_de, chuong, thu_tu").order("khoi").order("thu_tu");
+    if (error) loiDb(error);
+    return data || [];
+  },
+  async hsTrongLop(ten: string) {
+    const { data, error } = await sb.from("lop_hoc_sinh").select("lop!inner(ten, dang_dung), hoc_sinh!inner(id, ho_ten, dang_hoc)")
+      .eq("lop.ten", ten).eq("lop.dang_dung", true).eq("hoc_sinh.dang_hoc", true);
+    if (error) loiDb(error);
+    const thay: Record<string, boolean> = {};
+    return (data || []).map((r: any) => r.hoc_sinh).filter((h: any) => !thay[h.id] && (thay[h.id] = true));
+  },
+  // Mọi lượt đã nộp của các học sinh (đọc từng trang 1000 dòng)
+  async luotCuaHS(ids: string[]) {
+    const out: any[] = [];
+    for (let i = 0; i < ids.length; i += 100) {
+      const nhom = ids.slice(i, i + 100);
+      for (let tu = 0; ; tu += 1000) {
+        const { data, error } = await sb.from("luot_lam").select("hoc_sinh_id, bai_id, loai, diem, nop_luc")
+          .in("hoc_sinh_id", nhom).not("nop_luc", "is", null).in("loai", ["kt25", "kt5", "thu_thach"])
+          .order("id").range(tu, tu + 999);
+        if (error) loiDb(error);
+        out.push(...(data || []));
+        if (!data || data.length < 1000) break;
+      }
+    }
+    return out;
+  },
   async baiHoc(id: string) {
     const { data } = await sb.from("bai_hoc").select("id, khoi, da_mo").eq("id", String(id || "")).maybeSingle();
     return data;

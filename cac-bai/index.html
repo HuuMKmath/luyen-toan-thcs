@@ -418,7 +418,7 @@ a.lesson.lock .ic{filter:grayscale(1)}
       </a>
       <a class="lesson" href="../luyen-tap-chung-sau-bai-16/" data-tab="7 - Luyện tập chung (sau Bài 16)">
         <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-tri"></use></svg></span>
-        <span class="tx"><h4>Luyện tập chung (sau Bài 16)</h4><span class="ds">Ôn tổng hợp Chương IV: tam giác bằng nhau, tam giác vuông bằng nhau, tam giác cân, tam giác đều và đường trung trực</span></span>
+        <span class="tx"><h4>Luyện tập chung (sau Bài 16)</h4><span class="ds">Ôn tổng hợp Chương IV: tam giác bằng nhau, tam giác vuông bằng nhau, tam giác cân, tam giác đều và đường trung trực</span><span class="st"></span></span>
         <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg></span>
       </a>
       <a class="lesson" href="../bai-tap-cuoi-chuong-4-toan-7/" data-tab="7 - Bài tập cuối chương IV">
@@ -478,6 +478,8 @@ const SHEET_URL='https://script.google.com/macros/s/AKfycbxcGb_fnpsaQe8-NGyNNAoM
 const HS_KEY='luyentoan-hs'; // cùng khóa với các trang bài: nhập mã ở đâu cũng được nhớ chung
 const body=document.getElementById('me-body');
 const cards=[].slice.call(document.querySelectorAll('a.lesson[data-tab]'));
+// Thẻ bài thiếu chỗ ghi tiến độ (.st) thì tự thêm, để một thẻ viết thiếu không làm hỏng cả trang
+cards.forEach(function(a){if(!a.querySelector('.st')){const sp=document.createElement('span');sp.className='st';(a.querySelector('.tx')||a).appendChild(sp);}});
 const GMok=!!(window.GM&&GM.stats);
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 // Quá 2 ngày không mở trang nào của website thì máy quên mã học sinh, phải nhập lại (mã GV không hết hạn).
@@ -565,7 +567,7 @@ function fetchProg(u,fresh){
 function shell(h,extra){
   hero(h);document.getElementById('h-me').hidden=true;
   body.innerHTML='<div id="me-stats"></div>'+extra+
-   '<div class="row"><button class="btn ghost" id="rf">Làm mới</button><button class="btn ghost" id="out">Đổi học sinh</button></div>';
+   '<div class="row">'+(h&&/^\s*gv\s*$/i.test(String(h.c||''))?'<a class="btn" href="../so-diem/" style="display:inline-flex;align-items:center;text-decoration:none">Sổ điểm các lớp</a>':'')+'<button class="btn ghost" id="rf">Làm mới</button><button class="btn ghost" id="out">Đổi học sinh</button></div>';
   drawStats();
   document.getElementById('rf').onclick=function(){const x=load();if(x)fetchProg(x.u,false);};
   document.getElementById('out').onclick=function(){save(null);loginView('');};
