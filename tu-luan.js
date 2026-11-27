@@ -127,6 +127,15 @@
   }
 
   function rerender(focusId) {
+    if (ui.solo) {   // đang mở khung Tập phân tích: chỉ vẽ lại bài trong khung
+      var sb = document.getElementById("tl-solo"), wrap = document.querySelector(".ptm-body");
+      if (!sb) return;
+      var y0 = wrap ? wrap.scrollTop : 0;
+      sb.outerHTML = soloHTML();
+      if (wrap) wrap.scrollTop = y0;
+      if (focusId) { var f0 = document.querySelector('#tl-solo [data-tl="' + focusId + '"]'); if (f0) f0.focus({ preventScroll: true }); }
+      return;
+    }
     var box = document.getElementById("tl-box");
     if (!box) return;
     var y = window.scrollY;
@@ -217,7 +226,7 @@
     if (act === "pt") { if (st) { delete ui.pt[id]; try { speechSynthesis.cancel(); } catch (e) {} } else ui.pt[id] = { a: 0, n: 0 }; rerender("pt:" + id); if (ui.pt[id] && docAuto()) noi(ptText(q), b); return; }
     if (!st) return;
     if (act === "pta") { ui.pt[id] = { a: +a[2], n: 0 }; rerender(null); if (docAuto()) noi(ptText(q), b); }
-    else if (act === "ptn") { st.n++; var A = q.pt[st.a]; rerender(st.n < A.sd.length ? "ptn:" + id : null); if (docAuto()) noi("Muốn vậy, cần có: " + A.sd[st.n - 1][0] + (st.n >= A.sd.length ? ". Đến đây đã gặp giả thiết." : ""), document.getElementById("pt-" + id)); }
+    else if (act === "ptn") { st.n++; var A = q.pt[st.a]; if (st.n >= A.sd.length && st.a === q.pt.length - 1) daPhanTich(q); rerender(st.n < A.sd.length ? "ptn:" + id : null); if (docAuto()) noi("Muốn vậy, cần có: " + A.sd[st.n - 1][0] + (st.n >= A.sd.length ? ". Đến đây đã gặp giả thiết." : ""), document.getElementById("pt-" + id)); }
     else if (act === "ptsay") noi(ptText(q), b);
     else if (act === "ptsol") {
       var P = cau(q);
@@ -424,7 +433,9 @@
     else if (act === "nga") { ui.ng[id] = ngNew(+a[2], 2); rerender("nga:" + id + ":" + a[2]); if (docAuto()) noi(ngText(q, "q"), b); }
     else if (act === "ngsh") {
       var Bk = A.buoc[st.k], okc = Bk.chon.filter(function (c) { return c[1]; })[0];
-      st.k++; st.nh = false; rerender(null);
+      st.k++; st.nh = false;
+      if (st.k >= A.buoc.length && st.a === q.nguoc.length - 1) daPhanTich(q);
+      rerender(null);
       var cur = document.querySelector('#ng-' + id + ' .ng-cur') || document.querySelector('#ng-' + id + ' .ng-end');
       if (cur) { cur.setAttribute("tabindex", "-1"); cur.focus({ preventScroll: true }); cur.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
       if (docAuto()) noi("Trả lời: " + okc[0] + ". " + (st.k < A.buoc.length ? "Câu hỏi tiếp. " + A.buoc[st.k].hoi : A.ket), box());
@@ -450,6 +461,9 @@
   }
 
   document.addEventListener("click", function (e) {
+    var m = e.target.closest && e.target.closest("[data-ptm]");
+    if (m) { e.preventDefault(); moMau(m.getAttribute("data-ptm"), m.getAttribute("data-ptm-ctx") || "", m); return; }
+    if (e.target.closest && (e.target.closest("[data-ptm-close]") || e.target.classList.contains("ptm"))) { dongMau(); return; }
     var b = e.target.closest && e.target.closest("[data-tl]");
     if (!b) return;
     var a = b.getAttribute("data-tl").split(":"), act = a[0], id = a[1];
@@ -465,6 +479,82 @@
     else if (act === "mark") mark(id, a[2], b);
     else if (act.indexOf("ng") === 0) ngAct(act, q, a, b);
   });
+
+  /* ---------- Tập phân tích (làm thử ở Bài 16 Toán 7, 27/11/2026) ----------
+     TL_DATA.mau = { ids: [bài mẫu, mỗi dạng một bài], theoPhan: { phần kiến thức: id bài mẫu } }.
+     - Bước "Tập phân tích" trong Lộ trình của em: TuLuan.mauHTML() liệt kê bài mẫu.
+     - Làm sai câu Vận dụng: TuLuan.nutHTML(phần) cho nút "Cùng phân tích cách giải".
+     Bấm nút thì mở khung riêng (không rời trang đang làm), bài mẫu bắt đầu ngay ở bước 1 của 4 bước.
+     Đi hết phần phân tích (bước 2) của một bài thì báo cho Lộ trình (LoTrinh.phanTich). */
+  var POLYA_NGAN = "Tìm hiểu đề bài → Xây dựng chương trình giải → Thực hiện chương trình giải → Kiểm tra và nghiên cứu lời giải";
+  function mau() { var d = data(); return d && d.mau && d.mau.ids && d.mau.ids.length ? d.mau : null; }
+  function item(id) { var d = data(); return d ? d.items.filter(function (x) { return x.id === id; })[0] : null; }
+  function tenDang(q) { var D = dangs(), x = dangOf(q); return x ? "Dạng " + (D.indexOf(x) + 1) + ". " + x.ten : LV[q.lv] || ""; }
+  function boThe(t) { return String(t).replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, ""); }
+  function daPhanTich(q) {
+    if (!mau()) return;
+    ui.xongPT = q.id;
+    try { if (window.LoTrinh && LoTrinh.phanTich) { LoTrinh.phanTich(q.id); if (!ui.solo && LoTrinh.capNhat) LoTrinh.capNhat(); } } catch (e) {}
+  }
+  function mauHTML() {
+    var M = mau(); if (!M) return "";
+    var s = '<p style="margin:12px 0 0">Gặp bài Vận dụng, đừng vội tính ngay. Hãy tập <b>tìm ra cách giải</b> trước, theo 4 bước: ' + POLYA_NGAN + ".</p>";
+    s += '<p class="small muted" style="margin:6px 0 0">Mỗi dạng có một bài mẫu. Em chọn một bài, có giấy nháp bên cạnh, tự trả lời từng câu hỏi gợi mở rồi mới bấm xem. Đi hết phần phân tích của một bài là xong bước này.</p>';
+    s += '<div class="pack" style="margin-top:10px">';
+    M.ids.forEach(function (id) {
+      var q = item(id); if (!q) return;
+      var de = boThe(q.de), ngan = de.split(/\s(?=a\))/)[0];
+      s += '<button class="pk" data-ptm="' + id + '"><b>🧭 ' + esc(tenDang(q)) + "</b><span>" + esc(ngan.length > 150 ? ngan.slice(0, 147) + "…" : ngan) + "</span></button>";
+    });
+    return s + "</div>";
+  }
+  function nutHTML(phan) {
+    var M = mau(); if (!M) return "";
+    var id = (M.theoPhan && M.theoPhan[phan]) || M.ids[0], q = item(id); if (!q) return "";
+    return '<div class="ptm-goi"><p style="margin:0"><b>Câu vận dụng này em chưa làm đúng ngay.</b> Đừng chỉ nhớ đáp án: hãy tập tìm cách giải một bài cùng dạng (' + esc(tenDang(q)) + ") qua các câu hỏi gợi mở.</p>" +
+      '<div class="row" style="margin-top:8px"><button class="btn sm" data-ptm="' + id + '" data-ptm-ctx="sai">🧭 Cùng phân tích cách giải</button></div></div>';
+  }
+  function soloHTML() {
+    var q = item(ui.solo); if (!q) return '<section id="tl-solo"></section>';
+    var D = dangOf(q), marks = load();
+    var s = '<section id="tl-solo" class="stack">';
+    if (ui.soloCtx === "sai") s += '<p class="small" style="margin:0">Bài dưới đây cùng dạng với câu em vừa làm. Phân tích xong, em đóng khung này để quay lại đúng câu đang làm.</p>';
+    s += '<p style="margin:0"><b>' + esc(tenDang(q)) + '</b></p>';
+    if (D) s += '<details class="tl-pp"><summary><b>Phương pháp giải của dạng này</b></summary><ul>' + D.pp.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul></details>";
+    if (ui.xongPT === q.id) s += '<div class="ptm-ok" role="status">✓ Em đã đi hết phần phân tích. Bước <b>Tập phân tích</b> trong Lộ trình của em đã được đánh dấu xong. Em có thể sang bước 3 để tự trình bày lời giải rồi đối chiếu.</div>';
+    s += itemHTML(q, marks);
+    return s + "</section>";
+  }
+  var moTu = null;
+  function moMau(id, ctx, opener) {
+    var q = item(id); if (!q) return;
+    dongMau(true);
+    ui.solo = id; ui.soloCtx = ctx; ui.xongPT = null; moTu = opener || null;
+    delete ui.pt[id]; delete ui.ng[id]; delete ui.sp[id]; ui.step[id] = 0; ui.hint[id] = false;
+    if (q.nguoc) ui.ng[id] = ngNew(0, soBuoc(q)); else if (q.pt) ui.pt[id] = { a: 0, n: 0 };
+    var home = document.getElementById("tl-box"); if (home) home.innerHTML = "";   // tránh trùng mã phần tử với danh sách bài tự luận
+    var d = document.createElement("div");
+    d.className = "ptm"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-labelledby", "ptm-h");
+    d.innerHTML = '<div class="ptm-box"><div class="ptm-top"><h2 id="ptm-h">🧭 Tập phân tích</h2><button class="btn ghost sm" data-ptm-close>Đóng</button></div><div class="ptm-body">' + soloHTML() + "</div></div>";
+    document.body.appendChild(d);
+    document.documentElement.classList.add("ptm-open");
+    var h = d.querySelector("#ptm-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); }
+  }
+  function dongMau(lang) {
+    var d = document.querySelector(".ptm");
+    if (!d) return;
+    var id = ui.solo;
+    d.remove(); document.documentElement.classList.remove("ptm-open");
+    try { speechSynthesis.cancel(); } catch (e) {}
+    ui.solo = null; ui.soloCtx = "";
+    if (id) { delete ui.ng[id]; delete ui.pt[id]; delete ui.sp[id]; ui.step[id] = 0; }
+    rerender(null);   // vẽ lại danh sách bài tự luận (nếu có trên trang)
+    if (lang) return;
+    try { if (window.LoTrinh && LoTrinh.capNhat) LoTrinh.capNhat(); } catch (e) {}
+    if (moTu && moTu.isConnected) try { moTu.focus({ preventScroll: true }); } catch (e) {}
+    moTu = null;
+  }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && ui.solo) dongMau(); });
 
   /* Kiểu dáng riêng của phần tự luận (dùng biến màu của trang). */
   var css = ".tl-list{display:flex;flex-direction:column;gap:12px}" +
@@ -511,8 +601,17 @@
     ".ng-chain{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:12px}.ng-chain>li{border-left:3px solid var(--line);padding-left:10px;display:flex;flex-direction:column;gap:6px}.ng-chain>li.ng-cur{border-left-color:var(--accent)}" +
     ".ng-khac summary{cursor:pointer;color:var(--muted);font-size:.92em}.ng-khac ul{margin:4px 0 0;padding-left:20px;font-size:.92em}" +
     ".ng-nho{background:var(--warn-bg);border-radius:8px;padding:6px 10px}" +
+    ".ptm{position:fixed;inset:0;z-index:1000;background:rgba(10,20,40,.55);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px}" +
+    ".ptm-box{background:var(--card);color:var(--ink);border-radius:16px;width:100%;max-width:760px;max-height:calc(100vh - 48px);display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.3)}" +
+    ".ptm-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}.ptm-top h2{margin:0;font-size:1.1rem;color:var(--accent)}" +
+    ".ptm-body{overflow:auto;padding:14px 16px 18px;overscroll-behavior:contain}" +
+    "html.ptm-open,html.ptm-open body{overflow:hidden}" +
+    "#tl-solo>details.tl-pp>summary{cursor:pointer}" +
+    ".ptm-ok{background:var(--good-bg);border-radius:10px;padding:10px 12px}" +
+    ".ptm-goi{margin-top:12px;border:1.5px dashed var(--accent);border-radius:12px;padding:10px 12px;background:var(--paper)}" +
+    "@media (max-width:560px){.ptm{padding:0}.ptm-box{border-radius:0;max-height:100vh;height:100%}.ptm-body{padding:12px 10px 18px}#tl-solo .tl-q{padding:12px 10px}}" +
     "@media (max-width:560px){#tl-box{padding:14px 12px}.tl-q{padding:12px 10px}.tl-sol{padding:10px 8px}.tl-sol ol{padding-left:18px}.tl-sol .figbox{margin:4px 0}}";
   try { var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st); } catch (e) {}
 
-  window.TuLuan = { html: html, rerender: rerender, LV: LV, doc: doc };
+  window.TuLuan = { html: html, rerender: rerender, LV: LV, doc: doc, coMau: function () { return !!mau(); }, mauHTML: mauHTML, nutHTML: nutHTML, moMau: moMau, dongMau: dongMau };
 })();
