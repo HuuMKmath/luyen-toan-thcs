@@ -26,7 +26,8 @@ const db = {
   },
   async ghiSai() { await sb.from("tra_ma_sai").insert({}); },
   async timHocSinh(ma: string) {
-    const { data, error } = await sb.from("hoc_sinh").select("*")  // "*" để chạy được cả khi chưa thêm cột danh_xung.eq("ma_hs", ma).eq("dang_hoc", true).maybeSingle();
+    // "*" để chạy được cả khi chưa thêm cột danh_xung
+    const { data, error } = await sb.from("hoc_sinh").select("*").eq("ma_hs", ma).eq("dang_hoc", true).maybeSingle();
     if (error) loiDb(error);
     return data;
   },
