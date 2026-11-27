@@ -521,7 +521,7 @@
     if (ui.soloCtx === "sai") s += '<p class="small" style="margin:0">Bài dưới đây cùng dạng với câu em vừa làm. Phân tích xong, em đóng khung này để quay lại đúng câu đang làm.</p>';
     s += '<p style="margin:0"><b>' + esc(tenDang(q)) + '</b></p>';
     if (D) s += '<details class="tl-pp"><summary><b>Phương pháp giải của dạng này</b></summary><ul>' + D.pp.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul></details>";
-    if (ui.xongPT === q.id) s += '<div class="ptm-ok" role="status">✓ Em đã đi hết phần phân tích. Bước <b>Tập phân tích</b> trong Lộ trình của em đã được đánh dấu xong. Em có thể sang bước 3 để tự trình bày lời giải rồi đối chiếu.</div>';
+    if (ui.xongPT === q.id) s += '<div class="ptm-ok" role="status">✓ Em đã đi hết phần phân tích. Em có thể sang bước 3 để tự trình bày lời giải rồi đối chiếu.</div>';
     s += itemHTML(q, marks);
     return s + "</section>";
   }
@@ -535,7 +535,7 @@
     var home = document.getElementById("tl-box"); if (home) home.innerHTML = "";   // tránh trùng mã phần tử với danh sách bài tự luận
     var d = document.createElement("div");
     d.className = "ptm"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-labelledby", "ptm-h");
-    d.innerHTML = '<div class="ptm-box"><div class="ptm-top"><h2 id="ptm-h">🧭 Tập phân tích</h2><button class="btn ghost sm" data-ptm-close>Đóng</button></div><div class="ptm-body">' + soloHTML() + "</div></div>";
+    d.innerHTML = '<div class="ptm-box"><div class="ptm-top"><h2 id="ptm-h">🧭 Cùng phân tích cách giải</h2><button class="btn ghost sm" data-ptm-close>Đóng</button></div><div class="ptm-body">' + soloHTML() + "</div></div>";
     document.body.appendChild(d);
     document.documentElement.classList.add("ptm-open");
     var h = d.querySelector("#ptm-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); }

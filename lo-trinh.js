@@ -1,8 +1,8 @@
 /* Lộ trình của em (trang mỗi bài học, phương án 1 "Lộ trình từng bước", làm thử ở Bài 16 Toán 7).
-   Các bước: Ôn kiến thức → Gói Nhận biết → Gói Thông hiểu → Gói Vận dụng → Tập phân tích → Kiểm tra 25 phút (hoặc Thử thách 30 phút) từ 5 điểm.
+   5 bước: Ôn kiến thức → Gói Nhận biết → Gói Thông hiểu → Gói Vận dụng → Kiểm tra 25 phút (hoặc Thử thách 30 phút) từ 5 điểm.
    Bước NB, TH, VD, KT trùng điều kiện mở bài tiếp theo trong khoa-bai.js (không đổi).
-   Bước Tập phân tích (làm thử 27/11/2026) chỉ có khi trang có bài mẫu (TuLuan.coMau()): phân tích hết một bài mẫu theo 4 bước;
-   không tính vào điều kiện mở bài, nên em vẫn sang Kiểm tra được khi chưa làm bước này.
+   Bước "Tập phân tích" đã bỏ khỏi Lộ trình (thầy chốt 27/11/2026): bài mẫu 4 bước nằm trong từng dạng của phần tự luận;
+   nút "Cùng phân tích cách giải" khi sai câu Vận dụng vẫn giữ (tu-luan.js).
 
    Tiến độ lấy từ:
      - máy chủ (SHEET_URL?ma=...&tiendo=1, giống khoa-bai.js): gói đã xong và điểm cao nhất;
@@ -22,13 +22,11 @@
     { k: "NB", ten: "Gói Nhận biết", mo: "Nhớ đúng khái niệm, kí hiệu, tính chất" },
     { k: "TH", ten: "Gói Thông hiểu", mo: "Tính toán, suy luận một hai bước" },
     { k: "VD", ten: "Gói Vận dụng", mo: "Bài nhiều bước, kết hợp bài trước, tình huống thực tế" },
-    { k: "PT", ten: "Tập phân tích", mo: "Tự tìm ra cách giải một bài Vận dụng theo 4 bước, qua các câu hỏi gợi mở", tuy: 1 },
     { k: "KT", ten: "Kiểm tra 25 phút", mo: "Đạt từ " + DIEM_QUA + " điểm (hoặc Thử thách 30 phút từ " + DIEM_QUA + " điểm)" }
   ];
   var cfg = {}, sv = null, svU = "", dangTai = false, lastO = null;
   var BAT_BUOC = ["NB", "TH", "VD", "KT"];
-  function coPT() { try { return !!(window.TuLuan && TuLuan.coMau && TuLuan.coMau()); } catch (e) { return false; } }
-  function buoc() { var p = coPT(); return BUOC.filter(function (b) { return b.k !== "PT" || p; }); }
+  function buoc() { return BUOC; }
 
   function u() { try { return (cfg.user && cfg.user()) || ""; } catch (e) { return ""; } }
   function key(t) { return "luyentoan-lt:" + u() + "|" + cfg.tab + "|" + t; }
@@ -62,7 +60,6 @@
       xong[g] = goi.indexOf(g) >= 0 || !!get(g) || !!daGui;
     });
     xong.KT = diem >= DIEM_QUA;
-    xong.PT = !!get("PT");
     return { xong: xong, diem: diem };
   }
 
@@ -73,7 +70,7 @@
     var hienTai = -1;
     for (var i = 0; i < BUOC.length; i++) if (!x[BUOC[i].k]) { hienTai = i; break; }
     var duDK = BAT_BUOC.every(function (k) { return x[k]; });   // đủ điều kiện mở bài tiếp theo
-    var truocKT = x.NB && x.TH && x.VD;                          // đã xong ba gói: được làm Kiểm tra (Tập phân tích không bắt buộc)
+    var truocKT = x.NB && x.TH && x.VD;                          // đã xong ba gói: được làm Kiểm tra
     var s = '<section class="card lt" id="lo-trinh" style="margin-top:18px" aria-labelledby="lt-h">';
     s += '<div class="lt-top"><h2 id="lt-h">Lộ trình của em</h2><span class="lt-n">' + n + "/" + BUOC.length + " bước</span></div>";
     s += '<div class="lt-bar" aria-hidden="true">' + BUOC.map(function (b) { return '<i class="' + (x[b.k] ? "ok" : "") + '"></i>'; }).join("") + "</div>";
@@ -86,10 +83,9 @@
       s += '<li class="lt-st ' + cls + '"><span class="lt-dot" aria-hidden="true">' + (ok ? "✓" : i + 1) + "</span>";
       s += '<div class="lt-tx"><b>' + b.ten + '</b><span class="sr"> ' + (ok ? "(đã xong)" : now ? "(bước đang làm)" : "(chưa làm)") + "</span><small>" + esc(phu) + "</small>";
       if (b.tuy) s += '<span class="lt-tuy">Không bắt buộc để mở bài tiếp theo</span>';
-      if (now) s += '<button class="btn sm lt-go" data-lt="' + b.k + '">' + (b.k === "ON" ? "Ôn ngay" : b.k === "KT" ? "Đến phần Kiểm tra" : b.k === "PT" ? "Tập ngay" : "Làm ngay") + "</button>";
+      if (now) s += '<button class="btn sm lt-go" data-lt="' + b.k + '">' + (b.k === "ON" ? "Ôn ngay" : b.k === "KT" ? "Đến phần Kiểm tra" : "Làm ngay") + "</button>";
       else if (b.k === "KT" && !ok && truocKT) s += '<button class="btn sm ghost lt-go" data-lt="KT">Đến phần Kiểm tra</button>';
-      else if (ok && b.k === "PT") s += '<button class="lt-re" data-lt="PT">Tập thêm bài khác</button>';
-      else if (ok && b.k !== "ON" && b.k !== "KT" && b.k !== "PT") s += '<button class="lt-re" data-lt="' + b.k + '">Làm lại</button>';
+      else if (ok && b.k !== "ON" && b.k !== "KT") s += '<button class="lt-re" data-lt="' + b.k + '">Làm lại</button>';
       else if (ok && b.k === "ON") s += '<button class="lt-re" data-lt="ON">Xem lại</button>';
       s += "</div></li>";
     });
@@ -98,17 +94,13 @@
     if (hienTai < 0) {
       s += '<div class="lt-ok">🎉 Em đã đi hết lộ trình của bài này.' + (moTiep ? " " + moTiep : "") + "</div>";
     } else if (duDK) {
-      s += '<div class="lt-ok">🎉 Em đã đủ điều kiện qua bài.' + (moTiep ? " " + moTiep : "") + (x.PT || !coPT() ? "" : " Còn bước Tập phân tích: làm thêm để giỏi bài Vận dụng hơn.") + "</div>";
+      s += '<div class="lt-ok">🎉 Em đã đủ điều kiện qua bài.' + (moTiep ? " " + moTiep : "") + "</div>";
     } else {
       s += '<p class="small muted" style="margin:10px 0 0">Xong ba gói Nhận biết, Thông hiểu, Vận dụng và Kiểm tra 25 phút từ ' + DIEM_QUA + ' điểm là mở được bài tiếp theo' + (cfg.next ? " (" + esc(cfg.next.ten) + ")" : "") + ". Các gói khác ở mục Luyện thêm bên dưới.</p>";
     }
     // Phần ôn kiến thức nằm ngay trong lộ trình, mở ra khi bấm Ôn ngay / Xem lại
     s += '<details class="lt-on" id="lt-on"' + (o.moOn ? " open" : "") + "><summary>📘 Ôn kiến thức và ví dụ mẫu</summary>" + (o.recap || "");
     s += '<div class="row" style="margin-top:12px">' + (x.ON ? '<span class="small muted">Em đã ôn phần này ✓</span>' : '<button class="btn" data-lt="ON-XONG">Em đã ôn xong, sang Gói Nhận biết</button>') + "</div></details>";
-    if (coPT()) {   // Tập phân tích: danh sách bài mẫu, bấm vào thì mở khung phân tích 4 bước (tu-luan.js)
-      s += '<details class="lt-on" id="lt-pt"' + (o.moPt ? " open" : "") + "><summary>🧭 Tập phân tích: tìm cách giải trước khi giải</summary>" + TuLuan.mauHTML();
-      s += (x.PT ? '<p class="small muted" style="margin:10px 0 0">Em đã xong bước này ✓. Tập thêm bài khác càng tốt.</p>' : "") + "</details>";
-    }
     s += "</section>";
     return s;
   }
@@ -119,7 +111,6 @@
     var k = el.getAttribute("data-lt");
     if (k === "ON") { var d = document.getElementById("lt-on"); if (d) { d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); } return true; }
     if (k === "ON-XONG") { set("ON", 1); if (cfg.onChange) cfg.onChange(); var l = document.getElementById("lo-trinh"); if (l) l.scrollIntoView({ block: "start" }); return true; }
-    if (k === "PT") { var p = document.getElementById("lt-pt"); if (p) { p.open = true; p.scrollIntoView({ behavior: "smooth", block: "start" }); } return true; }
     if (k === "KT") { var kt = document.getElementById("kt-box"); if (kt) { kt.open = true; kt.scrollIntoView({ behavior: "smooth", block: "start" }); } return true; }
     if (cfg.startLevel) cfg.startLevel(k);
     return true;
@@ -132,7 +123,7 @@
     goi: function (g) { if (["NB", "TH", "VD"].indexOf(g) >= 0) set(g, 1); },
     diem: function (d) { var n = num(d); if (n > num(get("KT"))) set("KT", n); },
     lamMoi: function () { svU = ""; },
-    /* Tập phân tích: tu-luan.js gọi khi em đi hết phần phân tích một bài; lộ trình vẽ lại khi khung phân tích đóng (capNhat). */
+    /* tu-luan.js vẫn gọi hai hàm này khi em phân tích xong một bài mẫu; Lộ trình không còn bước Tập phân tích nên chỉ ghi nhớ, vẽ lại như cũ. */
     phanTich: function () { set("PT", 1); },
     capNhat: function () {
       var el = document.getElementById("lo-trinh");
