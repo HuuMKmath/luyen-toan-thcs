@@ -285,130 +285,137 @@
     /* ================= DÀNH CHO HSG ================= */
     {
       id: "hsg1", lv: "HSG",
-      de: "a) Cho a, b, m là các số nguyên dương và a < b. Chứng minh " + F("a", "b") + " < " + F("a + m", "b + m") + ".<br>b) Áp dụng, so sánh A = " + F(P(10, 11) + " − 1", P(10, 12) + " − 1") + " và B = " + F(P(10, 10) + " + 1", P(10, 11) + " + 1") + ".",
-      goi: "a) Quy đồng hai phân số với mẫu chung b(b + m) rồi so sánh hai tử. b) A < 1; cộng thêm cùng một số vào tử và mẫu của A để được B.",
-      hieu: { gt: "a, b, m nguyên dương, a < b. A = " + F(P(10, 11) + " − 1", P(10, 12) + " − 1") + ", B = " + F(P(10, 10) + " + 1", P(10, 11) + " + 1") + ".", kl: "a) " + F("a", "b") + " < " + F("a + m", "b + m") + ". b) So sánh A và B.",
+      de: "So sánh A = " + F(P(2023, 2023) + " + 1", P(2023, 2024) + " + 1") + " và B = " + F(P(2023, 2022) + " + 1", P(2023, 2023) + " + 1") + ".",
+      goi: "Nhân A và B cùng với 2023, rồi viết mỗi kết quả thành 1 cộng một phân số.",
+      hieu: { gt: "A = " + F(P(2023, 2023) + " + 1", P(2023, 2024) + " + 1") + ", B = " + F(P(2023, 2022) + " + 1", P(2023, 2023) + " + 1") + ".", kl: "So sánh A và B.",
         hoi: [
-          ["Thử với số cụ thể: " + F(2, 3) + " và " + F("2 + 1", "3 + 1") + " = " + F(3, 4) + ", số nào lớn hơn?", F(2, 3) + " = " + F(8, 12) + " < " + F(9, 12) + " = " + F(3, 4) + ". Cộng cùng một số vào tử và mẫu, phân số nhỏ hơn 1 tăng lên."],
-          ["Ở câu b, A lớn hơn hay nhỏ hơn 1? Tử và mẫu của B có liên hệ gì với tử và mẫu của A?", "Tử của A nhỏ hơn mẫu nên A < 1. Nhân tử và mẫu của B với 10: " + F(P(10, 11) + " + 10", P(10, 12) + " + 10") + ", tức là tử và mẫu của A cùng cộng thêm 11."]] },
+          ["Có tính ra giá trị của A, B để so sánh được không?", "Không: các luỹ thừa quá lớn. Phải so sánh gián tiếp."],
+          ["Tử và mẫu của A có quan hệ gì?", "2023 lần tử là " + P(2023, 2024) + " + 2023, chỉ hơn mẫu " + P(2023, 2024) + " + 1 đúng 2022."]] },
       nguoc: [
-      { ten: "Câu a", dich: F("a", "b") + " < " + F("a + m", "b + m"),
-        sd: [["a · (b + m) < b · (a + m), tức là a · m < b · m", [2, 3]], ["Quy đồng với mẫu chung dương b · (b + m)", [1]]],
-        gt: "a < b, m > 0",
-        ket: "Quy đồng: hai tử là ab + am và ab + bm. Vì a < b và m > 0 nên am < bm, suy ra điều phải chứng minh.",
+      { ten: "So sánh A và B", dich: "So sánh A và B",
+        sd: [["So sánh 2023 · A và 2023 · B", [3]], ["2023 · A = 1 + " + F(2022, P(2023, 2024) + " + 1") + ", 2023 · B = 1 + " + F(2022, P(2023, 2023) + " + 1"), [1, 2]]],
+        gt: "A, B có dạng " + F(P(2023, "n") + " + 1", P(2023, "n + 1") + " + 1"),
+        ket: "2023 · A < 2023 · B nên A < B.",
         buoc: [
-        { hoi: "Hai phân số khác mẫu. Cách quen thuộc để so sánh chúng là gì?",
-          nho: "Hai phân số cùng mẫu dương: phân số nào có tử lớn hơn thì lớn hơn.",
+        { hoi: "Tử của mỗi phân số nhỏ hơn mẫu rất nhiều nên khó so sánh trực tiếp. Nhân A với số nào thì tử xấp xỉ mẫu?",
+          nho: "Nhân hai số dương với cùng một số dương thì thứ tự không đổi.",
           chon: [
-            ["Quy đồng với mẫu chung b · (b + m) (là số dương) rồi so sánh hai tử", true, "Đúng. Hai tử là a · (b + m) và b · (a + m)."],
-            ["So sánh a với a + m và b với b + m", false, "Cả tử và mẫu cùng tăng, nên chỉ so sánh riêng tử hay riêng mẫu không kết luận được."]],
-          dat: "Quy đồng mẫu b · (b + m)" },
-        { hoi: "So sánh hai tử a · (b + m) = ab + am và b · (a + m) = ab + bm. Phần nào khác nhau?",
-          nho: "Tính chất phân phối của phép nhân đối với phép cộng (số nguyên, Toán 6).",
+            ["Nhân với 2023: tử thành " + P(2023, 2024) + " + 2023, gần bằng mẫu", true, "Đúng. Khi đó 2023 · A bằng 1 cộng một phân số nhỏ."],
+            ["Nhân với " + P(2023, 2023), false, "Tử khi đó lớn hơn mẫu rất nhiều; không có lợi."]],
+          dat: "So sánh 2023 · A và 2023 · B" },
+        { hoi: "Viết 2023 · A và 2023 · B thành 1 cộng một phân số. Phân số nào lớn hơn?",
+          nho: "Hai phân số dương cùng tử: phân số nào có mẫu lớn hơn thì nhỏ hơn.",
           chon: [
-            ["Chỉ khác am và bm; vì a < b, m > 0 nên am < bm", true, "Đúng. Nhân hai vế của a < b với số dương m thì thứ tự giữ nguyên."],
-            ["ab + am lớn hơn vì a đứng trước", false, "Phải so sánh từng phần: hai tử cùng có ab, phần còn lại là am và bm."]],
-          dat: "am < bm" }] },
-      { ten: "Câu b", dich: "So sánh A và B",
-        sd: [["B = " + F(P(10, 11) + " + 10", P(10, 12) + " + 10") + " là A với tử và mẫu cùng cộng thêm 11", [4, 5]], ["A < 1 (tử nhỏ hơn mẫu) nên áp dụng được câu a", [4]]],
-        gt: "Câu a; " + P(10, 11) + " − 1 < " + P(10, 12) + " − 1",
-        ket: "A < " + F(P(10, 11) + " − 1 + 11", P(10, 12) + " − 1 + 11") + " = " + F(P(10, 11) + " + 10", P(10, 12) + " + 10") + " = B.",
-        buoc: [
-        { hoi: "Muốn dùng câu a, cần viết B thành phân số có tử và mẫu là tử và mẫu của A cộng thêm cùng một số. Làm thế nào?",
-          nho: "Nhân cả tử và mẫu của một phân số với cùng một số khác 0 thì được phân số bằng nó.",
-          chon: [
-            ["Nhân tử và mẫu của B với 10: B = " + F(P(10, 11) + " + 10", P(10, 12) + " + 10"), true, "Đúng. Tử: (" + P(10, 11) + " − 1) + 11; mẫu: (" + P(10, 12) + " − 1) + 11."],
-            ["Chia tử và mẫu của A cho 10", false, P(10, 11) + " − 1 không chia hết cho 10, không làm được."]],
-          dat: "B = " + F(P(10, 11) + " + 10", P(10, 12) + " + 10") }] }],
+            ["2023 · A = 1 + " + F(2022, P(2023, 2024) + " + 1") + ", 2023 · B = 1 + " + F(2022, P(2023, 2023) + " + 1") + "; phần thêm của A nhỏ hơn", true, "Đúng: mẫu của phần thêm ở A lớn hơn. Vậy A < B."],
+            ["Phần thêm của A lớn hơn vì số mũ 2024 > 2023", false, "Số mũ lớn hơn làm mẫu lớn hơn, nên phân số (cùng tử) nhỏ hơn."]],
+          dat: "2023 · A = 1 + " + F(2022, P(2023, 2024) + " + 1") + ", 2023 · B = 1 + " + F(2022, P(2023, 2023) + " + 1") }] }],
       nhin: [
-        ["Kiểm tra với số nhỏ hơn: so sánh " + F(P(10, 2) + " − 1", P(10, 3) + " − 1") + " và " + F(P(10, 1) + " + 1", P(10, 2) + " + 1") + ".", F(99, 999) + " ≈ 0,0991 và " + F(11, 101) + " ≈ 0,1089. Đúng là số thứ nhất nhỏ hơn."],
-        ["Câu a còn đúng không nếu a > b?", "Không. Khi a > b thì am > bm nên " + F("a", "b") + " > " + F("a + m", "b + m") + ": phân số lớn hơn 1 giảm khi cộng cùng một số vào tử và mẫu."]],
+        ["Kiểm tra quy luật với số nhỏ: thay 2023 bằng 2, so sánh " + F(P(2, 3) + " + 1", P(2, 4) + " + 1") + " và " + F(P(2, 2) + " + 1", P(2, 3) + " + 1") + ".", F(9, 17) + " và " + F(5, 9) + ": 9 · 9 = 81 < 85 = 17 · 5 nên " + F(9, 17) + " < " + F(5, 9) + ". Khớp với A < B."],
+        ["Cách khác: so sánh " + F(1, "A") + " và " + F(1, "B") + ".", F(1, "A") + " = 2023 − " + F(2022, P(2023, 2023) + " + 1") + ", " + F(1, "B") + " = 2023 − " + F(2022, P(2023, 2022) + " + 1") + ". Phần bớt đi của " + F(1, "A") + " nhỏ hơn nên " + F(1, "A") + " > " + F(1, "B") + ", do đó A < B (A, B dương)."]],
       steps: [
-        "a) Quy đồng với mẫu chung b · (b + m) > 0: " + F("a", "b") + " = " + F("a · (b + m)", "b · (b + m)") + ";  " + F("a + m", "b + m") + " = " + F("b · (a + m)", "b · (b + m)") + ".",
-        "Hai tử: a · (b + m) = ab + am và b · (a + m) = ab + bm.",
-        "Vì a < b và m > 0 nên am < bm, suy ra ab + am < ab + bm. Vậy " + F("a", "b") + " < " + F("a + m", "b + m") + ".",
-        "b) Tử của A nhỏ hơn mẫu nên áp dụng câu a với m = 11: A < " + F("(" + P(10, 11) + " − 1) + 11", "(" + P(10, 12) + " − 1) + 11") + " = " + F(P(10, 11) + " + 10", P(10, 12) + " + 10") + ".",
-        F(P(10, 11) + " + 10", P(10, 12) + " + 10") + " = " + F("10 · (" + P(10, 10) + " + 1)", "10 · (" + P(10, 11) + " + 1)") + " = " + F(P(10, 10) + " + 1", P(10, 11) + " + 1") + " = B. Vậy A < B."
+        "Nhân A với 2023: 2023 · A = " + F(P(2023, 2024) + " + 2023", P(2023, 2024) + " + 1") + " = " + F(P(2023, 2024) + " + 1 + 2022", P(2023, 2024) + " + 1") + " = 1 + " + F(2022, P(2023, 2024) + " + 1") + ".",
+        "Tương tự: 2023 · B = " + F(P(2023, 2023) + " + 2023", P(2023, 2023) + " + 1") + " = 1 + " + F(2022, P(2023, 2023) + " + 1") + ".",
+        "Vì " + P(2023, 2024) + " + 1 > " + P(2023, 2023) + " + 1 > 0 nên " + F(2022, P(2023, 2024) + " + 1") + " < " + F(2022, P(2023, 2023) + " + 1") + ". Suy ra 2023 · A < 2023 · B, do đó A < B."
       ],
-      dap: "a) Đã chứng minh. b) A < B."
+      dap: "A < B.",
+      loi: "Thấy số mũ của A lớn hơn rồi kết luận ngay A > B mà không lập luận."
     },
     {
       id: "hsg2", lv: "HSG",
-      de: "Cho số hữu tỉ x = " + F("n + 7", "n + 2") + " với n là số nguyên, n ≠ −2.<br>a) Tìm tất cả các số nguyên n để x là số nguyên.<br>b) Với các giá trị đó, giá trị nào của n làm x là số nguyên âm?",
-      goi: "x là số nguyên khi n + 7 chia hết cho n + 2. Viết n + 7 = (n + 2) + 5.",
-      hieu: { gt: "x = " + F("n + 7", "n + 2") + ", n ∈ ℤ, n ≠ −2.", kl: "a) n để x ∈ ℤ. b) n để x là số nguyên âm.",
+      de: "Tìm tất cả các số nguyên n để A = " + F("3n + 7", "2n − 1") + " là số nguyên.",
+      goi: "Nếu A là số nguyên thì 2A cũng là số nguyên. Viết 2A = 3 + " + F(17, "2n − 1") + ". Nhớ thử lại.",
+      hieu: { gt: "A = " + F("3n + 7", "2n − 1") + ", n là số nguyên.", kl: "Tìm n để A là số nguyên.",
         hoi: [
-          ["Khi nào một phân số " + F("a", "b") + " (a, b nguyên, b ≠ 0) bằng một số nguyên?", "Khi a chia hết cho b."],
-          ["Thử n = 3: x bằng bao nhiêu? n = 0 thì sao?", "n = 3: x = " + F(10, 5) + " = 2, là số nguyên. n = 0: x = " + F(7, 2) + ", không là số nguyên."]] },
+          ["Bài dễ hơn: tìm số nguyên n để " + F("n + 7", "n + 2") + " là số nguyên. Em làm thế nào?", "Viết n + 7 = (n + 2) + 5, nên phân số bằng 1 + " + F(5, "n + 2") + ", rồi cho n + 2 là ước của 5."],
+          ["Ở đây có viết ngay 3n + 7 thành bội của 2n − 1 cộng một số được không?", "Không: hệ số 3 không chia hết cho 2. Phải tìm cách khác."]] },
       nguoc: [
-      { ten: "Câu a", dich: "n + 7 chia hết cho n + 2",
-        sd: [["n + 2 là ước của 5: n + 2 ∈ {1; −1; 5; −5}", [3]], ["5 chia hết cho n + 2 (vì n + 7 = (n + 2) + 5)", [2]]],
-        gt: "n + 2 chia hết cho n + 2",
-        ket: "n + 2 ∈ {1; −1; 5; −5}, nên n ∈ {−1; −3; 3; −7}.",
+      { ten: "Tìm n", dich: "Tìm n để A là số nguyên",
+        sd: [["Thử lại từng giá trị", [3, 4]], ["2n − 1 là ước của 17", [2]], ["2A = 3 + " + F(17, "2n − 1"), [1]]],
+        gt: "A = " + F("3n + 7", "2n − 1"),
+        ket: "n ∈ {−8; 0; 1; 9}.",
         buoc: [
-        { hoi: "Tử n + 7 và mẫu n + 2 cùng chứa n. Viết tử theo mẫu thế nào để n \"biến mất\"?",
-          nho: "Nếu a chia hết cho m và b chia hết cho m thì a − b chia hết cho m (Toán 6).",
+        { hoi: "Hệ số của n ở tử (3) không chia hết cho hệ số ở mẫu (2). Làm sao để tách được phần nguyên?",
+          nho: "Nếu A là số nguyên thì 2A cũng là số nguyên.",
           chon: [
-            ["n + 7 = (n + 2) + 5, mà n + 2 chia hết cho n + 2, nên cần 5 chia hết cho n + 2", true, "Đúng. Phần còn lại là số 5 không chứa n."],
-            ["Cần 7 chia hết cho 2", false, "Không thể tách riêng tử và mẫu như vậy: n + 7 chia hết cho n + 2 không có nghĩa là 7 chia hết cho 2."]],
-          dat: "5 chia hết cho n + 2" },
-        { hoi: "5 chia hết cho n + 2 thì n + 2 là gì của 5? Liệt kê.",
-          nho: "Các ước nguyên của 5 là 1; −1; 5; −5.",
+            ["Xét 2A = " + F("6n + 14", "2n − 1") + ": tử 6n + 14 = 3 · (2n − 1) + 17", true, "Đúng. 2A = 3 + " + F(17, "2n − 1") + "."],
+            ["Viết 3n + 7 = (2n − 1) + (n + 8)", false, "Phần còn lại vẫn chứa n, chưa tách được."]],
+          dat: "2A = 3 + " + F(17, "2n − 1") },
+        { hoi: "2A là số nguyên thì 2n − 1 phải thế nào?",
+          nho: "Các ước của 17 là −17, −1, 1, 17.",
           chon: [
-            ["n + 2 ∈ {1; −1; 5; −5}", true, "Đúng. Nhớ lấy cả ước âm."],
-            ["n + 2 ∈ {1; 5}", false, "Thiếu hai ước âm −1 và −5; n là số nguyên nên n + 2 có thể âm."]],
-          dat: "n + 2 ∈ Ư(5)" }] }],
+            ["2n − 1 ∈ Ư(17) = {−17; −1; 1; 17}, nên n ∈ {−8; 0; 1; 9}", true, "Đúng. Nhưng 2A nguyên chưa chắc A nguyên, nên phải thử lại."],
+            ["2n − 1 là ước của 7", false, "Phần dư là 17, không phải 7."]],
+          dat: "2n − 1 ∈ Ư(17)" },
+        { hoi: "Vì sao phải thử lại?",
+          chon: [
+            ["Vì từ A nguyên mới suy ra 2A nguyên; chiều ngược lại chưa chắc đúng", true, "Đúng. Thử lại: cả bốn giá trị đều cho A nguyên."],
+            ["Không cần thử lại", false, "Chẳng hạn 2A = 3 thì A = " + F(3, 2) + " không nguyên; phải kiểm tra."]],
+          dat: "Thử lại bốn giá trị" }] }],
       nhin: [
-        ["Thử lại bốn giá trị n.", "n = −1: x = " + F(6, 1) + " = 6; n = −3: x = " + F(4, "−1") + " = −4; n = 3: x = " + F(10, 5) + " = 2; n = −7: x = " + F(0, "−5") + " = 0. Đều là số nguyên."],
-        ["Bài tương tự: tìm số nguyên n để " + F("2n + 7", "n + 2") + " là số nguyên.", "2n + 7 = 2 · (n + 2) + 3, nên n + 2 ∈ {1; −1; 3; −3}, n ∈ {−1; −3; 1; −5}."]],
+        ["Thử lại n = 9.", "A = " + F("27 + 7", "18 − 1") + " = " + F(34, 17) + " = 2. Đúng."],
+        ["Bài tương tự: tìm số nguyên n để " + F("4n + 5", "3n + 1") + " là số nguyên.", "Xét 3 lần phân số: 4 + " + F(11, "3n + 1") + "; 3n + 1 ∈ {−11; −1; 1; 11} chỉ cho n nguyên khi n ∈ {−4; 0}. Thử lại: n = −4 cho " + F("−11", "−11") + " = 1, n = 0 cho 5. Vậy n ∈ {−4; 0}."]],
       steps: [
-        "a) x là số nguyên khi n + 7 chia hết cho n + 2.",
-        "Ta có n + 7 = (n + 2) + 5. Vì n + 2 chia hết cho n + 2 nên n + 7 chia hết cho n + 2 khi và chỉ khi 5 chia hết cho n + 2.",
-        "Do đó n + 2 ∈ {1; −1; 5; −5}, suy ra n ∈ {−1; −3; 3; −7}.",
-        "b) Tính x: n = −1 thì x = 6; n = −3 thì x = " + F(4, "−1") + " = −4; n = 3 thì x = 2; n = −7 thì x = " + F(0, "−5") + " = 0.",
-        "Chỉ có n = −3 cho x = −4 là số nguyên âm (x = 0 không là số âm)."
+        "Với n là số nguyên thì 2n − 1 là số lẻ nên khác 0. Nếu A là số nguyên thì 2A = " + F("6n + 14", "2n − 1") + " = " + F("3 · (2n − 1) + 17", "2n − 1") + " = 3 + " + F(17, "2n − 1") + " cũng là số nguyên.",
+        "Do đó 17 chia hết cho 2n − 1, tức 2n − 1 ∈ Ư(17) = {−17; −1; 1; 17}, suy ra n ∈ {−8; 0; 1; 9}.",
+        "Thử lại: n = −8: A = " + F("−17", "−17") + " = 1; n = 0: A = " + F(7, "−1") + " = −7; n = 1: A = " + F(10, 1) + " = 10; n = 9: A = " + F(34, 17) + " = 2. Cả bốn giá trị đều cho A là số nguyên.",
+        "Vậy n ∈ {−8; 0; 1; 9}."
       ],
-      dap: "a) n ∈ {−1; −3; 3; −7}. b) n = −3 (khi đó x = −4).",
-      loi: "Chỉ lấy ước dương của 5; coi x = 0 là số âm."
+      dap: "n ∈ {−8; 0; 1; 9}.",
+      loi: "Viết 3n + 7 = (2n − 1) + (n + 8) rồi cho 2n − 1 là ước của n + 8 (vẫn còn n); hoặc quên các ước âm của 17."
     },
     {
       id: "hsg3", lv: "HSG",
-      de: "a) Cho a, b, c, d là các số nguyên, b > 0, d > 0 và " + F("a", "b") + " < " + F("c", "d") + ". Chứng minh " + F("a", "b") + " < " + F("a + c", "b + d") + " < " + F("c", "d") + ".<br>b) Áp dụng, viết ba số hữu tỉ xen giữa " + F("−1", 3) + " và " + F("−1", 4) + ".",
-      goi: "a) " + F("a", "b") + " < " + F("c", "d") + " khi và chỉ khi a · d < b · c (quy đồng với mẫu chung bd > 0). b) Áp dụng nhiều lần câu a.",
-      hieu: { gt: "a, b, c, d nguyên, b > 0, d > 0, " + F("a", "b") + " < " + F("c", "d") + ".", kl: "a) " + F("a", "b") + " < " + F("a + c", "b + d") + " < " + F("c", "d") + ". b) Ba số xen giữa " + F("−1", 3) + " và " + F("−1", 4) + ".",
+      de: "a) Chứng minh rằng với mọi số tự nhiên n, phân số " + F("12n + 1", "30n + 2") + " là phân số tối giản.<br>b) Tìm số tự nhiên n nhỏ nhất để phân số " + F("n + 7", "3n + 2") + " chưa tối giản.",
+      goi: "Gọi d là ước chung lớn nhất của tử và mẫu. Nhân tử, mẫu với các số thích hợp rồi trừ cho nhau để khử n.",
+      hieu: { gt: "a) n là số tự nhiên. b) Phân số " + F("n + 7", "3n + 2") + ".", kl: "a) " + F("12n + 1", "30n + 2") + " tối giản. b) n nhỏ nhất để " + F("n + 7", "3n + 2") + " chưa tối giản.",
         hoi: [
-          ["Thử với " + F(1, 3) + " < " + F(1, 2) + ": phân số " + F("1 + 1", "3 + 2") + " nằm ở đâu?", F(2, 5) + " = 0,4 nằm giữa 0,333… và 0,5."],
-          ["Điều kiện " + F("a", "b") + " < " + F("c", "d") + " viết lại theo tử và mẫu thế nào?", "Quy đồng mẫu bd > 0: ad < bc."]] },
+          ["Phân số tối giản là phân số thế nào?", "Tử và mẫu có ước chung lớn nhất bằng 1."],
+          ["Nếu d là ước chung của hai số a và b thì d còn là ước của những số nào?", "Của mọi số dạng a · m − b · k hay a · m + b · k (m, k là số tự nhiên), chẳng hạn a + b, a − b, 5a − 2b."]] },
       nguoc: [
-      { ten: "Câu a (vế trái)", dich: F("a", "b") + " < " + F("a + c", "b + d"),
-        sd: [["a · (b + d) < b · (a + c), tức là ad < bc", [2]], ["Biết ad < bc (từ giả thiết)", [1]]],
-        gt: F("a", "b") + " < " + F("c", "d") + ", b > 0, d > 0",
-        ket: "a · (b + d) = ab + ad < ab + bc = b · (a + c), nên " + F("a", "b") + " < " + F("a + c", "b + d") + ". Vế phải chứng minh tương tự.",
+      { ten: "Câu a", dich: "ƯCLN(12n + 1, 30n + 2) = 1",
+        sd: [["d là ước của 1", [2]], ["Khử n: 5 · (12n + 1) − 2 · (30n + 2) = 1", [2]], ["Gọi d = ƯCLN(12n + 1, 30n + 2)", [1]]],
+        gt: "n là số tự nhiên",
+        ket: "d = 1 nên phân số tối giản.",
         buoc: [
-        { hoi: "Giả thiết " + F("a", "b") + " < " + F("c", "d") + " cho ta điều gì về các số nguyên a, b, c, d?",
-          nho: "Quy đồng hai phân số có mẫu dương: so sánh các tử.",
+        { hoi: "Muốn chứng minh tử và mẫu không có ước chung nào khác 1, em bắt đầu thế nào?",
+          nho: "Gọi d là ước chung lớn nhất, rồi chứng minh d = 1.",
           chon: [
-            ["ad < bc (quy đồng với mẫu chung bd > 0)", true, "Đúng. Từ nay ta làm việc với các số nguyên, dễ hơn."],
-            ["a < c và b < d", false, "Không đúng: " + F(1, 3) + " < " + F(1, 2) + " nhưng 3 > 2."]],
-          dat: "ad < bc" },
-        { hoi: "Để có " + F("a", "b") + " < " + F("a + c", "b + d") + ", cần so sánh hai số nguyên nào?",
-          nho: "Mẫu chung b · (b + d) dương.",
+            ["Gọi d = ƯCLN(12n + 1, 30n + 2), tìm một tổng hoặc hiệu các bội của hai số mà không còn n", true, "Đúng."],
+            ["Thử với n = 0, 1, 2 thấy tối giản rồi kết luận", false, "Thử vài giá trị không chứng minh được cho mọi n."]],
+          dat: "d = ƯCLN(12n + 1, 30n + 2)" },
+        { hoi: "Nhân 12n + 1 và 30n + 2 với số nào để hệ số của n bằng nhau?",
+          nho: "Bội chung nhỏ nhất của 12 và 30 là 60.",
           chon: [
-            ["a · (b + d) và b · (a + c), tức là ab + ad và ab + bc", true, "Đúng. Hai số chỉ khác ad và bc, mà ad < bc."],
-            ["a và a + c", false, "Mẫu cũng thay đổi, nên không so sánh riêng tử được."]],
-          dat: "ab + ad < ab + bc" }] }],
+            ["Nhân 12n + 1 với 5 và 30n + 2 với 2: được 60n + 5 và 60n + 4, hiệu bằng 1", true, "Đúng. Vậy d là ước của 1, d = 1."],
+            ["Nhân cả hai số với 60", false, "Hệ số của n thành 720 và 1800, vẫn khác nhau."]],
+          dat: "1 chia hết cho d" }] },
+      { ten: "Câu b", dich: "n nhỏ nhất để phân số chưa tối giản",
+        sd: [["n + 7 = 19", [4]], ["d = 19, tức n + 7 chia hết cho 19", [3]], ["3 · (n + 7) − (3n + 2) = 19 chia hết cho d", [3]]],
+        gt: "Phân số " + F("n + 7", "3n + 2"),
+        ket: "n = 12.",
+        buoc: [
+        { hoi: "Làm như câu a: khử n từ n + 7 và 3n + 2. Được số nào?",
+          chon: [
+            ["3 · (n + 7) − (3n + 2) = 19, nên ước chung lớn nhất d là 1 hoặc 19", true, "Đúng. Phân số chưa tối giản khi và chỉ khi d = 19."],
+            ["(3n + 2) − (n + 7) = 2n − 5", false, "Còn n, chưa khử được."]],
+          dat: "d ∈ {1; 19}" },
+        { hoi: "Khi nào d = 19? Chọn n nhỏ nhất.",
+          nho: "Nếu n + 7 chia hết cho 19 thì 3n + 2 = 3 · (n + 7) − 19 cũng chia hết cho 19.",
+          chon: [
+            ["Khi n + 7 chia hết cho 19; nhỏ nhất n + 7 = 19, n = 12", true, "Đúng: phân số " + F(19, 38) + "."],
+            ["n = 19", false, "Khi đó phân số là " + F(26, 59) + ", tối giản."]],
+          dat: "n + 7 = 19" }] }],
       nhin: [
-        ["Kiểm tra câu b bằng số thập phân.", "−0,333… < −0,3 < −0,2857… < −0,2727… < −0,25. Đúng thứ tự."],
-        ["Giữa hai số hữu tỉ khác nhau có bao nhiêu số hữu tỉ?", "Áp dụng câu a mãi mãi: luôn tìm được số mới nằm giữa, nên có vô số số hữu tỉ xen giữa."]],
+        ["Thử lại câu b với n = 12. Các số n nhỏ hơn có được không?", F("12 + 7", "36 + 2") + " = " + F(19, 38) + " chưa tối giản. Với n từ 0 đến 11 thì n + 7 từ 7 đến 18, không chia hết cho 19, nên phân số tối giản."],
+        ["Phân số " + F("2n + 3", "4n + 8") + " có tối giản với mọi số tự nhiên n không?", "Có: ước chung d chia hết (4n + 8) − 2 · (2n + 3) = 2, nên d ∈ {1; 2}; mà 2n + 3 lẻ nên d = 1."]],
       steps: [
-        "a) Vì b > 0, d > 0, quy đồng mẫu bd: " + F("a", "b") + " < " + F("c", "d") + " nên ad < bc.",
-        "So sánh " + F("a", "b") + " và " + F("a + c", "b + d") + " (mẫu chung b · (b + d) > 0): a · (b + d) = ab + ad < ab + bc = b · (a + c). Vậy " + F("a", "b") + " < " + F("a + c", "b + d") + ".",
-        "So sánh " + F("a + c", "b + d") + " và " + F("c", "d") + " (mẫu chung d · (b + d) > 0): (a + c) · d = ad + cd < bc + cd = c · (b + d). Vậy " + F("a + c", "b + d") + " < " + F("c", "d") + ".",
-        "b) " + F("−1", 3) + " < " + F("−1", 4) + " nên " + F("−1", 3) + " < " + F("−1 + (−1)", "3 + 4") + " = " + F("−2", 7) + " < " + F("−1", 4) + ".",
-        "Tiếp tục: " + F("−1", 3) + " < " + F("−3", 10) + " < " + F("−2", 7) + " (ghép " + F("−1", 3) + " với " + F("−2", 7) + ") và " + F("−2", 7) + " < " + F("−3", 11) + " < " + F("−1", 4) + " (ghép " + F("−2", 7) + " với " + F("−1", 4) + ").",
-        "Vậy " + F("−1", 3) + " < " + F("−3", 10) + " < " + F("−2", 7) + " < " + F("−3", 11) + " < " + F("−1", 4) + "."
+        "a) Gọi d = ƯCLN(12n + 1, 30n + 2). Khi đó 12n + 1 và 30n + 2 đều chia hết cho d.",
+        "Suy ra 5 · (12n + 1) = 60n + 5 và 2 · (30n + 2) = 60n + 4 đều chia hết cho d, nên hiệu (60n + 5) − (60n + 4) = 1 chia hết cho d. Do đó d = 1: phân số " + F("12n + 1", "30n + 2") + " tối giản.",
+        "b) Gọi d = ƯCLN(n + 7, 3n + 2). Khi đó 3 · (n + 7) − (3n + 2) = 19 chia hết cho d, nên d ∈ {1; 19}. Phân số chưa tối giản khi d = 19, tức n + 7 chia hết cho 19 (khi đó 3n + 2 = 3 · (n + 7) − 19 cũng chia hết cho 19).",
+        "n là số tự nhiên nhỏ nhất có n + 7 chia hết cho 19: n + 7 = 19, n = 12. Khi đó phân số là " + F(19, 38) + "."
       ],
-      dap: "a) Đã chứng minh. b) Chẳng hạn " + F("−3", 10) + ";  " + F("−2", 7) + ";  " + F("−3", 11) + "."
+      dap: "a) Đã chứng minh. b) n = 12.",
+      loi: "Ở câu a chỉ thử vài giá trị của n rồi kết luận; ở câu b chọn n = 19 (nhầm n với n + 7)."
     }
   ];
 

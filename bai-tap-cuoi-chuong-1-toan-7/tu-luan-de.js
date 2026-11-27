@@ -1,5 +1,5 @@
 /* Bài tập tự luận – Bài tập cuối chương I (Toán 7, Kết nối tri thức).
-   Bài ôn chương: chia theo mức (Nhận biết, Thông hiểu, Vận dụng), cuối mỗi mức có bài tự luyện (tlMuc); mục Dành cho HSG riêng, giải theo 4 bước.
+   Chia theo dạng như Bài 16 (thầy chốt lại 27/11/2026), khai báo ở TL_DATA.dang; cuối mỗi dạng có bài tự luyện; mục Dành cho HSG riêng, giải theo 4 bước.
    Dùng kiến thức Bài 1 đến Bài 4 (số hữu tỉ, các phép tính, luỹ thừa, thứ tự thực hiện phép tính, quy tắc chuyển vế).
    Chưa học giá trị tuyệt đối, căn bậc hai.
    Mỗi bài: id, lv, de, goi, steps, dap, loi, mix (các bài trong chương được dùng); pt (phân tích ngược) cho bài Thông hiểu, Vận dụng;
@@ -478,21 +478,50 @@
     bai: "cc7",
     ten: "Bài tập cuối chương I",
     items: ITEMS,
-    /* Bài ôn chương: chia theo mức. Cuối mỗi mức có bài tự luyện: [đề, gợi ý, đáp số]. */
-    tlMuc: {
-      NB: [
-        ["Tính: a) " + F(2, 5) + " − " + F(3, 4) + ";  b) (−1,2) · " + F(5, 6) + ".", "a) Mẫu chung 20. b) −1,2 = " + F("−6", 5) + ".", "a) " + F("−7", 20) + ";  b) −1."],
-        ["Viết dưới dạng một luỹ thừa: a) " + Q(F("−1", 3), 4) + " · " + Q(F("−1", 3), 3) + ";  b) " + P("0,6", 8) + " : " + P("0,6", 5) + ".", "Cùng cơ số: nhân thì cộng số mũ, chia thì trừ số mũ.", "a) " + Q(F("−1", 3), 7) + ";  b) " + P("0,6", 3) + "."]],
-      TH: [
-        ["Tính hợp lí: " + F("−3", 8) + " · " + F(5, 11) + " − " + F(3, 8) + " · " + F(6, 11) + " + " + F(1, 8) + ".", "Đặt " + F("−3", 8) + " làm thừa số chung của hai tích đầu.", F("−1", 4) + "."],
-        ["Tìm x, biết " + F(1, 2) + " − 3x = " + F("−5", 2) + ".", "Chuyển vế: 3x = " + F(1, 2) + " + " + F(5, 2) + ".", "x = 1."]],
-      VD: [
-        ["Tính " + F(P(2, 3) + " · " + P(9, 2), P(6, 3) + " · 3") + ".", "Đưa về luỹ thừa của 2 và 3.", "1."],
-        ["Tìm x, biết " + Q("x + " + F(1, 2), 2) + " = " + F(9, 16) + ".", "Hai số đối nhau có cùng bình phương.", "x ∈ {" + F(1, 4) + "; " + F("−5", 4) + "}" + "."],
-        ["Một bể đang chứa " + F(3, 5) + " thể tích. Bơm thêm " + F(1, 4) + " thể tích bể thì trong bể có 1,7 m³ nước. Tính thể tích bể.", "Phân số chỉ lượng nước sau khi bơm: " + F(3, 5) + " + " + F(1, 4) + ".", "2 m³."]]
-    },
+    /* Chia theo dạng như Bài 16 (thầy chốt lại 27/11/2026). Mỗi dạng có phương pháp giải, bài xếp từ dễ đến khó,
+       một bài mẫu giải theo 4 bước, bài tự luyện [đề, gợi ý, đáp số]. Bài HSG để riêng ở mục Dành cho HSG. */
+    dang: [
+      { ten: "Số đối, so sánh và sắp xếp số hữu tỉ",
+        pp: ["Số đối của a là −a; số đối của " + F("a", "b") + " là " + F("−a", "b") + ".",
+             "So sánh: đưa về cùng dạng (cùng mẫu dương hoặc cùng là số thập phân) rồi so sánh; số âm nhỏ hơn 0, 0 nhỏ hơn số dương.",
+             "Với luỹ thừa: xét dấu trước (cơ số âm, số mũ chẵn thì dương, số mũ lẻ thì âm), rồi mới so sánh giá trị.",
+             "Sắp xếp: chia thành nhóm số âm, số 0, số dương; so sánh trong từng nhóm."],
+        ids: ["nb1", "vd4"],
+        tl: [
+          ["Sắp xếp theo thứ tự tăng dần: 0,3;  " + F("−1", 2) + ";  " + F(1, 4) + ";  −0,45.", "Hai số âm, hai số dương; đưa về số thập phân.", F("−1", 2) + ";  −0,45;  " + F(1, 4) + ";  0,3."],
+          ["So sánh " + Q(F("−1", 2), 5) + " và " + Q(F("−1", 3), 4) + ".", "Xét dấu của mỗi luỹ thừa.", Q(F("−1", 2), 5) + " < " + Q(F("−1", 3), 4) + "."]] },
+      { ten: "Thực hiện phép tính, luỹ thừa, tính hợp lí",
+        pp: ["Thứ tự: trong ngoặc trước; luỹ thừa → nhân và chia → cộng và trừ.",
+             "Số thập phân và phân số cùng có trong biểu thức: đổi về cùng một dạng.",
+             "Luỹ thừa cùng cơ số: nhân thì cộng số mũ, chia thì trừ số mũ; luỹ thừa của luỹ thừa thì nhân số mũ.",
+             "Biểu thức có luỹ thừa của 2, 3, 4, 6, 9: đưa về luỹ thừa của 2 và 3 rồi rút gọn.",
+             "Tính hợp lí: dùng tính chất giao hoán, kết hợp, phân phối (đặt thừa số chung)."],
+        ids: ["nb2", "nb3", "th1", "th2", "vd1"],
+        tl: [
+          ["Tính: a) " + F(2, 5) + " − " + F(3, 4) + ";  b) (−1,2) · " + F(5, 6) + ".", "a) Mẫu chung 20. b) −1,2 = " + F("−6", 5) + ".", "a) " + F("−7", 20) + ";  b) −1."],
+          ["Viết dưới dạng một luỹ thừa: a) " + Q(F("−1", 3), 4) + " · " + Q(F("−1", 3), 3) + ";  b) " + P("0,6", 8) + " : " + P("0,6", 5) + ".", "Cùng cơ số: nhân thì cộng số mũ, chia thì trừ số mũ.", "a) " + Q(F("−1", 3), 7) + ";  b) " + P("0,6", 3) + "."],
+          ["Tính hợp lí: " + F("−3", 8) + " · " + F(5, 11) + " − " + F(3, 8) + " · " + F(6, 11) + " + " + F(1, 8) + ".", "Đặt " + F("−3", 8) + " làm thừa số chung của hai tích đầu.", F("−1", 4) + "."],
+          ["Tính " + F(P(2, 3) + " · " + P(9, 2), P(6, 3) + " · 3") + ".", "Đưa về luỹ thừa của 2 và 3.", "1."]] },
+      { ten: "Tìm x",
+        pp: ["Dùng quy tắc chuyển vế: chuyển một số hạng sang vế kia thì đổi dấu.",
+             "Có ngoặc: coi cả ngoặc là một khối, tìm khối trước rồi tìm x.",
+             "Khối có luỹ thừa: lập phương bằng một số thì khối bằng một số duy nhất; bình phương bằng một số dương thì có hai trường hợp (hai số đối nhau).",
+             "Thử lại kết quả; nhiều giá trị thì viết x ∈ {…}."],
+        ids: ["th3", "vd2"],
+        tl: [
+          ["Tìm x, biết " + F(1, 2) + " − 3x = " + F("−5", 2) + ".", "Chuyển vế: 3x = " + F(1, 2) + " + " + F(5, 2) + ".", "x = 1."],
+          ["Tìm x, biết " + Q("x + " + F(1, 2), 2) + " = " + F(9, 16) + ".", "Hai số đối nhau có cùng bình phương.", "x ∈ {" + F(1, 4) + "; " + F("−5", 4) + "}" + "."]] },
+      { ten: "Bài toán thực tế",
+        pp: ["Đọc kĩ \"phân số của số nào\": của cả số lúc đầu hay của số còn lại.",
+             "Tính lần lượt từng bước, ghi rõ đơn vị.",
+             "Biết giá trị phân số của một số, muốn tìm số đó thì lấy giá trị chia cho phân số."],
+        ids: ["vd3"],
+        tl: [
+          ["Lớp 7A có 40 học sinh. Số học sinh giỏi chiếm " + F(1, 4) + " số học sinh cả lớp, số học sinh khá bằng " + F(3, 5) + " số học sinh còn lại. Tính số học sinh khá.", "Số học sinh còn lại: 40 − 40 · " + F(1, 4) + ".", "18 học sinh."],
+          ["Một bể đang chứa " + F(3, 5) + " thể tích. Bơm thêm " + F(1, 4) + " thể tích bể thì trong bể có 1,7 m³ nước. Tính thể tích bể.", "Phân số chỉ lượng nước sau khi bơm: " + F(3, 5) + " + " + F(1, 4) + ".", "2 m³."]] }
+    ],
     /* Làm sai câu Vận dụng (theo phần kiến thức) → bài mẫu giải theo 4 bước.
        Câu hỏi của trang có thể mang khóa gốc của từng bài (ct, nh, ch, dn, tt, nc...) hoặc khóa chương (ss, pt, lt, tc). */
-    mau: { ids: ["vd1", "vd2", "vd3", "vd4"], theoPhan: { ss: "vd4", kn: "vd4", pt: "vd3", ct: "vd3", nh: "vd3", ch: "vd3", lt: "vd1", dn: "vd1", nc: "vd1", tt: "vd1", tc: "vd2", cv: "vd2" } }
+    mau: { ids: ["vd4", "vd1", "vd2", "vd3"], theoPhan: { ss: "vd4", kn: "vd4", pt: "vd3", ct: "vd3", nh: "vd3", ch: "vd3", lt: "vd1", dn: "vd1", nc: "vd1", tt: "vd1", tc: "vd2", cv: "vd2" } }
   };
 })();
