@@ -1,4 +1,4 @@
-/* Bố cục toàn trang (thầy chốt 27/11/2026): thanh dưới đáy Luyện tập · Tự luận · Luyện đề · HSG, lớp 9 thêm Vào 10;
+/* Bố cục toàn trang (thầy chốt 27/11/2026): thanh dưới đáy Luyện tập · Tự luận · Luyện đề · HSG · Vào 10 (Vào 10 luôn hiện, ở cuối);
    "Của em" (tiến độ, XP, huy hiệu, xếp hạng) mở bằng nút ở góc trên. Giai đoạn này chưa thu phí nên không hiện nhãn phí.
    Mỗi khu ứng với một địa chỉ #...: #tu-luan, #luyen-de, #hsg, #vao-10, #cua-em (cũ: #bxh); còn lại là Luyện tập.
    Phần tử thuộc khu nào ghi ở thuộc tính data-khu. Khi chưa nhập mã, ô nhập mã (#me) luôn hiện ở Luyện tập. */
@@ -8,7 +8,7 @@
   var KHU = ["luyen-tap", "tu-luan", "luyen-de", "hsg", "vao-10", "cua-em"];
   var dn = false, lop = "", gv = false;
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function coVao10() { return gv || lop === "9"; }
+  function coVao10() { return true; }   // thầy chốt 27/11/2026: mục Ôn thi vào 10 luôn ở cuối thanh dưới đáy, ai cũng thấy
   function khuHienTai() {
     var h = location.hash.replace("#", "");
     if (h === "bxh") h = "cua-em";
