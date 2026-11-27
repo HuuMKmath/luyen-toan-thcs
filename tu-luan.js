@@ -613,5 +613,17 @@
     "@media (max-width:560px){#tl-box{padding:14px 12px}.tl-q{padding:12px 10px}.tl-sol{padding:10px 8px}.tl-sol ol{padding-left:18px}.tl-sol .figbox{margin:4px 0}}";
   try { var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st); } catch (e) {}
 
+  /* Mở từ khu Tự luận ở trang Các bài (địa chỉ ...#tu-luan): chờ trang vẽ xong phần tự luận rồi cuộn tới, mở các mục đang đóng bao quanh. */
+  if (location.hash === "#tu-luan") {
+    var tlTry = 0, tlT = setInterval(function () {
+      var b = document.getElementById("tl-box");
+      if (b || ++tlTry > 40) {
+        clearInterval(tlT);
+        if (!b) return;
+        for (var p = b.parentNode; p && p !== document.body; p = p.parentNode) if (p.tagName === "DETAILS") p.open = true;
+        b.scrollIntoView({ block: "start" });
+      }
+    }, 150);
+  }
   window.TuLuan = { html: html, rerender: rerender, LV: LV, doc: doc, coMau: function () { return !!mau(); }, mauHTML: mauHTML, nutHTML: nutHTML, moMau: moMau, dongMau: dongMau };
 })();
