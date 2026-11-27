@@ -138,6 +138,8 @@ Mỗi bài có thể có thêm phần **Bài tập tự luận** bốn mức: Nh
 - `<thư mục bài>/tu-luan-de.js`: đề, gợi ý, các bước lời giải, đáp số, lỗi hay gặp, hình vẽ (đặt `window.TL_DATA`).
 - Gắn vào một bài: thêm `<script src="../tu-luan.js"></script>` và `<script src="tu-luan-de.js"></script>` ngay sau dòng `khoa-bai.js`, rồi chèn `${window.TuLuan?TuLuan.html():''}` giữa phần Luyện tập và phần Kiểm tra trong `homeHTML()`.
 - Tệp Word câu hỏi gốc (`cong-cu/xuat-cau-hoi-goc/xuat.py`) tự thêm "Phần IV. Bài tập tự luận" khi bài có `tu-luan-de.js`.
+- Bài khái niệm và bài cuối chương chia theo mức; cuối mỗi mức có bài tự luyện trong `TL_DATA.tlMuc = {NB:[...], TH:[...], VD:[...]}` (mỗi bài `[đề, gợi ý, đáp số]`). Bài khác chia theo dạng, tự luyện nằm trong `dang[k].tl`.
+- Đã có tự luận: Toán 7 Chương I (Bài 1 đến Bài 4 và Bài tập cuối chương I), Bài 16, Luyện tập chung sau Bài 16, Bài tập cuối chương IV. Đáp số Chương I kiểm tra bằng `python3 cong-cu/kiem-tra-tu-luan/chuong1-toan7.py`.
 
 ## Bản đồ vũ trụ (trang Các bài)
 

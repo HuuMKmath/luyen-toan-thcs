@@ -217,6 +217,8 @@ i.ex{font-style:normal}
 
 <script src="../gamify.js"></script>
 <script src="../khoa-bai.js"></script>
+<script src="../tu-luan.js"></script>
+<script src="tu-luan-de.js"></script>
 <script>
 "use strict";
 if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
@@ -1215,6 +1217,8 @@ function homeHTML(){
     </div>
   </section>
 
+  ${window.TuLuan?TuLuan.html():''}
+
   <section class="card stack" style="margin-top:16px">
     <div>
       <h2>Kiểm tra</h2>
@@ -1263,11 +1267,20 @@ function badge(P){
   if(P.final)return '<span class="st warn">Đúng ở lần thứ hai</span>';
   return '<span class="st bad">Chưa đúng</span>';
 }
+/* Làm sai câu Vận dụng: nút "Cùng phân tích cách giải" mở một bài mẫu cùng dạng, giải theo 4 bước (tu-luan.js). */
+const isVD=q=>/^(VD|VDC)$/.test(q.level||'')||(q.items||[]).some(it=>/^(VD|VDC)$/.test(it.level||''));
+function ptGoi(q,oks){
+  if(!window.TuLuan||!TuLuan.coMau()||!isVD(q))return '';
+  let tp=q.topic;
+  if(q.items&&oks){const j=q.items.findIndex((it,k)=>!oks[k]&&/^(VD|VDC)$/.test(it.level||''));tp=(q.items[j>=0?j:0]||{}).topic||tp;}
+  return TuLuan.nutHTML(tp);
+}
 function tail(q,P){
   let h=`<div class="feedbox">${P.msg?`<div class="feed ${P.cls}" role="status">${P.msg}</div>`:''}</div>`;
   if(P.done){
     if(q.type==='mc')h+=`<p class="ans-line">Đáp án đúng: <b>${q.opts[q.ans].t}</b></p><div class="exp">${q.exp}</div>`;
     else if(q.type==='sa')h+=`<p class="ans-line">Đáp án đúng: <b>${q.at||N(q.ans[0])} ${q.unit}</b></p><div class="exp">${q.exp}</div>`;
+    if(!(P.first&&P.first.every(Boolean)))h+=ptGoi(q,P.first);
   }else h+=`<div class="row" style="margin-top:12px"><button class="btn sm chk" data-q="${q.id}">Kiểm tra</button></div>`;
   return h;
 }
@@ -1503,6 +1516,8 @@ function reviewHTML(r){
       body=`<p class="stem">${x.q.stem}</p>${x.q.fig||''}<p class="ans-line">Bạn nhập: <b>${x.raw?esc(x.raw):'Chưa trả lời'}</b></p><p class="ans-line">Đáp án đúng: <b>${x.q.at||N(x.q.ans[0])} ${x.q.unit}</b></p><div class="exp">${x.q.exp}</div>`;
     }
     const right=x.kind==='tf'?`${x.k}/${x.q.items.length} ý đúng · ${fmt(x.pts)}/${fmt(x.max)} điểm`:`${sym(x.ok)} · ${fmt(x.pts)}/${fmt(x.max)} điểm`;
+    const sai=x.kind==='tf'?x.oks.some(o=>!o):!x.ok;
+    if(sai)body+=ptGoi(x.q,x.kind==='tf'?x.oks:null);
     return `<details class="rv"><summary><span><b>${head}</b> ${tp?`<span class="chip">${tp}</span>`:''}</span><span class="small">${right}</span></summary><div class="body">${body}</div></details>`;
   }).join('');
 }

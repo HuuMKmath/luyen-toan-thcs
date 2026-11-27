@@ -4,7 +4,7 @@
    Phần tử thuộc khu nào ghi ở thuộc tính data-khu. Khi chưa nhập mã, ô nhập mã (#me) luôn hiện ở Luyện tập. */
 (function () {
   // Các bài đã có phần tự luận: thêm thư mục bài vào đây khi bài có tu-luan-de.js
-  var TU_LUAN = ["tam-giac-can-duong-trung-truc", "luyen-tap-chung-sau-bai-16", "bai-tap-cuoi-chuong-4-toan-7"];
+  var TU_LUAN = ["tap-hop-so-huu-ti", "cong-tru-nhan-chia-so-huu-ti", "luy-thua-so-huu-ti", "thu-tu-phep-tinh-chuyen-ve", "bai-tap-cuoi-chuong-1-toan-7", "tam-giac-can-duong-trung-truc", "luyen-tap-chung-sau-bai-16", "bai-tap-cuoi-chuong-4-toan-7"];
   var KHU = ["luyen-tap", "tu-luan", "luyen-de", "hsg", "vao-10", "cua-em"];
   var dn = false, lop = "", gv = false;
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
