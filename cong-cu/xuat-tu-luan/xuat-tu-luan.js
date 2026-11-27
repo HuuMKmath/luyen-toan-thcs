@@ -14,6 +14,18 @@ if (!out) { console.log('Cách chạy: node xuat-tu-luan.js <thư mục bài> <r
 const REPO = path.resolve(__dirname, '..', '..'), FONT = 'Times New Roman';
 
 const dec = s => s.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+// Tử hoặc mẫu của phân số: giữ luỹ thừa (<sup>) thành số mũ trong công thức Word.
+function mathRuns(t) {
+  const clean = x => dec(String(x).replace(/<\/?[a-zA-Z][^<>]*>/g, ''));
+  const o = [], re = /(\([^()]*\)|[^\s·+−:()]+)<sup>([\s\S]*?)<\/sup>/g; let i = 0, m;
+  while ((m = re.exec(t))) {
+    if (m.index > i) o.push(new D.MathRun(clean(t.slice(i, m.index))));
+    o.push(new D.MathSuperScript({ children: [new D.MathRun(clean(m[1]))], superScript: [new D.MathRun(clean(m[2]))] }));
+    i = re.lastIndex;
+  }
+  if (i < t.length) o.push(new D.MathRun(clean(t.slice(i))));
+  return o.length ? o : [new D.MathRun('')];
+}
 function runs(html, base) {
   base = base || {}; const o = []; const s = String(html == null ? '' : html);
   const re = /<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<i>([\s\S]*?)<\/i>|<span class="fr"><span>([\s\S]*?)<\/span><span>([\s\S]*?)<\/span><\/span>|<\/?[a-zA-Z][^<>]*>/g; let i = 0, m;
@@ -24,7 +36,7 @@ function runs(html, base) {
     if (m[1] !== undefined) o.push(new TextRun(Object.assign({ text: clean(m[1]), font: FONT, superScript: true }, base)));
     else if (m[2] !== undefined) o.push(new TextRun(Object.assign({ text: clean(m[2]), font: FONT }, base, { bold: true })));
     else if (m[3] !== undefined) o.push(new TextRun(Object.assign({ text: clean(m[3]), font: FONT }, base, { italics: true })));
-    else if (m[4] !== undefined) o.push(new D.Math({ children: [new D.MathFraction({ numerator: [new D.MathRun(clean(m[4]))], denominator: [new D.MathRun(clean(m[5]))] })] }));   // phân số (class "fr" của trang)
+    else if (m[4] !== undefined) o.push(new D.Math({ children: [new D.MathFraction({ numerator: mathRuns(m[4]), denominator: mathRuns(m[5]) })] }));   // phân số (class "fr" của trang)
   }
   txt(s.slice(i)); return o;
 }
