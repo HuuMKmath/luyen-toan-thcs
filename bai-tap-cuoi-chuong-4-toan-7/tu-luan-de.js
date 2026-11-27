@@ -328,11 +328,11 @@
 
 
   /* ================= Chuẩn hóa theo khuôn Bài 16 (27/11/2026) =================
-     Bài cuối chương: chia theo mức (Nhận biết, Thông hiểu, Vận dụng), không nêu dạng trước để học sinh tự nhận dạng.
+     Chia theo dạng như Bài 16 (thầy chốt lại 27/11/2026), khai báo ở TL_DATA.dang.
      - pt: phân tích ngược cho bài Thông hiểu, Vận dụng (mỗi câu a, b, c một sơ đồ; số trong [] là bước của lời giải).
-     - hieu, nguoc, nhin: giải theo 4 bước cho bài mẫu Vận dụng (vd2, vd3) và mọi bài Dành cho HSG.
+     - hieu, nguoc, nhin: giải theo 4 bước cho bài mẫu mỗi dạng (vd3, vd2, vd1) và mọi bài Dành cho HSG.
      - phu: điểm, đoạn, kí hiệu kẻ thêm; hình của đề (lúc đầu phân tích) không vẽ chúng.
-     - TLMUC: bài tự luyện cuối mỗi mức. */
+     - Bài tự luyện: cuối mỗi dạng (dang[].tl). */
   var THEM = {
     th1: {
       pt: [
@@ -353,10 +353,54 @@
         { ten: "Câu c", dich: "ΔABD = ΔACD; AB = AC, DB = DC", sd: [["Các cặp cạnh tương ứng của hai tam giác bằng nhau", [4]], ["∠BAD = ∠CAD, AD chung, ∠ADB = ∠ADC (g.c.g)", [3]]], gt: "Kết quả câu a, b" }]
     },
     vd1: {
-      pt: [
-        { ten: "Câu a", dich: "ΔABD = ΔAED và DB = DE", sd: [["AB = AE, ∠BAD = ∠EAD, AD chung (c.g.c)", [1]]], gt: "AE = AB, AD là tia phân giác của ∠A" },
-        { ten: "Câu b", dich: "AD là đường trung trực của BE", sd: [["A và D phân biệt, cùng cách đều B và E", [2]], ["AB = AE (đề cho), DB = DE (câu a)", [2]]], gt: "Kết quả câu a" },
-        { ten: "Câu c", dich: "Tính ∠EDC", sd: [["∠EDC = 180° − (∠DEC + ∠C)", [4]], ["∠DEC = 180° − ∠AED (hai góc kề bù)", [3]], ["∠AED = ∠ABD = 80° (câu a)", [3]]], gt: "∠ABC = 80°, ∠ACB = 40°" }]
+      /* Bài mẫu dạng 3: giải theo 4 bước. */
+      hieu: { gt: "ΔABC, AB < AC; AD là tia phân giác của ∠A (D thuộc BC); E thuộc cạnh AC, AE = AB.", kl: "a) ΔABD = ΔAED và DB = DE. b) AD là đường trung trực của BE. c) Biết ∠ABC = 80°, ∠ACB = 40°, tính ∠EDC.",
+        hoi: [
+          ["Vì sao lấy được điểm E trên cạnh AC?", "Vì AB < AC nên đoạn AE = AB nằm gọn trên cạnh AC."],
+          ["Trên hình có những cặp yếu tố nào bằng nhau?", "AB = AE (đề cho), ∠BAD = ∠EAD (AD là tia phân giác), AD là cạnh chung."]] },
+      nguoc: [
+        { ten: "Câu a", dich: "ΔABD = ΔAED và DB = DE",
+          sd: [["AB = AE, ∠BAD = ∠EAD, AD chung (c.g.c)", [1]]],
+          gt: "AE = AB, AD là tia phân giác của ∠A",
+          ket: "ΔABD = ΔAED (c.g.c) nên DB = DE.",
+          buoc: [
+            { hoi: "Hai tam giác ABD và AED đã có những yếu tố nào bằng nhau? Đủ trường hợp nào?",
+              nho: "Trường hợp c.g.c: hai cạnh và góc xen giữa.",
+              chon: [
+                ["AB = AE, ∠BAD = ∠EAD, AD chung: đủ c.g.c", true, "Đúng."],
+                ["AB = AE, DB = DE, AD chung: c.c.c", false, "DB = DE chưa biết; đó là điều cần suy ra."]],
+              dat: "AB = AE, ∠BAD = ∠EAD, AD chung" }] },
+        { ten: "Câu b", dich: "AD là đường trung trực của BE",
+          sd: [["A và D phân biệt, cùng cách đều B và E", [2]], ["AB = AE (đề cho), DB = DE (câu a)", [2]]],
+          gt: "Kết quả câu a",
+          ket: "A và D cùng nằm trên đường trung trực của BE nên AD là đường trung trực của BE.",
+          buoc: [
+            { hoi: "Muốn chứng minh AD là đường trung trực của BE, em chọn cách nào?",
+              nho: "Hai điểm phân biệt cùng cách đều hai đầu mút của một đoạn thẳng thì đường thẳng đi qua hai điểm đó là đường trung trực của đoạn thẳng.",
+              chon: [
+                ["Chỉ ra A và D đều cách đều B, E: AB = AE, DB = DE", true, "Đúng. Cách này không cần tìm trung điểm của BE."],
+                ["Chứng minh AD vuông góc với BE tại trung điểm của BE", false, "Đi được nhưng phải gọi thêm giao điểm và chứng minh thêm hai tam giác bằng nhau."]],
+              dat: "A, D cùng cách đều B và E" }] },
+        { ten: "Câu c", dich: "Tính ∠EDC",
+          sd: [["∠EDC = 180° − (∠DEC + ∠C)", [4]], ["∠DEC = 180° − ∠AED (hai góc kề bù)", [3]], ["∠AED = ∠ABD = 80° (câu a)", [3]]],
+          gt: "∠ABC = 80°, ∠ACB = 40° và kết quả câu a",
+          ket: "∠DEC = 100°, nên ∠EDC = 180° − 100° − 40° = 40°.",
+          buoc: [
+            { hoi: "∠EDC là góc của tam giác EDC. Đã biết góc nào, còn thiếu góc nào?",
+              nho: "Tổng ba góc của một tam giác bằng 180°.",
+              chon: [
+                ["Đã biết ∠C = 40°, còn thiếu ∠DEC", true, "Đúng."],
+                ["Thiếu cả ∠C", false, "∠C = ∠ACB = 40° đề đã cho."]],
+              dat: "Tính ∠DEC" },
+            { hoi: "∠DEC liên quan gì với các góc ở câu a?",
+              nho: "Hai góc kề bù có tổng 180°; hai tam giác bằng nhau thì các góc tương ứng bằng nhau.",
+              chon: [
+                ["∠DEC kề bù với ∠AED, mà ∠AED = ∠ABD = 80° (câu a)", true, "Đúng: ∠DEC = 100°."],
+                ["∠DEC = ∠ABD = 80°", false, "∠ABD bằng ∠AED; còn ∠DEC kề bù với ∠AED."]],
+              dat: "∠AED = ∠ABD = 80° (câu a)" }] }],
+      nhin: [
+        ["Thử lại: tổng ba góc có đỉnh D nằm về một phía của đường thẳng BC.", "∠BAD = 30°, ∠ADB = 180° − 80° − 30° = 70°, ∠ADE = ∠ADB = 70°, ∠EDC = 40°: 70° + 70° + 40° = 180°. Đúng."],
+        ["Tam giác EDC có ∠EDC = ∠ECD = 40°. Em suy ra được gì?", "Tam giác EDC cân tại E: ED = EC, nên DB = DE = EC."]]
     },
     vd2: {
       /* Bài mẫu Vận dụng: giải theo 4 bước. */
@@ -686,26 +730,46 @@
     if (t.phu && q.fig) { var f = q.fig; q.fig = function (goc) { PHU = goc ? t.phu : null; try { return f(); } finally { PHU = null; } }; }
   });
 
-  /* Bài tập tự luyện cuối mỗi mức: [đề, gợi ý, đáp số]. */
-  var TLMUC = {
-    NB: [
-      ["Cho tam giác ABC vuông tại A có ∠B = 35°. Tính ∠C. Trên tia đối của tia BC lấy điểm D, tính ∠ABD.", "Hai góc nhọn của tam giác vuông có tổng 90°; ∠ABD kề bù với ∠ABC.", "∠C = 55°, ∠ABD = 145°."],
-      ["Cho ΔABC = ΔPQR, biết ∠A = 50°, ∠Q = 60°. Tính ∠R.", "∠B = ∠Q; ∠R = ∠C.", "∠R = 70°."]],
-    TH: [
-      ["Cho góc xOy và tia phân giác Ot của nó. Trên Ox lấy điểm A, trên Oy lấy điểm B sao cho OA = OB; M là một điểm thuộc tia Ot. Chứng minh MA = MB.", "Xét tam giác OAM và OBM.", "ΔOAM = ΔOBM (c.g.c) nên MA = MB."],
-      ["Cho tam giác ABC cân tại A có ∠A = 50°. Kẻ BH ⊥ AC (H thuộc AC). Tính ∠HBC.", "Tính ∠C, rồi dùng tam giác HBC vuông tại H.", "∠HBC = 25°."]],
-    VD: [
-      ["Cho tam giác ABC vuông cân tại A, M là trung điểm của BC. Chứng minh tam giác AMB vuông cân.", "ΔABM = ΔACM (c.c.c) nên AM ⊥ BC; ∠B = 45°.", "∠AMB = 90°, ∠MAB = ∠B = 45° nên tam giác AMB vuông cân tại M."],
-      ["Cho tam giác ABC cân tại A có ∠A = 80°. Trên cạnh AB lấy điểm D, trên cạnh AC lấy điểm E sao cho AD = AE. Tính ∠ADE và chứng minh DE // BC.", "Tam giác ADE cân tại A.", "∠ADE = 50° = ∠ABC (hai góc đồng vị) nên DE // BC."],
-      ["Cho tam giác ABC có ∠B = 70°, ∠C = 50°. Đường trung trực của AC cắt cạnh BC tại D. Tính ∠BAD.", "DA = DC nên ∠DAC = ∠C.", "∠BAD = 10°."]]
-  };
 
 
   window.TL_DATA = {
     bai: "c47",
     ten: "Bài tập cuối chương IV",
     items: ITEMS,
-    tlMuc: TLMUC,
+    /* Chia theo dạng (thầy chốt lại 27/11/2026: bài Luyện tập chung, Bài tập cuối chương cũng chia theo dạng như Bài 16).
+       Mỗi dạng có phương pháp giải, bài xếp từ dễ đến khó, một bài mẫu giải theo 4 bước, bài tự luyện [đề, gợi ý, đáp số].
+       Bài HSG không thuộc dạng nào: để riêng ở mục Dành cho HSG. */
+    dang: [
+      { ten: "Tính số đo góc, độ dài đoạn thẳng",
+        pp: ["Tổng ba góc của một tam giác bằng 180°; hai góc kề bù có tổng 180°.",
+             "Hai tam giác bằng nhau: viết đúng thứ tự các đỉnh tương ứng rồi đọc ra cạnh, góc tương ứng.",
+             "Tam giác cân: hai cạnh bên bằng nhau, hai góc ở đáy bằng nhau; tam giác có hai góc bằng nhau là tam giác cân.",
+             "Với tia phân giác: mỗi góc bằng nửa góc ban đầu. Tính từng bước, ghi lí do của mỗi số đo."],
+        ids: ["nb1", "nb2", "nb3", "vd3"],
+        tl: [
+          ["Cho tam giác ABC vuông tại A có ∠B = 35°. Tính ∠C. Trên tia đối của tia BC lấy điểm D, tính ∠ABD.", "Hai góc nhọn của tam giác vuông có tổng 90°; ∠ABD kề bù với ∠ABC.", "∠C = 55°, ∠ABD = 145°."],
+          ["Cho tam giác ABC cân tại A có ∠A = 50°. Kẻ BH ⊥ AC (H thuộc AC). Tính ∠HBC.", "Tính ∠C, rồi dùng tam giác HBC vuông tại H.", "∠HBC = 25°."],
+          ["Cho tam giác ABC cân tại A có ∠A = 80°. Trên cạnh AB lấy điểm D, trên cạnh AC lấy điểm E sao cho AD = AE. Tính ∠ADE và chứng minh DE // BC.", "Tam giác ADE cân tại A.", "∠ADE = 50° = ∠ABC (hai góc đồng vị) nên DE // BC."]] },
+      { ten: "Chứng minh hai tam giác bằng nhau, suy ra hai đoạn thẳng, hai góc bằng nhau",
+        pp: ["Chọn hai tam giác chứa hai đoạn thẳng (hai góc) cần chứng minh bằng nhau.",
+             "Tìm đủ ba yếu tố theo một trường hợp: c.c.c, c.g.c, g.c.g; tam giác vuông thì dùng thêm cạnh huyền – góc nhọn, cạnh huyền – cạnh góc vuông, hai cạnh góc vuông.",
+             "Yếu tố hay dùng: cạnh chung, hai góc đối đỉnh, hai góc cùng cộng với một góc thành 90°, trung điểm.",
+             "Muốn chứng minh tổng hai đoạn bằng một đoạn: tách đoạn dài thành hai phần rồi chứng minh từng phần bằng nhau."],
+        ids: ["th3", "vd4", "vd2"],
+        tl: [
+          ["Cho ΔABC = ΔPQR, biết ∠A = 50°, ∠Q = 60°. Tính ∠R.", "∠B = ∠Q; ∠R = ∠C.", "∠R = 70°."],
+          ["Cho tam giác ABC vuông cân tại A, M là trung điểm của BC. Chứng minh tam giác AMB vuông cân.", "ΔABM = ΔACM (c.c.c) nên AM ⊥ BC; ∠B = 45°.", "∠AMB = 90°, ∠MAB = ∠B = 45° nên tam giác AMB vuông cân tại M."]] },
+      { ten: "Tia phân giác và đường trung trực",
+        pp: ["Tia phân giác chia góc thành hai góc bằng nhau: dùng làm cặp góc bằng nhau khi chứng minh hai tam giác bằng nhau.",
+             "Điểm nằm trên đường trung trực của một đoạn thẳng thì cách đều hai đầu mút; ngược lại, điểm cách đều hai đầu mút thì nằm trên đường trung trực.",
+             "Chứng minh một đường thẳng là đường trung trực của một đoạn thẳng: chỉ ra hai điểm phân biệt của nó cùng cách đều hai đầu mút.",
+             "Từ MA = MB suy ra tam giác MAB cân tại M, dùng để tính góc, chu vi."],
+        ids: ["th1", "th2", "vd5", "vd1"],
+        tl: [
+          ["Cho góc xOy và tia phân giác Ot của nó. Trên Ox lấy điểm A, trên Oy lấy điểm B sao cho OA = OB; M là một điểm thuộc tia Ot. Chứng minh MA = MB.", "Xét tam giác OAM và OBM.", "ΔOAM = ΔOBM (c.g.c) nên MA = MB."],
+          ["Cho tam giác ABC có ∠B = 70°, ∠C = 50°. Đường trung trực của AC cắt cạnh BC tại D. Tính ∠BAD.", "DA = DC nên ∠DAC = ∠C.", "∠BAD = 10°."]] }
+    ],
+    mau: { ids: ["vd3", "vd2", "vd1"], theoPhan: { tg: "vd3", cn: "vd3", bn: "vd2", tv: "vd2", tt: "vd1" } },
     _helpers: { foot: foot, cut: cut, add: add, pol: pol, iso: iso, tri: tri, rot: rot }
   };
 })();
