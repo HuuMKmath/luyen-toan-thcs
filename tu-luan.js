@@ -72,6 +72,19 @@
     return s + "</article>";
   }
 
+  /* Bài tập tự luyện: list = [[đề, gợi ý, đáp số], ...]; cuối mỗi dạng (dang[].tl) hoặc cuối mỗi mức (TL_DATA.tlMuc[mức]). */
+  function tuLuyenHTML(list, pre) {
+    if (!list || !list.length) return "";
+    var s = '<div class="tl-tu"><h4 style="margin:0">Bài tập tự luyện</h4><p class="small muted" style="margin:0">Làm tương tự các bài trên. Làm xong mới bấm xem đáp số.</p><ol>';
+    list.forEach(function (x, j) {
+      var key = pre + "-" + j;
+      s += "<li><div>" + x[0] + '</div><div class="row"><button class="btn ghost sm" data-tl="tlg:' + key + '" aria-expanded="' + (!!ui.tlg[key]) + '">' + (ui.tlg[key] ? "Ẩn gợi ý" : "Gợi ý") + '</button><button class="btn ghost sm" data-tl="tld:' + key + '" aria-expanded="' + (!!ui.tld[key]) + '">' + (ui.tld[key] ? "Ẩn đáp số" : "Đáp số") + "</button></div>";
+      if (ui.tlg[key]) s += '<div class="tl-hint"><b>Gợi ý.</b> ' + x[1] + "</div>";
+      if (ui.tld[key]) s += '<div class="ng-ans"><b>Đáp số.</b> ' + x[2] + "</div>";
+      s += "</li>";
+    });
+    return s + "</ol></div>";
+  }
   function html() {
     var d = data();
     if (!d || !d.items || !d.items.length) return "";
@@ -96,17 +109,7 @@
         s += '<div class="tl-list"><h3 style="margin:4px 0 0">Dạng ' + (k + 1) + ". " + D[k].ten + "</h3>";
         s += '<div class="tl-pp"><b>Phương pháp giải</b><ul>' + D[k].pp.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul></div>";
         byIds(D[k].ids).forEach(function (q) { s += itemHTML(q, marks); });
-        if (D[k].tl && D[k].tl.length) {
-          s += '<div class="tl-tu"><h4 style="margin:0">Bài tập tự luyện</h4><p class="small muted" style="margin:0">Làm tương tự các bài trên. Làm xong mới bấm xem đáp số.</p><ol>';
-          D[k].tl.forEach(function (x, j) {
-            var key = k + "-" + j;
-            s += "<li><div>" + x[0] + '</div><div class="row"><button class="btn ghost sm" data-tl="tlg:' + key + '" aria-expanded="' + (!!ui.tlg[key]) + '">' + (ui.tlg[key] ? "Ẩn gợi ý" : "Gợi ý") + '</button><button class="btn ghost sm" data-tl="tld:' + key + '" aria-expanded="' + (!!ui.tld[key]) + '">' + (ui.tld[key] ? "Ẩn đáp số" : "Đáp số") + "</button></div>";
-            if (ui.tlg[key]) s += '<div class="tl-hint"><b>Gợi ý.</b> ' + x[1] + "</div>";
-            if (ui.tld[key]) s += '<div class="ng-ans"><b>Đáp số.</b> ' + x[2] + "</div>";
-            s += "</li>";
-          });
-          s += "</ol></div>";
-        }
+        s += tuLuyenHTML(D[k].tl, k);
         s += "</div>";
       }
       return s + "</section>";
@@ -121,6 +124,7 @@
     if (ui.open) {
       s += '<div class="tl-list"><h3 style="margin:4px 0 0">' + LV[ui.open] + "</h3>";
       byLv(ui.open).forEach(function (q) { s += itemHTML(q, marks); });
+      if (d.tlMuc) s += tuLuyenHTML(d.tlMuc[ui.open], ui.open);
       s += "</div>";
     }
     return s + "</section>";
@@ -340,7 +344,8 @@
   function docAuto() { try { return localStorage.getItem(KEY_DOC) !== "0"; } catch (e) { return true; } }   // mặc định bật, học sinh tắt được
   var CHU = { A: "a", B: "bê", C: "xê", D: "đê", E: "e", F: "ép", G: "giê", H: "hát", I: "i", K: "ca", L: "lờ", M: "mờ", N: "nờ", O: "o", P: "pê", Q: "quy", R: "rờ", S: "ét", T: "tê", U: "u", V: "vê", X: "ích", Y: "i dài" };
   function doc(t) {
-    t = String(t).replace(/<br\s*\/?>/gi, ". ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ");
+    t = String(t).replace(/<span class="fr"><span>([\s\S]*?)<\/span><span>([\s\S]*?)<\/span><\/span>/g, " $1 phần $2 ").replace(/<sup>([\s\S]*?)<\/sup>/g, " mũ $1 ");
+    t = t.replace(/<br\s*\/?>/gi, ". ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ");
     t = t.replace(/c\.g\.c/g, "cạnh góc cạnh").replace(/g\.c\.g/g, "góc cạnh góc").replace(/c\.c\.c/g, "cạnh cạnh cạnh");
     t = t.replace(/(^|\s)([a-d])\)/g, "$1câu $2,");
     t = t.replace(/\/\//g, " song song với ").replace(/⊥/g, " vuông góc với ").replace(/∠/g, " góc ").replace(/Δ/g, " tam giác ");

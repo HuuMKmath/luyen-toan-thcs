@@ -14,9 +14,21 @@ if (!out) { console.log('Cách chạy: node xuat-tu-luan.js <thư mục bài> <r
 const REPO = path.resolve(__dirname, '..', '..'), FONT = 'Times New Roman';
 
 const dec = s => s.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+// Tử hoặc mẫu của phân số: giữ luỹ thừa (<sup>) thành số mũ trong công thức Word.
+function mathRuns(t) {
+  const clean = x => dec(String(x).replace(/<\/?[a-zA-Z][^<>]*>/g, ''));
+  const o = [], re = /(\([^()]*\)|[^\s·+−:()]+)<sup>([\s\S]*?)<\/sup>/g; let i = 0, m;
+  while ((m = re.exec(t))) {
+    if (m.index > i) o.push(new D.MathRun(clean(t.slice(i, m.index))));
+    o.push(new D.MathSuperScript({ children: [new D.MathRun(clean(m[1]))], superScript: [new D.MathRun(clean(m[2]))] }));
+    i = re.lastIndex;
+  }
+  if (i < t.length) o.push(new D.MathRun(clean(t.slice(i))));
+  return o.length ? o : [new D.MathRun('')];
+}
 function runs(html, base) {
   base = base || {}; const o = []; const s = String(html == null ? '' : html);
-  const re = /<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<i>([\s\S]*?)<\/i>|<\/?[a-zA-Z][^<>]*>/g; let i = 0, m;
+  const re = /<sup>([\s\S]*?)<\/sup>|<b>([\s\S]*?)<\/b>|<i>([\s\S]*?)<\/i>|<span class="fr"><span>([\s\S]*?)<\/span><span>([\s\S]*?)<\/span><\/span>|<\/?[a-zA-Z][^<>]*>/g; let i = 0, m;
   const clean = t => dec(String(t).replace(/<\/?[a-zA-Z][^<>]*>/g, ''));
   const txt = t => { t = clean(t); if (t) o.push(new TextRun(Object.assign({ text: t, font: FONT }, base))); };
   while ((m = re.exec(s))) {
@@ -24,6 +36,7 @@ function runs(html, base) {
     if (m[1] !== undefined) o.push(new TextRun(Object.assign({ text: clean(m[1]), font: FONT, superScript: true }, base)));
     else if (m[2] !== undefined) o.push(new TextRun(Object.assign({ text: clean(m[2]), font: FONT }, base, { bold: true })));
     else if (m[3] !== undefined) o.push(new TextRun(Object.assign({ text: clean(m[3]), font: FONT }, base, { italics: true })));
+    else if (m[4] !== undefined) o.push(new D.Math({ children: [new D.MathFraction({ numerator: mathRuns(m[4]), denominator: mathRuns(m[5]) })] }));   // phân số (class "fr" của trang)
   }
   txt(s.slice(i)); return o;
 }
@@ -100,7 +113,7 @@ function baiHSG(q, n, body) {
   const pg = await ctx.newPage();
   await pg.goto('file://' + path.join(REPO, lesson, 'index.html'));
   const d = await pg.evaluate(() => { const d = window.TL_DATA; if (!d) return null;
-    return { ten: d.ten, dang: d.dang || null, items: d.items.map(q => { let f = ''; try { f = q.fig ? q.fig() : ''; } catch (e) {} const c = Object.assign({}, q); delete c.fig; c.fightml = f; return c; }) }; });
+    return { ten: d.ten, dang: d.dang || null, tlMuc: d.tlMuc || null, items: d.items.map(q => { let f = ''; try { f = q.fig ? q.fig() : ''; } catch (e) {} const c = Object.assign({}, q); delete c.fig; c.fightml = f; return c; }) }; });
   if (!d) { console.log('Bài này chưa có tự luận'); process.exit(1); }
   await pg.evaluate(() => { const h = document.createElement('div'); h.id = 'figbox'; h.style.cssText = 'position:absolute;left:0;top:0;background:#fff;padding:6px;display:inline-block;z-index:99999'; document.body.appendChild(h); });
   for (const [i, q] of d.items.entries()) {
@@ -117,6 +130,11 @@ function baiHSG(q, n, body) {
   body.push(new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER, children: [T(title)] }));
   body.push(P([T(sub, { italics: true })], { alignment: AlignmentType.CENTER }));
   const hsg = d.items.filter(q => q.lv === 'HSG');
+  function tuLuyen(list) {
+    if (!list || !list.length) return;
+    body.push(H2('Bài tập tự luyện'));
+    list.forEach((t, i) => { body.push(P([T('Bài ' + (i + 1) + '. ', { bold: true })].concat(runs(t[0])))); body.push(IND([T('Gợi ý: ', { italics: true, bold: true })].concat(runs(t[1], { italics: true })))); body.push(IND([T('Đáp số: ', { bold: true })].concat(runs(t[2])))); });
+  }
   if (d.dang) {
     body.push(P([T('Bài tập chia theo dạng. Mỗi dạng có phương pháp giải, các bài xếp từ dễ đến khó, cuối dạng có bài tập tự luyện.' + (hsg.length ? ' Phần cuối dành cho học sinh giỏi, giải theo 4 bước.' : ''), { italics: true })], { spacing: { before: 120, after: 160, line: 300 } }));
     d.dang.forEach((x, k) => {
@@ -124,13 +142,10 @@ function baiHSG(q, n, body) {
       body.push(P([T('Phương pháp giải', { bold: true })], { keepNext: true }));
       x.pp.forEach(t => body.push(IND([T('• ')].concat(runs(t)))));
       x.ids.map(by).filter(Boolean).forEach((q, i) => baiThuong(q, i + 1, body));
-      if (x.tl && x.tl.length) {
-        body.push(H2('Bài tập tự luyện'));
-        x.tl.forEach((t, i) => { body.push(P([T('Bài ' + (i + 1) + '. ', { bold: true })].concat(runs(t[0])))); body.push(IND([T('Gợi ý: ', { italics: true, bold: true })].concat(runs(t[1], { italics: true })))); body.push(IND([T('Đáp số: ', { bold: true })].concat(runs(t[2])))); });
-      }
+      tuLuyen(x.tl);
     });
   } else {
-    ['NB', 'TH', 'VD'].forEach(lv => { const qs = d.items.filter(q => q.lv === lv); if (!qs.length) return; body.push(H1(LV[lv] + ' (' + qs.length + ' bài)')); qs.forEach((q, i) => baiThuong(q, i + 1, body)); });
+    ['NB', 'TH', 'VD'].forEach(lv => { const qs = d.items.filter(q => q.lv === lv); if (!qs.length) return; body.push(H1(LV[lv] + ' (' + qs.length + ' bài)')); qs.forEach((q, i) => baiThuong(q, i + 1, body)); tuLuyen(d.tlMuc && d.tlMuc[lv]); });
   }
   if (hsg.length) { body.push(H1('Dành cho học sinh giỏi (' + hsg.length + ' bài)')); body.push(P([T('Mỗi bài giải theo 4 bước: Tìm hiểu đề bài; Xây dựng chương trình giải; Thực hiện chương trình giải; Kiểm tra và nghiên cứu lời giải.', { italics: true })])); hsg.forEach((q, i) => baiHSG(q, i + 1, body)); }
 
