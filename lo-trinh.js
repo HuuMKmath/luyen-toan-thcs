@@ -24,7 +24,7 @@
     { k: "VD", ten: "Gói Vận dụng", mo: "Bài nhiều bước, kết hợp bài trước, tình huống thực tế" },
     { k: "KT", ten: "Kiểm tra 25 phút", mo: "Đạt từ " + DIEM_QUA + " điểm (hoặc Thử thách 30 phút từ " + DIEM_QUA + " điểm)" }
   ];
-  var cfg = {}, sv = null, svU = "", dangTai = false, lastO = null;
+  var vdCache = {}, cfg = {}, sv = null, svU = "", dangTai = false, lastO = null;
   var BAT_BUOC = ["NB", "TH", "VD", "KT"];
   function buoc() { return BUOC; }
 
@@ -123,6 +123,39 @@
     goi: function (g) { if (["NB", "TH", "VD"].indexOf(g) >= 0) set(g, 1); },
     diem: function (d) { var n = num(d); if (n > num(get("KT"))) set("KT", n); },
     lamMoi: function () { svU = ""; },
+    /* Ví dụ mẫu cho phần Ôn kiến thức khi RECAP của bài chưa soạn sẵn (r.vd):
+       lấy một câu Nhận biết (không có thì Thông hiểu) cùng phần kiến thức trong ngân hàng câu đã kiểm tra,
+       ưu tiên câu trả lời ngắn, rồi câu nhiều lựa chọn; giữ cố định trong một lần mở trang. */
+    viDu: function (ds, k, inst) {
+      if (vdCache.hasOwnProperty(k)) return vdCache[k];
+      var ung = [];   // [độ dài lời giải, ví dụ]; câu trả lời ngắn trước, Nhận biết trước Thông hiểu
+      (ds || []).forEach(function (bank, bi) {
+        ["NB", "TH"].forEach(function (lv, li) {
+          (bank || []).forEach(function (q) {
+            if (q.topic !== k || q.level !== lv) return;
+            try {
+              var r = inst(q);
+              if (!r || !r.stem || !r.exp) return;
+              var de = (r.fig || "") + r.stem, giai = r.exp;
+              if (r.opts && r.opts[r.ans]) {
+                // xoay thứ tự phương án để đáp án đúng không luôn ở A
+                var m = r.opts.length, lech = (k.length + String(q.id || "").length) % m;
+                var xep = r.opts.map(function (_, i) { return r.opts[(i + lech) % m]; });
+                de += " " + xep.map(function (o, i) { return "ABCD"[i] + ". " + o.t; }).join("; ") + ".";
+                giai = "Chọn " + "ABCD"[xep.indexOf(r.opts[r.ans])] + ". " + giai;
+              }
+              var n = String(r.exp).replace(/<[^>]+>/g, "").length;
+              ung.push({ uu: bi * 2 + li, n: n, vd: { de: de, giai: giai } });
+            } catch (e) {}
+          });
+        });
+      });
+      // lấy câu đầu tiên có lời giải đủ ý (từ 45 kí tự), theo thứ tự ưu tiên; không có thì lấy lời giải dài nhất
+      ung.sort(function (x, y) { return x.uu - y.uu; });
+      var chon = ung.filter(function (x) { return x.n >= 45; })[0] || ung.slice().sort(function (x, y) { return y.n - x.n; })[0];
+      vdCache[k] = chon ? [chon.vd] : [];
+      return vdCache[k];
+    },
     /* tu-luan.js vẫn gọi hai hàm này khi em phân tích xong một bài mẫu; Lộ trình không còn bước Tập phân tích nên chỉ ghi nhớ, vẽ lại như cũ. */
     phanTich: function () { set("PT", 1); },
     capNhat: function () {

@@ -130,6 +130,35 @@ label.fl{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
 .recap{display:grid;grid-template-columns:1fr;gap:12px}
 @media (min-width:640px){.recap{grid-template-columns:1fr 1fr}}
 .recap .card{display:flex;flex-direction:column;gap:6px}
+/* Lộ trình của em (lo-trinh.js) */
+.lt-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.lt-n{font-size:.85rem;font-weight:700;color:var(--accent)}
+.lt-bar{display:flex;gap:5px;margin:10px 0 14px}.lt-bar i{flex:1;height:7px;border-radius:4px;background:var(--line)}.lt-bar i.ok{background:#22a565}
+.lt-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lt-st{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card)}
+.lt-st.now{border:2px solid var(--accent);box-shadow:0 2px 10px rgba(31,79,216,.12)}
+.lt-dot{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--line);color:var(--muted)}
+.lt-st.done .lt-dot{background:#22a565;color:#fff}.lt-st.now .lt-dot{background:var(--accent);color:var(--accent-ink)}
+.lt-tx{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.lt-tx small{color:var(--muted);font-size:.84rem;line-height:1.4}
+.lt-st.todo b{color:var(--muted)}
+.lt-go{align-self:flex-start;margin-top:6px}
+.lt-re{align-self:flex-start;margin-top:2px;border:0;background:none;padding:2px 0;color:var(--accent);font:inherit;font-size:.84rem;text-decoration:underline;cursor:pointer}
+.lt-tuy{align-self:flex-start;font-size:.74rem;font-weight:600;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:1px 8px;margin-top:3px}
+.lt-ok{margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(34,165,101,.12);font-weight:600}
+.lt-on{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.lt-on>summary,.more>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lt-on>summary::-webkit-details-marker,.more>summary::-webkit-details-marker{display:none}
+.lt-on>summary::after,.more>summary::after{content:'⌄';color:var(--muted)}
+.lt-on[open]>summary::after,.more[open]>summary::after{content:'⌃'}
+.lt-on>.recap{margin-top:12px}
+.vd-mau{border-left:4px solid #f0a92c;background:rgba(240,169,44,.1);border-radius:8px;padding:8px 10px;font-size:.9rem;line-height:1.5}
+.vd-mau p{margin:0}.vd-mau p+p{margin-top:4px}
+.more{margin-top:10px;padding:13px 16px}.more>summary{font-size:1rem}.more>summary small{font-weight:400;color:var(--muted);font-size:.82rem;margin-left:auto}
+.more[open]>summary{margin-bottom:12px}
+.more>.card,.more>section{margin-top:0!important;box-shadow:none;border:0;padding:0;background:none}
+.more #tl-box>div:first-child>h2{display:none}
+.grp-h{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:24px 2px 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .recap h3{font-size:1.02rem}
 .recap p{margin:0;font-size:.93rem}
 .chip{display:inline-block;font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--paper);white-space:nowrap}
@@ -237,6 +266,7 @@ footer{margin-top:40px;color:var(--muted);font-size:.8rem}
 
 <script src="../gamify.js"></script>
 <script src="../khoa-bai.js"></script>
+<script src="../lo-trinh.js"></script>
 <script>
 "use strict";
 if(!window.GM)window.GM={onPractice(){return null;},onFinish(){return null;},barHTML(){return '';},resultHTML(){return '';},fx(){},refresh(){},sync(){},rebar(){},gate(){return true;}}; // gamify.js không tải được thì trang vẫn chạy bình thường
@@ -761,6 +791,7 @@ const RECAP=[
 ];
 
 /* ============ Trạng thái ============ */
+const ui={open:{}}; // các mục Luyện thêm / Ôn kiến thức đang mở (giữ khi vẽ lại trang)
 const state={view:'home',name:'',stu:null,ans:{},pr:{},perm:{},result:null,topicPct:{},weak:[],t0:0,elapsed:0,timedOut:false,code:'',cls:''};
 const LIMIT={test:25*60,quick:5*60,hard:30*60};
 const SEEN_KEY='tx6_seen';
@@ -920,37 +951,30 @@ function homeHTML(){
   if(needHS()&&!state.stu)return loginHTML();
   if(wrongGrade())return wrongGradeHTML();
   const weak=state.weak;
+  const recap=`<div class="recap">${RECAP.map(r=>`<div class="card"><h3>${TOPICS[r.k].name}</h3>${r.fig}<p>${TOPICS[r.k].rule}</p><p class="muted small">${r.extra}</p>${(r.vd||(window.LoTrinh?LoTrinh.viDu([SA,MC],r.k,inst):[])).map(v=>`<div class="vd-mau"><p><b>Ví dụ mẫu.</b> ${v.de}</p><p><i>Giải.</i> ${v.giai}</p></div>`).join('')}</div>`).join('')}</div>`;
+  const mo=id=>ui.open[id]?' open':'';
   return `
   <section class="hero">
     <h1>Hình có <em>tâm đối xứng</em></h1>
-    <p class="lead">Bài 22. Hình có tâm đối xứng (SGK trang 103 đến 106): quay nửa vòng quanh một điểm, nhận biết hình có tâm đối xứng, tâm đối xứng của hình bình hành, hình thoi, hình chữ nhật, hình vuông, lục giác đều, quay nửa vòng trên giấy kẻ ô, so sánh tâm và trục đối xứng, cắt giấy gấp hai lần. Chọn một gói luyện tập, hoặc làm bài kiểm tra để lấy điểm.</p>
+    <p class="lead">Bài 22. Hình có tâm đối xứng (SGK trang 103 đến 106): quay nửa vòng quanh một điểm, nhận biết hình có tâm đối xứng, tâm đối xứng của hình bình hành, hình thoi, hình chữ nhật, hình vuông, lục giác đều, quay nửa vòng trên giấy kẻ ô, so sánh tâm và trục đối xứng, cắt giấy gấp hai lần. Đi lần lượt từng bước trong Lộ trình của em.</p>
   </section>
 
-  ${hsBarHTML()}
-  ${GM.barHTML()}
+  ${window.LoTrinh?LoTrinh.html({recap,moOn:ui.open['lt-on']}):''}
 
-  <section class="card stack" style="margin-top:22px">
-    <div>
-      <h2>Luyện tập</h2>
-      <p class="muted" style="margin:6px 0 0">Mỗi gói có khoảng 11 câu rút ngẫu nhiên từ ngân hàng ${MC.length+TF.length+SA.length} câu, nhiều câu tự đổi số liệu mỗi lần làm. Làm xong từng câu bấm Kiểm tra để xem lời giải ngay. Nếu chưa đúng, bạn được thử lại một lần. Không giới hạn thời gian, trang chỉ hiện thời gian bạn đã dùng.</p>
-    </div>
-    <div>
-      <div class="grp">Theo mức độ</div>
-      <div class="pack">${Object.keys(LEVELS).map(k=>`<button class="pk" data-pack="level:${k}"><b>${LEVELS[k]}</b><span>${LEVEL_DESC[k]}</span></button>`).join('')}</div>
-      <div class="grp">Theo nội dung</div>
-      <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
-      <div class="grp">Toán thực tế</div>
-      <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
-      <div class="grp">Gợi ý cho bạn</div>
-      <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
-    </div>
-  </section>
-
-  <section class="card stack" style="margin-top:16px">
-    <div>
-      <h2>Kiểm tra</h2>
-      <p class="muted" style="margin:6px 0 0">Có hai bài. Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
-    </div>
+  <h2 class="grp-h">Luyện thêm</h2>
+  <details class="card more" id="m-noidung"${mo('m-noidung')}><summary>📚 Luyện theo nội dung · Ôn điểm yếu</summary>
+    <p class="muted small" style="margin:0 0 4px">Mỗi gói có khoảng 11 câu rút ngẫu nhiên từ ngân hàng ${MC.length+TF.length+SA.length} câu. Làm xong từng câu bấm Kiểm tra để xem lời giải ngay.</p>
+    <div class="grp">Theo nội dung</div>
+    <div class="pack">${TKEYS.map(k=>`<button class="pk" data-pack="topic:${k}"><b>${TOPICS[k].name}</b><span>${TDESC[k]}</span></button>`).join('')}</div>
+    <div class="grp">Gợi ý cho bạn</div>
+    <div class="pack"><button class="pk" data-pack="weak" ${weak.length?'':'disabled'}><b>Gói ôn điểm yếu</b><span>${weak.length?'Các câu thuộc phần bạn còn dưới 80%: '+weak.map(k=>TOPICS[k].short).join(', ')+'.':'Xuất hiện sau khi bạn làm xong một gói hoặc một bài kiểm tra.'}</span></button></div>
+  </details>
+  <details class="card more" id="m-thucte"${mo('m-thucte')}><summary>🌍 Toán thực tế</summary>
+    <div class="pack"><button class="pk" data-pack="pisa"><b>Gói Toán thực tế</b><span>Ba tình huống trong đời sống (chọn ngẫu nhiên mỗi lần làm), mỗi tình huống có 3 đến 4 câu hỏi từ dễ đến khó.</span></button></div>
+  </details>
+  <details class="card more" id="kt-box"${mo('kt-box')}><summary>⏱️ Kiểm tra 25 phút · 🏆 Thử thách 30 phút</summary>
+    <div class="stack">
+    <p class="muted" style="margin:0">Kết quả chỉ hiện sau khi nộp bài, và hết giờ trang tự nộp.</p>
     <div class="recap">
       <div class="card"><h3>Bài kiểm tra 25 phút</h3><p>13 câu, 10 điểm: 6 câu nhiều lựa chọn, 3 câu đúng sai (mỗi câu 4 ý) và 4 câu trả lời ngắn.</p></div>
       <div class="card"><h3>Thử thách 30 phút</h3><p>Dành cho bạn muốn thử sức. 13 câu, 10 điểm, toàn câu vận dụng và nâng cao: 6 câu nhiều lựa chọn, 3 câu đúng sai và 4 câu trả lời ngắn. Điểm được ghi riêng, không tính chung với bài kiểm tra.</p></div>
@@ -970,14 +994,11 @@ function homeHTML(){
     </div>
     <div class="row"><button class="btn" id="start">Bắt đầu bài 25 phút</button><button class="btn" id="starth">Bắt đầu Thử thách 30 phút</button></div>
     <p class="small muted" style="margin:0">Đồng hồ bắt đầu chạy khi bạn bấm nút.</p>
-  </section>
-
-  <section style="margin-top:28px">
-    <h2 style="margin-bottom:12px">Ôn nhanh kiến thức</h2>
-    <div class="recap">
-      ${RECAP.map(r=>`<div class="card"><h3>${TOPICS[r.k].name}</h3>${r.fig}<p>${TOPICS[r.k].rule}</p><p class="muted small">${r.extra}</p></div>`).join('')}
     </div>
-  </section>`;
+  </details>
+
+  ${GM.barHTML()}
+  ${hsBarHTML()}`;
 }
 
 /* ============ Thẻ câu hỏi ============ */
@@ -1377,11 +1398,18 @@ function finish(force){
   stopTimer();
   state.elapsed=Math.floor((Date.now()-state.t0)/1000);
   if(test)state.elapsed=Math.min(state.elapsed,LIMIT[S.mode]);
-  state.result=grade();updateWeak(state.result);state.gm=GM.onFinish(state.result,S.mode);state.view='result';render();
+  state.result=grade();updateWeak(state.result);state.gm=GM.onFinish(state.result,S.mode);
+  if(window.LoTrinh){
+    if(S.mode==='test'||S.mode==='hard')LoTrinh.diem(state.result.total);
+    else if(S.mode==='practice'&&S.spec&&S.spec.kind==='level'&&S.list.every(q=>state.pr[q.id]&&state.pr[q.id].done))LoTrinh.goi(S.spec.val);
+    LoTrinh.lamMoi();
+  }
+  state.view='result';render();
 }
 loadHS();recheckHS();
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='hsma'){e.preventDefault();checkHS();}});
 document.addEventListener('click',e=>{
+  if(window.LoTrinh&&LoTrinh.click(e))return;
   const pk=e.target.closest('[data-pack]');
   if(pk&&!pk.disabled){startPack(parsePack(pk.dataset.pack));return;}
   const ck=e.target.closest('.chk');
@@ -1420,6 +1448,10 @@ document.addEventListener('input',e=>{
   if(id){state.ans[id]=e.target.value;updateProgress();}
 });
 window.addEventListener('hashchange',render);
+document.addEventListener('toggle',e=>{const d=e.target;if(d.tagName==='DETAILS'&&d.id&&(d.id==='lt-on'||d.id==='kt-box'||d.id.startsWith('m-')))ui.open[d.id]=d.open;},true);
+if(window.LoTrinh)LoTrinh.init({tab:SHEET_TAB,url:SHEET_URL,user:()=>state.stu&&state.stu.u,
+  onChange:()=>{if(state.view==='home'&&location.hash!=='#giao-vien'){const y=window.scrollY;$app.innerHTML=homeHTML();window.scrollTo(0,y);GM.refresh();}},
+  startLevel:k=>startPack({kind:'level',val:k})});
 render();
 </script>
 <script>if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('../sw.js').catch(function(){});});</script>
