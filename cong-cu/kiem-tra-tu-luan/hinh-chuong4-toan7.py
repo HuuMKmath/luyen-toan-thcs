@@ -97,19 +97,22 @@ for _ in range(5):
     A, B, O = P(0, 0), P(8, 0), P(4, 0); c = random.uniform(0.5, 7); Cc = P(0, c); D = P(8, 16 / c)   # ∠COD = 90° ⇔ (−4)·4 + c·y = 0
     H = foot(O, Cc, D)
     ok(L, "hsg5", bang(goc(Cc, O, D), 90) and bang(d(Cc, D), c + 16 / c) and bang(goc(O, D, B), goc(O, D, Cc)) and bang(d(O, H), 4) and bang(goc(A, H, B), 90), "CD = AC + BD", "∠AHB = 90°")
-# Bài tự luyện
-ok(L, "tlNB-0", bang(180 - 2 * 65, 50), "∠C = 65°", "∠A = 50°")
-ok(L, "tlNB-1", True, "HI = 4 cm", "IK = 5 cm", "∠P = 35°")
+# Bài tự luyện cuối mỗi dạng (tl<dạng>-<thứ tự>)
+for _ in range(3):
+    B, C = P(0, 0), P(10, 0); A = P(5, random.uniform(2, 9)); D = cut(A, phan_giac(B, A, C), B, C)
+    ok(L, "tl1-1", bang(d(D, B), d(D, C)) and vuong(A, D, B, C), "DB = DC", "∠ADB = ∠ADC = 90°")
+ok(L, "tl0-0", bang(180 - 2 * 70, 40), "∠C = 70°", "∠A = 40°")
+ok(L, "tl0-1", True, "HI = 4 cm", "IK = 5 cm", "∠P = 35°")
 A, B, C = iso(50); M = (B + C) / 2
-ok(L, "tlTH-0", bang(goc(B, A, M), 25) and bang(goc(A, M, B), 90), "∠BAM = 25°", "∠AMB = 90°")
+ok(L, "tl1-0", bang(goc(B, A, M), 25) and bang(goc(A, M, B), 90), "∠BAM = 25°", "∠AMB = 90°")
 A, B = P(-3, 0), P(3, 0); M = P(0, math.sqrt(36 - 9))
-ok(L, "tlTH-1", bang(d(M, A), 6) and bang(d(M, B), 6) and bang(goc(M, A, B), 60), "Tam giác MAB đều", "∠MAB = 60°")
+ok(L, "tl2-0", bang(d(M, A), 6) and bang(d(M, B), 6) and bang(goc(M, A, B), 60), "Tam giác MAB đều", "∠MAB = 60°")
 A, B, C = iso(30); D = cut(B, pol(B, 1, 30), A, C)   # BD = BC: ∠BDC = ∠C = 75°, nên ∠DBC = 30°
-ok(L, "tlVD-0", bang(d(B, D), d(B, C)) and bang(goc(A, B, D), 45), "∠ABD = 45°")
+ok(L, "tl0-2", bang(d(B, D), d(B, C)) and bang(goc(A, B, D), 45), "∠ABD = 45°")
 A, B, C = P(0, 0), P(0, 10), P(10 * math.sqrt(3), 0); M = cut(A, pol(A, 1, 90 - 60), B, C)
-ok(L, "tlVD-1", bang(goc(A, C, B), 30) and bang(d(M, B), d(M, C)) and bang(d(M, A), d(M, B)), "M là trung điểm của BC")
+ok(L, "tl2-1", bang(goc(A, C, B), 30) and bang(d(M, B), d(M, C)) and bang(d(M, A), d(M, B)), "M là trung điểm của BC")
 A, B, C = iso(120); N = (A + B) / 2; D = cut(N, N + (B - A) * 1j, B, C)
-ok(L, "tlVD-2", bang(goc(D, A, C), 90) and bang(d(D, A), d(D, B)), "∠DAC = 90°")
+ok(L, "tl2-2", bang(goc(D, A, C), 90) and bang(d(D, A), d(D, B)), "∠DAC = 90°")
 
 # ================= Bài tập cuối chương IV =================
 K4 = "bai-tap-cuoi-chuong-4-toan-7"
@@ -172,17 +175,17 @@ for _ in range(5):
     A = P(0, 0); B = P(random.uniform(3, 9), 0); C = P(0, random.uniform(2, 8)); H = foot(A, B, C); M = (B + C) / 2; D = 2 * M - A
     I = C + (C - D) / d(C, D) * d(C, A); E = cut(I, I + C - A, A, H)
     ok(K4, "hsg5", song_song(C, D, A, B) and vuong(C, D, A, C) and bang(d(A, E), d(B, C)), "AE = BC")
-ok(K4, "tlNB-0", bang(90 - 35, 55) and bang(180 - 35, 145), "∠C = 55°", "∠ABD = 145°")
-ok(K4, "tlNB-1", bang(180 - 50 - 60, 70), "∠R = 70°")
-ok(K4, "tlTH-0", True, "MA = MB")
+ok(K4, "tl0-0", bang(90 - 35, 55) and bang(180 - 35, 145), "∠C = 55°", "∠ABD = 145°")
+ok(K4, "tl1-0", bang(180 - 50 - 60, 70), "∠R = 70°")
+ok(K4, "tl2-0", True, "MA = MB")
 A, B, C = iso(50); H = foot(B, A, C)
-ok(K4, "tlTH-1", bang(goc(H, B, C), 25), "∠HBC = 25°")
+ok(K4, "tl0-1", bang(goc(H, B, C), 25), "∠HBC = 25°")
 A, B, C = iso(90); M = (B + C) / 2
-ok(K4, "tlVD-0", bang(goc(A, M, B), 90) and bang(goc(M, A, B), 45), "vuông cân tại M")
+ok(K4, "tl1-1", bang(goc(A, M, B), 90) and bang(goc(M, A, B), 45), "vuông cân tại M")
 A, B, C = iso(80); k = random.uniform(.2, .8); D = A + (B - A) * k; E = A + (C - A) * k
-ok(K4, "tlVD-1", bang(goc(A, D, E), 50) and song_song(D, E, B, C), "∠ADE = 50°", "DE // BC")
+ok(K4, "tl0-2", bang(goc(A, D, E), 50) and song_song(D, E, B, C), "∠ADE = 50°", "DE // BC")
 A, B, C = tri(70, 50); N = (A + C) / 2; D = cut(N, N + (C - A) * 1j, B, C)
-ok(K4, "tlVD-2", bang(goc(B, A, D), 10) and 0 < D.real < 10, "∠BAD = 10°")
+ok(K4, "tl2-1", bang(goc(B, A, D), 10) and 0 < D.real < 10, "∠BAD = 10°")
 
 # ---------- Các điều dùng trong phần "Giải theo 4 bước" (điểm kẻ thêm, bước 4) ----------
 def phu(ten, dung):
@@ -203,6 +206,9 @@ A, B, C = iso(100); M = cut(B, pol(B, 1, 10), C, pol(C, 1, 160)); D = C + (A - C
 phu("CC hsg4: MB = MD = BD, ∠ABD = 30°, A nằm giữa C và D", bang(d(M, B), d(M, D)) and bang(d(B, D), d(B, M)) and bang(goc(A, B, D), 30) and d(C, D) > d(C, A))
 A = P(0, 0); B = P(6, 0); C = P(0, 4); D = P(6, 4); I = P(-4, 4); H = foot(A, B, C); E = cut(I, I + C - A, A, H); K = P(-4, 0)
 phu("CC hsg5: AK = CA, ∠KAE = ∠ACB, ACIK là hình vuông", bang(d(A, K), d(C, A)) and bang(goc(K, A, E), goc(A, C, B)) and bang(d(C, I), d(C, A)))
+
+A, B, C = tri(80, 40); D = cut(A, phan_giac(B, A, C), B, C); E = A + (C - A) * d(A, B) / d(A, C)
+phu("CC vd1 bước 4: ∠ADB = ∠ADE = 70°, ED = EC", bang(goc(A, D, B), 70) and bang(goc(A, D, E), 70) and bang(d(E, D), d(E, C)))
 
 # Mọi câu (kể cả bài tự luyện) phải được xét ít nhất một lần
 for b in DIRS:

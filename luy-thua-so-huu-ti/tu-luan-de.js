@@ -269,143 +269,121 @@
     /* ===== Dành cho HSG ===== */
     {
       id: "hsg1", lv: "HSG",
-      de: "Tính A = " + F(P(4, 5) + " · " + P(9, 4) + " − 2 · " + P(6, 9), P(2, 10) + " · " + P(3, 8) + " + " + P(6, 8) + " · 20") + ".",
-      goi: "Đưa mọi luỹ thừa về tích các luỹ thừa của 2 và 3. Tìm thừa số chung " + P(2, 10) + " · " + P(3, 8) + " ở cả tử và mẫu.",
-      hieu: { gt: "A = " + F(P(4, 5) + " · " + P(9, 4) + " − 2 · " + P(6, 9), P(2, 10) + " · " + P(3, 8) + " + " + P(6, 8) + " · 20") + ".", kl: "Tính A.",
+      de: "So sánh " + P(2, 332) + " và " + P(3, 223) + ".",
+      goi: "Hai số khác cơ số, khác số mũ. So sánh với hai số trung gian " + P(2, 333) + " và " + P(3, 222) + ", rồi đưa về cùng số mũ 111.",
+      hieu: { gt: "Hai luỹ thừa " + P(2, 332) + " và " + P(3, 223) + ".", kl: "So sánh hai số.",
         hoi: [
-          ["Các cơ số 4, 9, 6, 20 có thể viết qua những số nguyên tố nào?", "4 = " + P(2, 2) + ", 9 = " + P(3, 2) + ", 6 = 2 · 3, 20 = " + P(2, 2) + " · 5."],
-          ["Có nên tính thẳng " + P(6, 9) + " và các luỹ thừa khác không?", "Không: số rất lớn (" + P(6, 9) + " = 10 077 696). Nên biến đổi để rút gọn."]] },
+          ["Muốn so sánh hai luỹ thừa, em thường đưa về dạng nào?", "Cùng cơ số (so sánh số mũ) hoặc cùng số mũ (so sánh cơ số)."],
+          ["332 và 223 có ước chung lớn hơn 1 không? Các số gần đó thì sao?", "ƯCLN(332, 223) = 1. Nhưng 333 = 3 · 111 và 222 = 2 · 111 có chung thừa số 111."]] },
       nguoc: [
-      { ten: "Cả bài", dich: "Tính A",
-        sd: [["A = " + F("−2", 6) + " = " + F("−1", 3), [4]], ["Tử = " + P(2, 10) + " · " + P(3, 8) + " · (1 − 3); mẫu = " + P(2, 10) + " · " + P(3, 8) + " · (1 + 5)", [2, 3]], ["Viết mọi số hạng qua luỹ thừa của 2 và 3", [1]]],
-        gt: "4 = " + P(2, 2) + ", 9 = " + P(3, 2) + ", 6 = 2 · 3, 20 = " + P(2, 2) + " · 5",
-        ket: "A = " + F(P(2, 10) + " · " + P(3, 8) + " · (−2)", P(2, 10) + " · " + P(3, 8) + " · 6") + " = " + F("−2", 6) + " = " + F("−1", 3) + ".",
+      { ten: "So sánh", dich: "So sánh " + P(2, 332) + " và " + P(3, 223),
+        sd: [[P(2, 332) + " < " + P(2, 333) + " = " + P(8, 111) + " < " + P(9, 111) + " = " + P(3, 222) + " < " + P(3, 223), [3]], [P(2, 333) + " = " + P(8, 111) + ", " + P(3, 222) + " = " + P(9, 111), [1, 2]]],
+        gt: "333 = 3 · 111, 222 = 2 · 111",
+        ket: P(2, 332) + " < " + P(3, 223) + ".",
         buoc: [
-        { hoi: "Muốn rút gọn được phân số, tử và mẫu cần có dạng gì?",
-          nho: "Rút gọn phân số: chia cả tử và mẫu cho một thừa số chung.",
+        { hoi: "Số mũ 332 và 223 không có ước chung lớn hơn 1. Làm sao để đưa về cùng số mũ?",
+          nho: P("a", "m · n") + " = " + Q(P("a", "m"), "n") + ".",
           chon: [
-            ["Viết tử và mẫu thành tích có chung một thừa số", true, "Đúng. Vì tử, mẫu là hiệu, tổng, nên cần đặt thừa số chung."],
-            ["Rút gọn " + P(4, 5) + " ở tử với " + P(2, 10) + " ở mẫu ngay", false, "Không rút gọn từng số hạng của một tổng, hiệu."]],
-          dat: "Tử và mẫu có thừa số chung" },
-        { hoi: "Viết từng số hạng qua luỹ thừa của 2 và 3.",
-          nho: Q("x · y", "n") + " = " + P("x", "n") + " · " + P("y", "n") + "; " + Q(P("x", "m"), "n") + " = " + P("x", "m · n") + ".",
+            ["Dùng số trung gian: " + P(2, 332) + " < " + P(2, 333) + " và " + P(3, 223) + " > " + P(3, 222) + "; 333 và 222 cùng chia hết cho 111", true, "Đúng. " + P(2, 333) + " = " + Q(P(2, 3), 111) + " = " + P(8, 111) + ", " + P(3, 222) + " = " + Q(P(3, 2), 111) + " = " + P(9, 111) + "."],
+            ["Chia cả hai số cho " + P(2, 223), false, P(3, 223) + " không chia hết cho 2; cách này không dẫn tới kết quả."]],
+          dat: P(2, 333) + " = " + P(8, 111) + ", " + P(3, 222) + " = " + P(9, 111) },
+        { hoi: "So sánh " + P(8, 111) + " và " + P(9, 111) + ", rồi ghép thành chuỗi bất đẳng thức.",
+          nho: "Hai luỹ thừa cùng số mũ tự nhiên khác 0, cơ số dương: cơ số lớn hơn thì luỹ thừa lớn hơn.",
           chon: [
-            [P(4, 5) + " · " + P(9, 4) + " = " + P(2, 10) + " · " + P(3, 8) + "; 2 · " + P(6, 9) + " = " + P(2, 10) + " · " + P(3, 9) + "; " + P(6, 8) + " · 20 = " + P(2, 10) + " · " + P(3, 8) + " · 5", true, "Đúng. Mọi số hạng đều có " + P(2, 10) + " · " + P(3, 8) + "."],
-            ["2 · " + P(6, 9) + " = " + P(12, 9), false, "Chỉ nhân 2 với một thừa số: 2 · " + P(6, 9) + " = 2 · " + P(2, 9) + " · " + P(3, 9) + " = " + P(2, 10) + " · " + P(3, 9) + "."]],
-          dat: "Mọi số hạng có thừa số " + P(2, 10) + " · " + P(3, 8) },
-        { hoi: "Đặt " + P(2, 10) + " · " + P(3, 8) + " ra ngoài ở tử và mẫu, còn lại gì?",
-          nho: "a · b − a · c = a · (b − c).",
-          chon: [
-            ["Tử: " + P(2, 10) + " · " + P(3, 8) + " · (1 − 3); mẫu: " + P(2, 10) + " · " + P(3, 8) + " · (1 + 5)", true, "Đúng. A = " + F("−2", 6) + " = " + F("−1", 3) + "."],
-            ["Tử: " + P(2, 10) + " · " + P(3, 8) + " · (1 − 2)", false, P(3, 9) + " = " + P(3, 8) + " · 3, nên trong ngoặc là 1 − 3."]],
-          dat: "Tử = " + P(2, 10) + " · " + P(3, 8) + " · (−2), mẫu = " + P(2, 10) + " · " + P(3, 8) + " · 6" }] }],
+            [P(2, 332) + " < " + P(2, 333) + " = " + P(8, 111) + " < " + P(9, 111) + " = " + P(3, 222) + " < " + P(3, 223), true, "Đúng. Vậy " + P(2, 332) + " < " + P(3, 223) + "."],
+            [P(2, 332) + " > " + P(3, 223) + " vì 332 > 223", false, "Cơ số khác nhau thì không so sánh được chỉ bằng số mũ: 2 < 3."]],
+          dat: P(8, 111) + " < " + P(9, 111) }] }],
       nhin: [
-        ["Kiểm tra bằng máy tính cầm tay (tính tử và mẫu).", "Tử = 1024 · 6561 − 2 · 10 077 696 = 6 718 464 − 20 155 392 = −13 436 928; mẫu = 6 718 464 + 1 679 616 · 20 = 40 310 784. Thương = " + F("−1", 3) + ". Đúng."],
-        ["Bài tương tự: tính " + F(P(2, 12) + " · " + P(3, 5) + " − " + P(4, 6) + " · " + P(9, 2), Q("2<sup>2</sup> · 3", 6) + " + " + P(8, 4) + " · " + P(3, 5)) + ".", "Tử = " + P(2, 12) + " · " + P(3, 4) + " · (3 − 1); mẫu = " + P(2, 12) + " · " + P(3, 5) + " · (3 + 1). Kết quả " + F(1, 6) + "."]],
+        ["Vì sao chọn số trung gian " + P(2, 333) + " (lớn hơn " + P(2, 332) + ") mà không chọn " + P(2, 331) + "?", "Vì ta cần " + P(2, 332) + " nhỏ hơn một số, số đó lại nhỏ hơn " + P(3, 223) + ". Chọn số nhỏ hơn " + P(2, 332) + " thì không suy ra được gì."],
+        ["Bài tương tự: so sánh " + P(5, 299) + " và " + P(3, 501) + ".", P(5, 299) + " < " + P(5, 300) + " = " + P(125, 100) + " < " + P(243, 100) + " = " + P(3, 500) + " < " + P(3, 501) + ". Vậy " + P(5, 299) + " < " + P(3, 501) + "."]],
       steps: [
-        "A = " + F(P(4, 5) + " · " + P(9, 4) + " − 2 · " + P(6, 9), P(2, 10) + " · " + P(3, 8) + " + " + P(6, 8) + " · 20") + ". " + "Tử: " + P(4, 5) + " · " + P(9, 4) + " = " + P(2, 10) + " · " + P(3, 8) + ";  2 · " + P(6, 9) + " = 2 · " + P(2, 9) + " · " + P(3, 9) + " = " + P(2, 10) + " · " + P(3, 9) + ".",
-        "Tử = " + P(2, 10) + " · " + P(3, 8) + " − " + P(2, 10) + " · " + P(3, 9) + " = " + P(2, 10) + " · " + P(3, 8) + " · (1 − 3) = " + P(2, 10) + " · " + P(3, 8) + " · (−2).",
-        "Mẫu: " + P(6, 8) + " · 20 = " + P(2, 8) + " · " + P(3, 8) + " · " + P(2, 2) + " · 5 = " + P(2, 10) + " · " + P(3, 8) + " · 5. Mẫu = " + P(2, 10) + " · " + P(3, 8) + " · (1 + 5) = " + P(2, 10) + " · " + P(3, 8) + " · 6.",
-        "A = " + F(P(2, 10) + " · " + P(3, 8) + " · (−2)", P(2, 10) + " · " + P(3, 8) + " · 6") + " = " + F("−2", 6) + " = " + F("−1", 3) + "."
+        "Ta có " + P(2, 332) + " < " + P(2, 333) + " = " + P(2, "3 · 111") + " = " + Q(P(2, 3), 111) + " = " + P(8, 111) + ".",
+        "Và " + P(3, 223) + " > " + P(3, 222) + " = " + P(3, "2 · 111") + " = " + Q(P(3, 2), 111) + " = " + P(9, 111) + ".",
+        "Vì 8 < 9 nên " + P(8, 111) + " < " + P(9, 111) + ". Do đó " + P(2, 332) + " < " + P(8, 111) + " < " + P(9, 111) + " < " + P(3, 223) + ". Vậy " + P(2, 332) + " < " + P(3, 223) + "."
       ],
-      dap: "A = " + F("−1", 3) + "."
+      dap: P(2, 332) + " < " + P(3, 223) + ".",
+      loi: "Kết luận " + P(2, 332) + " > " + P(3, 223) + " vì số mũ lớn hơn; hoặc chọn số trung gian sai chiều."
     },
     {
       id: "hsg2", lv: "HSG",
-      de: "Cho S = " + F(1, 3) + " + " + F(1, P(3, 2)) + " + " + F(1, P(3, 3)) + " + … + " + F(1, P(3, 50)) + ".<br>a) Tính S.<br>b) Chứng minh S < " + F(1, 2) + ".",
-      goi: "Nhân S với 3 rồi lấy 3S − S: các số hạng giống nhau triệt tiêu.",
-      hieu: { gt: "S là tổng 50 số hạng, số hạng sau bằng " + F(1, 3) + " số hạng trước.", kl: "a) Tính S. b) S < " + F(1, 2) + ".",
+      de: "Tìm các số tự nhiên x, y biết: " + P(2, "x") + " + 624 = " + P(5, "y") + ".",
+      goi: "Xét tính chẵn, lẻ của hai vế. " + P(5, "y") + " luôn là số lẻ.",
+      hieu: { gt: "x, y là số tự nhiên, " + P(2, "x") + " + 624 = " + P(5, "y") + ".", kl: "Tìm x, y.",
         hoi: [
-          ["Số hạng sau bằng số hạng trước nhân với bao nhiêu?", "Nhân với " + F(1, 3) + ". Ngược lại, nhân một số hạng với 3 thì được số hạng đứng trước nó."],
-          ["3S gồm những số hạng nào?", "3S = 1 + " + F(1, 3) + " + " + F(1, P(3, 2)) + " + … + " + F(1, P(3, 49)) + ": gần giống S, chỉ khác số đầu và số cuối."]] },
+          ["Một đẳng thức mà có hai số chưa biết. Thử đoán: y nhỏ nhất bằng bao nhiêu thì " + P(5, "y") + " > 624?", P(5, 4) + " = 625 > 624, " + P(5, 3) + " = 125 < 624. Nên y ≥ 4."],
+          [P(5, "y") + " là số chẵn hay lẻ? " + P(2, "x") + " thì sao?", P(5, "y") + " là tích các số lẻ nên lẻ. " + P(2, "x") + " chẵn khi x ≥ 1, bằng 1 khi x = 0."]] },
       nguoc: [
-      { ten: "Câu a", dich: "Tính S",
-        sd: [["S = (1 − " + F(1, P(3, 50)) + ") : 2", [3]], ["2S = 3S − S = 1 − " + F(1, P(3, 50)), [2]], ["3S = 1 + " + F(1, 3) + " + … + " + F(1, P(3, 49)), [1]]],
-        gt: "Các số hạng là luỹ thừa của " + F(1, 3),
-        ket: "S = " + F("1 − " + F(1, P(3, 50)), 2) + " = " + F(1, 2) + " − " + F(1, "2 · " + P(3, 50)) + ".",
+      { ten: "Tìm x, y", dich: "Tìm x, y",
+        sd: [["x = 0, " + P(5, "y") + " = 625 = " + P(5, 4), [2, 3]], ["Nếu x ≥ 1 thì vế trái chẵn, vế phải lẻ: vô lí", [1]]],
+        gt: P(5, "y") + " là số lẻ, 624 là số chẵn",
+        ket: "(x; y) = (0; 4).",
         buoc: [
-        { hoi: "Có 50 số hạng khác mẫu. Thay vì quy đồng, ta nhân S với số nào để được một tổng \"gần giống\" S?",
-          nho: "3 · " + F(1, P(3, "k")) + " = " + F(1, P(3, "k − 1")) + ".",
+        { hoi: "Hai số chưa biết mà chỉ có một đẳng thức. Tính chất nào của hai vế giúp loại bớt trường hợp?",
+          nho: "Tổng hai số chẵn là số chẵn; tích các số lẻ là số lẻ.",
           chon: [
-            ["Nhân với 3: 3S = 1 + " + F(1, 3) + " + … + " + F(1, P(3, 49)), true, "Đúng. 3S và S có chung 49 số hạng."],
-            ["Nhân với " + F(1, 3), false, "Cũng được nhưng ra tổng lệch về phía số hạng nhỏ hơn; nhân với 3 gọn hơn."]],
-          dat: "3S = 1 + " + F(1, 3) + " + … + " + F(1, P(3, 49)) },
-        { hoi: "Lấy 3S − S. Các số hạng nào triệt tiêu, còn lại gì?",
-          nho: "Quy tắc dấu ngoặc.",
+            ["Tính chẵn, lẻ: " + P(5, "y") + " luôn lẻ; nếu x ≥ 1 thì " + P(2, "x") + " + 624 chẵn", true, "Đúng. Vậy x ≥ 1 không xảy ra, chỉ còn x = 0."],
+            ["Thử lần lượt x = 1, 2, 3, …", false, "Thử mãi không hết; phải có lí do để dừng."]],
+          dat: "x = 0" },
+        { hoi: "Với x = 0, tìm y.",
+          nho: P(2, 0) + " = 1.",
           chon: [
-            ["Các số hạng từ " + F(1, 3) + " đến " + F(1, P(3, 49)) + " triệt tiêu, còn 2S = 1 − " + F(1, P(3, 50)), true, "Đúng. Suy ra S = (1 − " + F(1, P(3, 50)) + ") : 2."],
-            ["Còn 2S = 1", false, "Số hạng cuối " + F(1, P(3, 50)) + " của S không có trong 3S, nên không triệt tiêu."]],
-          dat: "2S = 1 − " + F(1, P(3, 50)) }] },
-      { ten: "Câu b", dich: "S < " + F(1, 2),
-        sd: [["S = " + F(1, 2) + " − " + F(1, "2 · " + P(3, 50)) + " mà " + F(1, "2 · " + P(3, 50)) + " > 0", [4]]],
-        gt: "Kết quả câu a",
-        ket: "S bằng " + F(1, 2) + " trừ đi một số dương nên S < " + F(1, 2) + ".",
-        buoc: [
-        { hoi: "Từ S = (1 − " + F(1, P(3, 50)) + ") : 2, so S với " + F(1, 2) + " thế nào?",
-          nho: "a − b < a khi b > 0.",
-          chon: [
-            ["S = " + F(1, 2) + " − " + F(1, "2 · " + P(3, 50)) + " < " + F(1, 2) + " vì số trừ dương", true, "Đúng."],
-            ["Tính S ra số thập phân", false, P(3, 50) + " quá lớn để tính tay; chỉ cần dấu của phần bị trừ."]],
-          dat: "S = " + F(1, 2) + " − (một số dương)" }] }],
+            [P(5, "y") + " = 1 + 624 = 625 = " + P(5, 4) + ", nên y = 4", true, "Đúng."],
+            [P(5, "y") + " = 624", false, P(2, 0) + " = 1 chứ không phải 0."]],
+          dat: P(5, "y") + " = 625" }] }],
       nhin: [
-        ["Thử với tổng ngắn: " + F(1, 3) + " + " + F(1, 9) + " có bằng (1 − " + F(1, 9) + ") : 2 không?", F(1, 3) + " + " + F(1, 9) + " = " + F(4, 9) + "; (1 − " + F(1, 9) + ") : 2 = " + F(8, 9) + " : 2 = " + F(4, 9) + ". Đúng."],
-        ["Tổng quát: tính 1 + 2 + " + P(2, 2) + " + … + " + P(2, 100) + ".", "Gọi T là tổng: 2T − T = " + P(2, 101) + " − 1, nên T = " + P(2, 101) + " − 1."]],
+        ["Thử lại (x; y) = (0; 4).", P(2, 0) + " + 624 = 1 + 624 = 625 = " + P(5, 4) + ". Đúng."],
+        ["Bài tương tự: tìm số tự nhiên x, y biết " + P(2, "x") + " + 242 = " + P(3, "y") + ".", "Nếu x ≥ 1 thì vế trái chẵn, vế phải lẻ: vô lí. Vậy x = 0, " + P(3, "y") + " = 243 = " + P(3, 5) + ", y = 5: (x; y) = (0; 5)."]],
       steps: [
-        "a) 3S = 3 · (" + F(1, 3) + " + " + F(1, P(3, 2)) + " + … + " + F(1, P(3, 50)) + ") = 1 + " + F(1, 3) + " + " + F(1, P(3, 2)) + " + … + " + F(1, P(3, 49)) + ".",
-        "3S − S = (1 + " + F(1, 3) + " + … + " + F(1, P(3, 49)) + ") − (" + F(1, 3) + " + … + " + F(1, P(3, 49)) + " + " + F(1, P(3, 50)) + ") = 1 − " + F(1, P(3, 50)) + ".",
-        "Do đó 2S = 1 − " + F(1, P(3, 50)) + ", S = (1 − " + F(1, P(3, 50)) + ") : 2 = " + F(P(3, 50) + " − 1", "2 · " + P(3, 50)) + ".",
-        "b) S = " + F(1, 2) + " − " + F(1, "2 · " + P(3, 50)) + ", mà " + F(1, "2 · " + P(3, 50)) + " > 0, nên S < " + F(1, 2) + "."
+        "Với mọi số tự nhiên y, " + P(5, "y") + " là số lẻ.",
+        "Nếu x ≥ 1 thì " + P(2, "x") + " là số chẵn, 624 là số chẵn nên " + P(2, "x") + " + 624 là số chẵn, khác số lẻ " + P(5, "y") + ": vô lí. Do đó x = 0.",
+        "Với x = 0: " + P(5, "y") + " = " + P(2, 0) + " + 624 = 1 + 624 = 625 = " + P(5, 4) + ", nên y = 4.",
+        "Vậy (x; y) = (0; 4)."
       ],
-      dap: "a) S = " + F(P(3, 50) + " − 1", "2 · " + P(3, 50)) + ". b) S < " + F(1, 2) + ".",
-      mix: [2]
+      dap: "(x; y) = (0; 4).",
+      loi: "Quên trường hợp x = 0; hoặc cho " + P(2, 0) + " = 0."
     },
     {
       id: "hsg3", lv: "HSG",
-      de: "a) Tìm số tự nhiên x, biết " + P(2, "x") + " + " + P(2, "x + 3") + " = 144.<br>b) Chứng minh " + P(8, 7) + " − " + P(2, 18) + " chia hết cho 14.",
-      goi: "a) " + P(2, "x + 3") + " = " + P(2, "x") + " · 8. b) Viết " + P(8, 7) + " thành luỹ thừa của 2, rồi đặt thừa số chung; 14 = 2 · 7.",
-      hieu: { gt: "a) " + P(2, "x") + " + " + P(2, "x + 3") + " = 144, x ∈ ℕ. b) Số " + P(8, 7) + " − " + P(2, 18) + ".", kl: "a) Tìm x. b) " + P(8, 7) + " − " + P(2, 18) + " chia hết cho 14.",
+      de: "Cho A = 3 + " + P(3, 2) + " + " + P(3, 3) + " + … + " + P(3, 102) + ".<br>a) Tìm số tự nhiên n biết 2A + 3 = " + P(3, "n") + ".<br>b) Chứng minh A chia hết cho 13.",
+      goi: "a) Tính 3A rồi lấy 3A − A. b) Nhóm ba số hạng liên tiếp: 3 + " + P(3, 2) + " + " + P(3, 3) + " = 39 = 3 · 13.",
+      hieu: { gt: "A = 3 + " + P(3, 2) + " + … + " + P(3, 102) + " (102 số hạng).", kl: "a) n để 2A + 3 = " + P(3, "n") + ". b) A chia hết cho 13.",
         hoi: [
-          ["Câu b: có nên tính " + P(8, 7) + " và " + P(2, 18) + " ra rồi chia không?", "Tính được nhưng số lớn (" + P(8, 7) + " = 2 097 152). Cách hay hơn là viết hiệu thành tích có thừa số 14."],
-          ["14 viết thành tích của hai số nguyên tố nào?", "14 = 2 · 7. Cần chỉ ra hiệu có thừa số 2 và thừa số 7."]] },
+          ["Nhân A với 3 thì được tổng nào? So với A có gì giống nhau?", "3A = " + P(3, 2) + " + " + P(3, 3) + " + … + " + P(3, 103) + ": giống A từ " + P(3, 2) + " đến " + P(3, 102) + "."],
+          ["A có 102 số hạng. 102 chia hết cho những số nào nhỏ?", "102 = 2 · 51 = 3 · 34 = 6 · 17. Có thể nhóm 2, 3 hoặc 6 số hạng một."]] },
       nguoc: [
-      { ten: "Câu a", dich: "Tìm x",
-        sd: [[P(2, "x") + " = 16 = " + P(2, 4), [2]], [P(2, "x") + " · (1 + 8) = 144", [1]]],
-        gt: P(2, "x + 3") + " = " + P(2, "x") + " · " + P(2, 3),
-        ket: "9 · " + P(2, "x") + " = 144, " + P(2, "x") + " = 16 = " + P(2, 4) + ", x = 4.",
+      { ten: "Câu a", dich: "Tìm n",
+        sd: [["2A + 3 = " + P(3, 103) + ", nên n = 103", [2]], ["3A − A = " + P(3, 103) + " − 3", [1]]],
+        gt: "A = 3 + " + P(3, 2) + " + … + " + P(3, 102),
+        ket: "n = 103.",
         buoc: [
-        { hoi: "Làm sao để x chỉ còn ở một luỹ thừa?",
-          nho: P("a", "m + n") + " = " + P("a", "m") + " · " + P("a", "n") + ".",
+        { hoi: "Không cộng trực tiếp được 102 luỹ thừa. Làm sao rút gọn A?",
+          nho: P(3, "k") + " · 3 = " + P(3, "k + 1") + ".",
           chon: [
-            ["Viết " + P(2, "x + 3") + " = 8 · " + P(2, "x") + ", đặt " + P(2, "x") + " chung: " + P(2, "x") + " · 9 = 144", true, "Đúng. " + P(2, "x") + " = 16."],
-            [P(2, "x") + " + " + P(2, "x + 3") + " = " + P(2, "2x + 3"), false, "Cộng hai luỹ thừa không phải là cộng số mũ."]],
-          dat: P(2, "x") + " · 9 = 144" }] },
-      { ten: "Câu b", dich: P(8, 7) + " − " + P(2, 18) + " chia hết cho 14",
-        sd: [["Hiệu = " + P(2, 17) + " · 14", [4]], ["Hiệu = " + P(2, 18) + " · (8 − 1) = " + P(2, 18) + " · 7", [3]], [P(8, 7) + " = " + P(2, 21) + " = " + P(2, 18) + " · 8", [3]]],
-        gt: "8 = " + P(2, 3) + ", 14 = 2 · 7",
-        ket: P(8, 7) + " − " + P(2, 18) + " = " + P(2, 18) + " · 7 = " + P(2, 17) + " · 14, chia hết cho 14.",
+            ["Tính 3A = " + P(3, 2) + " + … + " + P(3, 103) + " rồi lấy 3A − A: các số hạng chung triệt tiêu", true, "Đúng: 2A = " + P(3, 103) + " − 3."],
+            ["Đặt 3 ra ngoài: A = 3 · (1 + 3 + … + " + P(3, 101) + ")", false, "Đúng nhưng trong ngoặc vẫn còn 102 số hạng; chưa rút gọn được."]],
+          dat: "2A = " + P(3, 103) + " − 3" }] },
+      { ten: "Câu b", dich: "A chia hết cho 13",
+        sd: [["A = 13 · (3 + " + P(3, 4) + " + … + " + P(3, 100) + ")", [4]], ["Nhóm ba số hạng: " + P(3, "k") + " + " + P(3, "k + 1") + " + " + P(3, "k + 2") + " = " + P(3, "k") + " · 13", [3]]],
+        gt: "1 + 3 + " + P(3, 2) + " = 13; 102 = 3 · 34",
+        ket: "A là tổng 34 nhóm, mỗi nhóm chia hết cho 13.",
         buoc: [
-        { hoi: "Muốn chứng minh một số chia hết cho 14, cách gọn là gì?",
-          nho: "Nếu a = 14 · k (k là số tự nhiên) thì a chia hết cho 14.",
+        { hoi: "Muốn có thừa số 13, em nhóm các số hạng thế nào?",
+          nho: "1 + 3 + 9 = 13.",
           chon: [
-            ["Viết số đó thành tích có một thừa số là 14", true, "Đúng. Ta biến đổi hiệu thành tích."],
-            ["Xét chữ số tận cùng", false, "Không có dấu hiệu chia hết cho 14 bằng chữ số tận cùng."]],
-          dat: "Viết hiệu thành 14 · k" },
-        { hoi: "Biến đổi " + P(8, 7) + " − " + P(2, 18) + " thành tích thế nào?",
-          nho: Q(P("x", "m"), "n") + " = " + P("x", "m · n") + "; a · b − a = a · (b − 1).",
-          chon: [
-            [P(8, 7) + " = " + P(2, 21) + " = " + P(2, 18) + " · 8, nên hiệu = " + P(2, 18) + " · (8 − 1) = " + P(2, 18) + " · 7", true, "Đúng. " + P(2, 18) + " · 7 = " + P(2, 17) + " · 2 · 7 = " + P(2, 17) + " · 14."],
-            [P(8, 7) + " − " + P(2, 18) + " = " + P(6, "−11"), false, "Không trừ cơ số và số mũ như vậy."]],
-          dat: P(8, 7) + " − " + P(2, 18) + " = " + P(2, 18) + " · 7" }] }],
+            ["Nhóm ba số hạng liên tiếp: (3 + " + P(3, 2) + " + " + P(3, 3) + ") + (" + P(3, 4) + " + " + P(3, 5) + " + " + P(3, 6) + ") + …; 102 số hạng vừa đủ 34 nhóm", true, "Đúng. Mỗi nhóm " + P(3, "k") + " · (1 + 3 + 9) = " + P(3, "k") + " · 13."],
+            ["Nhóm hai số hạng liên tiếp", false, "Mỗi nhóm hai số hạng là " + P(3, "k") + " · 4: cho A chia hết cho 4, không phải 13."]],
+          dat: "34 nhóm, mỗi nhóm " + P(3, "k") + " · 13" }] }],
       nhin: [
-        ["Thử lại câu a với x = 4.", P(2, 4) + " + " + P(2, 7) + " = 16 + 128 = 144. Đúng."],
-        ["Câu b: hiệu còn chia hết cho số nào lớn hơn 14?", "Hiệu = " + P(2, 18) + " · 7 nên chia hết cho 7 · " + P(2, "k") + " với k ≤ 18, chẳng hạn chia hết cho 28, 56, 112."]],
+        ["Kiểm tra câu a với tổng ngắn: 3 + " + P(3, 2) + " + " + P(3, 3) + ".", "Tổng bằng 39; 2 · 39 + 3 = 81 = " + P(3, 4) + ". Đúng quy luật: số mũ cuối cộng thêm 1."],
+        ["A còn chia hết cho số nào khác? Thử nhóm hai số hạng.", "3 + " + P(3, 2) + " = 12, mỗi nhóm hai số hạng là " + P(3, "k") + " · 4; 102 số hạng thành 51 nhóm, nên A chia hết cho 4 (và cho 12, 39)."]],
       steps: [
-        "a) " + P(2, "x") + " + " + P(2, "x + 3") + " = " + P(2, "x") + " + " + P(2, "x") + " · " + P(2, 3) + " = " + P(2, "x") + " · (1 + 8) = 9 · " + P(2, "x") + ".",
-        "9 · " + P(2, "x") + " = 144 nên " + P(2, "x") + " = 144 : 9 = 16 = " + P(2, 4) + ". Vậy x = 4.",
-        "b) " + P(8, 7) + " = " + Q(P(2, 3), 7) + " = " + P(2, 21) + ", nên " + P(8, 7) + " − " + P(2, 18) + " = " + P(2, 21) + " − " + P(2, 18) + " = " + P(2, 18) + " · (" + P(2, 3) + " − 1) = " + P(2, 18) + " · 7.",
-        P(2, 18) + " · 7 = " + P(2, 17) + " · 2 · 7 = " + P(2, 17) + " · 14, chia hết cho 14."
+        "a) 3A = " + P(3, 2) + " + " + P(3, 3) + " + … + " + P(3, 102) + " + " + P(3, 103) + ".",
+        "3A − A = (" + P(3, 2) + " + … + " + P(3, 103) + ") − (3 + " + P(3, 2) + " + … + " + P(3, 102) + ") = " + P(3, 103) + " − 3. Do đó 2A = " + P(3, 103) + " − 3, nên 2A + 3 = " + P(3, 103) + ". Vậy n = 103.",
+        "b) A có 102 số hạng, 102 = 3 · 34. Nhóm ba số hạng liên tiếp: A = (3 + " + P(3, 2) + " + " + P(3, 3) + ") + (" + P(3, 4) + " + " + P(3, 5) + " + " + P(3, 6) + ") + … + (" + P(3, 100) + " + " + P(3, 101) + " + " + P(3, 102) + ").",
+        "= 3 · (1 + 3 + 9) + " + P(3, 4) + " · (1 + 3 + 9) + … + " + P(3, 100) + " · (1 + 3 + 9) = 13 · (3 + " + P(3, 4) + " + … + " + P(3, 100) + "). Vậy A chia hết cho 13."
       ],
-      dap: "a) x = 4. b) " + P(8, 7) + " − " + P(2, 18) + " = " + P(2, 17) + " · 14 chia hết cho 14."
+      dap: "a) n = 103. b) Đã chứng minh.",
+      loi: "Viết 3A − A = " + P(3, 103) + " (quên trừ 3); hoặc nhóm hai số hạng rồi kết luận chia hết cho 13."
     }
   ];
 

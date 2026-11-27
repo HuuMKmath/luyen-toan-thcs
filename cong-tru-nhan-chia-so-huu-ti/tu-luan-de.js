@@ -294,132 +294,114 @@
     /* ===== Dành cho HSG ===== */
     {
       id: "hsg1", lv: "HSG",
-      de: "a) Tính A = " + F(2, "1 · 3") + " + " + F(2, "3 · 5") + " + " + F(2, "5 · 7") + " + … + " + F(2, "97 · 99") + ".<br>b) Tính B = " + F(1, "1 · 3") + " + " + F(1, "3 · 5") + " + " + F(1, "5 · 7") + " + … + " + F(1, "97 · 99") + ".",
-      goi: "Thử: " + F(1, 1) + " − " + F(1, 3) + " = " + F(2, "1 · 3") + "; " + F(1, 3) + " − " + F(1, 5) + " = " + F(2, "3 · 5") + ". Mỗi số hạng của A là hiệu của hai phân số có tử 1.",
-      hieu: { gt: "A, B là tổng của các phân số có mẫu là tích hai số lẻ liên tiếp, từ 1 · 3 đến 97 · 99.", kl: "Tính A và B.",
+      de: "Tính A = " + F(1, "1 · 2 · 3") + " + " + F(1, "2 · 3 · 4") + " + " + F(1, "3 · 4 · 5") + " + … + " + F(1, "98 · 99 · 100") + ".",
+      goi: "Chứng minh " + F(2, "n · (n + 1) · (n + 2)") + " = " + F(1, "n · (n + 1)") + " − " + F(1, "(n + 1) · (n + 2)") + ", rồi tính 2A.",
+      hieu: { gt: "A là tổng 98 phân số " + F(1, "n · (n + 1) · (n + 2)") + " với n = 1, 2, …, 98.", kl: "Tính A.",
         hoi: [
-          ["Mẫu của các số hạng có quy luật gì? A có bao nhiêu số hạng?", "Mẫu là tích hai số lẻ liên tiếp: 1 · 3, 3 · 5, …, 97 · 99. Thừa số đầu là 1, 3, 5, …, 97: có (97 − 1) : 2 + 1 = 49 số hạng."],
-          ["Hai thừa số ở mẫu hơn kém nhau bao nhiêu? So với tử của A thì sao?", "Hơn kém nhau 2, đúng bằng tử của mỗi số hạng trong A. Đây là dấu hiệu để tách mỗi số hạng thành hiệu."]] },
+          ["Em đã tính tổng " + F(1, "1 · 2") + " + " + F(1, "2 · 3") + " + … + " + F(1, "99 · 100") + " thế nào?", "Viết mỗi số hạng thành hiệu: " + F(1, "n · (n + 1)") + " = " + F(1, "n") + " − " + F(1, "n + 1") + ", các số hạng ở giữa triệt tiêu, còn 1 − " + F(1, 100) + "."],
+          ["Ở đây mẫu là tích ba số liên tiếp. Thử với n = 1: " + F(1, "1 · 2") + " − " + F(1, "2 · 3") + " bằng bao nhiêu?", F(1, 2) + " − " + F(1, 6) + " = " + F(2, 6) + " = " + F(2, "1 · 2 · 3") + ": gấp đôi số hạng đầu của A."]] },
       nguoc: [
-      { ten: "Câu a", dich: "Tính A",
-        sd: [["A = 1 − " + F(1, 99) + " (các số hạng ở giữa triệt tiêu)", [2, 3]], ["Viết mỗi số hạng " + F(2, "n · (n + 2)") + " = " + F(1, "n") + " − " + F(1, "n + 2"), [1]]],
-        gt: "Hai thừa số ở mẫu hơn kém nhau 2, tử bằng 2",
-        ket: "A = 1 − " + F(1, 3) + " + " + F(1, 3) + " − " + F(1, 5) + " + … + " + F(1, 97) + " − " + F(1, 99) + " = 1 − " + F(1, 99) + " = " + F(98, 99) + ".",
+      { ten: "Tính A", dich: "Tính A",
+        sd: [["2A = " + F(1, "1 · 2") + " − " + F(1, "99 · 100"), [3, 4]], ["Mỗi số hạng của 2A là hiệu " + F(1, "n · (n + 1)") + " − " + F(1, "(n + 1) · (n + 2)"), [1, 2]]],
+        gt: "Các mẫu là tích ba số tự nhiên liên tiếp",
+        ket: "2A = " + F(1, 2) + " − " + F(1, 9900) + " = " + F(4949, 9900) + ", nên A = " + F(4949, 19800) + ".",
         buoc: [
-        { hoi: "Cộng 49 phân số khác mẫu bằng cách quy đồng thì quá dài. Thử tính " + F(1, 1) + " − " + F(1, 3) + " và " + F(1, 3) + " − " + F(1, 5) + ": em thấy gì?",
-          nho: F(1, "n") + " − " + F(1, "n + 2") + " = " + F("n + 2", "n · (n + 2)") + " − " + F("n", "n · (n + 2)") + ".",
+        { hoi: "Muốn các số hạng triệt tiêu nhau, em viết " + F(2, "n · (n + 1) · (n + 2)") + " thành hiệu của hai phân số nào?",
+          nho: F(1, "n · (n + 1)") + " − " + F(1, "(n + 1) · (n + 2)") + " = " + F("(n + 2) − n", "n · (n + 1) · (n + 2)") + ".",
           chon: [
-            ["Ra đúng " + F(2, "1 · 3") + " và " + F(2, "3 · 5") + ": mỗi số hạng của A là hiệu hai phân số tử 1", true, "Đúng. Tổng quát: " + F(2, "n · (n + 2)") + " = " + F(1, "n") + " − " + F(1, "n + 2") + "."],
-            ["Không liên quan gì đến A", false, "Hãy tính thật: " + F(1, 1) + " − " + F(1, 3) + " = " + F(2, 3) + " = " + F(2, "1 · 3") + "."]],
-          dat: "Tách mỗi số hạng thành hiệu: " + F(2, "n · (n + 2)") + " = " + F(1, "n") + " − " + F(1, "n + 2") },
-        { hoi: "Viết A thành tổng các hiệu đó. Các số hạng nào triệt tiêu nhau?",
-          nho: "Hai số đối nhau có tổng bằng 0.",
+            [F(1, "n · (n + 1)") + " − " + F(1, "(n + 1) · (n + 2)") + ": hiệu hai tử sau quy đồng là (n + 2) − n = 2", true, "Đúng. Vì vậy ta tính 2A thay cho A."],
+            [F(1, "n") + " − " + F(1, "n + 2"), false, "Hiệu này bằng " + F(2, "n · (n + 2)") + ", thiếu thừa số n + 1 ở mẫu."]],
+          dat: F(2, "n · (n + 1) · (n + 2)") + " = " + F(1, "n · (n + 1)") + " − " + F(1, "(n + 1) · (n + 2)") },
+        { hoi: "Viết 2A thành tổng các hiệu. Sau khi triệt tiêu còn lại những số hạng nào?",
+          nho: "Số hạng bị trừ của hiệu trước bằng số hạng đầu của hiệu sau.",
           chon: [
-            ["−" + F(1, 3) + " và +" + F(1, 3) + ", −" + F(1, 5) + " và +" + F(1, 5) + ", …; chỉ còn số đầu 1 và số cuối −" + F(1, 99), true, "Đúng. A = 1 − " + F(1, 99) + " = " + F(98, 99) + "."],
-            ["Không có số nào triệt tiêu", false, "Viết ra vài số hạng: (1 − " + F(1, 3) + ") + (" + F(1, 3) + " − " + F(1, 5) + ") + …: −" + F(1, 3) + " và " + F(1, 3) + " là hai số đối nhau."]],
-          dat: "A = 1 − " + F(1, 99) }] },
-      { ten: "Câu b", dich: "Tính B",
-        sd: [["B = A : 2", [4]], ["Mỗi số hạng của B bằng một nửa số hạng tương ứng của A", [4]]],
-        gt: "Kết quả câu a",
-        ket: "B = " + F(98, 99) + " : 2 = " + F(49, 99) + ".",
-        buoc: [
-        { hoi: "Tử của B là 1, không bằng hiệu hai thừa số ở mẫu (là 2). Liên hệ B với A thế nào?",
-          nho: F(1, "n · (n + 2)") + " = " + F(1, 2) + " · " + F(2, "n · (n + 2)") + ".",
-          chon: [
-            ["Mỗi số hạng của B bằng " + F(1, 2) + " số hạng tương ứng của A, nên B = " + F(1, 2) + " · A", true, "Đúng (tính chất phân phối). B = " + F(1, 2) + " · " + F(98, 99) + " = " + F(49, 99) + "."],
-            ["B = A vì cùng mẫu", false, "Tử khác nhau (1 và 2), nên B nhỏ hơn A."]],
-          dat: "B = " + F(1, 2) + " · A" }] }],
+            ["Còn " + F(1, "1 · 2") + " − " + F(1, "99 · 100"), true, "Đúng: 2A = " + F(1, 2) + " − " + F(1, 9900) + "."],
+            ["Còn " + F(1, "1 · 2") + " − " + F(1, "98 · 99"), false, "Số hạng cuối của A ứng với n = 98, nên số hạng bị trừ cuối cùng là " + F(1, "99 · 100") + "."]],
+          dat: "2A = " + F(1, "1 · 2") + " − " + F(1, "99 · 100") }] }],
       nhin: [
-        ["Thử với tổng ngắn: " + F(2, "1 · 3") + " + " + F(2, "3 · 5") + " có bằng 1 − " + F(1, 5) + " không?", F(2, 3) + " + " + F(2, 15) + " = " + F(10, 15) + " + " + F(2, 15) + " = " + F(12, 15) + " = " + F(4, 5) + " = 1 − " + F(1, 5) + ". Đúng."],
-        ["Tổng quát: tính " + F(3, "1 · 4") + " + " + F(3, "4 · 7") + " + … + " + F(3, "97 · 100") + ".", "Hai thừa số hơn kém 3, tử bằng 3, nên mỗi số hạng = " + F(1, "n") + " − " + F(1, "n + 3") + ". Tổng = 1 − " + F(1, 100) + " = " + F(99, 100) + "."]],
+        ["Kiểm tra công thức với tổng ngắn: " + F(1, "1 · 2 · 3") + " + " + F(1, "2 · 3 · 4") + ".", "Cộng trực tiếp: " + F(1, 6) + " + " + F(1, 24) + " = " + F(5, 24) + ". Theo cách trên: " + F(1, 2) + " · (" + F(1, 2) + " − " + F(1, 12) + ") = " + F(1, 2) + " · " + F(5, 12) + " = " + F(5, 24) + ". Khớp."],
+        ["A lớn hơn hay nhỏ hơn " + F(1, 4) + "?", "2A = " + F(1, 2) + " − " + F(1, 9900) + " < " + F(1, 2) + " nên A < " + F(1, 4) + "."]],
       steps: [
-        "a) Với n là số tự nhiên khác 0: " + F(1, "n") + " − " + F(1, "n + 2") + " = " + F("n + 2 − n", "n · (n + 2)") + " = " + F(2, "n · (n + 2)") + ".",
-        "Do đó A = " + F(2, "1 · 3") + " + " + F(2, "3 · 5") + " + … + " + F(2, "97 · 99") + " = (1 − " + F(1, 3) + ") + (" + F(1, 3) + " − " + F(1, 5) + ") + … + (" + F(1, 97) + " − " + F(1, 99) + ")",
-        "= 1 − " + F(1, 99) + " = " + F(98, 99) + " (bỏ ngoặc, các cặp số đối triệt tiêu).",
-        "b) B = " + F(1, "1 · 3") + " + " + F(1, "3 · 5") + " + … + " + F(1, "97 · 99") + " = " + F(1, 2) + " · (" + F(2, "1 · 3") + " + " + F(2, "3 · 5") + " + … + " + F(2, "97 · 99") + ") = " + F(1, 2) + " · A = " + F(1, 2) + " · " + F(98, 99) + " = " + F(49, 99) + "."
+        "Với mọi số tự nhiên n ≥ 1: " + F(1, "n · (n + 1)") + " − " + F(1, "(n + 1) · (n + 2)") + " = " + F("(n + 2) − n", "n · (n + 1) · (n + 2)") + " = " + F(2, "n · (n + 1) · (n + 2)") + ".",
+        "Do đó 2A = " + F(2, "1 · 2 · 3") + " + " + F(2, "2 · 3 · 4") + " + … + " + F(2, "98 · 99 · 100") + " = (" + F(1, "1 · 2") + " − " + F(1, "2 · 3") + ") + (" + F(1, "2 · 3") + " − " + F(1, "3 · 4") + ") + … + (" + F(1, "98 · 99") + " − " + F(1, "99 · 100") + ").",
+        "Các số hạng ở giữa triệt tiêu: 2A = " + F(1, "1 · 2") + " − " + F(1, "99 · 100") + " = " + F(1, 2) + " − " + F(1, 9900) + " = " + F(4950, 9900) + " − " + F(1, 9900) + " = " + F(4949, 9900) + ".",
+        "Vậy A = " + F(4949, 9900) + " : 2 = " + F(4949, 19800) + "."
       ],
-      dap: "A = " + F(98, 99) + "; B = " + F(49, 99) + "."
+      dap: "A = " + F(4949, 19800) + ".",
+      loi: "Viết " + F(1, "n · (n + 1) · (n + 2)") + " = " + F(1, "n") + " − " + F(1, "n + 2") + " (sai); hoặc quên chia 2 ở bước cuối."
     },
     {
       id: "hsg2", lv: "HSG",
-      de: "Tìm số tự nhiên x (x ≥ 1), biết: " + F(1, "1 · 2") + " + " + F(1, "2 · 3") + " + " + F(1, "3 · 4") + " + … + " + F(1, "x · (x + 1)") + " = " + F(49, 50) + ".",
-      goi: F(1, "n · (n + 1)") + " = " + F(1, "n") + " − " + F(1, "n + 1") + ". Rút gọn vế trái trước.",
-      hieu: { gt: "Tổng các phân số " + F(1, "n · (n + 1)") + " với n từ 1 đến x bằng " + F(49, 50) + ".", kl: "Tìm x.",
+      de: "Chứng minh rằng: 1 − " + F(1, 2) + " + " + F(1, 3) + " − " + F(1, 4) + " + … + " + F(1, 99) + " − " + F(1, 100) + " = " + F(1, 51) + " + " + F(1, 52) + " + … + " + F(1, 100) + ".",
+      goi: "Viết mỗi dấu trừ thành cộng rồi trừ hai lần: vế trái = (1 + " + F(1, 2) + " + … + " + F(1, 100) + ") − 2 · (" + F(1, 2) + " + " + F(1, 4) + " + … + " + F(1, 100) + ").",
+      hieu: { gt: "Vế trái gồm 100 phân số " + F(1, "k") + " (k = 1, …, 100), dấu cộng ở k lẻ, dấu trừ ở k chẵn.", kl: "Vế trái = " + F(1, 51) + " + " + F(1, 52) + " + … + " + F(1, 100) + ".",
         hoi: [
-          ["x ở đâu trong đẳng thức? Có tìm được ngay không?", "x nằm ở số hạng cuối, số số hạng cũng phụ thuộc x. Phải rút gọn vế trái thành một biểu thức đơn giản chứa x."],
-          ["Thử x = 1, x = 2: vế trái bằng bao nhiêu?", "x = 1: " + F(1, 2) + ". x = 2: " + F(1, 2) + " + " + F(1, 6) + " = " + F(2, 3) + ". Có vẻ vế trái bằng " + F("x", "x + 1") + "."]] },
+          ["Có tính được riêng từng vế không?", "Không: mẫu chung quá lớn. Phải biến đổi vế trái thành vế phải."],
+          ["Kiểm tra với ít số hạng: 1 − " + F(1, 2) + " + " + F(1, 3) + " − " + F(1, 4) + " có bằng " + F(1, 3) + " + " + F(1, 4) + " không?", "1 − " + F(1, 2) + " + " + F(1, 3) + " − " + F(1, 4) + " = " + F(7, 12) + " và " + F(1, 3) + " + " + F(1, 4) + " = " + F(7, 12) + ". Bằng nhau."]] },
       nguoc: [
-      { ten: "Cả bài", dich: "Tìm x",
-        sd: [["x + 1 = 50", [4]], [F(1, "x + 1") + " = " + F(1, 50), [3]], ["Vế trái = 1 − " + F(1, "x + 1"), [1, 2]]],
-        gt: "Tổng có quy luật, bằng " + F(49, 50),
-        ket: "1 − " + F(1, "x + 1") + " = " + F(49, 50) + " nên " + F(1, "x + 1") + " = " + F(1, 50) + ", x + 1 = 50, x = 49.",
+      { ten: "Chứng minh", dich: "Vế trái = " + F(1, 51) + " + … + " + F(1, 100),
+        sd: [["Vế trái = (1 + " + F(1, 2) + " + … + " + F(1, 100) + ") − (1 + " + F(1, 2) + " + … + " + F(1, 50) + ")", [2, 3]], ["Vế trái = (1 + " + F(1, 2) + " + … + " + F(1, 100) + ") − 2 · (" + F(1, 2) + " + " + F(1, 4) + " + … + " + F(1, 100) + ")", [1]]],
+        gt: "Tổng có dấu xen kẽ",
+        ket: "Hiệu còn lại đúng " + F(1, 51) + " + " + F(1, 52) + " + … + " + F(1, 100) + ".",
         buoc: [
-        { hoi: "Rút gọn vế trái bằng cách nào?",
-          nho: F(1, "n") + " − " + F(1, "n + 1") + " = " + F(1, "n · (n + 1)") + ".",
+        { hoi: "Vế phải chỉ có dấu cộng. Làm sao để vế trái cũng chỉ còn dấu cộng?",
+          nho: "a − b = (a + b) − 2b.",
           chon: [
-            ["Tách mỗi số hạng thành hiệu rồi triệt tiêu: vế trái = 1 − " + F(1, "x + 1"), true, "Đúng. Giống bài tính tổng ở câu trên."],
-            ["Quy đồng mẫu tất cả các số hạng", false, "Không biết có bao nhiêu số hạng (phụ thuộc x), không quy đồng được."]],
-          dat: "Vế trái = 1 − " + F(1, "x + 1") },
-        { hoi: "1 − " + F(1, "x + 1") + " = " + F(49, 50) + ". Tìm " + F(1, "x + 1") + " thế nào?",
-          nho: "Số trừ = số bị trừ − hiệu.",
+            ["Thêm và bớt các phân số có mẫu chẵn: vế trái = (1 + " + F(1, 2) + " + … + " + F(1, 100) + ") − 2 · (" + F(1, 2) + " + " + F(1, 4) + " + … + " + F(1, 100) + ")", true, "Đúng. Bây giờ chỉ còn hai tổng toàn dấu cộng."],
+            ["Nhóm từng cặp: (1 − " + F(1, 2) + ") + (" + F(1, 3) + " − " + F(1, 4) + ") + …", false, "Được 50 phân số " + F(1, "k · (k + 1)") + " với k lẻ, nhưng không đưa về vế phải được."]],
+          dat: "Vế trái = (1 + … + " + F(1, 100) + ") − 2 · (" + F(1, 2) + " + " + F(1, 4) + " + … + " + F(1, 100) + ")" },
+        { hoi: "2 · (" + F(1, 2) + " + " + F(1, 4) + " + … + " + F(1, 100) + ") bằng tổng nào?",
+          nho: "2 · " + F(1, "2k") + " = " + F(1, "k") + ".",
           chon: [
-            [F(1, "x + 1") + " = 1 − " + F(49, 50) + " = " + F(1, 50), true, "Đúng. Hai phân số cùng tử 1 bằng nhau thì mẫu bằng nhau: x + 1 = 50."],
-            [F(1, "x + 1") + " = " + F(49, 50) + " − 1", false, "Đó là số đối của kết quả đúng: x đứng ở số trừ."]],
-          dat: F(1, "x + 1") + " = " + F(1, 50) }] }],
+            ["1 + " + F(1, 2) + " + " + F(1, 3) + " + … + " + F(1, 50), true, "Đúng. Trừ đi thì còn " + F(1, 51) + " + … + " + F(1, 100) + "."],
+            [F(1, 4) + " + " + F(1, 8) + " + … + " + F(1, 200), false, "Nhân với 2 thì mẫu chia đôi chứ không gấp đôi."]],
+          dat: "2 · (" + F(1, 2) + " + … + " + F(1, 100) + ") = 1 + " + F(1, 2) + " + … + " + F(1, 50) }] }],
       nhin: [
-        ["Thử lại với x = 49.", "Vế trái = 1 − " + F(1, 50) + " = " + F(49, 50) + ". Đúng."],
-        ["Nếu vế phải là " + F(2023, 2024) + " thì x bằng bao nhiêu?", "1 − " + F(1, "x + 1") + " = " + F(2023, 2024) + ", x + 1 = 2024, x = 2023."]],
+        ["Kiểm tra với 6 số hạng: 1 − " + F(1, 2) + " + " + F(1, 3) + " − " + F(1, 4) + " + " + F(1, 5) + " − " + F(1, 6) + " = " + F(1, 4) + " + " + F(1, 5) + " + " + F(1, 6) + "?", "Vế trái = " + F(37, 60) + ", vế phải = " + F("15 + 12 + 10", 60) + " = " + F(37, 60) + ". Đúng."],
+        ["Suy ra vế trái lớn hơn hay nhỏ hơn " + F(1, 2) + "?", "Vế phải có 50 phân số, mỗi phân số lớn hơn hoặc bằng " + F(1, 100) + " (chỉ " + F(1, 100) + " bằng), nên tổng lớn hơn 50 · " + F(1, 100) + " = " + F(1, 2) + "."]],
       steps: [
-        "Với n là số tự nhiên khác 0: " + F(1, "n · (n + 1)") + " = " + F(1, "n") + " − " + F(1, "n + 1") + ".",
-        "Vế trái = (1 − " + F(1, 2) + ") + (" + F(1, 2) + " − " + F(1, 3) + ") + … + (" + F(1, "x") + " − " + F(1, "x + 1") + ") = 1 − " + F(1, "x + 1") + ".",
-        "Do đó 1 − " + F(1, "x + 1") + " = " + F(49, 50) + ", suy ra " + F(1, "x + 1") + " = 1 − " + F(49, 50) + " = " + F(1, 50) + ".",
-        "Vậy x + 1 = 50, x = 49."
+        "Vế trái = (1 + " + F(1, 2) + " + " + F(1, 3) + " + … + " + F(1, 100) + ") − 2 · (" + F(1, 2) + " + " + F(1, 4) + " + " + F(1, 6) + " + … + " + F(1, 100) + ").",
+        "Mà 2 · (" + F(1, 2) + " + " + F(1, 4) + " + " + F(1, 6) + " + … + " + F(1, 100) + ") = 1 + " + F(1, 2) + " + " + F(1, 3) + " + … + " + F(1, 50) + ".",
+        "Do đó vế trái = (1 + " + F(1, 2) + " + … + " + F(1, 50) + " + " + F(1, 51) + " + … + " + F(1, 100) + ") − (1 + " + F(1, 2) + " + … + " + F(1, 50) + ") = " + F(1, 51) + " + " + F(1, 52) + " + … + " + F(1, 100) + ". Đó là điều phải chứng minh."
       ],
-      dap: "x = 49.",
-      mix: [1]
+      dap: "Đã chứng minh.",
+      loi: "Nhân 2 với " + F(1, "2k") + " ra " + F(1, "4k") + "; hoặc chỉ thử vài số hạng rồi kết luận."
     },
     {
       id: "hsg3", lv: "HSG",
-      de: "Tính M = (" + F(1, 2) + " − 1) · (" + F(1, 3) + " − 1) · (" + F(1, 4) + " − 1) · … · (" + F(1, 100) + " − 1).",
-      goi: "Tính từng thừa số: " + F(1, "k") + " − 1 = " + F("−(k − 1)", "k") + ". Đếm số thừa số âm để biết dấu.",
-      hieu: { gt: "M là tích các thừa số (" + F(1, "k") + " − 1) với k từ 2 đến 100.", kl: "Tính M.",
+      de: "Cho ba số hữu tỉ a, b, c khác 0 thoả mãn a + b + c = 0. Tính giá trị của biểu thức P = (1 + " + F("a", "b") + ") · (1 + " + F("b", "c") + ") · (1 + " + F("c", "a") + ").",
+      goi: "Viết mỗi ngoặc thành một phân số: 1 + " + F("a", "b") + " = " + F("a + b", "b") + ", rồi dùng a + b = −c.",
+      hieu: { gt: "a, b, c ≠ 0, a + b + c = 0.", kl: "Tính P.",
         hoi: [
-          ["M có bao nhiêu thừa số? Mỗi thừa số âm hay dương?", "k chạy từ 2 đến 100: có 99 thừa số. Mỗi thừa số " + F(1, "k") + " − 1 đều âm (vì " + F(1, "k") + " < 1)."],
-          ["Tính ba thừa số đầu.", F(1, 2) + " − 1 = " + F("−1", 2) + "; " + F(1, 3) + " − 1 = " + F("−2", 3) + "; " + F(1, 4) + " − 1 = " + F("−3", 4) + "."]] },
+          ["Thử với a = 1, b = 2, c = −3. P bằng bao nhiêu?", "P = (1 + " + F(1, 2) + ") · (1 + " + F(2, "−3") + ") · (1 + " + F("−3", 1) + ") = " + F(3, 2) + " · " + F(1, 3) + " · (−2) = −1."],
+          ["Từ a + b + c = 0 suy ra a + b bằng gì?", "(a + b) + c = 0 nên a + b là số đối của c: a + b = −c; tương tự b + c = −a, c + a = −b."]] },
       nguoc: [
-      { ten: "Cả bài", dich: "Tính M",
-        sd: [["Phần không dấu: " + F(1, 2) + " · " + F(2, 3) + " · … · " + F(99, 100) + " = " + F(1, 100), [3]], ["Dấu: 99 thừa số âm, tích âm", [2]], ["Mỗi thừa số = " + F("−(k − 1)", "k"), [1]]],
-        gt: "Tích 99 thừa số có quy luật",
-        ket: "M = −(" + F(1, 2) + " · " + F(2, 3) + " · " + F(3, 4) + " · … · " + F(99, 100) + ") = −" + F(1, 100) + ".",
+      { ten: "Tính P", dich: "Tính P",
+        sd: [["P = " + F("−c", "b") + " · " + F("−a", "c") + " · " + F("−b", "a"), [2]], ["P = " + F("a + b", "b") + " · " + F("b + c", "c") + " · " + F("c + a", "a"), [1]]],
+        gt: "a + b = −c, b + c = −a, c + a = −b",
+        ket: "P = " + F("(−c) · (−a) · (−b)", "b · c · a") + " = −1.",
         buoc: [
-        { hoi: "Mỗi thừa số viết gọn lại thế nào?",
-          nho: F(1, "k") + " − 1 = " + F(1, "k") + " − " + F("k", "k") + ".",
+        { hoi: "P có ba ngoặc dạng 1 + phân số. Biến đổi mỗi ngoặc thế nào để dùng được a + b + c = 0?",
+          nho: "1 + " + F("a", "b") + " = " + F("b", "b") + " + " + F("a", "b") + ".",
           chon: [
-            [F(1, "k") + " − 1 = " + F("1 − k", "k") + ", tức là −" + F("k − 1", "k"), true, "Đúng: " + F("−1", 2) + ", " + F("−2", 3) + ", …, " + F("−99", 100) + "."],
-            [F(1, "k") + " − 1 = " + F(0, "k") + " = 0", false, "Không trừ tử cho 1 rồi giữ mẫu: 1 = " + F("k", "k") + "."]],
-          dat: "Thừa số thứ k là −" + F("k − 1", "k") },
-        { hoi: "Tích có 99 thừa số âm. Dấu của M là gì?",
-          nho: "Tích có số lẻ thừa số âm thì âm, số chẵn thừa số âm thì dương.",
+            ["Quy đồng trong từng ngoặc: 1 + " + F("a", "b") + " = " + F("a + b", "b") + ", tương tự với hai ngoặc kia", true, "Đúng. Tử của mỗi ngoặc là tổng của hai trong ba số."],
+            ["Nhân phá ngoặc, được 8 số hạng", false, "Làm được nhưng rất dài và dễ sai."]],
+          dat: "P = " + F("a + b", "b") + " · " + F("b + c", "c") + " · " + F("c + a", "a") },
+        { hoi: "Thay các tổng bằng gì?",
+          nho: "Hai số có tổng bằng 0 là hai số đối nhau.",
           chon: [
-            ["99 là số lẻ nên M âm", true, "Đúng. Còn lại tính phần không dấu."],
-            ["Tích các số âm luôn dương", false, "Chỉ khi số thừa số âm là chẵn."]],
-          dat: "M âm" },
-        { hoi: "Tính " + F(1, 2) + " · " + F(2, 3) + " · " + F(3, 4) + " · … · " + F(99, 100) + " nhanh thế nào?",
-          nho: "Nhân tử với tử, mẫu với mẫu; rút gọn các thừa số giống nhau ở tử và mẫu.",
-          chon: [
-            ["Tử 2 của phân số thứ hai rút gọn với mẫu 2 của phân số thứ nhất, …: chỉ còn " + F(1, 100), true, "Đúng. Tử là 1 · 2 · … · 99, mẫu là 2 · 3 · … · 100."],
-            ["Nhân lần lượt từng phân số", false, "98 phép nhân, quá dài. Hãy nhìn tử và mẫu."]],
-          dat: "Phần không dấu bằng " + F(1, 100) }] }],
+            ["a + b = −c, b + c = −a, c + a = −b; P = " + F("−c", "b") + " · " + F("−a", "c") + " · " + F("−b", "a"), true, "Đúng. Tích có ba thừa số âm ở tử, a · b · c rút gọn với b · c · a, P = −1."],
+            ["a + b = c", false, "(a + b) + c = 0 nên a + b là số đối của c: a + b = −c."]],
+          dat: "a + b = −c, b + c = −a, c + a = −b" }] }],
       nhin: [
-        ["Kiểm tra với tích ngắn: (" + F(1, 2) + " − 1) · (" + F(1, 3) + " − 1).", F("−1", 2) + " · " + F("−2", 3) + " = " + F(1, 3) + ": hai thừa số âm, tích dương, phần không dấu " + F(1, 3) + ". Khớp quy luật."],
-        ["Nếu tích dừng ở (" + F(1, 101) + " − 1) thì kết quả là gì?", "100 thừa số âm nên tích dương: " + F(1, 101) + "."]],
+        ["Thử lại với a = 2, b = −5, c = 3.", "P = (1 − " + F(2, 5) + ") · (1 − " + F(5, 3) + ") · (1 + " + F(3, 2) + ") = " + F(3, 5) + " · " + F("−2", 3) + " · " + F(5, 2) + " = −1. Đúng."],
+        ["Bài tương tự: với a, b, c như trên, tính Q = " + F("a + b", "c") + " + " + F("b + c", "a") + " + " + F("c + a", "b") + ".", "Q = " + F("−c", "c") + " + " + F("−a", "a") + " + " + F("−b", "b") + " = (−1) + (−1) + (−1) = −3."]],
       steps: [
-        "Với k = 2, 3, …, 100: " + F(1, "k") + " − 1 = " + F("1 − k", "k") + " = −" + F("k − 1", "k") + ".",
-        "M = (" + F(1, 2) + " − 1) · (" + F(1, 3) + " − 1) · … · (" + F(1, 100) + " − 1) = (" + F("−1", 2) + ") · (" + F("−2", 3) + ") · (" + F("−3", 4) + ") · … · (" + F("−99", 100) + "). Có 99 thừa số, đều âm; 99 là số lẻ nên M là số âm.",
-        "M = −" + F("1 · 2 · 3 · … · 99", "2 · 3 · 4 · … · 100") + " = −" + F(1, 100) + "."
+        "P = " + F("b + a", "b") + " · " + F("c + b", "c") + " · " + F("a + c", "a") + ".",
+        "Vì (a + b) + c = 0 nên a + b là số đối của c: a + b = −c; tương tự b + c = −a, c + a = −b. Do đó P = " + F("−c", "b") + " · " + F("−a", "c") + " · " + F("−b", "a") + " = " + F("−(a · b · c)", "a · b · c") + " = −1."
       ],
-      dap: "M = " + F("−1", 100) + ".",
-      loi: "Quên xét dấu, ra M = " + F(1, 100) + "."
+      dap: "P = −1.",
+      loi: "Viết a + b = c (quên rằng a + b là số đối của c); hoặc chỉ thử một bộ số rồi kết luận."
     }
   ];
 

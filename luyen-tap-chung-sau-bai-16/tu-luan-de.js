@@ -322,11 +322,11 @@
   ];
 
   /* ================= Chuẩn hóa theo khuôn Bài 16 (27/11/2026) =================
-     Bài ôn tập: chia theo mức (Nhận biết, Thông hiểu, Vận dụng), không nêu dạng trước để học sinh tự nhận dạng.
+     Chia theo dạng như Bài 16 (thầy chốt lại 27/11/2026), khai báo ở TL_DATA.dang.
      - pt: phân tích ngược cho bài Thông hiểu, Vận dụng (mỗi câu a, b, c một sơ đồ; số trong [] là bước của lời giải).
-     - hieu, nguoc, nhin: giải theo 4 bước cho bài mẫu Vận dụng (vd2, vd4) và mọi bài Dành cho HSG.
+     - hieu, nguoc, nhin: giải theo 4 bước cho bài mẫu mỗi dạng (vd2, vd3, vd4) và mọi bài Dành cho HSG.
      - phu: điểm, đoạn kẻ thêm; hình của đề (lúc đầu phân tích) không vẽ chúng.
-     - TLMUC: bài tự luyện cuối mỗi mức. */
+     - Bài tự luyện: cuối mỗi dạng (dang[].tl). */
   var THEM = {
     th1: {
       pt: [
@@ -400,9 +400,54 @@
         ["Từ câu a em còn suy ra được điều gì?", "CD = BE (hai cạnh tương ứng)."]]
     },
     vd3: {
-      pt: [
-        { ten: "Câu a", dich: "AB = CE và AB // CE", sd: [["AB = EC và ∠MAB = ∠MEC (so le trong)", [2]], ["ΔMAB = ΔMEC (c.g.c): MA = ME, ∠AMB = ∠EMC (đối đỉnh), MB = MC", [1]]], gt: "M là trung điểm của BC, ME = MA" },
-        { ten: "Câu b", dich: "AM ⊥ BC và tam giác ACE cân", sd: [["∠AMB = ∠AMC mà hai góc kề bù, nên ∠AMB = 90°; CE = CA", [4, 5]], ["ΔABM = ΔACM (c.c.c); CE = AB (câu a) và AB = AC", [3, 5]]], gt: "AB = AC, MB = MC và kết quả câu a" }]
+      /* Bài mẫu dạng 2: giải theo 4 bước. */
+      hieu: { gt: "ΔABC; M là trung điểm của BC; E nằm trên tia đối của tia MA, ME = MA.", kl: "a) AB = CE và AB // CE. b) Nếu AB = AC thì AM ⊥ BC và tam giác ACE cân.",
+        hoi: [
+          ["Điểm M là trung điểm của những đoạn thẳng nào?", "Của BC (đề cho) và của AE (vì E nằm trên tia đối của tia MA và ME = MA)."],
+          ["Hai đoạn AB và CE nằm trong hai tam giác nào có chung đỉnh M?", "Tam giác MAB và tam giác MEC."]] },
+      nguoc: [
+        { ten: "Câu a", dich: "AB = CE và AB // CE",
+          sd: [["AB = EC và ∠MAB = ∠MEC (so le trong)", [2]], ["ΔMAB = ΔMEC (c.g.c): MA = ME, ∠AMB = ∠EMC (đối đỉnh), MB = MC", [1]]],
+          gt: "M là trung điểm của BC, ME = MA",
+          ket: "ΔMAB = ΔMEC nên AB = EC; ∠MAB = ∠MEC là hai góc so le trong nên AB // CE.",
+          buoc: [
+            { hoi: "AB và CE là cạnh của hai tam giác nào có thể bằng nhau?",
+              nho: "Hai tam giác bằng nhau thì các cạnh tương ứng, các góc tương ứng bằng nhau.",
+              chon: [
+                ["ΔMAB và ΔMEC: đã có MA = ME, MB = MC", true, "Đúng. Còn cần góc xen giữa."],
+                ["ΔABC và ΔECB", false, "Chưa biết AC = EB, nên chưa đủ yếu tố."]],
+              dat: "ΔMAB = ΔMEC" },
+            { hoi: "Góc xen giữa hai cặp cạnh đó là góc nào? Vì sao chúng bằng nhau?",
+              nho: "Hai góc đối đỉnh thì bằng nhau.",
+              chon: [
+                ["∠AMB = ∠EMC, hai góc đối đỉnh", true, "Đúng: ΔMAB = ΔMEC (c.g.c)."],
+                ["∠ABM = ∠ECM", false, "Đó là điều chỉ suy ra được sau khi hai tam giác bằng nhau."]],
+              dat: "∠AMB = ∠EMC (đối đỉnh)" },
+            { hoi: "Muốn AB // CE, cần cặp góc nào bằng nhau?",
+              nho: "Hai đường thẳng tạo với một cát tuyến hai góc so le trong bằng nhau thì song song.",
+              chon: [
+                ["∠MAB = ∠MEC: so le trong với cát tuyến AE, là hai góc tương ứng của ΔMAB = ΔMEC", true, "Đúng."],
+                ["∠ABC = ∠ACB", false, "Hai góc này không ở vị trí so le trong đối với hai đường thẳng AB, CE."]],
+              dat: "∠MAB = ∠MEC (so le trong)" }] },
+        { ten: "Câu b", dich: "AM ⊥ BC và tam giác ACE cân",
+          sd: [["∠AMB = ∠AMC mà hai góc kề bù, nên ∠AMB = 90°; CE = CA", [4, 5]], ["ΔABM = ΔACM (c.c.c); CE = AB (câu a) và AB = AC", [3, 5]]],
+          gt: "AB = AC, MB = MC và kết quả câu a",
+          ket: "AM ⊥ BC; CE = AB = AC nên tam giác ACE cân tại C.",
+          buoc: [
+            { hoi: "Muốn AM ⊥ BC, em chỉ ra góc nào bằng 90°? Bằng cách nào?",
+              nho: "Hai góc kề bù mà bằng nhau thì mỗi góc bằng 90°.",
+              chon: [
+                ["∠AMB = ∠AMC: hai góc kề bù bằng nhau nên mỗi góc 90°; lấy từ ΔABM = ΔACM (c.c.c)", true, "Đúng."],
+                ["∠BAM = 90°", false, "∠BAM là góc ở đỉnh A, không liên quan đến AM ⊥ BC."]],
+              dat: "ΔABM = ΔACM (c.c.c)" },
+            { hoi: "Tam giác ACE cân tại đỉnh nào? Hai cạnh nào bằng nhau?",
+              chon: [
+                ["Cân tại C: CE = AB (câu a) và AB = AC, nên CE = CA", true, "Đúng."],
+                ["Cân tại A: AC = AE", false, "AE = 2 · AM, chưa có lí do để bằng AC."]],
+              dat: "CE = CA" }] }],
+      nhin: [
+        ["Cách khác cho AB // CE: dùng cặp góc so le trong ∠ABM và ∠ECM.", "Từ ΔMAB = ΔMEC: ∠ABM = ∠ECM, hai góc so le trong đối với cát tuyến BC, nên AB // CE."],
+        ["Từ câu a, em có chứng minh được AC = BE và AC // BE không?", "Có: tương tự, ΔMAC = ΔMEB (c.g.c)."]]
     },
     vd4: {
       /* Bài mẫu Vận dụng: giải theo 4 bước. */
@@ -714,25 +759,46 @@
     if (t.phu && q.fig) { var f = q.fig; q.fig = function (goc) { PHU = goc ? t.phu : null; try { return f(); } finally { PHU = null; } }; }
   });
 
-  /* Bài tập tự luyện cuối mỗi mức: [đề, gợi ý, đáp số]. */
-  var TLMUC = {
-    NB: [
-      ["Cho tam giác ABC cân tại A có ∠B = 65°. Tính số đo ∠C và ∠A.", "Hai góc ở đáy bằng nhau.", "∠C = 65°, ∠A = 50°."],
-      ["Cho ΔMNP = ΔHIK, biết MN = 4 cm, NP = 5 cm và ∠K = 35°. Tính HI, IK và ∠P.", "Các cặp đỉnh tương ứng: M ↔ H, N ↔ I, P ↔ K.", "HI = 4 cm, IK = 5 cm, ∠P = 35°."]],
-    TH: [
-      ["Cho tam giác ABC cân tại A có ∠BAC = 50°, M là trung điểm của BC. Tính ∠BAM và ∠AMB.", "ΔABM = ΔACM (c.c.c).", "∠BAM = 25°, ∠AMB = 90°."],
-      ["Cho đoạn thẳng AB = 6 cm. Điểm M nằm trên đường trung trực của AB và MA = 6 cm. Tam giác MAB là tam giác gì? Tính ∠MAB.", "M nằm trên đường trung trực của AB thì MA = MB.", "Tam giác MAB đều; ∠MAB = 60°."]],
-    VD: [
-      ["Cho tam giác ABC cân tại A có ∠A = 30°. Trên cạnh AC lấy điểm D sao cho BD = BC. Tính ∠ABD.", "Tam giác BDC cân tại B nên ∠BDC = ∠C.", "∠ABD = 45°."],
-      ["Cho tam giác ABC vuông tại A có ∠C = 30°. Trên cạnh BC lấy điểm M sao cho ∠BAM = 60°. Chứng minh M là trung điểm của BC.", "Tam giác ABM đều; tam giác AMC cân tại M.", "MB = MA = MC nên M là trung điểm của BC."],
-      ["Cho tam giác ABC cân tại A có ∠A = 120°. Đường trung trực của AB cắt BC tại D. Tính ∠DAC.", "DA = DB nên ∠DAB = ∠B.", "∠DAC = 90°."]]
-  };
 
   window.TL_DATA = {
     bai: "lc7",
     ten: "Luyện tập chung (sau Bài 16)",
     items: ITEMS,
-    tlMuc: TLMUC,
+    /* Chia theo dạng (thầy chốt lại 27/11/2026: bài Luyện tập chung, Bài tập cuối chương cũng chia theo dạng như Bài 16).
+       Mỗi dạng có phương pháp giải, bài xếp từ dễ đến khó, một bài mẫu giải theo 4 bước, bài tự luyện [đề, gợi ý, đáp số].
+       Bài HSG không thuộc dạng nào: để riêng ở mục Dành cho HSG. */
+    dang: [
+      { ten: "Tính số đo góc, độ dài đoạn thẳng",
+        pp: ["Tổng ba góc của một tam giác bằng 180°; trong tam giác vuông, hai góc nhọn có tổng 90°.",
+             "Hai tam giác bằng nhau: viết đúng thứ tự các đỉnh tương ứng rồi đọc ra cạnh, góc tương ứng.",
+             "Tam giác cân: hai góc ở đáy bằng nhau, góc ở đáy = (180° − góc ở đỉnh) : 2; tam giác đều mỗi góc 60°.",
+             "Dùng thêm hai góc kề bù, hai góc đối đỉnh, tia nằm giữa hai tia để ghép hoặc tách góc."],
+        ids: ["nb1", "nb2", "th2", "vd2"],
+        tl: [
+          ["Cho tam giác ABC cân tại A có ∠B = 70°. Tính số đo ∠C và ∠A.", "Hai góc ở đáy bằng nhau.", "∠C = 70°, ∠A = 40°."],
+          ["Cho ΔMNP = ΔHIK, biết MN = 4 cm, NP = 5 cm và ∠K = 35°. Tính HI, IK và ∠P.", "Các cặp đỉnh tương ứng: M ↔ H, N ↔ I, P ↔ K.", "HI = 4 cm, IK = 5 cm, ∠P = 35°."],
+          ["Cho tam giác ABC cân tại A có ∠A = 30°. Trên cạnh AC lấy điểm D sao cho BD = BC. Tính ∠ABD.", "Tam giác BDC cân tại B nên ∠BDC = ∠C.", "∠ABD = 45°."]] },
+      { ten: "Chứng minh hai tam giác bằng nhau, suy ra cạnh, góc bằng nhau, hai đường thẳng song song",
+        pp: ["Chọn hai tam giác chứa hai cạnh (hai góc) cần chứng minh bằng nhau.",
+             "Tìm đủ ba yếu tố theo một trường hợp: c.c.c, c.g.c, g.c.g; tam giác vuông thì thêm các trường hợp cạnh huyền – góc nhọn, cạnh huyền – cạnh góc vuông, hai cạnh góc vuông.",
+             "Yếu tố hay dùng: cạnh chung, góc chung, hai góc đối đỉnh, trung điểm, tia phân giác.",
+             "Muốn chứng minh song song: chỉ ra hai góc so le trong (hoặc đồng vị) bằng nhau, thường là hai góc tương ứng của hai tam giác bằng nhau."],
+        ids: ["nb3", "th3", "vd3", "vd1"],
+        tl: [
+          ["Cho tam giác ABC cân tại A có ∠BAC = 50°, M là trung điểm của BC. Tính ∠BAM và ∠AMB.", "ΔABM = ΔACM (c.c.c).", "∠BAM = 25°, ∠AMB = 90°."],
+          ["Cho tam giác ABC có AB = AC. Tia phân giác của góc A cắt BC tại D. Chứng minh DB = DC và AD ⊥ BC.", "So sánh ΔABD và ΔACD.", "ΔABD = ΔACD (c.g.c) nên DB = DC và ∠ADB = ∠ADC = 90°."]] },
+      { ten: "Tam giác cân và đường trung trực của đoạn thẳng",
+        pp: ["Chứng minh tam giác cân: chỉ ra hai cạnh bằng nhau hoặc hai góc bằng nhau; nói rõ cân tại đỉnh nào.",
+             "Điểm nằm trên đường trung trực của một đoạn thẳng thì cách đều hai đầu mút; ngược lại, điểm cách đều hai đầu mút thì nằm trên đường trung trực.",
+             "Chứng minh một đường thẳng là đường trung trực của AB: chỉ ra hai điểm phân biệt của nó cùng cách đều A và B, hoặc nó vuông góc với AB tại trung điểm.",
+             "Tam giác cân có một góc 60° là tam giác đều."],
+        ids: ["th1", "vd5", "vd4"],
+        tl: [
+          ["Cho đoạn thẳng AB = 6 cm. Điểm M nằm trên đường trung trực của AB và MA = 6 cm. Tam giác MAB là tam giác gì? Tính ∠MAB.", "M nằm trên đường trung trực của AB thì MA = MB.", "Tam giác MAB đều; ∠MAB = 60°."],
+          ["Cho tam giác ABC vuông tại A có ∠C = 30°. Trên cạnh BC lấy điểm M sao cho ∠BAM = 60°. Chứng minh M là trung điểm của BC.", "Tam giác ABM đều; tam giác AMC cân tại M.", "MB = MA = MC nên M là trung điểm của BC."],
+          ["Cho tam giác ABC cân tại A có ∠A = 120°. Đường trung trực của AB cắt BC tại D. Tính ∠DAC.", "DA = DB nên ∠DAB = ∠B.", "∠DAC = 90°."]] }
+    ],
+    mau: { ids: ["vd2", "vd3", "vd4"], theoPhan: { bn: "vd3", tv: "vd3", cn: "vd2", tt: "vd4" } },
     _helpers: { foot: foot, cut: cut, add: add, pol: pol, iso: iso }
   };
 })();
